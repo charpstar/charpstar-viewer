@@ -85,6 +85,7 @@ const ModelViewer = ({ onModelLoaded }) => {
             src={modelSrc}
             alt="A 3D model"
             id="model-viewer"
+            disable-pan
             style={{ width: '100%', height: '100%' }}
             camera-controls
             auto-rotate
