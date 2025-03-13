@@ -145,10 +145,9 @@ export default function Home() {
       <main className="h-[96.5%] flex">
         {/* Column 1: Model Structure (15% width) */}
         <aside className="w-[15%] bg-[#FAFAFA] border-r border-gray-200 overflow-y-auto flex flex-col">
-          <h2 className="text-[#111827] font-medium text-sm px-4 py-3">Model Structure</h2>
           
           {/* Render the model structure */}
-          <div className="flex-grow overflow-y-auto">
+          <div className="flex-grow overflow-y-auto py-4">
             {modelStructure ? (
               <StructureTree 
                 node={modelStructure} 
@@ -170,7 +169,6 @@ export default function Home() {
         
         {/* Column 3: Properties & Materials (15% width) */}
         <aside className="w-[15%] bg-[#FAFAFA] p-4 border-l border-gray-200">
-          <h2 className="text-[#111827] font-medium text-sm mb-2">Properties & Materials</h2>
           <RightPanel 
             selectedNode={selectedNode} 
             modelViewerRef={modelViewerRef}
