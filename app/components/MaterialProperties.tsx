@@ -40,6 +40,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
 }) => {
   const [material, setMaterial] = useState<Material | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [isMeshPhysicalMaterial, setIsMeshPhysicalMaterial] = useState(false);
 
   // Convert color object to hex string
   const rgbToHex = (color: { r: number; g: number; b: number }) => {
@@ -242,6 +243,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   useEffect(() => {
     if (!selectedNode || selectedNode.type !== 'Mesh' || !modelViewerRef?.current) {
       setMaterial(null);
+      setIsMeshPhysicalMaterial(false);
       return;
     }
     
@@ -250,6 +252,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
       
       if (object && object.material) {
         console.log('Found material for mesh:', object.material);
+        
+        // Check if the material is MeshPhysicalMaterial
+        setIsMeshPhysicalMaterial(object.material.type === 'MeshPhysicalMaterial');
         
         const materialData: Material = {
           name: object.material.name || 'Material',
@@ -291,10 +296,12 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
       } else {
         console.log('No material found for mesh');
         setMaterial(null);
+        setIsMeshPhysicalMaterial(false);
       }
     } catch (error) {
       console.error('Error accessing material:', error);
       setMaterial(null);
+      setIsMeshPhysicalMaterial(false);
     }
   }, [selectedNode, modelViewerRef]);
 
@@ -549,78 +556,85 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         
         {advancedOpen && (
           <div className="mt-4 space-y-4">
-            {/* Sheen section */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Sheen Properties</h3>
-              
-              {/* Sheen Roughness */}
-              <div className="flex items-center justify-between">
-                <label className="text-sm">Sheen Roughness</label>
-                <div className="flex items-center">
-                  <span className="mr-2 text-xs w-8 text-right">
-                    {material.sheenRoughness !== undefined ? `${Math.round(material.sheenRoughness * 100)}%` : '0%'}
-                  </span>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="1" 
-                    step="0.01"
-                    value={material.sheenRoughness || 0}
-                    onChange={(e) => handlePropertyChange('sheenRoughness', parseFloat(e.target.value))}
-                    className="w-24 h-1"
-                  />
+            {/* Sheen section - only show for MeshPhysicalMaterial */}
+            {isMeshPhysicalMaterial ? (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium">Sheen Properties</h3>
+                
+                {/* Sheen Roughness */}
+                <div className="flex items-center justify-between">
+                  <label className="text-sm">Sheen Roughness</label>
+                  <div className="flex items-center">
+                    <span className="mr-2 text-xs w-8 text-right">
+                      {material.sheenRoughness !== undefined ? `${Math.round(material.sheenRoughness * 100)}%` : '0%'}
+                    </span>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1" 
+                      step="0.01"
+                      value={material.sheenRoughness || 0}
+                      onChange={(e) => handlePropertyChange('sheenRoughness', parseFloat(e.target.value))}
+                      className="w-24 h-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Sheen Color */}
+                <div className="flex items-center justify-between">
+                  <label className="text-sm">Sheen Color</label>
+                  <div className="flex items-center">
+                    <input 
+                      type="color" 
+                      value={getColorHex(material.sheenColor)}
+                      onChange={(e) => handleColorChange(e, 'sheenColor')}
+                      className="w-6 h-6 p-0 border-0"
+                    />
+                  </div>
+                </div>
+
+                {/* Sheen Color Map */}
+                <TextureMapInput
+                  label="Sheen Color Map"
+                  textureType="sheenColorMap"
+                  hasTexture={!!material.sheenColorMap}
+                  onTextureUpload={handleTextureUpload}
+                  onTextureClear={clearTexture}
+                />
+
+                {/* UV Set Selection */}
+                <div className="flex items-center justify-between">
+                  <label className="text-sm">UV Set</label>
+                  <div className="flex space-x-2">
+                    <button
+                      className={`px-2 py-1 text-xs rounded ${
+                        material.sheenColorMap_channel === 0 
+                          ? 'bg-blue-500 text-white' 
+                          : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                      onClick={() => handleUVSetChange(0)}
+                    >
+                      UV0
+                    </button>
+                    <button
+                      className={`px-2 py-1 text-xs rounded ${
+                        material.sheenColorMap_channel === 1 
+                          ? 'bg-blue-500 text-white' 
+                          : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                      onClick={() => handleUVSetChange(1)}
+                    >
+                      UV1
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              {/* Sheen Color */}
-              <div className="flex items-center justify-between">
-                <label className="text-sm">Sheen Color</label>
-                <div className="flex items-center">
-                  <input 
-                    type="color" 
-                    value={getColorHex(material.sheenColor)}
-                    onChange={(e) => handleColorChange(e, 'sheenColor')}
-                    className="w-6 h-6 p-0 border-0"
-                  />
-                </div>
+            ) : (
+              <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
+                Sheen properties are only available for MeshPhysicalMaterial.
+                Current material type: {material.type}
               </div>
-
-              {/* Sheen Color Map */}
-              <TextureMapInput
-                label="Sheen Color Map"
-                textureType="sheenColorMap"
-                hasTexture={!!material.sheenColorMap}
-                onTextureUpload={handleTextureUpload}
-                onTextureClear={clearTexture}
-              />
-
-              {/* UV Set Selection */}
-              <div className="flex items-center justify-between">
-                <label className="text-sm">UV Set</label>
-                <div className="flex space-x-2">
-                  <button
-                    className={`px-2 py-1 text-xs rounded ${
-                      material.sheenColorMap_channel === 0 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-200 hover:bg-gray-300'
-                    }`}
-                    onClick={() => handleUVSetChange(0)}
-                  >
-                    UV0
-                  </button>
-                  <button
-                    className={`px-2 py-1 text-xs rounded ${
-                      material.sheenColorMap_channel === 1 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-200 hover:bg-gray-300'
-                    }`}
-                    onClick={() => handleUVSetChange(1)}
-                  >
-                    UV1
-                  </button>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>
