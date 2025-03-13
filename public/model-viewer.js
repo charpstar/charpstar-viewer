@@ -53049,6 +53049,7 @@ const ControlsMixin = (ModelViewerElement) => {
             this.interactionPromptStyle = InteractionPromptStyle.WIGGLE;
             this.orbitSensitivity = 1;
             this.zoomSensitivity = 1;
+            this.currentFileName = "";
             this.panSensitivity = 1;
             this.touchAction = TouchAction.NONE;
             this.disableZoom = false;
@@ -53126,8 +53127,204 @@ const ControlsMixin = (ModelViewerElement) => {
         }
         
         getModelStructure () {
-              return this[$scene]._model.children[0];
+              return this[$scene]._model;
         }
+
+        getOriginalFilename() {
+		  if (this.originalFilename) {
+		    return this.originalFilename;
+		  }
+		  // Default filename
+		  return 'model';
+		}
+
+		setMaterialColor(uuid, colorHex) {
+		  const object = this.getObjectByUuid(uuid);
+		  
+		  if (!object || !object.material) {
+		    console.error("Cannot find object or object has no material");
+		    return;
+		  }
+		  
+		  try {
+		    const threeColor = new Color(colorHex);
+		    
+		    // Assign it to the material
+		    object.material.color = threeColor;
+		    
+		    // Mark the material as needing update
+		    object.material.needsUpdate = true;
+		    
+		    // Request a render update
+		    if (this.requestRender) {
+		      this.requestRender();
+		    }
+		    
+		    console.log(`Set material color to ${colorHex}`);
+		  } catch (error) {
+		    console.error('Error setting material color:', error);
+		  }
+		}
+
+		async exportGLB() {
+		  try {
+		    // Use the existing exportScene method which returns a Blob
+		    const glTF = await this.exportScene({ binary: true });
+		    
+		    // Get the filename from the global variable, or use a default
+		    const baseName = window.currentFileName || 'model';
+		    const filename = `${baseName}.glb`;
+		    
+		    console.log('Exporting GLB as:', filename);
+		    
+		    // Create a download link
+		    const link = document.createElement("a");
+		    link.download = filename;
+		    link.href = URL.createObjectURL(glTF);
+		    link.click();
+		    
+		    // Clean up
+		    setTimeout(() => URL.revokeObjectURL(link.href), 100);
+		  } catch (error) {
+		    console.error('Error exporting GLB:', error);
+		  }
+		}
+
+		/**
+		 * Export the current model as GLTF file (JSON format)
+		 */
+		async exportGLTF() {
+		  try {
+		    // Use the existing exportScene method with binary: false to get JSON
+		    const glTF = await this.exportScene({ binary: false });
+		    
+		    // Get the filename from the global variable, or use a default
+		    const baseName = window.currentFileName || 'model';
+		    const filename = `${baseName}.gltf`;
+		    
+		    console.log('Exporting GLTF as:', filename);
+		    
+		    // Create a download link
+		    const link = document.createElement("a");
+		    link.download = filename;
+		    link.href = URL.createObjectURL(glTF);
+		    link.click();
+		    
+		    // Clean up
+		    setTimeout(() => URL.revokeObjectURL(link.href), 100);
+		  } catch (error) {
+		    console.error('Error exporting GLTF:', error);
+		  }
+		}
+
+
+		async exportUSDZ() {
+		  if (!this[$scene]) {
+		    console.error("No model loaded");
+		    return;
+		  }
+
+		  try {
+		    const exporter = new USDZExporter();
+		    
+		    // Use the currentFileName property or default to 'model'
+		    const baseName = window.currentFileName || 'model';
+		    const filename = `${baseName}.usdz`;
+		    
+		    console.log("Exporting with filename:", filename);
+		    
+		    // Generate the USDZ data
+		    const arraybuffer = await exporter.parseAsync(this[$scene]._model);
+		    
+		    // Create blob directly from the arraybuffer
+		    const blob = new Blob([arraybuffer], {
+		      type: 'model/vnd.usdz+zip'
+		    });
+		    
+		    // Create download link
+		    const link = document.createElement("a");
+		    link.download = filename;
+		    link.href = URL.createObjectURL(blob);
+		    link.click();
+		    
+		    // Clean up the object URL after download is triggered
+		    setTimeout(() => URL.revokeObjectURL(link.href), 100);
+		  } catch (error) {
+		    console.error('Error exporting USDZ:', error);
+		  }
+		}
+
+        getObjectByUuid(uuid) {
+		  if (this[$scene]) {
+		    return this.findObjectByUuidInObject(this[$scene], uuid);
+		  }
+		  return null;
+		}
+
+		findObjectByUuidInObject(object, uuid) {
+		  if (object.uuid === uuid) {
+		    return object;
+		  }
+
+		  if (object.children) {
+		    for (let i = 0; i < object.children.length; i++) {
+		      const found = this.findObjectByUuidInObject(object.children[i], uuid);
+		      if (found) {
+		        return found;
+		      }
+		    }
+		  }
+		  
+		  return null;
+		}
+
+		// Method to apply a texture to a material from an image URL
+		applyTexture(uuid, textureType, textureUrl) {
+		  const object = this.getObjectByUuid(uuid);
+		  
+		  if (!object || !object.material) {
+		    console.error("Cannot find object or object has no material");
+		    return null;
+		  }
+		  
+		  // Create texture loader directly from the model-viewer environment
+		  const textureLoader = new TextureLoader();
+		  
+		  // Load and apply the texture
+		  textureLoader.load(
+		    textureUrl,
+		    (texture) => {
+		      // Apply texture to the material property
+		      object.material[textureType] = texture;
+		      
+		      // Handle special cases for specific texture types
+		      if (textureType === 'normalMap') {
+		        // For normal maps, you might need to set normalScale
+		        if (!object.material.normalScale) {
+		          object.material.normalScale = new Vector2(1, 1);
+		        }
+		      } else if (textureType === 'alphaMap') {
+		        // For alpha maps, enable transparency
+		        object.material.transparent = true;
+		      }
+		      
+		      // Ensure material updates
+		      object.material.needsUpdate = true;
+		      
+		      // Request a render update
+		      if (this.requestRender) {
+		        this.requestRender();
+		      }
+		      
+		      console.log(`Applied ${textureType} texture successfully`);
+		    },
+		    undefined,
+		    (error) => {
+		      console.error(`Error loading ${textureType} texture:`, error);
+		    }
+		  );
+		}
+
         getMaximumFieldOfView() {
             return this[$controls].options.maximumFieldOfView;
         }
@@ -53162,6 +53359,12 @@ const ControlsMixin = (ModelViewerElement) => {
             this[$controls].removeEventListener('pointer-change-start', this[$onPointerChange]);
             this[$controls].removeEventListener('pointer-change-end', this[$onPointerChange]);
         }
+
+        requestRender() {
+		  this[$scene].isDirty = true;
+		  }
+			
+
         updated(changedProperties) {
             super.updated(changedProperties);
             const controls = this[$controls];
@@ -59912,7 +60115,7 @@ const SceneGraphMixin = (ModelViewerElement) => {
                     binary: true,
                     onlyVisible: true,
                     maxTextureSize: Infinity,
-                    includeCustomExtensions: false,
+                    includeCustomExtensions: true,
                     forceIndices: false
                 };
                 Object.assign(opts, options);
@@ -64348,6 +64551,7 @@ configuration or device capabilities');
             }
             return url;
         }
+
     }
     __decorate$2([
         n$8({ type: Boolean, attribute: 'ar' })
