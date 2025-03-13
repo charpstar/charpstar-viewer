@@ -185,7 +185,7 @@ export default function Home() {
         {/* Column 1: Model Structure (15% width) */}
         <aside className="w-[15%] bg-[#FAFAFA] border-r border-gray-200 overflow-y-auto flex flex-col">
           {/* Render the model structure */}
-          <div className="flex-grow overflow-y-auto">
+          <div className="flex-grow overflow-y-auto py-4">
             {modelStructure ? (
               <StructureTree 
                 node={modelStructure} 
