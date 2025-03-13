@@ -9,7 +9,8 @@ import Image from 'next/image';
 export default function Home() {
   const [modelStructure, setModelStructure] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const modelViewerRef = useRef<any>(null); // Reference to the model-viewer element
+  const [activeEnvironment, setActiveEnvironment] = useState<'v5' | 'v6' | null>('v6'); // Set v6 as default
+  const modelViewerRef = useRef<any>(null);
 
   // Handler for node selection
   const handleNodeSelect = (node: any) => {
@@ -45,9 +46,27 @@ export default function Home() {
     }
   };
 
+  // Environment tester functions
+  const handleV5Tester = () => {
+    if (modelViewerRef.current) {
+      modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/warm.hdr";
+      modelViewerRef.current.exposure = "1.3";
+      modelViewerRef.current.toneMapping = "commerce";
+      setActiveEnvironment('v5');
+    }
+  };
+
+  const handleV6Tester = () => {
+    if (modelViewerRef.current) {
+      modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr";
+      modelViewerRef.current.exposure = "1.5";
+      modelViewerRef.current.toneMapping = "aces";
+      setActiveEnvironment('v6');
+    }
+  };
+
   // Function to fetch the model structure
   const fetchModelStructure = () => {
-    // Make sure the viewer is loaded and our method exists
     if (modelViewerRef.current && typeof modelViewerRef.current.getModelStructure === 'function') {
       try {
         const structure = modelViewerRef.current.getModelStructure();
@@ -63,26 +82,21 @@ export default function Home() {
 
   // Set up a MutationObserver to detect when model-viewer element is loaded
   useEffect(() => {
-    // Check for existing model-viewer
     const setupModelViewer = () => {
       const modelViewer = document.querySelector('model-viewer');
       if (modelViewer) {
         modelViewerRef.current = modelViewer;
         
-        // Check if a model is already loaded
         if (modelViewer.getAttribute('src')) {
           fetchModelStructure();
         }
         
-        // Listen for model load events
         modelViewer.addEventListener('load', fetchModelStructure);
       }
     };
 
-    // Initial setup
     setupModelViewer();
 
-    // MutationObserver to detect when model-viewer is added to DOM 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.addedNodes.length) {
@@ -94,10 +108,8 @@ export default function Home() {
       });
     });
 
-    // Start observing the document body for changes
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Cleanup function
     return () => {
       observer.disconnect();
       if (modelViewerRef.current) {
@@ -119,25 +131,52 @@ export default function Home() {
           />
         </div>
         
-        <div className="flex space-x-2">
-          <button 
-            className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
-            onClick={handleExportGLB}
-          >
-            Export GLB
-          </button>
-          <button 
-            className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
-            onClick={handleExportGLTF}
-          >
-            Export GLTF
-          </button>
-          <button 
-            className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
-            onClick={handleExportUSDZ}
-          >
-            Export USDZ
-          </button>
+        <div className="flex items-center space-x-4">
+          {/* Environment Testers */}
+          <div className="flex space-x-2 mr-6 border-r pr-6">
+            <button 
+              className={`text-xs px-3 py-1 rounded-sm ${
+                activeEnvironment === 'v5' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+              onClick={handleV5Tester}
+            >
+              V5 Tester
+            </button>
+            <button 
+              className={`text-xs px-3 py-1 rounded-sm ${
+                activeEnvironment === 'v6' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+              onClick={handleV6Tester}
+            >
+              V6 ACES Tester
+            </button>
+          </div>
+
+          {/* Export Buttons */}
+          <div className="flex space-x-2">
+            <button 
+              className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
+              onClick={handleExportGLB}
+            >
+              Export GLB
+            </button>
+            <button 
+              className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
+              onClick={handleExportGLTF}
+            >
+              Export GLTF
+            </button>
+            <button 
+              className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
+              onClick={handleExportUSDZ}
+            >
+              Export USDZ
+            </button>
+          </div>
         </div>
       </header>
       
@@ -145,9 +184,8 @@ export default function Home() {
       <main className="h-[96.5%] flex">
         {/* Column 1: Model Structure (15% width) */}
         <aside className="w-[15%] bg-[#FAFAFA] border-r border-gray-200 overflow-y-auto flex flex-col">
-          
           {/* Render the model structure */}
-          <div className="flex-grow overflow-y-auto py-4">
+          <div className="flex-grow overflow-y-auto">
             {modelStructure ? (
               <StructureTree 
                 node={modelStructure} 
