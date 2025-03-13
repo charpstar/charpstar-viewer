@@ -86,7 +86,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ onModelLoaded }) => {
       <div className="w-full h-full flex items-center justify-center">
         {/* Render <model-viewer> only if a model is loaded */}
         {isClient && modelSrc && (
-          // @ts-ignore - model-viewer is a custom element
+          // Use JSX.IntrinsicElements casting to avoid TypeScript errors
           <model-viewer
             src={modelSrc}
             alt="A 3D model"
