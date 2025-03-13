@@ -93,7 +93,6 @@ const ModelViewer = ({ onModelLoaded }) => {
             shadow-softness = "1"
             style={{ width: '100%', height: '100%' }}
             camera-controls
-            auto-rotate
           ></model-viewer>
         )}
         
