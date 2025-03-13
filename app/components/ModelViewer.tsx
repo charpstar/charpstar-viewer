@@ -3,6 +3,14 @@
 
 import { useState, useEffect, DragEvent, useRef } from 'react';
 
+// Declare global variables so TypeScript knows about them
+declare global {
+  interface Window {
+    modelViewerElement: HTMLElement;
+    currentFileName: string;
+  }
+}
+
 interface ModelViewerProps {
   onModelLoaded?: () => void;
 }
