@@ -14,9 +14,9 @@ const RightPanel: React.FC<RightPanelProps> = ({ selectedNode, modelViewerRef })
   const [activeTab, setActiveTab] = useState<'materials' | 'variants'>('materials');
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Tab buttons */}
-      <div className="flex border-b border-gray-200 mb-3">
+    <div className="h-[96.5%] flex flex-col">
+      {/* Tab buttons - fixed at top */}
+      <div className="flex border-b border-gray-200 mb-3 shrink-0">
         <button
           className={`px-4 py-2 text-sm font-medium border-b-2 ${
             activeTab === 'materials'
@@ -39,8 +39,8 @@ const RightPanel: React.FC<RightPanelProps> = ({ selectedNode, modelViewerRef })
         </button>
       </div>
 
-      {/* Tab content */}
-      <div className="flex-grow overflow-y-auto">
+      {/* Tab content - scrollable area */}
+      <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {activeTab === 'materials' && (
           <>
             {selectedNode ? (
