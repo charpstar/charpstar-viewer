@@ -11,39 +11,49 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ onModelLoaded }) => {
   const [modelSrc, setModelSrc] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const fileNameRef = useRef<string>('model');
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsClient(true); // Set to true only on the client side
   }, []);
 
-  // Effect to handle model load event
+  // Effect to create and manage the model-viewer element
   useEffect(() => {
-    if (!isClient || !modelSrc) return;
+    if (!isClient || !containerRef.current) return;
 
-    const modelViewer = document.getElementById('model-viewer');
-    if (modelViewer) {
+    // Clear previous content
+    containerRef.current.innerHTML = '';
+    
+    if (modelSrc) {
+      // Create the model-viewer element programmatically
+      const modelViewer = document.createElement('model-viewer');
+      modelViewer.setAttribute('src', modelSrc);
+      modelViewer.setAttribute('alt', 'A 3D model');
+      modelViewer.setAttribute('id', 'model-viewer');
+      modelViewer.setAttribute('camera-controls', '');
+      modelViewer.setAttribute('auto-rotate', '');
+      modelViewer.style.width = '100%';
+      modelViewer.style.height = '100%';
+      
+      // Append to container
+      containerRef.current.appendChild(modelViewer);
+      
+      // Set up load handler
       const handleLoad = () => {
         console.log('Model loaded');
         
-        // Set the custom property directly on the DOM element
-        // @ts-ignore
+        // Store references
         window.modelViewerElement = modelViewer;
-        // @ts-ignore
         window.currentFileName = fileNameRef.current;
         
         console.log('Stored filename in global variable:', fileNameRef.current);
         
         if (onModelLoaded) {
-          // Give a small delay to ensure the model is fully processed
           setTimeout(onModelLoaded, 100);
         }
       };
       
       modelViewer.addEventListener('load', handleLoad);
-      
-      return () => {
-        modelViewer.removeEventListener('load', handleLoad);
-      };
     }
   }, [isClient, modelSrc, onModelLoaded]);
 
@@ -66,13 +76,11 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ onModelLoaded }) => {
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    // Add subtle visual feedback during drag
     e.currentTarget.classList.add('bg-[#EFEFEF]');
   };
 
   const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    // Remove the visual feedback
     e.currentTarget.classList.remove('bg-[#EFEFEF]');
   };
 
@@ -84,22 +92,12 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ onModelLoaded }) => {
       className="w-full h-full flex items-center justify-center transition-colors duration-200"
     >
       <div className="w-full h-full flex items-center justify-center">
-        {/* Render <model-viewer> only if a model is loaded */}
-        {isClient && modelSrc && (
-          // @ts-ignore - Ignoring TypeScript check for custom element
-          <model-viewer
-            src={modelSrc}
-            alt="A 3D model"
-            id="model-viewer"
-            style={{ width: '100%', height: '100%' }}
-            camera-controls
-            auto-rotate
-          ></model-viewer>
-        )}
+        {/* Container for the programmatically created model-viewer */}
+        <div ref={containerRef} className="w-full h-full"></div>
         
         {/* Show a message if no model is loaded */}
         {!modelSrc && (
-          <div className="text-center">
+          <div className="text-center absolute">
             <p className="text-gray-600 text-sm mb-2">
               Drag and drop a <strong>.glb</strong> or <strong>.gltf</strong> file here to view it.
             </p>
