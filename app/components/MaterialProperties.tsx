@@ -1,3 +1,4 @@
+// app/components/MaterialProperties.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -25,6 +26,7 @@ interface Material {
   sheenColor?: string | { r: number; g: number; b: number };
   sheenColorMap?: any;
   sheenColorMap_channel?: number; // UV set for sheen (0 or 1)
+  [key: string]: any; // Add index signature to allow string indexing
 }
 
 interface MaterialPropertiesProps {
@@ -114,11 +116,12 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         // Update local state
         setMaterial(prev => {
           if (!prev) return null;
-          const repeatProp = `${mapType}Repeat`;
+          const repeatProp = `${mapType}Repeat` as keyof Material;
+          const currentRepeat = prev[repeatProp] as { x: number; y: number } || { x: 1, y: 1 };
           return {
             ...prev,
             [repeatProp]: {
-              ...prev[repeatProp],
+              ...currentRepeat,
               [axis]: value
             }
           };
