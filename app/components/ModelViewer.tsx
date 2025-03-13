@@ -3,6 +3,22 @@
 
 import { useState, useEffect, DragEvent, useRef } from 'react';
 
+// Add the type declaration directly in this file
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'model-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+        src?: string;
+        alt?: string;
+        'camera-controls'?: boolean;
+        'auto-rotate'?: boolean;
+        id?: string;
+        style?: React.CSSProperties;
+      }, HTMLElement>;
+    }
+  }
+}
+
 interface ModelViewerProps {
   onModelLoaded?: () => void;
 }
@@ -86,7 +102,6 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ onModelLoaded }) => {
       <div className="w-full h-full flex items-center justify-center">
         {/* Render <model-viewer> only if a model is loaded */}
         {isClient && modelSrc && (
-          // Use JSX.IntrinsicElements casting to avoid TypeScript errors
           <model-viewer
             src={modelSrc}
             alt="A 3D model"
