@@ -55,6 +55,62 @@ const MaterialVariants: React.FC<MaterialVariantsProps> = ({
     }
   };
 
+
+// Modify MaterialVariants.tsx
+const startTimeRef = useRef(Date.now());
+// Add a reset function that's triggered when a new model is loaded
+useEffect(() => {
+  // Reset polling on component mount or when modelViewerRef changes
+  const resetPolling = () => {
+    console.log('Resetting variant polling');
+    setVariants([]);
+    setCurrentVariant(null);
+    setLoading(true);
+    hasMountedRef.current = false;
+    
+    // Clear existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    // Reset polling with a new interval
+    intervalRef.current = setInterval(() => {
+      const hasVariants = fetchVariants();
+      
+      // Stop polling after finding variants or after a timeout (like 10 seconds)
+      if ((hasVariants && intervalRef.current) || 
+          (Date.now() - startTimeRef.current > 10000)) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }, 500);
+  };
+  
+  // Reset polling when the component mounts
+  resetPolling();
+  
+  // Monitor modelViewerRef for changes
+  const modelViewer = modelViewerRef.current;
+  if (modelViewer) {
+    // Listen for model load events to reset polling
+    modelViewer.addEventListener('load', resetPolling);
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      modelViewer.removeEventListener('load', resetPolling);
+    };
+  }
+  
+  return () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+  };
+}, [modelViewerRef]);
+
+
   // Set up polling for variants
   useEffect(() => {
     // Fetch immediately on mount
