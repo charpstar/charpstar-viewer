@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Link, Link2Off } from 'lucide-react';
 import TextureMapInput from './TextureMapInput';
 
 // Define types for material properties
@@ -14,9 +14,9 @@ interface Material {
   metalness?: number;
   opacity?: number;
   map?: any; // base color texture map
-  mapRepeat?: { x: number; y: number }; // Add repeat values for base color map
+  textureRepeat?: { x: number; y: number };
   normalMap?: any;
-  normalMapRepeat?: { x: number; y: number }; // Add repeat values for normal map
+  normalMapIntensity?: number; // Added normal map intensity
   roughnessMap?: any;
   metalnessMap?: any;
   alphaMap?: any; // opacity map
@@ -24,6 +24,7 @@ interface Material {
   aoMapIntensity?: number;
   sheenRoughness?: number;
   sheenColor?: string | { r: number; g: number; b: number };
+  sheenColorMapRepeat?: { x: number; y: number }; // Add repeat values for sheen color map
   sheenColorMap?: any;
   sheenColorMap_channel?: number; // UV set for sheen (0 or 1)
   [key: string]: any; // Add index signature to allow string indexing
@@ -41,6 +42,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   const [material, setMaterial] = useState<Material | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [isMeshPhysicalMaterial, setIsMeshPhysicalMaterial] = useState(false);
+  const [uniformTiling, setUniformTiling] = useState(true);
+  const [uniformSheenTiling, setUniformSheenTiling] = useState(true);
 
   // Convert color object to hex string
   const rgbToHex = (color: { r: number; g: number; b: number }) => {
@@ -103,26 +106,31 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     }
   };
 
-  // Handle scale change for texture maps
-  const handleScaleChange = (axis: 'x' | 'y', value: number, mapType: string) => {
+  // Handle shared tiling change for all base maps
+  const handleSharedTilingChange = (axis: 'x' | 'y', value: number) => {
     if (!modelViewerRef?.current || !selectedNode) return;
 
     try {
       const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
-      if (object && object.material && object.material[mapType]) {
-        // Update the repeat value directly on the texture
-        object.material[mapType].repeat[axis] = value;
+      if (object && object.material) {
+        // Update repeat value for each map that exists
+        const mapTypes = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap'];
+        
+        mapTypes.forEach(mapType => {
+          if (object.material[mapType]) {
+            object.material[mapType].repeat[axis] = value;
+          }
+        });
+        
         object.material.needsUpdate = true;
 
         // Update local state
         setMaterial(prev => {
           if (!prev) return null;
-          const repeatProp = `${mapType}Repeat` as keyof Material;
-          const currentRepeat = prev[repeatProp] as { x: number; y: number } || { x: 1, y: 1 };
           return {
             ...prev,
-            [repeatProp]: {
-              ...currentRepeat,
+            textureRepeat: {
+              ...prev.textureRepeat,
               [axis]: value
             }
           };
@@ -134,8 +142,53 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         }
       }
     } catch (error) {
-      console.error(`Error updating ${mapType} tiling:`, error);
+      console.error(`Error updating shared tiling:`, error);
     }
+  };
+
+  // Handle uniform tiling change
+  const handleUniformTilingChange = (value: number) => {
+    handleSharedTilingChange('x', value);
+    handleSharedTilingChange('y', value);
+  };
+
+  // Handle scale change for sheen texture map (separate from other maps)
+  const handleSheenTilingChange = (axis: 'x' | 'y', value: number) => {
+    if (!modelViewerRef?.current || !selectedNode) return;
+
+    try {
+      const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
+      if (object && object.material && object.material.sheenColorMap) {
+        // Update the repeat value directly on the texture
+        object.material.sheenColorMap.repeat[axis] = value;
+        object.material.needsUpdate = true;
+
+        // Update local state
+        setMaterial(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            sheenColorMapRepeat: {
+              ...(prev.sheenColorMapRepeat || { x: 1, y: 1 }),
+              [axis]: value
+            }
+          };
+        });
+
+        // Request a render update
+        if (typeof modelViewerRef.current.requestRender === 'function') {
+          modelViewerRef.current.requestRender();
+        }
+      }
+    } catch (error) {
+      console.error(`Error updating sheen tiling:`, error);
+    }
+  };
+
+  // Handle uniform sheen tiling change
+  const handleUniformSheenTilingChange = (value: number) => {
+    handleSheenTilingChange('x', value);
+    handleSheenTilingChange('y', value);
   };
 
   // Handle numeric property change
@@ -239,6 +292,23 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     }
   };
 
+  // Get the shared texture repeat values
+  const getSharedTextureRepeat = (object: any): { x: number; y: number } => {
+    // Try to get repeat values from any applied map, prioritizing the base color map
+    if (object.material.map?.repeat) {
+      return { x: object.material.map.repeat.x, y: object.material.map.repeat.y };
+    } else if (object.material.normalMap?.repeat) {
+      return { x: object.material.normalMap.repeat.x, y: object.material.normalMap.repeat.y };
+    } else if (object.material.roughnessMap?.repeat) {
+      return { x: object.material.roughnessMap.repeat.x, y: object.material.roughnessMap.repeat.y };
+    } else if (object.material.metalnessMap?.repeat) {
+      return { x: object.material.metalnessMap.repeat.x, y: object.material.metalnessMap.repeat.y };
+    }
+    
+    // Default values if no maps are applied
+    return { x: 1, y: 1 };
+  };
+
   // Get material data for the selected node
   useEffect(() => {
     if (!selectedNode || selectedNode.type !== 'Mesh' || !modelViewerRef?.current) {
@@ -255,6 +325,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         
         // Check if the material is MeshPhysicalMaterial
         setIsMeshPhysicalMaterial(object.material.type === 'MeshPhysicalMaterial');
+
+        // Get the shared texture repeat values
+        const sharedRepeat = getSharedTextureRepeat(object);
         
         const materialData: Material = {
           name: object.material.name || 'Material',
@@ -268,15 +341,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           metalness: object.material.metalness !== undefined ? object.material.metalness : 0,
           opacity: object.material.opacity !== undefined ? object.material.opacity : 1,
           map: object.material.map || null,
-          mapRepeat: object.material.map?.repeat ? {
-            x: object.material.map.repeat.x,
-            y: object.material.map.repeat.y
-          } : { x: 1, y: 1 },
+          textureRepeat: sharedRepeat, // Store shared repeat values for all base maps
           normalMap: object.material.normalMap || null,
-          normalMapRepeat: object.material.normalMap?.repeat ? {
-            x: object.material.normalMap.repeat.x,
-            y: object.material.normalMap.repeat.y
-          } : { x: 1, y: 1 },
+          normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0, // New property
           roughnessMap: object.material.roughnessMap || null,
           metalnessMap: object.material.metalnessMap || null,
           alphaMap: object.material.alphaMap || null,
@@ -304,6 +371,39 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
       setIsMeshPhysicalMaterial(false);
     }
   }, [selectedNode, modelViewerRef]);
+
+  // Handle normal map intensity change
+  const handleNormalMapIntensityChange = (value: number) => {
+    if (!modelViewerRef?.current || !selectedNode) return;
+
+    try {
+      const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
+      if (object && object.material && object.material.normalMap) {
+        // Normal scale is typically a Vector2 in Three.js
+        if (object.material.normalScale) {
+          object.material.normalScale.x = value;
+          object.material.normalScale.y = value;
+        } else {
+          object.material.normalScale = { x: value, y: value };
+        }
+        
+        object.material.needsUpdate = true;
+
+        // Update local state
+        setMaterial(prev => {
+          if (!prev) return null;
+          return { ...prev, normalMapIntensity: value };
+        });
+
+        // Request a render update
+        if (typeof modelViewerRef.current.requestRender === 'function') {
+          modelViewerRef.current.requestRender();
+        }
+      }
+    } catch (error) {
+      console.error('Error updating normal map intensity:', error);
+    }
+  };
 
   if (!selectedNode || selectedNode.type !== 'Mesh' || !material) {
     return (
@@ -364,34 +464,6 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           onTextureClear={clearTexture}
         />
 
-        {/* Base Color Map Tiling */}
-        {material.map && (
-          <div className="space-y-2 ml-4">
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-600">Tiling X</label>
-              <input
-                type="number"
-                min="0.1"
-                step="0.1"
-                value={material.mapRepeat?.x || 1}
-                onChange={(e) => handleScaleChange('x', parseFloat(e.target.value), 'map')}
-                className="w-20 text-xs p-1 border rounded"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-600">Tiling Y</label>
-              <input
-                type="number"
-                min="0.1"
-                step="0.1"
-                value={material.mapRepeat?.y || 1}
-                onChange={(e) => handleScaleChange('y', parseFloat(e.target.value), 'map')}
-                className="w-20 text-xs p-1 border rounded"
-              />
-            </div>
-          </div>
-        )}
-        
         {/* Roughness */}
         <div className="flex items-center justify-between">
           <label className="text-sm">Roughness</label>
@@ -448,34 +520,6 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           onTextureClear={clearTexture}
         />
         
-        {/* Opacity */}
-        <div className="flex items-center justify-between">
-          <label className="text-sm">Opacity</label>
-          <div className="flex items-center">
-            <span className="mr-2 text-xs w-8 text-right">
-              {material.opacity !== undefined ? `${Math.round(material.opacity * 100)}%` : '100%'}
-            </span>
-            <input 
-              type="range" 
-              min="0" 
-              max="1" 
-              step="0.01"
-              value={material.opacity !== undefined ? material.opacity : 1}
-              onChange={(e) => handlePropertyChange('opacity', parseFloat(e.target.value))}
-              className="w-24 h-1"
-            />
-          </div>
-        </div>
-        
-        {/* Alpha Map (Opacity Map) */}
-        <TextureMapInput
-          label="Opacity Map"
-          textureType="alphaMap"
-          hasTexture={!!material.alphaMap}
-          onTextureUpload={handleTextureUpload}
-          onTextureClear={clearTexture}
-        />
-        
         {/* Normal Map */}
         <TextureMapInput
           label="Normal Map"
@@ -485,31 +529,79 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           onTextureClear={clearTexture}
         />
 
-        {/* Normal Map Tiling */}
+        {/* Normal Map Intensity - only show if normal map exists */}
         {material.normalMap && (
-          <div className="space-y-2 ml-4">
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-600">Tiling X</label>
-              <input
-                type="number"
-                min="0.1"
+          <div className="flex items-center justify-between">
+            <label className="text-sm">Normal Intensity</label>
+            <div className="flex items-center">
+              <span className="mr-2 text-xs w-8 text-right">
+                {material.normalMapIntensity !== undefined ? material.normalMapIntensity.toFixed(1) : '1.0'}
+              </span>
+              <input 
+                type="range" 
+                min="0" 
+                max="10" 
                 step="0.1"
-                value={material.normalMapRepeat?.x || 1}
-                onChange={(e) => handleScaleChange('x', parseFloat(e.target.value), 'normalMap')}
-                className="w-20 text-xs p-1 border rounded"
+                value={material.normalMapIntensity !== undefined ? material.normalMapIntensity : 1}
+                onChange={(e) => handleNormalMapIntensityChange(parseFloat(e.target.value))}
+                className="w-24 h-1"
               />
             </div>
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-600">Tiling Y</label>
-              <input
-                type="number"
-                min="0.1"
-                step="0.1"
-                value={material.normalMapRepeat?.y || 1}
-                onChange={(e) => handleScaleChange('y', parseFloat(e.target.value), 'normalMap')}
-                className="w-20 text-xs p-1 border rounded"
-              />
+          </div>
+        )}
+
+        {/* Shared texture tiling controls (for all base maps) */}
+        {(material.map || material.normalMap || material.roughnessMap || material.metalnessMap || material.alphaMap) && (
+          <div className="mt-4 space-y-2 p-2 rounded border border-gray-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs font-medium text-gray-700">Texture Tiling</div>
+              <button 
+                onClick={() => setUniformTiling(!uniformTiling)}
+                className="flex items-center text-xs text-gray-600 p-1 rounded hover:bg-gray-100"
+                title={uniformTiling ? "Using uniform tiling (X=Y)" : "Using separate X and Y tiling"}
+              >
+                {uniformTiling ? <Link size={16} /> : <Link2Off size={16} />}
+              </button>
             </div>
+            
+            {uniformTiling ? (
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-gray-600">Uniform Tiling</label>
+                <input
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  value={material.textureRepeat?.x || 1}
+                  onChange={(e) => handleUniformTilingChange(parseFloat(e.target.value))}
+                  className="w-20 text-xs p-1 border rounded"
+                />
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-gray-600">Tiling X</label>
+                  <input
+                    type="number"
+                    min="0.1"
+                    step="0.1"
+                    value={material.textureRepeat?.x || 1}
+                    onChange={(e) => handleSharedTilingChange('x', parseFloat(e.target.value))}
+                    className="w-20 text-xs p-1 border rounded"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-gray-600">Tiling Y</label>
+                  <input
+                    type="number"
+                    min="0.1"
+                    step="0.1"
+                    value={material.textureRepeat?.y || 1}
+                    onChange={(e) => handleSharedTilingChange('y', parseFloat(e.target.value))}
+                    className="w-20 text-xs p-1 border rounded"
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
         
@@ -533,8 +625,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
               <input 
                 type="range" 
                 min="0" 
-                max="2" 
-                step="0.05"
+                max="1" 
+                step="0.01"
                 value={material.aoMapIntensity !== undefined ? material.aoMapIntensity : 1}
                 onChange={(e) => handlePropertyChange('aoMapIntensity', parseFloat(e.target.value))}
                 className="w-24 h-1"
@@ -556,6 +648,33 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         
         {advancedOpen && (
           <div className="mt-4 space-y-4">
+            {/* Opacity */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm">Opacity</label>
+              <div className="flex items-center">
+                <span className="mr-2 text-xs w-8 text-right">
+                  {material.opacity !== undefined ? `${Math.round(material.opacity * 100)}%` : '100%'}
+                </span>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="1" 
+                  step="0.01"
+                  value={material.opacity !== undefined ? material.opacity : 1}
+                  onChange={(e) => handlePropertyChange('opacity', parseFloat(e.target.value))}
+                  className="w-24 h-1"
+                />
+              </div>
+            </div>
+            
+            {/* Alpha Map (Opacity Map) */}
+            <TextureMapInput
+              label="Opacity Map"
+              textureType="alphaMap"
+              hasTexture={!!material.alphaMap}
+              onTextureUpload={handleTextureUpload}
+              onTextureClear={clearTexture}
+            />
             {/* Sheen section - only show for MeshPhysicalMaterial */}
             {isMeshPhysicalMaterial ? (
               <div className="space-y-3">
@@ -601,6 +720,61 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                   onTextureUpload={handleTextureUpload}
                   onTextureClear={clearTexture}
                 />
+
+                {/* Sheen Color Map Tiling (separate from base maps) */}
+                {material.sheenColorMap && (
+                  <div className="space-y-2 p-2 rounded border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xs font-medium text-gray-700">Sheen Tiling</div>
+                      <button 
+                        onClick={() => setUniformSheenTiling(!uniformSheenTiling)}
+                        className="flex items-center text-xs text-gray-600 p-1 rounded hover:bg-gray-100"
+                        title={uniformSheenTiling ? "Using uniform tiling (X=Y)" : "Using separate X and Y tiling"}
+                      >
+                        {uniformSheenTiling ? <Link size={16} /> : <Link2Off size={16} />}
+                      </button>
+                    </div>
+                    
+                    {uniformSheenTiling ? (
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs text-gray-600">Uniform Tiling</label>
+                        <input
+                          type="number"
+                          min="0.1"
+                          step="0.1"
+                          value={(material.sheenColorMapRepeat?.x || 1)}
+                          onChange={(e) => handleUniformSheenTilingChange(parseFloat(e.target.value))}
+                          className="w-20 text-xs p-1 border rounded"
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-600">Tiling X</label>
+                          <input
+                            type="number"
+                            min="0.1"
+                            step="0.1"
+                            value={material.sheenColorMapRepeat?.x || 1}
+                            onChange={(e) => handleSheenTilingChange('x', parseFloat(e.target.value))}
+                            className="w-20 text-xs p-1 border rounded"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-600">Tiling Y</label>
+                          <input
+                            type="number"
+                            min="0.1"
+                            step="0.1"
+                            value={material.sheenColorMapRepeat?.y || 1}
+                            onChange={(e) => handleSheenTilingChange('y', parseFloat(e.target.value))}
+                            className="w-20 text-xs p-1 border rounded"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* UV Set Selection */}
                 <div className="flex items-center justify-between">

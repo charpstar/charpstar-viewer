@@ -1,9 +1,11 @@
+// app/page.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import ModelViewer from './components/ModelViewer';
 import StructureTree from './components/StructureTree';
 import RightPanel from './components/RightPanel';
+import ResizablePanel from './components/ResizablePanel';
 import Image from 'next/image';
 
 export default function Home() {
@@ -11,6 +13,10 @@ export default function Home() {
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [activeEnvironment, setActiveEnvironment] = useState<'v5' | 'v6' | null>('v6'); // Set v6 as default
   const modelViewerRef = useRef<any>(null);
+  
+  // Initial panel sizes (percentages)
+  const [leftPanelSize, setLeftPanelSize] = useState(15);
+  const [rightPanelSize, setRightPanelSize] = useState(20);
 
   // Handler for node selection
   const handleNodeSelect = (node: any) => {
@@ -79,6 +85,9 @@ export default function Home() {
       console.warn('modelViewer or getModelStructure method not available');
     }
   };
+
+  // Calculate the center panel width based on left and right panel sizes
+  const centerPanelWidth = 100 - leftPanelSize - rightPanelSize;
 
   // Set up a MutationObserver to detect when model-viewer element is loaded
   useEffect(() => {
@@ -181,10 +190,16 @@ export default function Home() {
       </header>
       
       {/* Main Area (96.5% height - increased to compensate for header) */}
-      <main className="h-[96.5%] flex">
-        {/* Column 1: Model Structure (15% width) */}
-        <aside className="w-[15%] bg-[#FAFAFA] border-r border-gray-200 overflow-y-auto flex flex-col">
-          {/* Render the model structure */}
+      <main className="h-[96.5%] flex relative">
+        {/* Left Panel (Structure Tree) */}
+        <ResizablePanel 
+          direction="horizontal" 
+          initialSize={leftPanelSize} 
+          minSize={10} 
+          maxSize={40}
+          onResize={setLeftPanelSize}
+          className="bg-[#FAFAFA] border-r border-gray-200 overflow-y-auto flex flex-col"
+        >
           <div className="flex-grow overflow-y-auto py-4">
             {modelStructure ? (
               <StructureTree 
@@ -198,20 +213,27 @@ export default function Home() {
               </p>
             )}
           </div>
-        </aside>
+        </ResizablePanel>
         
-        {/* Column 2: 3D Viewer (70% width) */}
-        <section className="w-[70%] bg-[#EFEFEF] p-4">
+        {/* Center Panel (3D Viewer) - width is calculated based on left and right panel sizes */}
+        <div className={`bg-[#EFEFEF] p-4`} style={{ width: `${centerPanelWidth}%` }}>
           <ModelViewer onModelLoaded={fetchModelStructure} />
-        </section>
+        </div>
         
-        {/* Column 3: Properties & Materials (15% width) */}
-        <aside className="w-[15%] bg-[#FAFAFA] p-4 border-l border-gray-200">
+        {/* Right Panel (Properties & Materials) */}
+        <ResizablePanel 
+          direction="horizontal" 
+          initialSize={rightPanelSize} 
+          minSize={15} 
+          maxSize={40}
+          onResize={setRightPanelSize}
+          className="bg-[#FAFAFA] p-4 border-l border-gray-200"
+        >
           <RightPanel 
             selectedNode={selectedNode} 
             modelViewerRef={modelViewerRef}
           />
-        </aside>
+        </ResizablePanel>
       </main>
     </div>
   );

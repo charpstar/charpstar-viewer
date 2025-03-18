@@ -1,57 +1,97 @@
 // app/components/MaterialVariants.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface MaterialVariantsProps {
   modelViewerRef: React.RefObject<any>;
+  onVariantChange?: () => void;
 }
 
-const MaterialVariants: React.FC<MaterialVariantsProps> = ({ modelViewerRef }) => {
+const MaterialVariants: React.FC<MaterialVariantsProps> = ({ 
+  modelViewerRef,
+  onVariantChange 
+}) => {
   const [variants, setVariants] = useState<string[]>([]);
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasMountedRef = useRef(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch available variants when the component mounts or modelViewer changes
-  useEffect(() => {
-    const fetchVariants = () => {
+  // More robust variant fetching with polling
+  const fetchVariants = () => {
+    if (!modelViewerRef.current) {
       setLoading(true);
-      
-      if (modelViewerRef.current) {
-        try {
-          // Get available variants from the model-viewer
-          const availableVariants = modelViewerRef.current.availableVariants || [];
-          setVariants(availableVariants);
-          
-          // Get the currently selected variant if any
-          const currentVariant = modelViewerRef.current.variantName;
-          setCurrentVariant(currentVariant || null);
-          
-          setLoading(false);
-        } catch (error) {
-          console.error('Error fetching material variants:', error);
-          setVariants([]);
-          setCurrentVariant(null);
-          setLoading(false);
-        }
-      } else {
-        setVariants([]);
-        setCurrentVariant(null);
-        setLoading(false);
-      }
-    };
+      return false;
+    }
 
-    fetchVariants();
+    try {
+      // Get available variants from the model-viewer
+      const availableVariants = modelViewerRef.current.availableVariants || [];
+      const variantsList = Array.isArray(availableVariants) ? availableVariants : [];
+      
+      // Get the currently selected variant if any
+      const currentVariantName = modelViewerRef.current.variantName;
+      
+      // Only update if there's a change
+      if (
+        JSON.stringify(variantsList) !== JSON.stringify(variants) || 
+        currentVariantName !== currentVariant
+      ) {
+        setVariants(variantsList);
+        setCurrentVariant(currentVariantName || null);
+      }
+      
+      setLoading(false);
+      
+      // Return true if variants are found
+      return variantsList.length > 0;
+    } catch (error) {
+      console.error('Error fetching material variants:', error);
+      setVariants([]);
+      setCurrentVariant(null);
+      setLoading(false);
+      return false;
+    }
+  };
+
+  // Set up polling for variants
+  useEffect(() => {
+    // Fetch immediately on mount
+    if (!hasMountedRef.current) {
+      fetchVariants();
+      hasMountedRef.current = true;
+    }
     
-    // Add a listener for model load to update variants
+    // Set up polling interval (check every 500ms)
+    intervalRef.current = setInterval(() => {
+      const hasVariants = fetchVariants();
+      
+      // Once we've found variants, we can stop polling
+      if (hasVariants && intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }, 500);
+    
+    // Add a load event listener as a backup
     const modelViewer = modelViewerRef.current;
     if (modelViewer) {
       modelViewer.addEventListener('load', fetchVariants);
-      
-      return () => {
-        modelViewer.removeEventListener('load', fetchVariants);
-      };
     }
+    
+    return () => {
+      // Clean up interval and event listener
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      
+      if (modelViewer) {
+        modelViewer.removeEventListener('load', fetchVariants);
+      }
+      
+      hasMountedRef.current = false;
+    };
   }, [modelViewerRef]);
 
   // Function to select a variant
@@ -61,32 +101,31 @@ const MaterialVariants: React.FC<MaterialVariantsProps> = ({ modelViewerRef }) =
         // Apply the variant
         modelViewerRef.current.variantName = variantName;
         setCurrentVariant(variantName);
+        
+        // Wait a moment for the variant to be applied before notifying parent
+        setTimeout(() => {
+          if (onVariantChange) {
+            onVariantChange();
+          }
+        }, 100);
       } catch (error) {
         console.error('Error selecting variant:', error);
       }
     }
   };
 
-  if (loading) {
-    return <div className="text-gray-600 text-xs">Loading variants...</div>;
-  }
-
+  // If there are no variants or still loading, show appropriate message
   if (variants.length === 0) {
     return (
       <div className="text-gray-600 text-xs">
-        No material variants available for this model.
-        <p className="mt-2">
-          Material variants allow different material configurations to be defined in a single model file.
-        </p>
+        {loading ? 'Loading variants...' : 'No material variants available for this model.'}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="text-sm font-medium">Available Material Variants</div>
-      
-      <div className="space-y-2">
+    <div className="space-y-2 pb-4">
+      <div className="grid grid-cols-1 gap-2">
         {variants.map((variant, index) => (
           <div 
             key={index}
@@ -98,17 +137,13 @@ const MaterialVariants: React.FC<MaterialVariantsProps> = ({ modelViewerRef }) =
             onClick={() => selectVariant(variant)}
           >
             <div className="flex items-center justify-between">
-              <div className="text-sm">{variant}</div>
+              <div className="text-sm truncate">{variant}</div>
               {currentVariant === variant && (
-                <div className="text-xs text-blue-600">Active</div>
+                <div className="text-xs text-blue-600 ml-1">✓</div>
               )}
             </div>
           </div>
         ))}
-      </div>
-      
-      <div className="text-xs text-gray-500 mt-4 pt-4 border-t border-gray-200">
-        Click on a variant to apply it to the model.
       </div>
     </div>
   );

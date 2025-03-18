@@ -1,67 +1,73 @@
 // app/components/RightPanel.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import MaterialProperties from './MaterialProperties';
 import MaterialVariants from './MaterialVariants';
+import ResizablePanel from './ResizablePanel';
 
 interface RightPanelProps {
   selectedNode: any | null;
   modelViewerRef: React.RefObject<any>;
 }
 
-const RightPanel: React.FC<RightPanelProps> = ({ selectedNode, modelViewerRef }) => {
-  const [activeTab, setActiveTab] = useState<'materials' | 'variants'>('materials');
+const RightPanel: React.FC<RightPanelProps> = ({ 
+  selectedNode,
+  modelViewerRef
+}) => {
+  const [variantChangeCount, setVariantChangeCount] = useState(0);
+  const [variantsPanelSize, setVariantsPanelSize] = useState(40); // Initial size as percentage
+  
+  // Calculate properties panel size based on variants panel size
+  const propertiesPanelSize = 100 - variantsPanelSize;
+
+  // Handler for variant change
+  const handleVariantChange = useCallback(() => {
+    // Force re-render of the MaterialProperties component
+    setVariantChangeCount(prev => prev + 1);
+  }, []);
 
   return (
-    <div className="h-[96.5%] flex flex-col">
-      {/* Tab buttons - fixed at top */}
-      <div className="flex border-b border-gray-200 mb-3 shrink-0">
-        <button
-          className={`px-4 py-2 text-sm font-medium border-b-2 ${
-            activeTab === 'materials'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
-          onClick={() => setActiveTab('materials')}
+    <div className="h-full flex flex-col">
+      {/* Main content container with fixed height */}
+      <div className="flex h-full">
+        {/* Variants section */}
+        <ResizablePanel
+          direction="horizontal"
+          initialSize={variantsPanelSize}
+          minSize={20}
+          maxSize={60}
+          onResize={setVariantsPanelSize}
+          className="pr-3 border-r border-gray-200 h-full flex flex-col"
         >
-          Materials
-        </button>
-        <button
-          className={`px-4 py-2 text-sm font-medium border-b-2 ${
-            activeTab === 'variants'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
-          onClick={() => setActiveTab('variants')}
-        >
-          Variants
-        </button>
-      </div>
-
-      {/* Tab content - scrollable area */}
-      <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-        {activeTab === 'materials' && (
-          <>
-            {selectedNode ? (
-              <>
-                <div className="mb-2 text-xs text-blue-600">Selected: {selectedNode.name} ({selectedNode.type})</div>
+          <h3 className="text-sm font-medium mb-4 shrink-0">Variants</h3>
+          <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent flex-grow">
+            <MaterialVariants 
+              modelViewerRef={modelViewerRef} 
+              onVariantChange={handleVariantChange}
+            />
+          </div>
+        </ResizablePanel>
+        
+        {/* Material properties section */}
+        <div className="pl-4 h-full flex flex-col" style={{ width: `${propertiesPanelSize}%` }}>
+          <h3 className="text-sm font-medium mb-4 shrink-0">Material Properties</h3>
+          
+          {selectedNode ? (
+            <>
+              <div className="mb-2 text-xs text-blue-600 shrink-0">Selected: {selectedNode.name} ({selectedNode.type})</div>
+              <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent flex-grow">
                 <MaterialProperties 
+                  key={`material-${selectedNode.uuid}-${variantChangeCount}`}
                   selectedNode={selectedNode} 
                   modelViewerRef={modelViewerRef}
                 />
-              </>
-            ) : (
-              <div className="text-gray-600 text-xs">Select a mesh to view its material properties.</div>
-            )}
-          </>
-        )}
-
-        {activeTab === 'variants' && (
-          <MaterialVariants 
-            modelViewerRef={modelViewerRef} 
-          />
-        )}
+              </div>
+            </>
+          ) : (
+            <div className="text-gray-600 text-xs">Select a mesh to view its material properties.</div>
+          )}
+        </div>
       </div>
     </div>
   );
