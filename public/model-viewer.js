@@ -48349,8 +48349,11 @@ class GLTFWriter {
 			attributesNormalized: new Map(),
 			materials: new Map(),
 			textures: new Map(),
-			images: new Map()
+			images: new Map(),
+			metalRoughTextures: new Map()
 		};
+
+		this.samplerCache = new Map();
 
 	}
 
@@ -48661,6 +48664,12 @@ class GLTFWriter {
 
 	buildMetalRoughTexture( metalnessMap, roughnessMap ) {
 
+		  const cacheKey = `${metalnessMap ? metalnessMap.uuid : ''}_${roughnessMap ? roughnessMap.uuid : ''}`;
+  
+		  if (this.cache.metalRoughTextures && this.cache.metalRoughTextures.has(cacheKey)) {
+		    return this.cache.metalRoughTextures.get(cacheKey);
+		  }
+
 		if ( metalnessMap === roughnessMap ) return metalnessMap;
 
 		function getEncodingConversion( map ) {
@@ -48763,8 +48772,10 @@ class GLTFWriter {
 
 		}
 
-		return texture;
-
+		  if (!this.cache.metalRoughTextures) this.cache.metalRoughTextures = new Map();
+		  this.cache.metalRoughTextures.set(cacheKey, texture);
+		  
+		  return texture;
 	}
 
 	/**
@@ -49106,6 +49117,8 @@ class GLTFWriter {
 
 			const imageDef = { mimeType: mimeType };
 
+			 if (image.name) imageDef.name = image.name;
+
 			const canvas = getCanvas();
 
 			canvas.width = Math.min( image.width, options.maxTextureSize );
@@ -49221,68 +49234,111 @@ class GLTFWriter {
 	 * @param  {Texture} map Texture to process
 	 * @return {Integer}     Index of the processed texture in the "samplers" array
 	 */
-	processSampler( map ) {
-
-		const json = this.json;
-
-		if ( ! json.samplers ) json.samplers = [];
-
-		const samplerDef = {
-			magFilter: THREE_TO_WEBGL[ map.magFilter ],
-			minFilter: THREE_TO_WEBGL[ map.minFilter ],
-			wrapS: THREE_TO_WEBGL[ map.wrapS ],
-			wrapT: THREE_TO_WEBGL[ map.wrapT ]
-		};
-
-		return json.samplers.push( samplerDef ) - 1;
-
-	}
+		processSampler(map) {
+		  const json = this.json;
+		  
+		  // Create a cache key based on all sampler properties
+		  const cacheKey = [
+		    map.magFilter,
+		    map.minFilter,
+		    map.wrapS,
+		    map.wrapT
+		  ].join(':');
+		  
+		  // Check if we already have this exact sampler configuration
+		  if (this.samplerCache.has(cacheKey)) {
+		    return this.samplerCache.get(cacheKey);
+		  }
+		  
+		  if (!json.samplers) json.samplers = [];
+		  
+		  const samplerDef = {
+		    magFilter: THREE_TO_WEBGL[map.magFilter],
+		    minFilter: THREE_TO_WEBGL[map.minFilter],
+		    wrapS: THREE_TO_WEBGL[map.wrapS],
+		    wrapT: THREE_TO_WEBGL[map.wrapT]
+		  };
+		  
+		  const index = json.samplers.push(samplerDef) - 1;
+		  
+		  // Cache the result
+		  this.samplerCache.set(cacheKey, index);
+		  return index;
+		}
 
 	/**
 	 * Process texture
 	 * @param  {Texture} map Map to process
 	 * @return {Integer} Index of the processed texture in the "textures" array
 	 */
-	processTexture( map ) {
+processTexture(map) {
+  const writer = this;
+  const options = writer.options;
+  const cache = this.cache;
+  const json = this.json;
 
-		const writer = this;
-		const options = writer.options;
-		const cache = this.cache;
-		const json = this.json;
+  // Create a more comprehensive cache key
+  const imageKey = map.image ? (map.image.uuid || (map.image.src || '')) : 'null-image';
+  const samplerKey = [
+    map.magFilter,
+    map.minFilter,
+    map.wrapS,
+    map.wrapT,
+    map.flipY ? 1 : 0,
+    map.rotation,
+    map.repeat.x.toFixed(6),
+    map.repeat.y.toFixed(6),
+    map.offset.x.toFixed(6),
+    map.offset.y.toFixed(6)
+  ].join(':');
+  
+  const fullCacheKey = `${imageKey}:${samplerKey}`;
+  
+  // If we have this exact texture+sampler combination, return it
+  if (!this.fullTextureCache) {
+    this.fullTextureCache = new Map();
+  }
+  
+  if (this.fullTextureCache.has(fullCacheKey)) {
+    return this.fullTextureCache.get(fullCacheKey);
+  }
 
-		if ( cache.textures.has( map ) ) return cache.textures.get( map );
+  // If we have the map object cached, use that
+  if (cache.textures.has(map)) {
+    const index = cache.textures.get(map);
+    this.fullTextureCache.set(fullCacheKey, index);
+    return index;
+  }
 
-		if ( ! json.textures ) json.textures = [];
+  if (!json.textures) json.textures = [];
 
-		// make non-readable textures (e.g. CompressedTexture) readable by blitting them into a new texture
-		if ( map instanceof CompressedTexture ) {
+  // Make non-readable textures readable by blitting them into a new texture
+  if (map instanceof CompressedTexture) {
+    map = decompress(map, options.maxTextureSize);
+  }
 
-			map = decompress( map, options.maxTextureSize );
+  let mimeType = map.userData.mimeType;
+  if (mimeType === 'image/webp') mimeType = 'image/png';
 
-		}
+  const textureDef = {
+    sampler: this.processSampler(map),
+    source: this.processImage(map.image, map.format, map.flipY, mimeType)
+  };
 
-		let mimeType = map.userData.mimeType;
+  if (map.name) textureDef.name = map.name;
 
-		if ( mimeType === 'image/webp' ) mimeType = 'image/png';
+  this._invokeAll(function(ext) {
+    ext.writeTexture && ext.writeTexture(map, textureDef);
+  });
 
-		const textureDef = {
-			sampler: this.processSampler( map ),
-			source: this.processImage( map.image, map.format, map.flipY, mimeType )
-		};
-
-		if ( map.name ) textureDef.name = map.name;
-
-		this._invokeAll( function ( ext ) {
-
-			ext.writeTexture && ext.writeTexture( map, textureDef );
-
-		} );
-
-		const index = json.textures.push( textureDef ) - 1;
-		cache.textures.set( map, index );
-		return index;
-
-	}
+  const index = json.textures.push(textureDef) - 1;
+  
+  // Cache with both methods
+  cache.textures.set(map, index);
+  this.fullTextureCache.set(fullCacheKey, index);
+  
+  return index;
+}
 
 	/**
 	 * Process material
@@ -51266,10 +51322,43 @@ class GLTFExporterMaterialsVariantsExtension {
         this.writer = writer;
         this.name = 'KHR_materials_variants';
         this.variantNames = [];
+
+            if (!writer.fullTextureCache) {
+		        writer.fullTextureCache = new Map();
+		    }
+		    if (!writer.samplerCache) {
+		        writer.samplerCache = new Map();
+		    }
+        
+        // Create a dedicated cache for variant textures to prevent duplication
+        this.variantTextureCache = new Map();
+        
+        // Store the original processTextureAsync method
+        this.originalProcessTextureAsync = writer.processTextureAsync;
+        
+        // Override with our enhanced version
+        writer.processTextureAsync = async (map) => {
+            // First check if this texture has already been processed
+            if (map.uuid && this.variantTextureCache.has(map.uuid)) {
+                return this.variantTextureCache.get(map.uuid);
+            }
+            
+            // Process texture normally
+            const result = await this.originalProcessTextureAsync.call(writer, map);
+            
+            // Cache the result by UUID
+            if (map.uuid) {
+                this.variantTextureCache.set(map.uuid, result);
+            }
+            
+            return result;
+        };
     }
+
     beforeParse(objects) {
         // Find all variant names and store them to the table
         const variantNameSet = new Set();
+        
         for (const object of objects) {
             object.traverse(o => {
                 if (!compatibleObject(o)) {
@@ -51277,72 +51366,100 @@ class GLTFExporterMaterialsVariantsExtension {
                 }
                 const variantMaterials = o.userData.variantMaterials;
                 const variantDataMap = o.userData.variantData;
-                for (const [variantName, variantData] of variantDataMap) {
-                    const variantMaterial = variantMaterials.get(variantData.index);
-                    // Ignore unloaded variant materials
-                    if (variantMaterial && compatibleMaterial(variantMaterial.material)) {
-                        variantNameSet.add(variantName);
+                
+                if (variantDataMap && variantMaterials) {
+                    for (const [variantName, variantData] of variantDataMap) {
+                        const variantMaterial = variantMaterials.get(variantData.index);
+                        // Ignore unloaded variant materials
+                        if (variantMaterial && compatibleMaterial(variantMaterial.material)) {
+                            variantNameSet.add(variantName);
+                        }
                     }
                 }
             });
         }
+        
         // We may want to sort?
         variantNameSet.forEach(name => this.variantNames.push(name));
     }
+
     writeMesh(mesh, meshDef) {
         if (!compatibleObject(mesh)) {
             return;
         }
+        
         const userData = mesh.userData;
         const variantMaterials = userData.variantMaterials;
         const variantDataMap = userData.variantData;
+        
+        if (!variantDataMap || !variantMaterials) {
+            return;
+        }
+        
         const mappingTable = new Map();
+        
         // Removes gaps in the variant indices list (caused by deleting variants).
         const reIndexedVariants = new Map();
         const variants = Array.from(variantDataMap.values()).sort((a, b) => {
             return a.index - b.index;
         });
+        
         for (const [i, variantData] of variants.entries()) {
             reIndexedVariants.set(variantData.index, i);
         }
+        
         for (const variantData of variantDataMap.values()) {
             const variantInstance = variantMaterials.get(variantData.index);
             if (!variantInstance || !compatibleMaterial(variantInstance.material)) {
                 continue;
             }
+            
             const materialIndex = this.writer.processMaterial(variantInstance.material);
             if (!mappingTable.has(materialIndex)) {
                 mappingTable.set(materialIndex, { material: materialIndex, variants: [] });
             }
+            
             mappingTable.get(materialIndex).variants.push(reIndexedVariants.get(variantData.index));
         }
+        
         const mappingsDef = Array.from(mappingTable.values())
-            .map((m => { return m.variants.sort((a, b) => a - b) && m; }))
+            .map((m => { 
+                m.variants.sort((a, b) => a - b); 
+                return m; 
+            }))
             .sort((a, b) => a.material - b.material);
+            
         if (mappingsDef.length === 0) {
             return;
         }
+        
         const originalMaterialIndex = compatibleMaterial(userData.originalMaterial) ?
             this.writer.processMaterial(userData.originalMaterial) :
             -1;
+            
         for (const primitiveDef of meshDef.primitives) {
             // Override primitiveDef.material with original material.
             if (originalMaterialIndex >= 0) {
                 primitiveDef.material = originalMaterialIndex;
             }
+            
             primitiveDef.extensions = primitiveDef.extensions || {};
             primitiveDef.extensions[this.name] = { mappings: mappingsDef };
         }
     }
+
     afterParse() {
         if (this.variantNames.length === 0) {
             return;
         }
+        
         const root = this.writer.json;
         root.extensions = root.extensions || {};
+        
         const variantsDef = this.variantNames.map(n => {
             return { name: n };
         });
+        
         root.extensions[this.name] = { variants: variantsDef };
         this.writer.extensionsUsed[this.name] = true;
     }
@@ -60107,44 +60224,53 @@ const SceneGraphMixin = (ModelViewerElement) => {
             this[$currentGLTF] = currentGLTF;
         }
         /** @export */
-        async exportScene(options) {
-            const scene = this[$scene];
-            return new Promise(async (resolve, reject) => {
-                // Defaults
-                const opts = {
-                    binary: true,
-                    onlyVisible: true,
-                    maxTextureSize: Infinity,
-                    includeCustomExtensions: true,
-                    forceIndices: false
-                };
-                Object.assign(opts, options);
-                // Not configurable
-                opts.animations = scene.animations;
-                opts.truncateDrawRange = true;
-                const shadow = scene.shadow;
-                let visible = false;
-                // Remove shadow from export
-                if (shadow != null) {
-                    visible = shadow.visible;
-                    shadow.visible = false;
-                }
-                await this[$model][$prepareVariantsForExport]();
-                const exporter = new GLTFExporter()
-                    .register((writer) => new GLTFExporterMaterialsVariantsExtension(writer));
-                exporter.parse(scene.model, (gltf) => {
-                    return resolve(new Blob([opts.binary ? gltf : JSON.stringify(gltf)], {
-                        type: opts.binary ? 'application/octet-stream' :
-                            'application/json'
-                    }));
-                }, () => {
-                    return reject('glTF export failed');
-                }, opts);
-                if (shadow != null) {
-                    shadow.visible = visible;
-                }
-            });
+async exportScene(options) {
+    const scene = this[$scene];
+    return new Promise(async (resolve, reject) => {
+        // Defaults
+        const opts = {
+            binary: true,
+            onlyVisible: true,
+            maxTextureSize: Infinity,
+            includeCustomExtensions: true,
+            forceIndices: false
+        };
+        Object.assign(opts, options);
+        // Not configurable
+        opts.animations = scene.animations;
+        opts.truncateDrawRange = true;
+        const shadow = scene.shadow;
+        let visible = false;
+        // Remove shadow from export
+        if (shadow != null) {
+            visible = shadow.visible;
+            shadow.visible = false;
         }
+        
+        await this[$model][$prepareVariantsForExport]();
+        
+        // Determine what to export based on children count
+        const modelToExport = scene.model.children.length === 1 ? 
+            scene.model.children[0] : 
+            scene.model;
+        
+        const exporter = new GLTFExporter()
+            .register((writer) => new GLTFExporterMaterialsVariantsExtension(writer));
+        
+        exporter.parse(modelToExport, (gltf) => {
+            return resolve(new Blob([opts.binary ? gltf : JSON.stringify(gltf)], {
+                type: opts.binary ? 'application/octet-stream' :
+                    'application/json'
+            }));
+        }, () => {
+            return reject('glTF export failed');
+        }, opts);
+        
+        if (shadow != null) {
+            shadow.visible = visible;
+        }
+    });
+}
         materialFromPoint(pixelX, pixelY) {
             const model = this[$model];
             if (model == null) {
