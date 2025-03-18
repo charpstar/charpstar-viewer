@@ -14,7 +14,7 @@ interface Material {
   metalness?: number;
   opacity?: number;
   map?: any; // base color texture map
-  textureRepeat?: { x: number; y: number };
+  textureRepeat: { x: number; y: number }; // Make this non-optional
   normalMap?: any;
   normalMapIntensity?: number; // Added normal map intensity
   roughnessMap?: any;
@@ -106,7 +106,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     }
   };
 
-  // Handle shared tiling change for all base maps
+
   const handleSharedTilingChange = (axis: 'x' | 'y', value: number) => {
     if (!modelViewerRef?.current || !selectedNode) return;
 
@@ -124,14 +124,14 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         
         object.material.needsUpdate = true;
 
-        // Update local state
+        // Update local state with non-optional values
         setMaterial(prev => {
           if (!prev) return null;
           return {
             ...prev,
             textureRepeat: {
-              ...prev.textureRepeat,
-              [axis]: value
+              x: axis === 'x' ? value : (prev.textureRepeat?.x || 1),
+              y: axis === 'y' ? value : (prev.textureRepeat?.y || 1)
             }
           };
         });
@@ -341,7 +341,10 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           metalness: object.material.metalness !== undefined ? object.material.metalness : 0,
           opacity: object.material.opacity !== undefined ? object.material.opacity : 1,
           map: object.material.map || null,
-          textureRepeat: sharedRepeat, // Store shared repeat values for all base maps
+          textureRepeat: { 
+            x: sharedRepeat.x || 1,
+            y: sharedRepeat.y || 1
+          },
           normalMap: object.material.normalMap || null,
           normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0, // New property
           roughnessMap: object.material.roughnessMap || null,
