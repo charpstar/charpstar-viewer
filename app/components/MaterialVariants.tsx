@@ -78,11 +78,12 @@ useEffect(() => {
       const hasVariants = fetchVariants();
       
       // Stop polling after finding variants or after a timeout (like 10 seconds)
-      if ((hasVariants && intervalRef.current) || 
-          (Date.now() - startTimeRef.current > 10000)) {
+    if (intervalRef.current) {
+      if (hasVariants || (Date.now() - startTimeRef.current > 10000)) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+    }
     }, 500);
   };
   
@@ -124,10 +125,12 @@ useEffect(() => {
       const hasVariants = fetchVariants();
       
       // Once we've found variants, we can stop polling
-      if (hasVariants && intervalRef.current) {
+      if (intervalRef.current) {
+      if (hasVariants) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+    }
     }, 500);
     
     // Add a load event listener as a backup
