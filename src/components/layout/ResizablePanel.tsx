@@ -1,4 +1,4 @@
-// app/components/ResizablePanel.tsx
+// components/layout/ResizablePanel.tsx
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';

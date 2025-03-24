@@ -1,9 +1,11 @@
+// app/page.tsx
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import ModelViewer from './components/ModelViewer';
-import StructureTree from './components/StructureTree';
-import RightPanel from './components/RightPanel';
+import ModelViewer from '@/components/ModelViewer';
+import StructureTree from '@/components/StructureTree';
+import RightPanel from '@/components/layout/RightPanel';
 import Image from 'next/image';
 
 export default function Home() {

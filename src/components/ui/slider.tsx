@@ -1,4 +1,4 @@
-// app/components/ui/slider.tsx
+// components/ui/slider.tsx
 "use client"
 
 import * as React from "react"

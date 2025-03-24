@@ -1,4 +1,4 @@
-// app/components/StructureTree.tsx
+// components/StructureTree.tsx
 'use client';
 
 import { useState } from 'react';

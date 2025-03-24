@@ -1,4 +1,5 @@
 // app/layout.tsx
+
 import './globals.css';
 import { Jost } from 'next/font/google';
 import Script from 'next/script';

@@ -1,4 +1,4 @@
-// app/components/ModelViewer.js
+// components/ModelViewer.js
 // @ts-nocheck
 'use client';
 

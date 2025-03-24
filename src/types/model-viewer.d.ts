@@ -1,4 +1,4 @@
-// src/types/model-viewer.d.ts
+// types/model-viewer.d.ts
 
 // Define the custom element
 declare namespace JSX {

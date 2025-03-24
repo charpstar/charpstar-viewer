@@ -1,4 +1,4 @@
-// app/components/MaterialProperties.tsx
+// components/material/MaterialProperties.tsx
 'use client';
 
 import { useState, useEffect } from 'react';

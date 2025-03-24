@@ -1,4 +1,4 @@
-// app/components/SimpleColorPicker.tsx
+// components/material/ColorPicker.tsx
 import React from 'react';
 
 interface SimpleColorPickerProps {

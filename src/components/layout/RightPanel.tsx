@@ -1,9 +1,9 @@
-// app/components/RightPanel.tsx
+// components/layout/RightPanel.tsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import MaterialProperties from './MaterialProperties';
-import MaterialVariants from './MaterialVariants';
+import MaterialProperties from '../material/MaterialProperties';
+import MaterialVariants from '../MaterialVariants';
 import ResizablePanel from './ResizablePanel';
 
 interface RightPanelProps {

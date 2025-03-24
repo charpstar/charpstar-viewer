@@ -1,4 +1,4 @@
-// TextureMapInput.tsx
+// components/material/TextureMapInput.tsx
 import React from 'react';
 
 interface TextureMapInputProps {
