@@ -135,6 +135,13 @@
     opacity: 0.7;
   }
   
+  /* Float button icon - make sure this is visible */
+  .flexlayout__tab_toolbar_button-float svg {
+    width: 12px;
+    height: 12px;
+    display: block !important;
+  }
+  
   /* Hover effects for buttons */
   .flexlayout__tab_toolbar_button:hover {
     opacity: 1;
@@ -167,4 +174,23 @@
     bottom: 0;
     background-color: rgba(100, 116, 139, 0.2);
     pointer-events: none;
+  }
+  
+  /* Help fix SVG icon display in toolbar (for float button) */
+  .flexlayout__tab_toolbar_button svg {
+    display: block;
+    width: 12px;
+    height: 12px;
+  }
+  
+  /* Popout window styling */
+  .flexlayout__floating_window_content {
+    padding: 0;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+  
+  .flexlayout__floating_window_tab {
+    padding: 0;
+    margin: 0;
   }

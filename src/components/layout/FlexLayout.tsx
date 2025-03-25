@@ -1,7 +1,7 @@
 // src/components/layout/FlexLayout.tsx
 'use client';
 
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Layout, 
   Model, 
@@ -21,10 +21,40 @@ import { useLayoutPersistence } from '@/hooks/useLayoutPersistence';
 import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 
+// Define panel configuration for easier management
+const PANEL_CONFIG = {
+  'scene': { 
+    tabsetId: 'scene-panel', 
+    tabId: 'scene-tab', 
+    component: 'scene', 
+    name: 'Scene',
+    dockLocation: DockLocation.LEFT,
+    targetId: 'viewer-panel'
+  },
+  'materials': { 
+    tabsetId: 'materials-panel', 
+    tabId: 'materials-tab', 
+    component: 'materials', 
+    name: 'Materials',
+    dockLocation: DockLocation.RIGHT,
+    targetId: 'viewer-panel'
+  },
+  'variants': { 
+    tabsetId: 'variants-panel', 
+    tabId: 'variants-tab', 
+    component: 'variants', 
+    name: 'Variants',
+    dockLocation: DockLocation.RIGHT,
+    targetId: 'viewer-panel'
+  }
+};
+
 // Define a simplified version with only supported attributes
+// Using the correct popout properties according to documentation
 const initialJson: IJsonModel = {
   global: {
-    tabEnableClose: true,
+    tabEnableClose: false, // Disable close buttons globally
+    tabEnablePopout: true, // Enable popout globally
     splitterSize: 4,
     tabSetMinHeight: 100,
     tabSetMinWidth: 100,
@@ -45,7 +75,8 @@ const initialJson: IJsonModel = {
             name: 'Scene',
             component: 'scene',
             id: 'scene-tab',
-            enableClose: true
+            enableClose: false, // Disable close button
+            enablePopout: true
           }
         ]
       },
@@ -59,7 +90,8 @@ const initialJson: IJsonModel = {
             name: '3D Viewer',
             component: 'viewer',
             id: 'viewer-tab',
-            enableClose: true
+            enableClose: false, // Disable close button
+            enablePopout: true
           }
         ]
       },
@@ -77,7 +109,8 @@ const initialJson: IJsonModel = {
                 name: 'Materials',
                 component: 'materials',
                 id: 'materials-tab',
-                enableClose: true
+                enableClose: false, // Disable close button
+                enablePopout: true
               }
             ]
           },
@@ -91,7 +124,8 @@ const initialJson: IJsonModel = {
                 name: 'Variants',
                 component: 'variants',
                 id: 'variants-tab',
-                enableClose: true
+                enableClose: false, // Disable close button
+                enablePopout: true
               }
             ]
           }
@@ -131,107 +165,149 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   const layoutRef = useRef<Layout>(null);
   const { model, saveLayout, resetLayout } = useLayoutPersistence(initialJson);
   const [resizing, setResizing] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Manual approach for toggling panels
-  const togglePanel = useCallback((panelType: 'scene' | 'materials' | 'variants', visible: boolean) => {
+  // Function to show a specific panel
+  const showPanel = useCallback((panelType: 'scene' | 'materials' | 'variants') => {
     if (!model) return;
     
-    let panelId, tabId, component, name, targetId, dockLocation;
+    const { tabsetId, tabId, component, name, dockLocation, targetId } = PANEL_CONFIG[panelType];
     
-    // Configure panel properties
-    if (panelType === 'scene') {
-      panelId = 'scene-panel';
-      tabId = 'scene-tab';
-      component = 'scene';
-      name = 'Scene';
-      targetId = 'viewer-panel';
-      dockLocation = DockLocation.LEFT;
-    } else if (panelType === 'materials') {
-      panelId = 'materials-panel';
-      tabId = 'materials-tab';
-      component = 'materials';
-      name = 'Materials';
-      targetId = 'viewer-panel';
-      dockLocation = DockLocation.RIGHT;
-    } else { // variants
-      panelId = 'variants-panel';
-      tabId = 'variants-tab';
-      component = 'variants';
-      name = 'Variants';
-      targetId = 'viewer-panel';
-      dockLocation = DockLocation.RIGHT;
-    }
-    
-    // Check if panel exists
-    const panelExists = model.getNodeById(panelId) !== undefined;
-    
-    if (visible && !panelExists) {
-      // Create panel
-      try {
-        // Create tabset with child tab
-        const tabsetJson = {
-          type: 'tabset',
-          id: panelId,
-          weight: 15,
-          children: [
-            {
-              type: 'tab',
-              name: name,
-              component: component,
-              id: tabId,
-              enableClose: true
-            }
-          ]
-        };
-        
-        // Add the panel
-        model.doAction(Actions.addNode(tabsetJson, targetId, dockLocation, -1));
-      } catch (error) {
-        console.error(`Error creating panel ${panelId}:`, error);
+    try {
+      // Check if panel already exists
+      const existingPanel = model.getNodeById(tabsetId);
+      if (existingPanel) {
+        // Panel already exists, no need to recreate
+        return;
       }
-    } else if (!visible && panelExists) {
-      // Hide panel
-      try {
-        // Simply close the panel using a custom action
-        const panelNode = model.getNodeById(panelId);
-        if (panelNode) {
-          // Use a manual approach since we don't have deleteNode/closeTab
-          // First select one of the available tabs to focus on it
-          const viewerNode = model.getNodeById('viewer-panel');
-          if (viewerNode) {
-            model.doAction({
-              type: "FlexLayout_SelectTab",
-              data: { tabsetId: 'viewer-panel', tabId: 'viewer-tab' }
-            } as any);
+      
+      // Create a new panel using the proper configuration
+      const tabsetJson = {
+        type: 'tabset',
+        id: tabsetId,
+        weight: 15,
+        children: [
+          {
+            type: 'tab',
+            name: name,
+            component: component,
+            id: tabId,
+            enableClose: false, // Disable close button
+            enablePopout: true
           }
-          
-          // Then remove the panel
-          model.doAction({
-            type: "FlexLayout_DeleteTab",
-            data: { tabsetId: panelId }
-          } as any);
-        }
-      } catch (error) {
-        console.error(`Error hiding panel ${panelId}:`, error);
-      }
+        ]
+      };
+      
+      // Add the panel using FlexLayout's built-in action
+      model.doAction(Actions.addNode(tabsetJson, targetId, dockLocation, -1));
+    } catch (error) {
+      console.error(`Error creating panel ${tabsetId}:`, error);
     }
   }, [model]);
-  
-  // Apply panel visibility changes
-  React.useEffect(() => {
+
+  // Improved function to hide a specific panel
+  const hidePanel = useCallback((panelType: 'scene' | 'materials' | 'variants') => {
     if (!model) return;
     
-    // Update each panel's visibility
-    togglePanel('scene', visiblePanels.scene);
-    togglePanel('materials', visiblePanels.materials);
-    togglePanel('variants', visiblePanels.variants);
-  }, [visiblePanels, model, togglePanel]);
+    const { tabsetId } = PANEL_CONFIG[panelType];
+    
+    try {
+      // Get the node by ID
+      const panelNode = model.getNodeById(tabsetId);
+      if (panelNode) {
+        // Check if it's a TabSetNode with children
+        const tabsetNode = panelNode;
+        if (tabsetNode.getType() === "tabset" && tabsetNode.getChildren().length > 0) {
+          // Instead of deleting the tabset, we'll find its parent
+          const parentNode = tabsetNode.getParent();
+          if (parentNode) {
+            // Remove the tabset from its parent
+            model.doAction(Actions.deleteTabset(tabsetId));
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error hiding panel ${tabsetId}:`, error);
+    }
+  }, [model]);
 
-  // Handle layout changes
+  // Update panel visibility based on props
+  useEffect(() => {
+    if (!model || !isInitialized) return;
+    
+    Object.entries(visiblePanels).forEach(([panel, isVisible]) => {
+      const panelType = panel as 'scene' | 'materials' | 'variants';
+      const { tabsetId } = PANEL_CONFIG[panelType];
+      const panelExists = model.getNodeById(tabsetId) !== undefined;
+      
+      if (isVisible && !panelExists) {
+        showPanel(panelType);
+      } else if (!isVisible && panelExists) {
+        hidePanel(panelType);
+      }
+    });
+  }, [visiblePanels, model, showPanel, hidePanel, isInitialized]);
+
+  // Initialize panels after model is loaded
+  useEffect(() => {
+    if (model && !isInitialized) {
+      setIsInitialized(true);
+      
+      // Initial setup for panel visibility
+      Object.entries(visiblePanels).forEach(([panel, isVisible]) => {
+        const panelType = panel as 'scene' | 'materials' | 'variants';
+        const { tabsetId } = PANEL_CONFIG[panelType];
+        const panelExists = model.getNodeById(tabsetId) !== undefined;
+        
+        // If a panel should be visible but doesn't exist, create it
+        if (isVisible && !panelExists) {
+          showPanel(panelType);
+        } 
+        // If a panel should not be visible but exists, hide it
+        else if (!isVisible && panelExists) {
+          hidePanel(panelType);
+        }
+      });
+    }
+  }, [model, isInitialized, visiblePanels, showPanel, hidePanel]);
+
+  // Monitor layout for tab close events (keeping this even though tabs can't be closed now)
   const handleModelChange = useCallback((newModel: Model, action: Action) => {
+    // Save the layout
     saveLayout(newModel);
     onLayoutModelUpdate(newModel);
-  }, [saveLayout, onLayoutModelUpdate]);
+    
+    // Check for tab deletion actions
+    if (action.type === "FlexLayout_DeleteTab") {
+      const { tabId } = action.data;
+      
+      // Find which panel this tab belongs to
+      Object.entries(PANEL_CONFIG).forEach(([panelType, config]) => {
+        if (config.tabId === tabId) {
+          // Update the visibility state in the parent component
+          onTogglePanel(panelType as 'scene' | 'materials' | 'variants');
+        }
+      });
+    }
+    
+    // Also check for tabset deletion actions (this is needed for proper tracking)
+    if (action.type === "FlexLayout_DeleteTabset") {
+      const { tabsetId } = action.data;
+      
+      // Find which panel this tabset belongs to
+      Object.entries(PANEL_CONFIG).forEach(([panelType, config]) => {
+        if (config.tabsetId === tabsetId) {
+          // Update the visibility state in the parent component
+          onTogglePanel(panelType as 'scene' | 'materials' | 'variants');
+        }
+      });
+    }
+
+    // Check for popout actions
+    if (action.type === "FlexLayout_PopoutTab" || action.type === "FlexLayout_PopoutTabset") {
+      console.log("Tab/Tabset popped out:", action);
+    }
+  }, [saveLayout, onLayoutModelUpdate, onTogglePanel]);
   
   // Define the components that will be used in the layout
   const factory = (node: TabNode) => {
@@ -318,27 +394,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
     '--border-radius-tab': '0.25rem'
   } as React.CSSProperties;
 
-  // Handle actions
-  const handleAction = (action: Action) => {
-    // Detect specific tab close actions
-    if (action.type === "FlexLayout_DeleteTab") {
-      const tabsetId = action.data?.tabsetId;
-      
-      // Update panel visibility state based on which panel was closed
-      if (tabsetId === 'scene-panel') {
-        setTimeout(() => onTogglePanel('scene'), 0);
-      } else if (tabsetId === 'materials-panel') {
-        setTimeout(() => onTogglePanel('materials'), 0);
-      } else if (tabsetId === 'variants-panel') {
-        setTimeout(() => onTogglePanel('variants'), 0);
-      }
-    }
-    
-    // Allow the action
-    return action;
-  };
-
-  // Add a layout reset button
+  // Handle layout reset
   const handleResetLayout = () => {
     resetLayout();
   };
@@ -354,8 +410,8 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
         model={model}
         factory={factory}
         onModelChange={handleModelChange}
-        onAction={handleAction}
         realtimeResize={true}
+        popoutURL="/popout.html" 
       />
       <Button 
         onClick={handleResetLayout}

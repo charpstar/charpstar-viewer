@@ -26,8 +26,11 @@ export default function Home() {
     setSelectedNode(node);
   };
 
-  // Panel visibility toggle
+  // Improved panel visibility toggle
   const handleTogglePanel = (panel: 'scene' | 'materials' | 'variants') => {
+    console.log(`Toggling panel visibility: ${panel} → ${!visiblePanels[panel]}`);
+    
+    // Update state with the new panel visibility
     setVisiblePanels(prev => ({
       ...prev,
       [panel]: !prev[panel]

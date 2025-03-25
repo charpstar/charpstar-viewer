@@ -7,11 +7,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Download, 
   PanelLeft, 
-  PanelRight,
-  Check,
   ChevronsUpDown,
-  Maximize2,
-  Minimize2,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -50,6 +46,12 @@ const Header: React.FC<HeaderProps> = ({
   visiblePanels,
   onTogglePanel
 }) => {
+  // Handle panel toggle with immediate UI feedback
+  const handlePanelToggle = (panel: 'scene' | 'materials' | 'variants') => {
+    // Call the toggle function from props
+    onTogglePanel(panel);
+  };
+
   return (
     <header className="h-14 bg-[#FAFAFA] text-[#111827] flex items-center justify-between px-4 border-b border-gray-200 shadow-sm w-full">
       <div className="flex items-center">
@@ -63,37 +65,7 @@ const Header: React.FC<HeaderProps> = ({
       
       <div className="flex items-center space-x-4">
         {/* Panel Toggle Dropdown Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8">
-              <PanelLeft size={16} className="mr-2" />
-              Panels
-              <ChevronsUpDown size={14} className="ml-2 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Toggle Panels</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={visiblePanels.scene}
-              onCheckedChange={() => onTogglePanel('scene')}
-            >
-              Scene Hierarchy
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={visiblePanels.materials}
-              onCheckedChange={() => onTogglePanel('materials')}
-            >
-              Materials
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={visiblePanels.variants}
-              onCheckedChange={() => onTogglePanel('variants')}
-            >
-              Variants
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
       
         {/* Environment Toggles */}
         <div className="flex space-x-2 border-x px-4">
