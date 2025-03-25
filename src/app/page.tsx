@@ -1,23 +1,42 @@
-// app/page.tsx
-
+// src/app/page.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import ModelViewer from '@/components/ModelViewer';
-import StructureTree from '@/components/StructureTree';
-import RightPanel from '@/components/layout/RightPanel';
-import Image from 'next/image';
+import { Model } from 'flexlayout-react';
+import FlexLayout from '@/components/layout/FlexLayout';
+import Header from '@/components/layout/Header';
+import 'flexlayout-react/style/dark.css';
+import '@/styles/flexlayout-custom.css';
 
 export default function Home() {
   const [modelStructure, setModelStructure] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [activeEnvironment, setActiveEnvironment] = useState<'v5' | 'v6' | null>('v6'); // Set v6 as default
+  const [layoutModel, setLayoutModel] = useState<Model | null>(null);
+  const [visiblePanels, setVisiblePanels] = useState({
+    scene: true,
+    materials: true,
+    variants: true
+  });
   const modelViewerRef = useRef<any>(null);
 
   // Handler for node selection
   const handleNodeSelect = (node: any) => {
     console.log('Home component received selected node:', node.name, node.type);
     setSelectedNode(node);
+  };
+
+  // Panel visibility toggle
+  const handleTogglePanel = (panel: 'scene' | 'materials' | 'variants') => {
+    setVisiblePanels(prev => ({
+      ...prev,
+      [panel]: !prev[panel]
+    }));
+  };
+
+  // Handle layout model updates
+  const handleLayoutModelUpdate = (model: Model) => {
+    setLayoutModel(model);
   };
 
   // Export functions
@@ -49,21 +68,19 @@ export default function Home() {
   };
 
   // Environment tester functions
-  const handleV5Tester = () => {
+  const handleEnvironmentChange = (env: 'v5' | 'v6') => {
     if (modelViewerRef.current) {
-      modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/warm.hdr";
-      modelViewerRef.current.exposure = "1.3";
-      modelViewerRef.current.toneMapping = "commerce";
-      setActiveEnvironment('v5');
-    }
-  };
-
-  const handleV6Tester = () => {
-    if (modelViewerRef.current) {
-      modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr";
-      modelViewerRef.current.exposure = "1.5";
-      modelViewerRef.current.toneMapping = "aces";
-      setActiveEnvironment('v6');
+      if (env === 'v5') {
+        modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/warm.hdr";
+        modelViewerRef.current.exposure = "1.3";
+        modelViewerRef.current.toneMapping = "commerce";
+      } else {
+        modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr";
+        modelViewerRef.current.exposure = "1.5";
+        modelViewerRef.current.toneMapping = "aces";
+      }
+      
+      setActiveEnvironment(env);
     }
   };
 
@@ -94,6 +111,9 @@ export default function Home() {
         }
         
         modelViewer.addEventListener('load', fetchModelStructure);
+        
+        // Apply the current environment settings
+        handleEnvironmentChange(activeEnvironment || 'v6');
       }
     };
 
@@ -112,109 +132,61 @@ export default function Home() {
 
     observer.observe(document.body, { childList: true, subtree: true });
 
+    // Add window resize event for responsive layout
+    const handleResize = () => {
+      if (modelViewerRef.current && typeof modelViewerRef.current.requestRender === 'function') {
+        modelViewerRef.current.requestRender();
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+
     return () => {
       observer.disconnect();
+      window.removeEventListener('resize', handleResize);
       if (modelViewerRef.current) {
         modelViewerRef.current.removeEventListener('load', fetchModelStructure);
       }
     };
-  }, []);
+  }, [activeEnvironment]);
+
+  // Handler for variant change
+  const handleVariantChange = () => {
+    console.log('Variant changed, updating material view');
+    // This will trigger a re-render of material properties
+  };
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Header (3.5% height - reduced by 30%) */}
-      <header className="h-[3.5%] bg-[#FAFAFA] text-[#111827] flex items-center justify-between pl-4 pr-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <Image
-            src="/logo.svg"
-            alt="Charpstar Logo"
-            width={100}
-            height={30}
-          />
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          {/* Environment Testers */}
-          <div className="flex space-x-2 mr-6 border-r pr-6">
-            <button 
-              className={`text-xs px-3 py-1 rounded-sm ${
-                activeEnvironment === 'v5' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-              onClick={handleV5Tester}
-            >
-              V5 Tester
-            </button>
-            <button 
-              className={`text-xs px-3 py-1 rounded-sm ${
-                activeEnvironment === 'v6' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-              onClick={handleV6Tester}
-            >
-              V6 ACES Tester
-            </button>
-          </div>
-
-          {/* Export Buttons */}
-          <div className="flex space-x-2">
-            <button 
-              className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
-              onClick={handleExportGLB}
-            >
-              Export GLB
-            </button>
-            <button 
-              className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
-              onClick={handleExportGLTF}
-            >
-              Export GLTF
-            </button>
-            <button 
-              className="bg-gray-200 hover:bg-gray-300 text-xs px-3 py-1 rounded-sm"
-              onClick={handleExportUSDZ}
-            >
-              Export USDZ
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="layout-container">
+      {/* Header - with explicit z-index to ensure it's above the layout */}
+      <div className="header-container">
+        <Header 
+          modelViewerRef={modelViewerRef}
+          layoutModel={layoutModel}
+          onExportGLB={handleExportGLB}
+          onExportGLTF={handleExportGLTF}
+          onExportUSDZ={handleExportUSDZ}
+          onEnvironmentChange={handleEnvironmentChange}
+          activeEnvironment={activeEnvironment}
+          visiblePanels={visiblePanels}
+          onTogglePanel={handleTogglePanel}
+        />
+      </div>
       
-      {/* Main Area (96.5% height - increased to compensate for header) */}
-      <main className="h-[96.5%] flex">
-        {/* Column 1: Model Structure (15% width) */}
-        <aside className="w-[15%] bg-[#FAFAFA] border-r border-gray-200 overflow-y-auto flex flex-col">
-          {/* Render the model structure */}
-          <div className="flex-grow overflow-y-auto py-4">
-            {modelStructure ? (
-              <StructureTree 
-                node={modelStructure} 
-                onNodeSelect={handleNodeSelect}
-                selectedNode={selectedNode}
-              />
-            ) : (
-              <p className="text-gray-600 text-xs px-4">
-                No model loaded or structure data not available.
-              </p>
-            )}
-          </div>
-        </aside>
-        
-        {/* Column 2: 3D Viewer (70% width) */}
-        <section className="w-[70%] bg-[#EFEFEF] p-4">
-          <ModelViewer onModelLoaded={fetchModelStructure} />
-        </section>
-        
-        {/* Column 3: Properties & Materials (15% width) */}
-        <aside className="w-[15%] bg-[#FAFAFA] p-4 border-l border-gray-200">
-          <RightPanel 
-            selectedNode={selectedNode} 
-            modelViewerRef={modelViewerRef}
-          />
-        </aside>
-      </main>
+      {/* Main Area with FlexLayout */}
+      <div className="main-container">
+        <FlexLayout
+          modelStructure={modelStructure}
+          selectedNode={selectedNode}
+          modelViewerRef={modelViewerRef}
+          onNodeSelect={handleNodeSelect}
+          onModelLoaded={fetchModelStructure}
+          onVariantChange={handleVariantChange}
+          visiblePanels={visiblePanels}
+          onLayoutModelUpdate={handleLayoutModelUpdate}
+          onTogglePanel={handleTogglePanel}
+        />
+      </div>
     </div>
   );
 }

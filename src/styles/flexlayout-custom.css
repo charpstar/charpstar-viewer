@@ -1,0 +1,170 @@
+/* src/styles/flexlayout-custom.css */
+
+/* Modern neutral color scheme */
+:root {
+    --flex-accent: #64748b; /* Slate gray - more neutral than blue */
+  }
+  
+  /* Global layout container styles */
+  .layout-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .header-container {
+    flex: 0 0 auto;
+    z-index: 20;
+    position: relative;
+  }
+  
+  .main-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* FlexLayout customizations */
+  .flexlayout__layout {
+    --color-text: var(--text) !important;
+    --color-background: var(--background) !important;
+    --color-base: var(--background) !important;
+    --color-1: var(--sidebar) !important;
+    --color-2: var(--sidebar) !important;
+    --color-3: var(--sidebar-border) !important;
+    --color-4: var(--viewer) !important;
+    --color-5: var(--sidebar-border) !important;
+    --color-6: var(--flex-accent) !important;
+    --color-drag1: rgba(100, 116, 139, 0.2) !important;
+    --color-drag2: rgba(100, 116, 139, 0.4) !important;
+    --color-drag1-border: var(--flex-accent) !important;
+    --color-drag2-border: var(--flex-accent) !important;
+  }
+  
+  /* Customize the tab styling */
+  .flexlayout__tab {
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+  
+  /* Tab header */
+  .flexlayout__tab_button {
+    border-radius: 0.25rem 0.25rem 0 0;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .flexlayout__tab_button--selected {
+    background-color: var(--flex-accent);
+    color: white;
+  }
+  
+  .flexlayout__tab_button:hover:not(.flexlayout__tab_button--selected) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Splitters */
+  .flexlayout__splitter {
+    background-color: var(--sidebar-border);
+    transition: background-color 0.2s;
+  }
+  
+  .flexlayout__splitter:hover, .flexlayout__splitter--dragging {
+    background-color: var(--flex-accent);
+  }
+  
+  /* Tab set headers with subtle shadow */
+  .flexlayout__tabset_header {
+    background-color: var(--sidebar);
+    border-bottom: 1px solid var(--sidebar-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Subtle shadow for panels */
+  .flexlayout__tabset {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Content fills tabs properly */
+  .flexlayout__tab_content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  /* Make tabset headers more distinct */
+  .flexlayout__tabset-selected {
+    background-color: rgba(100, 116, 139, 0.05);
+  }
+  
+  /* IMPORTANT: Ensure tab toolbar buttons are visible */
+  .flexlayout__tab_toolbar {
+    display: flex !important;
+    align-items: center;
+    margin-left: 4px;
+  }
+  
+  .flexlayout__tab_toolbar_button {
+    width: 20px;
+    height: 20px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+    margin: 0 2px;
+  }
+  
+  /* Specific styling for tab close button */
+  .flexlayout__tab_toolbar_button-close {
+    display: flex !important;
+    opacity: 0.7;
+  }
+  
+  /* Specific styling for tab float/popout button */
+  .flexlayout__tab_toolbar_button-float {
+    display: flex !important;
+    opacity: 0.7;
+  }
+  
+  /* Hover effects for buttons */
+  .flexlayout__tab_toolbar_button:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+  
+  /* Better styling for float windows */
+  .flexlayout__floating_window_content {
+    background-color: var(--background);
+  }
+  
+  .flexlayout__floating_window_tab {
+    background-color: var(--sidebar);
+  }
+  
+  .flexlayout__floating_window {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+  
+  /* Enhance real-time resizing experience */
+  .flexlayout__splitter.flexlayout__splitter--dragging::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(100, 116, 139, 0.2);
+    pointer-events: none;
+  }
