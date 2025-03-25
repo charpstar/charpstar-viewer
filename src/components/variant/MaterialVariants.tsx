@@ -1,4 +1,4 @@
-// components/MaterialVariants.tsx
+// src/components/variant/MaterialVariants.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -6,11 +6,13 @@ import { useState, useEffect, useRef } from 'react';
 interface MaterialVariantsProps {
   modelViewerRef: React.RefObject<any>;
   onVariantChange?: () => void;
+  selectedNode?: any | null; // Add selectedNode prop
 }
 
 const MaterialVariants: React.FC<MaterialVariantsProps> = ({ 
   modelViewerRef,
-  onVariantChange 
+  onVariantChange,
+  selectedNode 
 }) => {
   const [variants, setVariants] = useState<string[]>([]);
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
@@ -55,62 +57,59 @@ const MaterialVariants: React.FC<MaterialVariantsProps> = ({
     }
   };
 
-
-// Modify MaterialVariants.tsx
-const startTimeRef = useRef(Date.now());
-// Add a reset function that's triggered when a new model is loaded
-useEffect(() => {
-  // Reset polling on component mount or when modelViewerRef changes
-  const resetPolling = () => {
-    console.log('Resetting variant polling');
-    setVariants([]);
-    setCurrentVariant(null);
-    setLoading(true);
-    hasMountedRef.current = false;
-    
-    // Clear existing interval
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    
-    // Reset polling with a new interval
-    intervalRef.current = setInterval(() => {
-      const hasVariants = fetchVariants();
+  const startTimeRef = useRef(Date.now());
+  // Add a reset function that's triggered when a new model is loaded
+  useEffect(() => {
+    // Reset polling on component mount or when modelViewerRef changes
+    const resetPolling = () => {
+      console.log('Resetting variant polling');
+      setVariants([]);
+      setCurrentVariant(null);
+      setLoading(true);
+      hasMountedRef.current = false;
       
-      // Stop polling after finding variants or after a timeout (like 10 seconds)
-    if (intervalRef.current) {
-      if (hasVariants || (Date.now() - startTimeRef.current > 10000)) {
+      // Clear existing interval
+      if (intervalRef.current) {
         clearInterval(intervalRef.current);
-        intervalRef.current = null;
       }
+      
+      // Reset polling with a new interval
+      intervalRef.current = setInterval(() => {
+        const hasVariants = fetchVariants();
+        
+        // Stop polling after finding variants or after a timeout (like 10 seconds)
+        if (intervalRef.current) {
+          if (hasVariants || (Date.now() - startTimeRef.current > 10000)) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+        }
+      }, 500);
+    };
+    
+    // Reset polling when the component mounts
+    resetPolling();
+    
+    // Monitor modelViewerRef for changes
+    const modelViewer = modelViewerRef.current;
+    if (modelViewer) {
+      // Listen for model load events to reset polling
+      modelViewer.addEventListener('load', resetPolling);
+      
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        modelViewer.removeEventListener('load', resetPolling);
+      };
     }
-    }, 500);
-  };
-  
-  // Reset polling when the component mounts
-  resetPolling();
-  
-  // Monitor modelViewerRef for changes
-  const modelViewer = modelViewerRef.current;
-  if (modelViewer) {
-    // Listen for model load events to reset polling
-    modelViewer.addEventListener('load', resetPolling);
     
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      modelViewer.removeEventListener('load', resetPolling);
     };
-  }
-  
-  return () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-  };
-}, [modelViewerRef]);
-
+  }, [modelViewerRef]);
 
   // Set up polling for variants
   useEffect(() => {
@@ -126,11 +125,11 @@ useEffect(() => {
       
       // Once we've found variants, we can stop polling
       if (intervalRef.current) {
-      if (hasVariants) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+        if (hasVariants) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       }
-    }
     }, 500);
     
     // Add a load event listener as a backup
@@ -161,8 +160,22 @@ useEffect(() => {
         modelViewerRef.current.variantName = variantName;
         setCurrentVariant(variantName);
         
-        // Wait a moment for the variant to be applied before notifying parent
+        // Wait a brief moment for the variant to be applied
         setTimeout(() => {
+          // If the selectedNode exists, we need to refresh the material properties
+          // by forcing a re-query of the material information
+          if (selectedNode && modelViewerRef.current) {
+            try {
+              // Force a refresh of the material state by requesting a render
+              if (typeof modelViewerRef.current.requestRender === 'function') {
+                modelViewerRef.current.requestRender();
+              }
+            } catch (error) {
+              console.error('Error refreshing material after variant change:', error);
+            }
+          }
+          
+          // Notify parent component of the variant change
           if (onVariantChange) {
             onVariantChange();
           }

@@ -1,9 +1,10 @@
 // components/material/MaterialProperties.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronUp, Link, Link2Off } from 'lucide-react';
 import TextureMapInput from './TextureMapInput';
+import { SliderWithInput } from '@/components/ui/slider-with-input';
 
 // Define types for material properties
 interface Material {
@@ -33,17 +34,20 @@ interface Material {
 interface MaterialPropertiesProps {
   selectedNode: any | null;
   modelViewerRef?: React.RefObject<any>;
+  variantChangeCounter?: number; // Add this prop to force re-rendering
 }
 
 const MaterialProperties: React.FC<MaterialPropertiesProps> = ({ 
   selectedNode,
-  modelViewerRef
+  modelViewerRef,
+  variantChangeCounter = 0 // Default to 0
 }) => {
   const [material, setMaterial] = useState<Material | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [isMeshPhysicalMaterial, setIsMeshPhysicalMaterial] = useState(false);
   const [uniformTiling, setUniformTiling] = useState(true);
   const [uniformSheenTiling, setUniformSheenTiling] = useState(true);
+  const materialRefreshCounter = useRef(0);
 
   // Convert color object to hex string
   const rgbToHex = (color: { r: number; g: number; b: number }) => {
@@ -321,7 +325,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
       const object = modelViewerRef.current.getObjectByUuid?.(selectedNode.uuid);
       
       if (object && object.material) {
-        console.log('Found material for mesh:', object.material);
+        console.log('Found material for mesh:', object.material, 'Refresh counter:', variantChangeCounter);
         
         // Check if the material is MeshPhysicalMaterial
         setIsMeshPhysicalMaterial(object.material.type === 'MeshPhysicalMaterial');
@@ -330,6 +334,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         const sharedRepeat = getSharedTextureRepeat(object);
         
         const materialData: Material = {
+          // Material properties populated as before
           name: object.material.name || 'Material',
           type: object.material.type || 'Material',
           color: object.material.color ? { 
@@ -346,7 +351,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
             y: sharedRepeat.y || 1
           },
           normalMap: object.material.normalMap || null,
-          normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0, // New property
+          normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0,
           roughnessMap: object.material.roughnessMap || null,
           metalnessMap: object.material.metalnessMap || null,
           alphaMap: object.material.alphaMap || null,
@@ -373,7 +378,98 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
       setMaterial(null);
       setIsMeshPhysicalMaterial(false);
     }
-  }, [selectedNode, modelViewerRef]);
+  }, [selectedNode, modelViewerRef, variantChangeCounter]); // Added variantChangeCounter to the dependency array
+
+  const getSheenTextureRepeat = (object: any): { x: number; y: number } => {
+    // Check specifically for sheenColorMap repeat values
+    if (object.material.sheenColorMap?.repeat) {
+      return { 
+        x: object.material.sheenColorMap.repeat.x, 
+        y: object.material.sheenColorMap.repeat.y 
+      };
+    }
+    
+    // Default values if no sheen map is applied
+    return { x: 1, y: 1 };
+  };
+  
+  // Then in the useEffect that fetches material data, modify it like this:
+  useEffect(() => {
+    if (!selectedNode || selectedNode.type !== 'Mesh' || !modelViewerRef?.current) {
+      setMaterial(null);
+      setIsMeshPhysicalMaterial(false);
+      return;
+    }
+    
+    try {
+      const object = modelViewerRef.current.getObjectByUuid?.(selectedNode.uuid);
+      
+      if (object && object.material) {
+        console.log('Found material for mesh:', object.material);
+        
+        // Check if the material is MeshPhysicalMaterial
+        setIsMeshPhysicalMaterial(object.material.type === 'MeshPhysicalMaterial');
+  
+        // Get the shared texture repeat values
+        const sharedRepeat = getSharedTextureRepeat(object);
+        
+        // Get sheen-specific repeat values if they exist
+        const sheenRepeat = getSheenTextureRepeat(object);
+        
+        // Log the values to debug
+        console.log('Sheen repeat values:', sheenRepeat);
+        
+        const materialData: Material = {
+          // Other material properties remain the same
+          name: object.material.name || 'Material',
+          type: object.material.type || 'Material',
+          color: object.material.color ? { 
+            r: object.material.color.r, 
+            g: object.material.color.g, 
+            b: object.material.color.b 
+          } : '#ffffff',
+          roughness: object.material.roughness !== undefined ? object.material.roughness : 0.5,
+          metalness: object.material.metalness !== undefined ? object.material.metalness : 0,
+          opacity: object.material.opacity !== undefined ? object.material.opacity : 1,
+          map: object.material.map || null,
+          textureRepeat: { 
+            x: sharedRepeat.x || 1,
+            y: sharedRepeat.y || 1
+          },
+          normalMap: object.material.normalMap || null,
+          normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0,
+          roughnessMap: object.material.roughnessMap || null,
+          metalnessMap: object.material.metalnessMap || null,
+          alphaMap: object.material.alphaMap || null,
+          aoMap: object.material.aoMap || null,
+          aoMapIntensity: object.material.aoMapIntensity !== undefined ? object.material.aoMapIntensity : 1.0,
+          sheenRoughness: object.material.sheenRoughness !== undefined ? object.material.sheenRoughness : 0,
+          sheenColor: object.material.sheenColor ? {
+            r: object.material.sheenColor.r,
+            g: object.material.sheenColor.g,
+            b: object.material.sheenColor.b
+          } : '#ffffff',
+          sheenColorMap: object.material.sheenColorMap || null,
+          // Update this to use the new sheenRepeat values
+          sheenColorMapRepeat: { 
+            x: sheenRepeat.x || 1,
+            y: sheenRepeat.y || 1
+          },
+          sheenColorMap_channel: object.material.sheenColorMap?.channel || 0
+        };
+        
+        setMaterial(materialData);
+      } else {
+        console.log('No material found for mesh');
+        setMaterial(null);
+        setIsMeshPhysicalMaterial(false);
+      }
+    } catch (error) {
+      console.error('Error accessing material:', error);
+      setMaterial(null);
+      setIsMeshPhysicalMaterial(false);
+    }
+  }, [selectedNode, modelViewerRef, variantChangeCounter]);
 
   // Handle normal map intensity change
   const handleNormalMapIntensityChange = (value: number) => {
@@ -432,6 +528,14 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     );
   }
 
+  const parsePercentage = (input: string): number => {
+    // Remove any '%' character
+    const cleaned = input.replace('%', '').trim();
+    // Parse as float and convert to 0-1 range
+    return parseFloat(cleaned) / 100;
+  };
+  
+
   return (
     <div className="text-sm">
       {/* Material header with color swatch */}
@@ -471,17 +575,16 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         <div className="flex items-center justify-between">
           <label className="text-sm">Roughness</label>
           <div className="flex items-center">
-            <span className="mr-2 text-xs w-8 text-right">
-              {material.roughness !== undefined ? `${Math.round(material.roughness * 100)}%` : '0%'}
-            </span>
-            <input 
-              type="range" 
-              min="0" 
-              max="1" 
-              step="0.01"
+            <SliderWithInput
+              min={0}
+              max={1}
+              step={0.01}
               value={material.roughness || 0}
-              onChange={(e) => handlePropertyChange('roughness', parseFloat(e.target.value))}
-              className="w-24 h-1"
+              onChange={(value) => handlePropertyChange('roughness', value)}
+              displayFormat={(value) => `${Math.round(value * 100)}%`}
+              parseInput={parsePercentage}
+              sliderWidth="w-28"
+              inputWidth="w-12"
             />
           </div>
         </div>
@@ -499,21 +602,20 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         <div className="flex items-center justify-between">
           <label className="text-sm">Metalness</label>
           <div className="flex items-center">
-            <span className="mr-2 text-xs w-8 text-right">
-              {material.metalness !== undefined ? `${Math.round(material.metalness * 100)}%` : '0%'}
-            </span>
-            <input 
-              type="range" 
-              min="0" 
-              max="1" 
-              step="0.01"
+            <SliderWithInput
+              min={0}
+              max={1}
+              step={0.01}
               value={material.metalness || 0}
-              onChange={(e) => handlePropertyChange('metalness', parseFloat(e.target.value))}
-              className="w-24 h-1"
+              onChange={(value) => handlePropertyChange('metalness', value)}
+              displayFormat={(value) => `${Math.round(value * 100)}%`}
+              parseInput={parsePercentage}
+              sliderWidth="w-28"
+              inputWidth="w-12"
             />
           </div>
         </div>
-        
+                
         {/* Metalness Map */}
         <TextureMapInput
           label="Metalness Map"
@@ -537,17 +639,15 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           <div className="flex items-center justify-between">
             <label className="text-sm">Normal Intensity</label>
             <div className="flex items-center">
-              <span className="mr-2 text-xs w-8 text-right">
-                {material.normalMapIntensity !== undefined ? material.normalMapIntensity.toFixed(1) : '1.0'}
-              </span>
-              <input 
-                type="range" 
-                min="0" 
-                max="10" 
-                step="0.1"
+              <SliderWithInput
+                min={0}
+                max={5}
+                step={0.1}
                 value={material.normalMapIntensity !== undefined ? material.normalMapIntensity : 1}
-                onChange={(e) => handleNormalMapIntensityChange(parseFloat(e.target.value))}
-                className="w-24 h-1"
+                onChange={(value) => handleNormalMapIntensityChange(value)}
+                displayFormat={(value) => value.toFixed(1)}
+                sliderWidth="w-28"
+                inputWidth="w-12"
               />
             </div>
           </div>
@@ -622,17 +722,16 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           <div className="flex items-center justify-between">
             <label className="text-sm">AO Intensity</label>
             <div className="flex items-center">
-              <span className="mr-2 text-xs w-8 text-right">
-                {material.aoMapIntensity !== undefined ? `${Math.round(material.aoMapIntensity * 100)}%` : '100%'}
-              </span>
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.01"
+              <SliderWithInput
+                min={0}
+                max={1}
+                step={0.01}
                 value={material.aoMapIntensity !== undefined ? material.aoMapIntensity : 1}
-                onChange={(e) => handlePropertyChange('aoMapIntensity', parseFloat(e.target.value))}
-                className="w-24 h-1"
+                onChange={(value) => handlePropertyChange('aoMapIntensity', value)}
+                displayFormat={(value) => `${Math.round(value * 100)}%`}
+                parseInput={parsePercentage}
+                sliderWidth="w-28"
+                inputWidth="w-12"
               />
             </div>
           </div>
@@ -655,17 +754,16 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-sm">Opacity</label>
               <div className="flex items-center">
-                <span className="mr-2 text-xs w-8 text-right">
-                  {material.opacity !== undefined ? `${Math.round(material.opacity * 100)}%` : '100%'}
-                </span>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1" 
-                  step="0.01"
+                <SliderWithInput
+                  min={0}
+                  max={1}
+                  step={0.01}
                   value={material.opacity !== undefined ? material.opacity : 1}
-                  onChange={(e) => handlePropertyChange('opacity', parseFloat(e.target.value))}
-                  className="w-24 h-1"
+                  onChange={(value) => handlePropertyChange('opacity', value)}
+                  displayFormat={(value) => `${Math.round(value * 100)}%`}
+                  parseInput={parsePercentage}
+                  sliderWidth="w-28"
+                  inputWidth="w-12"
                 />
               </div>
             </div>
@@ -685,23 +783,21 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                 
                 {/* Sheen Roughness */}
                 <div className="flex items-center justify-between">
-                  <label className="text-sm">Sheen Roughness</label>
-                  <div className="flex items-center">
-                    <span className="mr-2 text-xs w-8 text-right">
-                      {material.sheenRoughness !== undefined ? `${Math.round(material.sheenRoughness * 100)}%` : '0%'}
-                    </span>
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="1" 
-                      step="0.01"
-                      value={material.sheenRoughness || 0}
-                      onChange={(e) => handlePropertyChange('sheenRoughness', parseFloat(e.target.value))}
-                      className="w-24 h-1"
-                    />
-                  </div>
+                <label className="text-sm">Sheen Roughness</label>
+                <div className="flex items-center">
+                  <SliderWithInput
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={material.sheenRoughness || 0}
+                    onChange={(value) => handlePropertyChange('sheenRoughness', value)}
+                    displayFormat={(value) => `${Math.round(value * 100)}%`}
+                    parseInput={parsePercentage}
+                    sliderWidth="w-28"
+                    inputWidth="w-12"
+                  />
                 </div>
-
+              </div>
                 {/* Sheen Color */}
                 <div className="flex items-center justify-between">
                   <label className="text-sm">Sheen Color</label>

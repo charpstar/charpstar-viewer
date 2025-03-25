@@ -166,6 +166,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   const { model, saveLayout, resetLayout } = useLayoutPersistence(initialJson);
   const [resizing, setResizing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [variantChangeCounter, setVariantChangeCounter] = useState(0); // Add this state
 
   // Function to show a specific panel
   const showPanel = useCallback((panelType: 'scene' | 'materials' | 'variants') => {
@@ -271,6 +272,16 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
     }
   }, [model, isInitialized, visiblePanels, showPanel, hidePanel]);
 
+  const handleVariantChange = () => {
+    console.log('Variant changed, updating material panel');
+    // Increment the counter to force MaterialProperties to re-render
+    setVariantChangeCounter(prev => prev + 1);
+    // Also call the parent's onVariantChange if it exists
+    if (onVariantChange) {
+      onVariantChange();
+    }
+  };
+
   // Monitor layout for tab close events (keeping this even though tabs can't be closed now)
   const handleModelChange = useCallback((newModel: Model, action: Action) => {
     // Save the layout
@@ -339,34 +350,36 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
           </div>
         );
         
-      case 'materials':
-        return (
-          <div className="h-full p-4 bg-[#FAFAFA] overflow-auto">
-            <h3 className="text-sm font-medium mb-4">Material Properties</h3>
-            {selectedNode ? (
-              <>
-                <div className="mb-2 text-xs text-gray-600">Selected: {selectedNode.name} ({selectedNode.type})</div>
-                <MaterialProperties 
-                  selectedNode={selectedNode} 
-                  modelViewerRef={modelViewerRef}
-                />
-              </>
-            ) : (
-              <div className="text-gray-600 text-xs">Select a mesh to view its material properties.</div>
-            )}
-          </div>
-        );
-        
-      case 'variants':
-        return (
-          <div className="h-full p-4 bg-[#FAFAFA] overflow-auto">
-            <h3 className="text-sm font-medium mb-4">Variants</h3>
-            <MaterialVariants 
-              modelViewerRef={modelViewerRef} 
-              onVariantChange={onVariantChange}
-            />
-          </div>
-        );
+        case 'materials':
+          return (
+            <div className="h-full p-4 bg-[#FAFAFA] overflow-auto">
+              <h3 className="text-sm font-medium mb-4">Material Properties</h3>
+              {selectedNode ? (
+                <>
+                  <div className="mb-2 text-xs text-gray-600">Selected: {selectedNode.name} ({selectedNode.type})</div>
+                  <MaterialProperties 
+                    selectedNode={selectedNode} 
+                    modelViewerRef={modelViewerRef}
+                    variantChangeCounter={variantChangeCounter} // Pass the counter
+                  />
+                </>
+              ) : (
+                <div className="text-gray-600 text-xs">Select a mesh to view its material properties.</div>
+              )}
+            </div>
+          );
+          
+        case 'variants':
+          return (
+            <div className="h-full p-4 bg-[#FAFAFA] overflow-auto">
+              <h3 className="text-sm font-medium mb-4">Variants</h3>
+              <MaterialVariants 
+                modelViewerRef={modelViewerRef} 
+                onVariantChange={handleVariantChange} // Use local handler
+                selectedNode={selectedNode} // Pass selectedNode
+              />
+            </div>
+          );
         
       default:
         return <div>Unknown component: {component}</div>;
