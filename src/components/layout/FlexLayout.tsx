@@ -17,7 +17,6 @@ import StructureTree from '../scene/StructureTree';
 import MaterialProperties from '../material/MaterialProperties';
 import MaterialVariants from '../variant/MaterialVariants';
 import ModelViewer from '../ModelViewer';
-import { useLayoutPersistence } from '@/hooks/useLayoutPersistence';
 import { Button } from '@/components/ui/button';
 import { RotateCcw } from 'lucide-react';
 
@@ -151,6 +150,37 @@ interface FlexLayoutProps {
   onTogglePanel: (panel: 'scene' | 'materials' | 'variants') => void;
 }
 
+// Simple hook to replace useLayoutPersistence
+const useLayout = (defaultLayout: IJsonModel) => {
+  const [model, setModel] = useState<Model | null>(null);
+
+  // Just load the default layout on mount, no persistence
+  useEffect(() => {
+    try {
+      // Always use the default layout
+      setModel(Model.fromJson(defaultLayout));
+      console.log('Default layout loaded');
+    } catch (e) {
+      console.error('Failed to load default layout', e);
+    }
+  }, [defaultLayout]);
+
+  // Function to reset to default layout (for UI reset button)
+  const resetLayout = () => {
+    try {
+      setModel(Model.fromJson(defaultLayout));
+      console.log('Layout reset to default');
+    } catch (e) {
+      console.error('Failed to reset layout', e);
+    }
+  };
+
+  return { 
+    model, 
+    resetLayout 
+  };
+};
+
 const FlexLayout: React.FC<FlexLayoutProps> = ({
   modelStructure,
   selectedNode,
@@ -163,7 +193,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   onTogglePanel
 }) => {
   const layoutRef = useRef<Layout>(null);
-  const { model, saveLayout, resetLayout } = useLayoutPersistence(initialJson);
+  const { model, resetLayout } = useLayout(initialJson);
   const [resizing, setResizing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [variantChangeCounter, setVariantChangeCounter] = useState(0); // Add this state
@@ -282,10 +312,9 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
     }
   };
 
-  // Monitor layout for tab close events (keeping this even though tabs can't be closed now)
+  // Simplified model change handler
   const handleModelChange = useCallback((newModel: Model, action: Action) => {
-    // Save the layout
-    saveLayout(newModel);
+    // Simply update the parent component with the new model
     onLayoutModelUpdate(newModel);
     
     // Check for tab deletion actions
@@ -314,11 +343,14 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
       });
     }
 
-    // Check for popout actions
-    if (action.type === "FlexLayout_PopoutTab" || action.type === "FlexLayout_PopoutTabset") {
-      console.log("Tab/Tabset popped out:", action);
+    // Log other actions but don't try to fix them
+    if (action.type === "FlexLayout_MoveNode" || 
+        action.type === "FlexLayout_AddNode" ||
+        action.type === "FlexLayout_PopoutTab" || 
+        action.type === "FlexLayout_PopoutTabset") {
+      console.log(`Layout action: ${action.type}`);
     }
-  }, [saveLayout, onLayoutModelUpdate, onTogglePanel]);
+  }, [onLayoutModelUpdate, onTogglePanel]);
   
   // Define the components that will be used in the layout
   const factory = (node: TabNode) => {
@@ -407,11 +439,6 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
     '--border-radius-tab': '0.25rem'
   } as React.CSSProperties;
 
-  // Handle layout reset
-  const handleResetLayout = () => {
-    resetLayout();
-  };
-
   if (!model) {
     return <div>Loading layout...</div>;
   }
@@ -427,7 +454,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
         popoutURL="/popout.html" 
       />
       <Button 
-        onClick={handleResetLayout}
+        onClick={resetLayout}
         variant="outline"
         size="sm"
         className="absolute bottom-4 right-4 bg-white/80 text-xs opacity-70 hover:opacity-100 transition-opacity"
