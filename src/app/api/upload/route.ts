@@ -7,9 +7,10 @@ const REGION = process.env.BUNNY_REGION || '';
 const BASE_HOSTNAME = 'storage.bunnycdn.com';
 const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
 const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
-const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY;
-const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
+const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || ''; // Add fallback
+const BUNNY_API_KEY = process.env.BUNNY_API_KEY || ''; // Add fallback
 const BUNNY_PULL_ZONE_URL = process.env.BUNNY_PULL_ZONE_URL || 'cdn.charpstar.net';
+
 
 // Helper to extract the zone name and base path from the environment variable
 const getStorageZoneDetails = () => {
