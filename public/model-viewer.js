@@ -53683,266 +53683,272 @@ async downloadMaterialsJson() {
     for (const variantName of availableVariants) {
       console.log(`Processing variant: ${variantName}`);
       
-      // Find the corresponding material in our copy
-      const materialToUpdate = materialsCopy.find(m => m.name === variantName);
-      if (!materialToUpdate) {
-        console.warn(`Material for variant ${variantName} not found in original structure`);
-        continue;
-      }
-      
       // Switch to this variant
       modelViewer.variantName = variantName;
       
       // Wait for the variant to be applied
-      await new Promise(resolve => setTimeout(resolve, 20));
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       // Get the scene
       const scene = modelViewer.getScene()._model;
       
-      // Find the material for this variant by name
-      let variantMaterial = null;
+      // Find all materials that are applied for this variant
+      const variantMaterials = [];
       let materialCount = 0;
 
       scene.traverse((object) => {
         if (object.material) {
           materialCount++;
           
-          // Match material by name instead of taking the first one
-          if (object.material.name === variantName) {
-            console.log(`Found matching material for variant ${variantName}:`, object.material);
-            variantMaterial = object.material;
-          }
+          // Store the material with its mesh for reference
+          variantMaterials.push({
+            meshName: object.name,
+            material: object.material,
+            materialName: object.material.name
+          });
+          
+          console.log(`Found material "${object.material.name}" on mesh "${object.name}" for variant "${variantName}"`);
         }
       });
 
-      console.log(`Found ${materialCount} total materials, searching for one named ${variantName}`);
-
-      if (!variantMaterial) {
-        console.warn(`No material found with name matching variant ${variantName}`);
+      console.log(`Found ${materialCount} total materials for variant ${variantName}`);
+      
+      if (variantMaterials.length === 0) {
+        console.warn(`No materials found for variant ${variantName}`);
         continue;
       }
       
-      console.log(`Updating material for variant ${variantName}:`, variantMaterial);
-      
-      // Initialize pbrMetallicRoughness if it doesn't exist
-      if (!materialToUpdate.pbrMetallicRoughness) {
-        materialToUpdate.pbrMetallicRoughness = {};
-      }
-      
-      // Ensure extensions object exists if needed
-      if (!materialToUpdate.extensions && 
-          (variantMaterial.sheen > 0 || 
-           variantMaterial.sheenColor || 
-           variantMaterial.sheenRoughness !== undefined || 
-           variantMaterial.sheenColorMap)) {
-        materialToUpdate.extensions = {};
-      }
-      
-      // Ensure KHR_materials_sheen exists if needed
-      if (materialToUpdate.extensions && 
-          !materialToUpdate.extensions.KHR_materials_sheen && 
-          (variantMaterial.sheen > 0 || 
-           variantMaterial.sheenColor || 
-           variantMaterial.sheenRoughness !== undefined || 
-           variantMaterial.sheenColorMap)) {
-        materialToUpdate.extensions.KHR_materials_sheen = {};
-      }
-      
-      // Update base properties
-      
-      // Update roughness if defined in the material
-      if (variantMaterial.roughness !== undefined) {
-        // Make sure we cast to the same precision format as the original value
-        materialToUpdate.pbrMetallicRoughness.roughnessFactor = Number(variantMaterial.roughness.toFixed(9));
-        console.log(`Updated roughness for ${variantName} to ${materialToUpdate.pbrMetallicRoughness.roughnessFactor}`);
-      }
+      // Now process each material we found in the scene
+      for (const { meshName, material, materialName } of variantMaterials) {
+        // Find the corresponding material in our copy
+        const materialToUpdate = materialsCopy.find(m => m.name === materialName);
+        
+        if (!materialToUpdate) {
+          console.warn(`Material "${materialName}" for mesh "${meshName}" not found in original structure`);
+          continue;
+        }
+        
+        console.log(`Updating material "${materialName}" for mesh "${meshName}" in variant "${variantName}"`);
+        
+        // Initialize pbrMetallicRoughness if it doesn't exist
+        if (!materialToUpdate.pbrMetallicRoughness) {
+          materialToUpdate.pbrMetallicRoughness = {};
+        }
+        
+        // Ensure extensions object exists if needed
+        if (!materialToUpdate.extensions && 
+            (material.sheen > 0 || 
+             material.sheenColor || 
+             material.sheenRoughness !== undefined || 
+             material.sheenColorMap)) {
+          materialToUpdate.extensions = {};
+        }
+        
+        // Ensure KHR_materials_sheen exists if needed
+        if (materialToUpdate.extensions && 
+            !materialToUpdate.extensions.KHR_materials_sheen && 
+            (material.sheen > 0 || 
+             material.sheenColor || 
+             material.sheenRoughness !== undefined || 
+             material.sheenColorMap)) {
+          materialToUpdate.extensions.KHR_materials_sheen = {};
+        }
+        
+        // Update base properties
+        
+        // Update roughness if defined in the material
+        if (material.roughness !== undefined) {
+          materialToUpdate.pbrMetallicRoughness.roughnessFactor = Number(material.roughness.toFixed(9));
+          console.log(`Updated roughness for "${materialName}" to ${materialToUpdate.pbrMetallicRoughness.roughnessFactor}`);
+        }
 
-      // Update metalness if defined in the material
-      if (variantMaterial.metalness !== undefined) {
-        materialToUpdate.pbrMetallicRoughness.metallicFactor = Number(variantMaterial.metalness.toFixed(9));
-        console.log(`Updated metalness for ${variantName} to ${materialToUpdate.pbrMetallicRoughness.metallicFactor}`);
-      }
-      
-      // Update color - Always add baseColorFactor if color is not default white
-      if (variantMaterial.color) {
-        const isNotWhite = variantMaterial.color.r !== 1 || 
-                           variantMaterial.color.g !== 1 || 
-                           variantMaterial.color.b !== 1;
-                           
-        // Always add the color factor for non-white colors, even when textures exist
-        if (isNotWhite) {
-          materialToUpdate.pbrMetallicRoughness.baseColorFactor = [
-            variantMaterial.color.r,
-            variantMaterial.color.g,
-            variantMaterial.color.b,
-            variantMaterial.opacity !== undefined ? variantMaterial.opacity : 1.0
-          ];
-          console.log(`Added baseColorFactor to ${variantName}:`, materialToUpdate.pbrMetallicRoughness.baseColorFactor);
-        }
-      }
-      
-      // Update double sided if defined
-      if (variantMaterial.side !== undefined) {
-        // Three.js uses side 0 for front, 1 for back, 2 for double
-        // GLTF uses doubleSided: true/false
-        materialToUpdate.doubleSided = variantMaterial.side === 2;
-      }
-      
-      // Update occlusionTexture strength if AO map exists
-      if (variantMaterial.aoMap && variantMaterial.aoMapIntensity !== undefined) {
-        if (materialToUpdate.occlusionTexture) {
-          materialToUpdate.occlusionTexture.strength = variantMaterial.aoMapIntensity;
-          console.log(`Updated AO map strength for ${variantName} to ${variantMaterial.aoMapIntensity}`);
-        }
-      }
-      
-      // Update normal map intensity with more precise logging
-      if (variantMaterial.normalMap && variantMaterial.normalScale) {
-        if (materialToUpdate.normalTexture) {
-          const oldScale = materialToUpdate.normalTexture.scale;
-          materialToUpdate.normalTexture.scale = variantMaterial.normalScale.x;
-          console.log(`Updated normal map scale for ${variantName} from ${oldScale} to ${materialToUpdate.normalTexture.scale}`);
-        } else {
-          console.warn(`Material has normalMap but no normalTexture in original structure for ${variantName}`);
-        }
-      }
-      
-      // Update normal map transforms if they exist
-      if (variantMaterial.normalMap && 
-          materialToUpdate.normalTexture && 
-          materialToUpdate.normalTexture.extensions && 
-          materialToUpdate.normalTexture.extensions.KHR_texture_transform) {
-            
-        const transform = materialToUpdate.normalTexture.extensions.KHR_texture_transform;
-        
-        // Initialize offset array if it doesn't exist
-        if (!transform.offset && variantMaterial.normalMap.offset) {
-          transform.offset = [0, 0];
+        // Update metalness if defined in the material
+        if (material.metalness !== undefined) {
+          materialToUpdate.pbrMetallicRoughness.metallicFactor = Number(material.metalness.toFixed(9));
+          console.log(`Updated metalness for "${materialName}" to ${materialToUpdate.pbrMetallicRoughness.metallicFactor}`);
         }
         
-        // Now update the offset if it exists
-        if (transform.offset && variantMaterial.normalMap.offset) {
-          transform.offset[0] = variantMaterial.normalMap.offset.x;
-          transform.offset[1] = variantMaterial.normalMap.offset.y;
-        }
-        
-        // Initialize scale array if it doesn't exist
-        if (!transform.scale && variantMaterial.normalMap.repeat) {
-          transform.scale = [1, 1];
-        }
-        
-        // Update the scale if it exists
-        if (transform.scale && variantMaterial.normalMap.repeat) {
-          transform.scale[0] = variantMaterial.normalMap.repeat.x;
-          transform.scale[1] = variantMaterial.normalMap.repeat.y;
-        }
-        
-        // Update rotation if it exists in both
-        if (transform.rotation !== undefined && variantMaterial.normalMap.rotation !== undefined) {
-          transform.rotation = variantMaterial.normalMap.rotation;
-        }
-      }
-      
-      // Update base color texture transforms if map exists
-      if (variantMaterial.map && 
-          materialToUpdate.pbrMetallicRoughness?.baseColorTexture?.extensions?.KHR_texture_transform) {
-          
-        const transform = materialToUpdate.pbrMetallicRoughness.baseColorTexture.extensions.KHR_texture_transform;
-        
-        // Initialize offset array if it doesn't exist
-        if (!transform.offset && variantMaterial.map.offset) {
-          transform.offset = [0, 0];
-        }
-        
-        // Now update the offset if it exists
-        if (transform.offset && variantMaterial.map.offset) {
-          transform.offset[0] = variantMaterial.map.offset.x;
-          transform.offset[1] = variantMaterial.map.offset.y;
-        }
-        
-        // Initialize scale array if it doesn't exist
-        if (!transform.scale && variantMaterial.map.repeat) {
-          transform.scale = [1, 1];
-        }
-        
-        // Update the scale if it exists
-        if (transform.scale && variantMaterial.map.repeat) {
-          transform.scale[0] = variantMaterial.map.repeat.x;
-          transform.scale[1] = variantMaterial.map.repeat.y;
-        }
-        
-        // Update rotation if it exists in both
-        if (transform.rotation !== undefined && variantMaterial.map.rotation !== undefined) {
-          transform.rotation = variantMaterial.map.rotation;
-        }
-      }
-      
-      // ======== SHEEN PROPERTIES ========
-      
-      // Update sheen properties if they exist in the material
-      if ((variantMaterial.sheen > 0 || 
-           variantMaterial.sheenColor || 
-           variantMaterial.sheenRoughness !== undefined || 
-           variantMaterial.sheenColorMap) && 
-          materialToUpdate.extensions?.KHR_materials_sheen) {
-          
-        const sheenExtension = materialToUpdate.extensions.KHR_materials_sheen;
-        
-        // Update sheen color
-        if (variantMaterial.sheenColor) {
-          if (!sheenExtension.sheenColorFactor) {
-            sheenExtension.sheenColorFactor = [0, 0, 0];
+        // Update color - Always add baseColorFactor if color is not default white
+        if (material.color) {
+          const isNotWhite = material.color.r !== 1 || 
+                             material.color.g !== 1 || 
+                             material.color.b !== 1;
+                             
+          // Always add the color factor for non-white colors, even when textures exist
+          if (isNotWhite) {
+            materialToUpdate.pbrMetallicRoughness.baseColorFactor = [
+              material.color.r,
+              material.color.g,
+              material.color.b,
+              material.opacity !== undefined ? material.opacity : 1.0
+            ];
+            console.log(`Added baseColorFactor to "${materialName}":`, materialToUpdate.pbrMetallicRoughness.baseColorFactor);
           }
-          
-          sheenExtension.sheenColorFactor[0] = variantMaterial.sheenColor.r;
-          sheenExtension.sheenColorFactor[1] = variantMaterial.sheenColor.g;
-          sheenExtension.sheenColorFactor[2] = variantMaterial.sheenColor.b;
-          
-          console.log(`Updated sheen color for ${variantName} to`, sheenExtension.sheenColorFactor);
         }
         
-        // Update sheen roughness
-        if (variantMaterial.sheenRoughness !== undefined) {
-          sheenExtension.sheenRoughnessFactor = Number(variantMaterial.sheenRoughness.toFixed(9));
-          console.log(`Updated sheen roughness for ${variantName} to ${sheenExtension.sheenRoughnessFactor}`);
+        // Update double sided if defined
+        if (material.side !== undefined) {
+          // Three.js uses side 0 for front, 1 for back, 2 for double
+          // GLTF uses doubleSided: true/false
+          materialToUpdate.doubleSided = material.side === 2;
         }
         
-        // Update sheen color map transforms if map exists
-        if (variantMaterial.sheenColorMap && 
-            sheenExtension.sheenColorTexture?.extensions?.KHR_texture_transform) {
-            
-          const transform = sheenExtension.sheenColorTexture.extensions.KHR_texture_transform;
+        // Update occlusionTexture strength if AO map exists
+        if (material.aoMap && material.aoMapIntensity !== undefined) {
+          if (materialToUpdate.occlusionTexture) {
+            materialToUpdate.occlusionTexture.strength = material.aoMapIntensity;
+            console.log(`Updated AO map strength for "${materialName}" to ${material.aoMapIntensity}`);
+          }
+        }
+        
+        // Update normal map intensity with more precise logging
+        if (material.normalMap && material.normalScale) {
+          if (materialToUpdate.normalTexture) {
+            const oldScale = materialToUpdate.normalTexture.scale;
+            materialToUpdate.normalTexture.scale = material.normalScale.x;
+            console.log(`Updated normal map scale for "${materialName}" from ${oldScale} to ${materialToUpdate.normalTexture.scale}`);
+          } else {
+            console.warn(`Material has normalMap but no normalTexture in original structure for "${materialName}"`);
+          }
+        }
+        
+        // Update normal map transforms if they exist
+        if (material.normalMap && 
+            materialToUpdate.normalTexture && 
+            materialToUpdate.normalTexture.extensions && 
+            materialToUpdate.normalTexture.extensions.KHR_texture_transform) {
+              
+          const transform = materialToUpdate.normalTexture.extensions.KHR_texture_transform;
           
           // Initialize offset array if it doesn't exist
-          if (!transform.offset && variantMaterial.sheenColorMap.offset) {
+          if (!transform.offset && material.normalMap.offset) {
             transform.offset = [0, 0];
           }
           
           // Now update the offset if it exists
-          if (transform.offset && variantMaterial.sheenColorMap.offset) {
-            transform.offset[0] = variantMaterial.sheenColorMap.offset.x;
-            transform.offset[1] = variantMaterial.sheenColorMap.offset.y;
+          if (transform.offset && material.normalMap.offset) {
+            transform.offset[0] = material.normalMap.offset.x;
+            transform.offset[1] = material.normalMap.offset.y;
           }
           
           // Initialize scale array if it doesn't exist
-          if (!transform.scale && variantMaterial.sheenColorMap.repeat) {
+          if (!transform.scale && material.normalMap.repeat) {
             transform.scale = [1, 1];
           }
           
           // Update the scale if it exists
-          if (transform.scale && variantMaterial.sheenColorMap.repeat) {
-            transform.scale[0] = variantMaterial.sheenColorMap.repeat.x;
-            transform.scale[1] = variantMaterial.sheenColorMap.repeat.y;
+          if (transform.scale && material.normalMap.repeat) {
+            transform.scale[0] = material.normalMap.repeat.x;
+            transform.scale[1] = material.normalMap.repeat.y;
           }
           
           // Update rotation if it exists in both
-          if (transform.rotation !== undefined && variantMaterial.sheenColorMap.rotation !== undefined) {
-            transform.rotation = variantMaterial.sheenColorMap.rotation;
+          if (transform.rotation !== undefined && material.normalMap.rotation !== undefined) {
+            transform.rotation = material.normalMap.rotation;
+          }
+        }
+        
+        // Update base color texture transforms if map exists
+        if (material.map && 
+            materialToUpdate.pbrMetallicRoughness?.baseColorTexture?.extensions?.KHR_texture_transform) {
+            
+          const transform = materialToUpdate.pbrMetallicRoughness.baseColorTexture.extensions.KHR_texture_transform;
+          
+          // Initialize offset array if it doesn't exist
+          if (!transform.offset && material.map.offset) {
+            transform.offset = [0, 0];
           }
           
-          // Update UV channel if it exists
-          if (variantMaterial.sheenColorMap.channel !== undefined) {
-            sheenExtension.sheenColorTexture.texCoord = variantMaterial.sheenColorMap.channel;
+          // Now update the offset if it exists
+          if (transform.offset && material.map.offset) {
+            transform.offset[0] = material.map.offset.x;
+            transform.offset[1] = material.map.offset.y;
+          }
+          
+          // Initialize scale array if it doesn't exist
+          if (!transform.scale && material.map.repeat) {
+            transform.scale = [1, 1];
+          }
+          
+          // Update the scale if it exists
+          if (transform.scale && material.map.repeat) {
+            transform.scale[0] = material.map.repeat.x;
+            transform.scale[1] = material.map.repeat.y;
+          }
+          
+          // Update rotation if it exists in both
+          if (transform.rotation !== undefined && material.map.rotation !== undefined) {
+            transform.rotation = material.map.rotation;
+          }
+        }
+        
+        // ======== SHEEN PROPERTIES ========
+        
+        // Update sheen properties if they exist in the material
+        if ((material.sheen > 0 || 
+             material.sheenColor || 
+             material.sheenRoughness !== undefined || 
+             material.sheenColorMap) && 
+            materialToUpdate.extensions?.KHR_materials_sheen) {
+            
+          const sheenExtension = materialToUpdate.extensions.KHR_materials_sheen;
+          
+          // Update sheen color
+          if (material.sheenColor) {
+            if (!sheenExtension.sheenColorFactor) {
+              sheenExtension.sheenColorFactor = [0, 0, 0];
+            }
+            
+            sheenExtension.sheenColorFactor[0] = material.sheenColor.r;
+            sheenExtension.sheenColorFactor[1] = material.sheenColor.g;
+            sheenExtension.sheenColorFactor[2] = material.sheenColor.b;
+            
+            console.log(`Updated sheen color for "${materialName}" to`, sheenExtension.sheenColorFactor);
+          }
+          
+          // Update sheen roughness
+          if (material.sheenRoughness !== undefined) {
+            sheenExtension.sheenRoughnessFactor = Number(material.sheenRoughness.toFixed(9));
+            console.log(`Updated sheen roughness for "${materialName}" to ${sheenExtension.sheenRoughnessFactor}`);
+          }
+          
+          // Update sheen color map transforms if map exists
+          if (material.sheenColorMap && 
+              sheenExtension.sheenColorTexture?.extensions?.KHR_texture_transform) {
+              
+            const transform = sheenExtension.sheenColorTexture.extensions.KHR_texture_transform;
+            
+            // Initialize offset array if it doesn't exist
+            if (!transform.offset && material.sheenColorMap.offset) {
+              transform.offset = [0, 0];
+            }
+            
+            // Now update the offset if it exists
+            if (transform.offset && material.sheenColorMap.offset) {
+              transform.offset[0] = material.sheenColorMap.offset.x;
+              transform.offset[1] = material.sheenColorMap.offset.y;
+            }
+            
+            // Initialize scale array if it doesn't exist
+            if (!transform.scale && material.sheenColorMap.repeat) {
+              transform.scale = [1, 1];
+            }
+            
+            // Update the scale if it exists
+            if (transform.scale && material.sheenColorMap.repeat) {
+              transform.scale[0] = material.sheenColorMap.repeat.x;
+              transform.scale[1] = material.sheenColorMap.repeat.y;
+            }
+            
+            // Update rotation if it exists in both
+            if (transform.rotation !== undefined && material.sheenColorMap.rotation !== undefined) {
+              transform.rotation = material.sheenColorMap.rotation;
+            }
+            
+            // Update UV channel if it exists
+            if (material.sheenColorMap.channel !== undefined) {
+              sheenExtension.sheenColorTexture.texCoord = material.sheenColorMap.channel;
+            }
           }
         }
       }
