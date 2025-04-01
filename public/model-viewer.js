@@ -41468,6 +41468,143 @@ function toTrianglesDrawMode( geometry, drawMode ) {
 
 }
 
+
+class GLTFExternalMaterialsExtension {
+  constructor(parser) {
+    this.parser = parser;
+    this.name = 'KHR_external_materials';
+  }
+
+  async loadMaterials(json) {
+    if (typeof json.materials === 'string') {
+      const materialsPath = json.materials;
+      const resolvedURL = this.parser.options.path + materialsPath;
+      
+      try {
+        console.log('Loading external materials from:', resolvedURL);
+        const response = await fetch(resolvedURL);
+        if (!response.ok) {
+          throw new Error(`Failed to load external materials: ${response.statusText}`);
+        }
+        
+        const materialsJson = await response.json();
+        console.log('Successfully loaded materials:', materialsJson);
+        
+        // Ensure we have a valid materials array
+        if (!Array.isArray(materialsJson)) {
+          console.error('External materials file does not contain a valid array');
+          return false;
+        }
+        
+        // Replace the materials string with the loaded array
+        json.materials = materialsJson;
+        console.log('Materials integrated into GLTF:', json.materials);
+        return true;
+      } catch (error) {
+        console.error('Error loading external materials:', error);
+        throw error;
+      }
+    }
+    return false;
+  }
+  
+	async loadVariants(json) {
+	  if (json.extensions && typeof json.extensions.KHR_materials_variants === 'string') {
+	    const variantsPath = json.extensions.KHR_materials_variants;
+	    const resolvedURL = this.parser.options.path + variantsPath;
+	    
+	    try {
+	      console.log('Loading external variants from:', resolvedURL);
+	      const response = await fetch(resolvedURL);
+	      if (!response.ok) {
+	        throw new Error(`Failed to load external variants: ${response.statusText}`);
+	      }
+	      
+	      const variantsJson = await response.json();
+	      console.log('Successfully loaded variants:', variantsJson);
+	      
+	      // This is the critical part:
+	      // Make sure we have the exact structure expected by standard GLTF
+	      // variants.json should contain: { "variants": [...] }
+	      if (variantsJson.variants && Array.isArray(variantsJson.variants)) {
+	        json.extensions.KHR_materials_variants = variantsJson;
+	      } else if (Array.isArray(variantsJson)) {
+	        // If variants.json is just an array, wrap it in the expected structure
+	        json.extensions.KHR_materials_variants = { "variants": variantsJson };
+	      } else {
+	        console.error('Invalid variants format:', variantsJson);
+	        return false;
+	      }
+	      
+	      console.log('Final variants structure:', json.extensions.KHR_materials_variants);
+	      return true;
+	    } catch (error) {
+	      console.error('Error loading external variants:', error);
+	      throw error;
+	    }
+	  }
+	  return false;
+	}
+
+  // Add a debug method to validate the loaded GLTF structure
+  validateGltf(json) {
+    console.log('------- VALIDATING GLTF STRUCTURE -------');
+    
+    // Check materials
+    if (!json.materials) {
+      console.error('No materials found in GLTF after loading external sources');
+    } else if (!Array.isArray(json.materials)) {
+      console.error('Materials is not an array:', json.materials);
+    } else {
+      console.log(`Found ${json.materials.length} materials`);
+      // Check first material for expected structure
+      if (json.materials.length > 0) {
+        console.log('First material sample:', JSON.stringify(json.materials[0]).substring(0, 100) + '...');
+      }
+    }
+    
+    // Check variants
+    if (!json.extensions || !json.extensions.KHR_materials_variants) {
+      console.error('No variants found in GLTF after loading external sources');
+    } else if (!json.extensions.KHR_materials_variants.variants) {
+      console.error('No variants array in KHR_materials_variants extension');
+    } else if (!Array.isArray(json.extensions.KHR_materials_variants.variants)) {
+      console.error('Variants is not an array:', json.extensions.KHR_materials_variants.variants);
+    } else {
+      console.log(`Found ${json.extensions.KHR_materials_variants.variants.length} variants`);
+      // Check first variant for expected structure
+      if (json.extensions.KHR_materials_variants.variants.length > 0) {
+        console.log('First variant sample:', JSON.stringify(json.extensions.KHR_materials_variants.variants[0]));
+      }
+    }
+    
+    // Check for mappings in mesh primitives (this is important for variants)
+    let hasMappings = false;
+    if (json.meshes && Array.isArray(json.meshes)) {
+      for (const mesh of json.meshes) {
+        if (mesh.primitives && Array.isArray(mesh.primitives)) {
+          for (const primitive of mesh.primitives) {
+            if (primitive.extensions && 
+                primitive.extensions.KHR_materials_variants && 
+                primitive.extensions.KHR_materials_variants.mappings) {
+              hasMappings = true;
+              console.log('Found variant mappings in mesh primitives');
+              break;
+            }
+          }
+          if (hasMappings) break;
+        }
+      }
+    }
+    
+    if (!hasMappings) {
+      console.error('No variant mappings found in mesh primitives');
+    }
+    
+    console.log('------- VALIDATION COMPLETE -------');
+  }
+}
+
 class GLTFLoader extends Loader {
 
 	constructor( manager ) {
@@ -41581,6 +41718,10 @@ class GLTFLoader extends Loader {
 			return new GLTFMeshGpuInstancing$1( parser );
 
 		} );
+
+		this.register(function(parser) {
+		  return new GLTFExternalMaterialsExtension(parser);
+		});
 
 	}
 
@@ -41706,128 +41847,327 @@ class GLTFLoader extends Loader {
 
 	}
 
-	parse( data, path, onLoad, onError ) {
+// Improved parse method with better debugging
+parse(data, path, onLoad, onError) {
+  let json;
+  const extensions = {};
+  const plugins = {};
+  const textDecoder = new TextDecoder();
 
-		let json;
-		const extensions = {};
-		const plugins = {};
-		const textDecoder = new TextDecoder();
+  if (typeof data === 'string') {
+    json = JSON.parse(data);
+  } else if (data instanceof ArrayBuffer) {
+    const magic = textDecoder.decode(new Uint8Array(data, 0, 4));
 
-		if ( typeof data === 'string' ) {
+    if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+      try {
+        extensions[EXTENSIONS.KHR_BINARY_GLTF] = new GLTFBinaryExtension(data);
+      } catch (error) {
+        if (onError) onError(error);
+        return;
+      }
 
-			json = JSON.parse( data );
+      json = JSON.parse(extensions[EXTENSIONS.KHR_BINARY_GLTF].content);
+    } else {
+      json = JSON.parse(textDecoder.decode(data));
+    }
+  } else {
+    json = data;
+  }
 
-		} else if ( data instanceof ArrayBuffer ) {
+  if (json.asset === undefined || json.asset.version[0] < 2) {
+    if (onError) onError(new Error('THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported.'));
+    return;
+  }
 
-			const magic = textDecoder.decode( new Uint8Array( data, 0, 4 ) );
+  const scope = this;
+  
+  // Check if we might have external references that need async loading
+  const hasExternalMaterials = typeof json.materials === 'string';
+  const hasExternalVariants = json.extensions && 
+                             typeof json.extensions.KHR_materials_variants === 'string';
+  
+  if (hasExternalMaterials || hasExternalVariants) {
+    console.log('GLTF has external references: materials=', hasExternalMaterials, 'variants=', hasExternalVariants);
+    
+    // We need to load these first before proceeding with parsing
+    this._loadExternalReferences(json, path)
+      .then((processedJson) => {
+        // Set up parser with the processed JSON
+        const parser = new GLTFParser(processedJson, {
+          path: path || this.resourcePath || '',
+          crossOrigin: this.crossOrigin,
+          requestHeader: this.requestHeader,
+          manager: this.manager,
+          ktx2Loader: this.ktx2Loader,
+          meshoptDecoder: this.meshoptDecoder
+        });
 
-			if ( magic === BINARY_EXTENSION_HEADER_MAGIC ) {
+        parser.fileLoader.setRequestHeader(this.requestHeader);
 
-				try {
+        // Set up extensions and plugins
+        const initExtensions = {};
+        const initPlugins = {};
 
-					extensions[ EXTENSIONS.KHR_BINARY_GLTF ] = new GLTFBinaryExtension( data );
+        for (let i = 0; i < this.pluginCallbacks.length; i++) {
+          const plugin = this.pluginCallbacks[i](parser);
+          
+          if (!plugin.name) console.error('THREE.GLTFLoader: Invalid plugin found: missing name');
+          
+          initPlugins[plugin.name] = plugin;
+          initExtensions[plugin.name] = true;
+        }
 
-				} catch ( error ) {
+        if (processedJson.extensionsUsed) {
+          for (let i = 0; i < processedJson.extensionsUsed.length; ++i) {
+            const extensionName = processedJson.extensionsUsed[i];
+            const extensionsRequired = processedJson.extensionsRequired || [];
 
-					if ( onError ) onError( error );
-					return;
+            switch (extensionName) {
+              case EXTENSIONS.KHR_MATERIALS_UNLIT:
+                initExtensions[extensionName] = new GLTFMaterialsUnlitExtension$1();
+                break;
 
-				}
+              case EXTENSIONS.KHR_DRACO_MESH_COMPRESSION:
+                initExtensions[extensionName] = new GLTFDracoMeshCompressionExtension(processedJson, this.dracoLoader);
+                break;
 
-				json = JSON.parse( extensions[ EXTENSIONS.KHR_BINARY_GLTF ].content );
+              case EXTENSIONS.KHR_TEXTURE_TRANSFORM:
+                initExtensions[extensionName] = new GLTFTextureTransformExtension();
+                break;
 
-			} else {
+              case EXTENSIONS.KHR_MESH_QUANTIZATION:
+                initExtensions[extensionName] = new GLTFMeshQuantizationExtension();
+                break;
 
-				json = JSON.parse( textDecoder.decode( data ) );
+              default:
+                if (extensionsRequired.indexOf(extensionName) >= 0 && initPlugins[extensionName] === undefined) {
+                  console.warn('THREE.GLTFLoader: Unknown extension "' + extensionName + '".');
+                }
+            }
+          }
+        }
 
-			}
+        parser.setExtensions(initExtensions);
+        parser.setPlugins(initPlugins);
+        
+        // Make sure we have a valid KHR_materials_variants extension handler if needed
+        if (processedJson.extensions && processedJson.extensions.KHR_materials_variants) {
+          if (!initExtensions['KHR_materials_variants']) {
+            // If the KHR_materials_variants extension handler isn't already registered, add it
+            console.log('Adding KHR_materials_variants extension handler');
+            const GLTFMaterialsVariantsExtension = window.THREE.GLTFMaterialsVariantsExtension;
+            if (GLTFMaterialsVariantsExtension) {
+              initExtensions['KHR_materials_variants'] = new GLTFMaterialsVariantsExtension(parser);
+              parser.setExtensions(initExtensions);
+            } else {
+              console.warn('THREE.GLTFLoader: KHR_materials_variants extension handler not found');
+            }
+          }
+        }
+        
+        // Parse the processed GLTF
+        parser.parse(onLoad, onError);
+      })
+      .catch(error => {
+        console.error('Error processing external references:', error);
+        if (onError) onError(error);
+      });
+  } else {
+    // No external references, use the original parse logic directly
+    const parser = new GLTFParser(json, {
+      path: path || this.resourcePath || '',
+      crossOrigin: this.crossOrigin,
+      requestHeader: this.requestHeader,
+      manager: this.manager,
+      ktx2Loader: this.ktx2Loader,
+      meshoptDecoder: this.meshoptDecoder
+    });
 
-		} else {
+    parser.fileLoader.setRequestHeader(this.requestHeader);
 
-			json = data;
+    for (let i = 0; i < this.pluginCallbacks.length; i++) {
+      const plugin = this.pluginCallbacks[i](parser);
+      
+      if (!plugin.name) console.error('THREE.GLTFLoader: Invalid plugin found: missing name');
+      
+      plugins[plugin.name] = plugin;
+      extensions[plugin.name] = true;
+    }
 
-		}
+    if (json.extensionsUsed) {
+      for (let i = 0; i < json.extensionsUsed.length; ++i) {
+        const extensionName = json.extensionsUsed[i];
+        const extensionsRequired = json.extensionsRequired || [];
 
-		if ( json.asset === undefined || json.asset.version[ 0 ] < 2 ) {
+        switch (extensionName) {
+          case EXTENSIONS.KHR_MATERIALS_UNLIT:
+            extensions[extensionName] = new GLTFMaterialsUnlitExtension$1();
+            break;
 
-			if ( onError ) onError( new Error( 'THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported.' ) );
-			return;
+          case EXTENSIONS.KHR_DRACO_MESH_COMPRESSION:
+            extensions[extensionName] = new GLTFDracoMeshCompressionExtension(json, this.dracoLoader);
+            break;
 
-		}
+          case EXTENSIONS.KHR_TEXTURE_TRANSFORM:
+            extensions[extensionName] = new GLTFTextureTransformExtension();
+            break;
 
-		const parser = new GLTFParser( json, {
+          case EXTENSIONS.KHR_MESH_QUANTIZATION:
+            extensions[extensionName] = new GLTFMeshQuantizationExtension();
+            break;
 
-			path: path || this.resourcePath || '',
-			crossOrigin: this.crossOrigin,
-			requestHeader: this.requestHeader,
-			manager: this.manager,
-			ktx2Loader: this.ktx2Loader,
-			meshoptDecoder: this.meshoptDecoder
+          default:
+            if (extensionsRequired.indexOf(extensionName) >= 0 && plugins[extensionName] === undefined) {
+              console.warn('THREE.GLTFLoader: Unknown extension "' + extensionName + '".');
+            }
+        }
+      }
+    }
 
-		} );
+    parser.setExtensions(extensions);
+    parser.setPlugins(plugins);
+    parser.parse(onLoad, onError);
+  }
+}
 
-		parser.fileLoader.setRequestHeader( this.requestHeader );
 
-		for ( let i = 0; i < this.pluginCallbacks.length; i ++ ) {
+// Step 4: Add these new helper methods to the GLTFLoader class
 
-			const plugin = this.pluginCallbacks[ i ]( parser );
+// Improved _loadExternalReferences method with better handling and validation
+async _loadExternalReferences(json, path) {
+  console.log('Loading external references...');
+  console.log('Original JSON structure:', JSON.stringify({
+    hasMaterials: json.materials ? (typeof json.materials === 'string' ? 'string reference' : 'embedded') : 'none',
+    hasVariants: json.extensions && json.extensions.KHR_materials_variants ? 
+      (typeof json.extensions.KHR_materials_variants === 'string' ? 'string reference' : 'embedded') : 'none'
+  }));
+  
+  // Create a temporary parser just for loading references
+  const parser = new GLTFParser(json, {
+    path: path || this.resourcePath || '',
+    crossOrigin: this.crossOrigin,
+    requestHeader: this.requestHeader,
+    manager: this.manager,
+    ktx2Loader: this.ktx2Loader,
+    meshoptDecoder: this.meshoptDecoder
+  });
+  
+  parser.fileLoader.setRequestHeader(this.requestHeader);
+  
+  // Set up plugins to get access to our extension
+  const extensions = {};
+  const plugins = {};
+  
+  for (let i = 0; i < this.pluginCallbacks.length; i++) {
+    const plugin = this.pluginCallbacks[i](parser);
+    if (plugin && plugin.name) {
+      plugins[plugin.name] = plugin;
+      extensions[plugin.name] = true;
+    }
+  }
+  
+  parser.setExtensions(extensions);
+  parser.setPlugins(plugins);
+  
+  // Find our external materials extension
+  const externalMaterialsExt = plugins['KHR_external_materials'];
+  if (!externalMaterialsExt) {
+    console.error('External materials extension not found in registered plugins');
+    throw new Error('External materials extension not registered');
+  }
+  
+  // Process external materials if present
+  let materialsProcessed = false;
+  if (typeof json.materials === 'string') {
+    try {
+      materialsProcessed = await externalMaterialsExt.loadMaterials(json);
+      console.log('Materials processed:', materialsProcessed);
+    } catch (error) {
+      console.error('Failed to load external materials:', error);
+      throw error;
+    }
+  }
+  
+  // Process external variants if present
+  let variantsProcessed = false;
+  if (json.extensions && typeof json.extensions.KHR_materials_variants === 'string') {
+    try {
+      variantsProcessed = await externalMaterialsExt.loadVariants(json);
+      console.log('Variants processed:', variantsProcessed);
+    } catch (error) {
+      console.error('Failed to load external variants:', error);
+      throw error;
+    }
+  }
+  
+  // Validate the resulting structure
+  if (externalMaterialsExt.validateGltf) {
+    externalMaterialsExt.validateGltf(json);
+  }
+  
+  return json;
+}
 
-			if ( ! plugin.name ) console.error( 'THREE.GLTFLoader: Invalid plugin found: missing name' );
+_parseWithExternalContent(json, path, onLoad, onError) {
+  const parser = new GLTFParser(json, {
+    path: path || this.resourcePath || '',
+    crossOrigin: this.crossOrigin,
+    requestHeader: this.requestHeader,
+    manager: this.manager,
+    ktx2Loader: this.ktx2Loader,
+    meshoptDecoder: this.meshoptDecoder
+  });
 
-			plugins[ plugin.name ] = plugin;
+  parser.fileLoader.setRequestHeader(this.requestHeader);
 
-			// Workaround to avoid determining as unknown extension
-			// in addUnknownExtensionsToUserData().
-			// Remove this workaround if we move all the existing
-			// extension handlers to plugin system
-			extensions[ plugin.name ] = true;
+  const extensions = {};
+  const plugins = {};
 
-		}
+  for (let i = 0; i < this.pluginCallbacks.length; i++) {
+    const plugin = this.pluginCallbacks[i](parser);
+    
+    if (!plugin.name) console.error('THREE.GLTFLoader: Invalid plugin found: missing name');
+    
+    plugins[plugin.name] = plugin;
+    extensions[plugin.name] = true;
+  }
 
-		if ( json.extensionsUsed ) {
+  if (json.extensionsUsed) {
+    for (let i = 0; i < json.extensionsUsed.length; ++i) {
+      const extensionName = json.extensionsUsed[i];
+      const extensionsRequired = json.extensionsRequired || [];
 
-			for ( let i = 0; i < json.extensionsUsed.length; ++ i ) {
+      switch (extensionName) {
+        case EXTENSIONS.KHR_MATERIALS_UNLIT:
+          extensions[extensionName] = new GLTFMaterialsUnlitExtension$1();
+          break;
 
-				const extensionName = json.extensionsUsed[ i ];
-				const extensionsRequired = json.extensionsRequired || [];
+        case EXTENSIONS.KHR_DRACO_MESH_COMPRESSION:
+          extensions[extensionName] = new GLTFDracoMeshCompressionExtension(json, this.dracoLoader);
+          break;
 
-				switch ( extensionName ) {
+        case EXTENSIONS.KHR_TEXTURE_TRANSFORM:
+          extensions[extensionName] = new GLTFTextureTransformExtension();
+          break;
 
-					case EXTENSIONS.KHR_MATERIALS_UNLIT:
-						extensions[ extensionName ] = new GLTFMaterialsUnlitExtension$1();
-						break;
+        case EXTENSIONS.KHR_MESH_QUANTIZATION:
+          extensions[extensionName] = new GLTFMeshQuantizationExtension();
+          break;
 
-					case EXTENSIONS.KHR_DRACO_MESH_COMPRESSION:
-						extensions[ extensionName ] = new GLTFDracoMeshCompressionExtension( json, this.dracoLoader );
-						break;
+        default:
+          if (extensionsRequired.indexOf(extensionName) >= 0 && plugins[extensionName] === undefined) {
+            console.warn('THREE.GLTFLoader: Unknown extension "' + extensionName + '".');
+          }
+      }
+    }
+  }
 
-					case EXTENSIONS.KHR_TEXTURE_TRANSFORM:
-						extensions[ extensionName ] = new GLTFTextureTransformExtension();
-						break;
+  parser.setExtensions(extensions);
+  parser.setPlugins(plugins);
+  parser.parse(onLoad, onError);
+}
 
-					case EXTENSIONS.KHR_MESH_QUANTIZATION:
-						extensions[ extensionName ] = new GLTFMeshQuantizationExtension();
-						break;
-
-					default:
-
-						if ( extensionsRequired.indexOf( extensionName ) >= 0 && plugins[ extensionName ] === undefined ) {
-
-							console.warn( 'THREE.GLTFLoader: Unknown extension "' + extensionName + '".' );
-
-						}
-
-				}
-
-			}
-
-		}
-
-		parser.setExtensions( extensions );
-		parser.setPlugins( plugins );
-		parser.parse( onLoad, onError );
-
-	}
 
 	parseAsync( data, path ) {
 
@@ -51355,33 +51695,55 @@ class GLTFExporterMaterialsVariantsExtension {
         };
     }
 
-    beforeParse(objects) {
-        // Find all variant names and store them to the table
-        const variantNameSet = new Set();
-        
-        for (const object of objects) {
-            object.traverse(o => {
-                if (!compatibleObject(o)) {
-                    return;
-                }
-                const variantMaterials = o.userData.variantMaterials;
-                const variantDataMap = o.userData.variantData;
-                
-                if (variantDataMap && variantMaterials) {
-                    for (const [variantName, variantData] of variantDataMap) {
-                        const variantMaterial = variantMaterials.get(variantData.index);
-                        // Ignore unloaded variant materials
-                        if (variantMaterial && compatibleMaterial(variantMaterial.material)) {
-                            variantNameSet.add(variantName);
-                        }
-                    }
-                }
-            });
+beforeParse(objects) {
+    // Find all variant names and store them to the table
+    const variantNameSet = new Set();
+    
+    // Track the default variant (which should be the one that was originally set)
+    let defaultVariantName = null;
+    
+    for (const object of objects) {
+        // If this is the root object, check for the currently active variant
+        if (object.userData && object.userData.currentVariantName) {
+            defaultVariantName = object.userData.currentVariantName;
         }
         
-        // We may want to sort?
-        variantNameSet.forEach(name => this.variantNames.push(name));
+        object.traverse(o => {
+            if (!compatibleObject(o)) {
+                return;
+            }
+            const variantMaterials = o.userData.variantMaterials;
+            const variantDataMap = o.userData.variantData;
+            
+            // If we find the current variant name in a child, use that
+            if (o.userData && o.userData.currentVariantName) {
+                defaultVariantName = o.userData.currentVariantName;
+            }
+            
+            if (variantDataMap && variantMaterials) {
+                for (const [variantName, variantData] of variantDataMap) {
+                    const variantMaterial = variantMaterials.get(variantData.index);
+                    // Ignore unloaded variant materials
+                    if (variantMaterial && compatibleMaterial(variantMaterial.material)) {
+                        variantNameSet.add(variantName);
+                    }
+                }
+            }
+        });
     }
+    
+    // Create array of variants with default first
+    this.variantNames = [];
+    
+    // Add default variant first if it exists
+    if (defaultVariantName && variantNameSet.has(defaultVariantName)) {
+        this.variantNames.push(defaultVariantName);
+        variantNameSet.delete(defaultVariantName);
+    }
+    
+    // Add the rest of the variants
+    variantNameSet.forEach(name => this.variantNames.push(name));
+}
 
     writeMesh(mesh, meshDef) {
         if (!compatibleObject(mesh)) {
@@ -53283,6 +53645,378 @@ const ControlsMixin = (ModelViewerElement) => {
 		  }
 		}
 
+async downloadMaterialsJson() {
+  var modelViewer = this;
+  try {
+    // Store the current variant to restore later
+    const currentVariantName = modelViewer.variantName;
+    console.log('Current variant:', currentVariantName);
+    
+    // Get all available variants
+    const availableVariants = modelViewer.availableVariants || [];
+    console.log('Available variants:', availableVariants);
+    
+    // Check if we have stored the original materials
+    if (!modelViewer._originalMaterialsStructure) {
+      console.log('No original materials cache found. Attempting to load from model.');
+      
+      // Try to access the original materials from the model
+      try {
+        const gltf = modelViewer.parser?.json;
+        if (gltf && gltf.materials && Array.isArray(gltf.materials)) {
+          modelViewer._originalMaterialsStructure = JSON.parse(JSON.stringify(gltf.materials));
+          console.log('Loaded materials structure from model with', modelViewer._originalMaterialsStructure.length, 'materials');
+        } else {
+          console.error('Could not find materials in the model');
+          return null;
+        }
+      } catch (err) {
+        console.error('Failed to load materials from model:', err);
+        return null;
+      }
+    }
+    
+    // Create a deep copy of the original structure to modify
+    const materialsCopy = JSON.parse(JSON.stringify(modelViewer._originalMaterialsStructure));
+    
+    // Process each variant to update only what has changed
+    for (const variantName of availableVariants) {
+      console.log(`Processing variant: ${variantName}`);
+      
+      // Find the corresponding material in our copy
+      const materialToUpdate = materialsCopy.find(m => m.name === variantName);
+      if (!materialToUpdate) {
+        console.warn(`Material for variant ${variantName} not found in original structure`);
+        continue;
+      }
+      
+      // Switch to this variant
+      modelViewer.variantName = variantName;
+      
+      // Wait for the variant to be applied
+      await new Promise(resolve => setTimeout(resolve, 20));
+      
+      // Get the scene
+      const scene = modelViewer.getScene()._model;
+      
+      // Find the material for this variant by name
+      let variantMaterial = null;
+      let materialCount = 0;
+
+      scene.traverse((object) => {
+        if (object.material) {
+          materialCount++;
+          
+          // Match material by name instead of taking the first one
+          if (object.material.name === variantName) {
+            console.log(`Found matching material for variant ${variantName}:`, object.material);
+            variantMaterial = object.material;
+          }
+        }
+      });
+
+      console.log(`Found ${materialCount} total materials, searching for one named ${variantName}`);
+
+      if (!variantMaterial) {
+        console.warn(`No material found with name matching variant ${variantName}`);
+        continue;
+      }
+      
+      console.log(`Updating material for variant ${variantName}:`, variantMaterial);
+      
+      // Initialize pbrMetallicRoughness if it doesn't exist
+      if (!materialToUpdate.pbrMetallicRoughness) {
+        materialToUpdate.pbrMetallicRoughness = {};
+      }
+      
+      // Ensure extensions object exists if needed
+      if (!materialToUpdate.extensions && 
+          (variantMaterial.sheen > 0 || 
+           variantMaterial.sheenColor || 
+           variantMaterial.sheenRoughness !== undefined || 
+           variantMaterial.sheenColorMap)) {
+        materialToUpdate.extensions = {};
+      }
+      
+      // Ensure KHR_materials_sheen exists if needed
+      if (materialToUpdate.extensions && 
+          !materialToUpdate.extensions.KHR_materials_sheen && 
+          (variantMaterial.sheen > 0 || 
+           variantMaterial.sheenColor || 
+           variantMaterial.sheenRoughness !== undefined || 
+           variantMaterial.sheenColorMap)) {
+        materialToUpdate.extensions.KHR_materials_sheen = {};
+      }
+      
+      // Update base properties
+      
+      // Update roughness if defined in the material
+      if (variantMaterial.roughness !== undefined) {
+        // Make sure we cast to the same precision format as the original value
+        materialToUpdate.pbrMetallicRoughness.roughnessFactor = Number(variantMaterial.roughness.toFixed(9));
+        console.log(`Updated roughness for ${variantName} to ${materialToUpdate.pbrMetallicRoughness.roughnessFactor}`);
+      }
+
+      // Update metalness if defined in the material
+      if (variantMaterial.metalness !== undefined) {
+        materialToUpdate.pbrMetallicRoughness.metallicFactor = Number(variantMaterial.metalness.toFixed(9));
+        console.log(`Updated metalness for ${variantName} to ${materialToUpdate.pbrMetallicRoughness.metallicFactor}`);
+      }
+      
+      // Update color - Always add baseColorFactor if color is not default white
+      if (variantMaterial.color) {
+        const isNotWhite = variantMaterial.color.r !== 1 || 
+                           variantMaterial.color.g !== 1 || 
+                           variantMaterial.color.b !== 1;
+                           
+        // Always add the color factor for non-white colors, even when textures exist
+        if (isNotWhite) {
+          materialToUpdate.pbrMetallicRoughness.baseColorFactor = [
+            variantMaterial.color.r,
+            variantMaterial.color.g,
+            variantMaterial.color.b,
+            variantMaterial.opacity !== undefined ? variantMaterial.opacity : 1.0
+          ];
+          console.log(`Added baseColorFactor to ${variantName}:`, materialToUpdate.pbrMetallicRoughness.baseColorFactor);
+        }
+      }
+      
+      // Update double sided if defined
+      if (variantMaterial.side !== undefined) {
+        // Three.js uses side 0 for front, 1 for back, 2 for double
+        // GLTF uses doubleSided: true/false
+        materialToUpdate.doubleSided = variantMaterial.side === 2;
+      }
+      
+      // Update occlusionTexture strength if AO map exists
+      if (variantMaterial.aoMap && variantMaterial.aoMapIntensity !== undefined) {
+        if (materialToUpdate.occlusionTexture) {
+          materialToUpdate.occlusionTexture.strength = variantMaterial.aoMapIntensity;
+          console.log(`Updated AO map strength for ${variantName} to ${variantMaterial.aoMapIntensity}`);
+        }
+      }
+      
+      // Update normal map intensity with more precise logging
+      if (variantMaterial.normalMap && variantMaterial.normalScale) {
+        if (materialToUpdate.normalTexture) {
+          const oldScale = materialToUpdate.normalTexture.scale;
+          materialToUpdate.normalTexture.scale = variantMaterial.normalScale.x;
+          console.log(`Updated normal map scale for ${variantName} from ${oldScale} to ${materialToUpdate.normalTexture.scale}`);
+        } else {
+          console.warn(`Material has normalMap but no normalTexture in original structure for ${variantName}`);
+        }
+      }
+      
+      // Update normal map transforms if they exist
+      if (variantMaterial.normalMap && 
+          materialToUpdate.normalTexture && 
+          materialToUpdate.normalTexture.extensions && 
+          materialToUpdate.normalTexture.extensions.KHR_texture_transform) {
+            
+        const transform = materialToUpdate.normalTexture.extensions.KHR_texture_transform;
+        
+        // Initialize offset array if it doesn't exist
+        if (!transform.offset && variantMaterial.normalMap.offset) {
+          transform.offset = [0, 0];
+        }
+        
+        // Now update the offset if it exists
+        if (transform.offset && variantMaterial.normalMap.offset) {
+          transform.offset[0] = variantMaterial.normalMap.offset.x;
+          transform.offset[1] = variantMaterial.normalMap.offset.y;
+        }
+        
+        // Initialize scale array if it doesn't exist
+        if (!transform.scale && variantMaterial.normalMap.repeat) {
+          transform.scale = [1, 1];
+        }
+        
+        // Update the scale if it exists
+        if (transform.scale && variantMaterial.normalMap.repeat) {
+          transform.scale[0] = variantMaterial.normalMap.repeat.x;
+          transform.scale[1] = variantMaterial.normalMap.repeat.y;
+        }
+        
+        // Update rotation if it exists in both
+        if (transform.rotation !== undefined && variantMaterial.normalMap.rotation !== undefined) {
+          transform.rotation = variantMaterial.normalMap.rotation;
+        }
+      }
+      
+      // Update base color texture transforms if map exists
+      if (variantMaterial.map && 
+          materialToUpdate.pbrMetallicRoughness?.baseColorTexture?.extensions?.KHR_texture_transform) {
+          
+        const transform = materialToUpdate.pbrMetallicRoughness.baseColorTexture.extensions.KHR_texture_transform;
+        
+        // Initialize offset array if it doesn't exist
+        if (!transform.offset && variantMaterial.map.offset) {
+          transform.offset = [0, 0];
+        }
+        
+        // Now update the offset if it exists
+        if (transform.offset && variantMaterial.map.offset) {
+          transform.offset[0] = variantMaterial.map.offset.x;
+          transform.offset[1] = variantMaterial.map.offset.y;
+        }
+        
+        // Initialize scale array if it doesn't exist
+        if (!transform.scale && variantMaterial.map.repeat) {
+          transform.scale = [1, 1];
+        }
+        
+        // Update the scale if it exists
+        if (transform.scale && variantMaterial.map.repeat) {
+          transform.scale[0] = variantMaterial.map.repeat.x;
+          transform.scale[1] = variantMaterial.map.repeat.y;
+        }
+        
+        // Update rotation if it exists in both
+        if (transform.rotation !== undefined && variantMaterial.map.rotation !== undefined) {
+          transform.rotation = variantMaterial.map.rotation;
+        }
+      }
+      
+      // ======== SHEEN PROPERTIES ========
+      
+      // Update sheen properties if they exist in the material
+      if ((variantMaterial.sheen > 0 || 
+           variantMaterial.sheenColor || 
+           variantMaterial.sheenRoughness !== undefined || 
+           variantMaterial.sheenColorMap) && 
+          materialToUpdate.extensions?.KHR_materials_sheen) {
+          
+        const sheenExtension = materialToUpdate.extensions.KHR_materials_sheen;
+        
+        // Update sheen color
+        if (variantMaterial.sheenColor) {
+          if (!sheenExtension.sheenColorFactor) {
+            sheenExtension.sheenColorFactor = [0, 0, 0];
+          }
+          
+          sheenExtension.sheenColorFactor[0] = variantMaterial.sheenColor.r;
+          sheenExtension.sheenColorFactor[1] = variantMaterial.sheenColor.g;
+          sheenExtension.sheenColorFactor[2] = variantMaterial.sheenColor.b;
+          
+          console.log(`Updated sheen color for ${variantName} to`, sheenExtension.sheenColorFactor);
+        }
+        
+        // Update sheen roughness
+        if (variantMaterial.sheenRoughness !== undefined) {
+          sheenExtension.sheenRoughnessFactor = Number(variantMaterial.sheenRoughness.toFixed(9));
+          console.log(`Updated sheen roughness for ${variantName} to ${sheenExtension.sheenRoughnessFactor}`);
+        }
+        
+        // Update sheen color map transforms if map exists
+        if (variantMaterial.sheenColorMap && 
+            sheenExtension.sheenColorTexture?.extensions?.KHR_texture_transform) {
+            
+          const transform = sheenExtension.sheenColorTexture.extensions.KHR_texture_transform;
+          
+          // Initialize offset array if it doesn't exist
+          if (!transform.offset && variantMaterial.sheenColorMap.offset) {
+            transform.offset = [0, 0];
+          }
+          
+          // Now update the offset if it exists
+          if (transform.offset && variantMaterial.sheenColorMap.offset) {
+            transform.offset[0] = variantMaterial.sheenColorMap.offset.x;
+            transform.offset[1] = variantMaterial.sheenColorMap.offset.y;
+          }
+          
+          // Initialize scale array if it doesn't exist
+          if (!transform.scale && variantMaterial.sheenColorMap.repeat) {
+            transform.scale = [1, 1];
+          }
+          
+          // Update the scale if it exists
+          if (transform.scale && variantMaterial.sheenColorMap.repeat) {
+            transform.scale[0] = variantMaterial.sheenColorMap.repeat.x;
+            transform.scale[1] = variantMaterial.sheenColorMap.repeat.y;
+          }
+          
+          // Update rotation if it exists in both
+          if (transform.rotation !== undefined && variantMaterial.sheenColorMap.rotation !== undefined) {
+            transform.rotation = variantMaterial.sheenColorMap.rotation;
+          }
+          
+          // Update UV channel if it exists
+          if (variantMaterial.sheenColorMap.channel !== undefined) {
+            sheenExtension.sheenColorTexture.texCoord = variantMaterial.sheenColorMap.channel;
+          }
+        }
+      }
+    }
+    
+    // Restore the original variant
+    modelViewer.variantName = currentVariantName;
+    
+    return materialsCopy;
+  } catch (error) {
+    console.error('Error extracting materials:', error);
+    
+    // Try to restore the original variant
+    try {
+      if (currentVariantName) {
+        modelViewer.variantName = currentVariantName;
+      }
+    } catch (e) {
+      console.error('Error restoring original variant:', e);
+    }
+    
+    return null;
+  }
+}
+
+// Setup function to load materials when the model is loaded
+async setupExternalMaterials() {
+  var modelViewer = this;
+  
+  try {
+    // Get the model URL
+    const modelUrl = modelViewer.src;
+    if (!modelUrl) {
+      console.error('Model URL not available');
+      return false;
+    }
+    
+    // Generate the materials.json URL from the model URL
+    const urlParts = modelUrl.split('/');
+    const lastPart = urlParts.pop(); // Remove the filename
+    const materialsUrl = urlParts.join('/') + '/materials.json';
+    
+    console.log('Attempting to load materials from:', materialsUrl);
+    
+    // Fetch the materials.json file
+    const response = await fetch(materialsUrl);
+    if (!response.ok) {
+      console.warn(`Could not load materials.json: ${response.status} ${response.statusText}`);
+      return false;
+    }
+    
+    const materialsData = await response.json();
+    
+    // Initialize the materials structure with the loaded data
+    this.initOriginalMaterialsStructure(materialsData);
+    
+    return true;
+  } catch (error) {
+    console.error('Error setting up external materials:', error);
+    return false;
+  }
+}
+
+
+// Function to initialize the material structure cache when model is loaded
+initOriginalMaterialsStructure(json) {
+  if (Array.isArray(json)) {
+    this._originalMaterialsStructure = json;
+    console.log('Original materials structure initialized with', json.length, 'materials');
+  } else {
+    console.error('Invalid materials data provided:', json);
+  }
+}
+
 		async exportGLB() {
 		  try {
 		    // Use the existing exportScene method which returns a Blob
@@ -53333,6 +54067,22 @@ const ControlsMixin = (ModelViewerElement) => {
 		    console.error('Error exporting GLTF:', error);
 		  }
 		}
+
+	async saveGLTF() {
+  try {
+    // Get updated materials
+    const updatedMaterials = await this.downloadMaterialsJson();
+    
+    if (!updatedMaterials) {
+      throw new Error('Failed to get updated materials');
+    }
+    
+    return updatedMaterials;
+  } catch (error) {
+    console.error('Error getting materials JSON:', error);
+    throw error;
+  }
+}
 
 
 		async exportUSDZ() {
@@ -60224,53 +60974,53 @@ const SceneGraphMixin = (ModelViewerElement) => {
             this[$currentGLTF] = currentGLTF;
         }
         /** @export */
-async exportScene(options) {
-    const scene = this[$scene];
-    return new Promise(async (resolve, reject) => {
-        // Defaults
-        const opts = {
-            binary: true,
-            onlyVisible: true,
-            maxTextureSize: Infinity,
-            includeCustomExtensions: true,
-            forceIndices: false
-        };
-        Object.assign(opts, options);
-        // Not configurable
-        opts.animations = scene.animations;
-        opts.truncateDrawRange = true;
-        const shadow = scene.shadow;
-        let visible = false;
-        // Remove shadow from export
-        if (shadow != null) {
-            visible = shadow.visible;
-            shadow.visible = false;
-        }
-        
-        await this[$model][$prepareVariantsForExport]();
-        
-        // Determine what to export based on children count
-        const modelToExport = scene.model.children.length === 1 ? 
-            scene.model.children[0] : 
-            scene.model;
-        
-        const exporter = new GLTFExporter()
-            .register((writer) => new GLTFExporterMaterialsVariantsExtension(writer));
-        
-        exporter.parse(modelToExport, (gltf) => {
-            return resolve(new Blob([opts.binary ? gltf : JSON.stringify(gltf)], {
-                type: opts.binary ? 'application/octet-stream' :
-                    'application/json'
-            }));
-        }, () => {
-            return reject('glTF export failed');
-        }, opts);
-        
-        if (shadow != null) {
-            shadow.visible = visible;
-        }
-    });
-}
+		async exportScene(options) {
+		    const scene = this[$scene];
+		    return new Promise(async (resolve, reject) => {
+		        // Defaults
+		        const opts = {
+		            binary: true,
+		            onlyVisible: true,
+		            maxTextureSize: Infinity,
+		            includeCustomExtensions: true,
+		            forceIndices: false
+		        };
+		        Object.assign(opts, options);
+		        // Not configurable
+		        opts.animations = scene.animations;
+		        opts.truncateDrawRange = true;
+		        const shadow = scene.shadow;
+		        let visible = false;
+		        // Remove shadow from export
+		        if (shadow != null) {
+		            visible = shadow.visible;
+		            shadow.visible = false;
+		        }
+		        
+		        await this[$model][$prepareVariantsForExport]();
+		        
+		        // Determine what to export based on children count
+		        const modelToExport = scene.model.children.length === 1 ? 
+		            scene.model.children[0] : 
+		            scene.model;
+		        
+		        const exporter = new GLTFExporter()
+		            .register((writer) => new GLTFExporterMaterialsVariantsExtension(writer));
+		        
+		        exporter.parse(modelToExport, (gltf) => {
+		            return resolve(new Blob([opts.binary ? gltf : JSON.stringify(gltf)], {
+		                type: opts.binary ? 'application/octet-stream' :
+		                    'application/json'
+		            }));
+		        }, () => {
+		            return reject('glTF export failed');
+		        }, opts);
+		        
+		        if (shadow != null) {
+		            shadow.visible = visible;
+		        }
+		    });
+		}
         materialFromPoint(pixelX, pixelY) {
             const model = this[$model];
             if (model == null) {
@@ -62402,6 +63152,13 @@ class ModelViewerElementBase extends u$1 {
         }
         finally {
             updateSourceProgress(1.0);
+
+             const result = await this.setupExternalMaterials();
+			  if (result) {
+			    console.log('External materials loaded successfully');
+			  } else {
+			    console.warn('Failed to load external materials');
+			  }
         }
     }
 }

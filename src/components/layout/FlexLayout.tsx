@@ -149,6 +149,7 @@ interface FlexLayoutProps {
   };
   onLayoutModelUpdate: (model: Model) => void;
   onTogglePanel: (panel: 'scene' | 'materials' | 'variants') => void;
+  clientModelUrl?: string;
 }
 
 const FlexLayout: React.FC<FlexLayoutProps> = ({
@@ -160,13 +161,14 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   onVariantChange,
   visiblePanels,
   onLayoutModelUpdate,
-  onTogglePanel
+  onTogglePanel,
+  clientModelUrl
 }) => {
   const layoutRef = useRef<Layout>(null);
   const { model, saveLayout, resetLayout } = useLayoutPersistence(initialJson);
   const [resizing, setResizing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [variantChangeCounter, setVariantChangeCounter] = useState(0); // Add this state
+  const [variantChangeCounter, setVariantChangeCounter] = useState(0);
 
   // Function to show a specific panel
   const showPanel = useCallback((panelType: 'scene' | 'materials' | 'variants') => {
@@ -346,7 +348,10 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
       case 'viewer':
         return (
           <div className={`h-full bg-[#EFEFEF] ${resizing ? 'pointer-events-none' : ''}`}>
-            <ModelViewer onModelLoaded={onModelLoaded} />
+            <ModelViewer 
+              onModelLoaded={onModelLoaded}
+              clientModelUrl={clientModelUrl}
+            />
           </div>
         );
         
@@ -360,7 +365,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
                   <MaterialProperties 
                     selectedNode={selectedNode} 
                     modelViewerRef={modelViewerRef}
-                    variantChangeCounter={variantChangeCounter} // Pass the counter
+                    variantChangeCounter={variantChangeCounter}
                   />
                 </>
               ) : (
@@ -375,8 +380,8 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
               <h3 className="text-sm font-medium mb-4">Variants</h3>
               <MaterialVariants 
                 modelViewerRef={modelViewerRef} 
-                onVariantChange={handleVariantChange} // Use local handler
-                selectedNode={selectedNode} // Pass selectedNode
+                onVariantChange={handleVariantChange}
+                selectedNode={selectedNode}
               />
             </div>
           );

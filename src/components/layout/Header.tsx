@@ -4,27 +4,17 @@
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { 
-  Download, 
-  PanelLeft, 
-  ChevronsUpDown,
-} from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Model } from 'flexlayout-react';
+import { Save, Download } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { isValidClient } from '@/config/clients';
 
 interface HeaderProps {
   modelViewerRef: React.RefObject<any>;
   layoutModel: Model | null;
-  onExportGLB: () => void;
-  onExportGLTF: () => void;
-  onExportUSDZ: () => void;
+  onExportGLB?: () => void;
+  onExportGLTF?: () => void;
+  onExportUSDZ?: () => void;
+  onSave?: () => void;
   onEnvironmentChange: (type: 'v5' | 'v6') => void;
   activeEnvironment: 'v5' | 'v6' | null;
   visiblePanels: {
@@ -41,16 +31,15 @@ const Header: React.FC<HeaderProps> = ({
   onExportGLB,
   onExportGLTF,
   onExportUSDZ,
+  onSave,
   onEnvironmentChange,
   activeEnvironment,
   visiblePanels,
   onTogglePanel
 }) => {
-  // Handle panel toggle with immediate UI feedback
-  const handlePanelToggle = (panel: 'scene' | 'materials' | 'variants') => {
-    // Call the toggle function from props
-    onTogglePanel(panel);
-  };
+  const params = useParams();
+  const clientName = params?.client as string;
+  const isClientView = isValidClient(clientName);
 
   return (
     <header className="h-14 bg-[#FAFAFA] text-[#111827] flex items-center justify-between px-4 border-b border-gray-200 shadow-sm w-full">
@@ -64,9 +53,6 @@ const Header: React.FC<HeaderProps> = ({
       </div>
       
       <div className="flex items-center space-x-4">
-        {/* Panel Toggle Dropdown Menu */}
-
-      
         {/* Environment Toggles */}
         <div className="flex space-x-2 border-x px-4">
           <Button 
@@ -87,35 +73,51 @@ const Header: React.FC<HeaderProps> = ({
           </Button>
         </div>
 
-        {/* Export Buttons */}
+        {/* Export/Save Buttons */}
         <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onExportGLB}
-            className="text-xs h-8"
-          >
-            <Download size={14} className="mr-1" />
-            GLB
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onExportGLTF}
-            className="text-xs h-8"
-          >
-            <Download size={14} className="mr-1" />
-            GLTF
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onExportUSDZ}
-            className="text-xs h-8"
-          >
-            <Download size={14} className="mr-1" />
-            USDZ
-          </Button>
+          {isClientView ? (
+            // Show Save button for client view
+            <Button 
+              variant="default"
+              size="sm"
+              onClick={onSave}
+              className="text-xs h-8"
+            >
+              <Save size={14} className="mr-1" />
+              Save
+            </Button>
+          ) : (
+            // Show Export buttons for regular view
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExportGLB}
+                className="text-xs h-8"
+              >
+                <Download size={14} className="mr-1" />
+                GLB
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExportGLTF}
+                className="text-xs h-8"
+              >
+                <Download size={14} className="mr-1" />
+                GLTF
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExportUSDZ}
+                className="text-xs h-8"
+              >
+                <Download size={14} className="mr-1" />
+                USDZ
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

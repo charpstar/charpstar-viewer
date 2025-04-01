@@ -1,17 +1,24 @@
 // components/ModelViewer.js
-// @ts-nocheck
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 
-const ModelViewer = ({ onModelLoaded }) => {
-  const [modelSrc, setModelSrc] = useState(null);
+const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
+  const [modelSrc, setModelSrc] = useState(clientModelUrl || null);
   const [isClient, setIsClient] = useState(false);
   const fileNameRef = useRef('model');
+  const modelLoadedRef = useRef(false);
 
   useEffect(() => {
-    setIsClient(true); // Set to true only on the client side
+    setIsClient(true);
   }, []);
+
+  // Update modelSrc when clientModelUrl changes
+  useEffect(() => {
+    if (clientModelUrl) {
+      setModelSrc(clientModelUrl);
+    }
+  }, [clientModelUrl]);
 
   // Effect to handle model load event
   useEffect(() => {
@@ -22,35 +29,43 @@ const ModelViewer = ({ onModelLoaded }) => {
       const handleLoad = () => {
         console.log('Model loaded');
         
-        // Set the custom property directly on the DOM element
+        // Store references
         window.modelViewerElement = modelViewer;
         window.currentFileName = fileNameRef.current;
         
-        console.log('Stored filename in global variable:', fileNameRef.current);
-        
-        if (onModelLoaded) {
-          // Give a small delay to ensure the model is fully processed
-          setTimeout(onModelLoaded, 100);
-        }
+        // Set a small delay to ensure the model is fully processed
+        setTimeout(() => {
+          if (onModelLoaded && !modelLoadedRef.current) {
+            modelLoadedRef.current = true;
+            onModelLoaded();
+          }
+        }, 100);
       };
       
       modelViewer.addEventListener('load', handleLoad);
       
+      // If it's a client model, trigger the load handler immediately
+      if (clientModelUrl) {
+        handleLoad();
+      }
+      
       return () => {
         modelViewer.removeEventListener('load', handleLoad);
+        modelLoadedRef.current = false;
       };
     }
-  }, [isClient, modelSrc, onModelLoaded]);
+  }, [isClient, modelSrc, onModelLoaded, clientModelUrl]);
 
+  // Only enable drag and drop if no client model URL is provided
   const handleDrop = (e) => {
+    if (clientModelUrl) return; // Disable drag & drop when client model is specified
+    
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && (file.type === 'model/gltf-binary' || file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
-      // Store the original filename without extension
       const originalFileName = file.name.replace(/\.[^/.]+$/, "");
       fileNameRef.current = originalFileName;
-      
-      console.log('File dropped - storing filename:', originalFileName);
+      modelLoadedRef.current = false;
       
       const url = URL.createObjectURL(file);
       setModelSrc(url);
@@ -60,15 +75,17 @@ const ModelViewer = ({ onModelLoaded }) => {
   };
 
   const handleDragOver = (e) => {
-    e.preventDefault();
-    // Add subtle visual feedback during drag
-    e.currentTarget.classList.add('bg-[#EFEFEF]');
+    if (!clientModelUrl) {
+      e.preventDefault();
+      e.currentTarget.classList.add('bg-[#EFEFEF]');
+    }
   };
 
   const handleDragLeave = (e) => {
-    e.preventDefault();
-    // Remove the visual feedback
-    e.currentTarget.classList.remove('bg-[#EFEFEF]');
+    if (!clientModelUrl) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('bg-[#EFEFEF]');
+    }
   };
 
   return (
@@ -79,25 +96,23 @@ const ModelViewer = ({ onModelLoaded }) => {
       className="w-full h-full flex items-center justify-center transition-colors duration-200"
     >
       <div className="w-full h-full flex items-center justify-center">
-        {/* Render <model-viewer> only if a model is loaded */}
         {isClient && modelSrc && (
           <model-viewer
             src={modelSrc}
             alt="A 3D model"
             id="model-viewer"
             disable-pan
-            shadow-intensity = "0.5"
-            environment-image = "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
-            exposure = "1.5"
-            tone-mapping = "aces"
-            shadow-softness = "1"
+            shadow-intensity="0.5"
+            environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
+            exposure="1.5"
+            tone-mapping="aces"
+            shadow-softness="1"
             style={{ width: '100%', height: '100%' }}
             camera-controls
           ></model-viewer>
         )}
         
-        {/* Show a message if no model is loaded */}
-        {!modelSrc && (
+        {!modelSrc && !clientModelUrl && (
           <div className="text-center">
             <p className="text-gray-600 text-sm mb-2">
               Drag and drop a <strong>.glb</strong> or <strong>.gltf</strong> file here to view it.
