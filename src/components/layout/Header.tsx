@@ -1,12 +1,12 @@
 // src/components/layout/Header.tsx
 'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Save, Download } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { isValidClient } from '@/config/clients';
+import { Model } from 'flexlayout-react';
 
 interface HeaderProps {
   modelViewerRef: React.RefObject<any>;
