@@ -41508,43 +41508,114 @@ class GLTFExternalMaterialsExtension {
     return false;
   }
   
-	async loadVariants(json) {
-	  if (json.extensions && typeof json.extensions.KHR_materials_variants === 'string') {
-	    const variantsPath = json.extensions.KHR_materials_variants;
-	    const resolvedURL = this.parser.options.path + variantsPath;
-	    
-	    try {
-	      console.log('Loading external variants from:', resolvedURL);
-	      const response = await fetch(resolvedURL);
-	      if (!response.ok) {
-	        throw new Error(`Failed to load external variants: ${response.statusText}`);
-	      }
-	      
-	      const variantsJson = await response.json();
-	      console.log('Successfully loaded variants:', variantsJson);
-	      
-	      // This is the critical part:
-	      // Make sure we have the exact structure expected by standard GLTF
-	      // variants.json should contain: { "variants": [...] }
-	      if (variantsJson.variants && Array.isArray(variantsJson.variants)) {
-	        json.extensions.KHR_materials_variants = variantsJson;
-	      } else if (Array.isArray(variantsJson)) {
-	        // If variants.json is just an array, wrap it in the expected structure
-	        json.extensions.KHR_materials_variants = { "variants": variantsJson };
-	      } else {
-	        console.error('Invalid variants format:', variantsJson);
-	        return false;
-	      }
-	      
-	      console.log('Final variants structure:', json.extensions.KHR_materials_variants);
-	      return true;
-	    } catch (error) {
-	      console.error('Error loading external variants:', error);
-	      throw error;
-	    }
-	  }
-	  return false;
-	}
+  async loadTextures(json) {
+    if (typeof json.textures === 'string') {
+      const texturesPath = json.textures;
+      const resolvedURL = this.parser.options.path + texturesPath;
+      
+      try {
+        console.log('Loading external textures from:', resolvedURL);
+        const response = await fetch(resolvedURL);
+        if (!response.ok) {
+          throw new Error(`Failed to load external textures: ${response.statusText}`);
+        }
+        
+        const texturesJson = await response.json();
+        console.log('Successfully loaded textures:', texturesJson);
+        
+        // Ensure we have a valid textures array
+        if (!Array.isArray(texturesJson)) {
+          console.error('External textures file does not contain a valid array');
+          return false;
+        }
+        
+        // Replace the textures string with the loaded array
+        json.textures = texturesJson;
+        console.log('Textures integrated into GLTF:', json.textures);
+        return true;
+      } catch (error) {
+        console.error('Error loading external textures:', error);
+        throw error;
+      }
+    }
+    return false;
+  }
+  
+  async loadImages(json) {
+    if (json.externalImagesUri) {
+      const imagesPath = json.externalImagesUri;
+      const resolvedURL = this.parser.options.path + imagesPath;
+      
+      try {
+        console.log('Loading external images from:', resolvedURL);
+        const response = await fetch(resolvedURL);
+        if (!response.ok) {
+          throw new Error(`Failed to load external images: ${response.statusText}`);
+        }
+        
+        const imagesJson = await response.json();
+        console.log('Successfully loaded images:', imagesJson);
+        
+        // Ensure we have a valid images array
+        if (!Array.isArray(imagesJson)) {
+          console.error('External images file does not contain a valid array');
+          return false;
+        }
+        
+        // Create a combined array of existing images and external images
+        const existingImages = Array.isArray(json.images) ? json.images : [];
+        json.images = [...existingImages, ...imagesJson];
+        
+        // Remove the external images URI reference
+        delete json.externalImagesUri;
+        
+        console.log('Images integrated into GLTF:', json.images);
+        return true;
+      } catch (error) {
+        console.error('Error loading external images:', error);
+        throw error;
+      }
+    }
+    return false;
+  }
+
+  async loadVariants(json) {
+    if (json.extensions && typeof json.extensions.KHR_materials_variants === 'string') {
+      const variantsPath = json.extensions.KHR_materials_variants;
+      const resolvedURL = this.parser.options.path + variantsPath;
+      
+      try {
+        console.log('Loading external variants from:', resolvedURL);
+        const response = await fetch(resolvedURL);
+        if (!response.ok) {
+          throw new Error(`Failed to load external variants: ${response.statusText}`);
+        }
+        
+        const variantsJson = await response.json();
+        console.log('Successfully loaded variants:', variantsJson);
+        
+        // This is the critical part:
+        // Make sure we have the exact structure expected by standard GLTF
+        // variants.json should contain: { "variants": [...] }
+        if (variantsJson.variants && Array.isArray(variantsJson.variants)) {
+          json.extensions.KHR_materials_variants = variantsJson;
+        } else if (Array.isArray(variantsJson)) {
+          // If variants.json is just an array, wrap it in the expected structure
+          json.extensions.KHR_materials_variants = { "variants": variantsJson };
+        } else {
+          console.error('Invalid variants format:', variantsJson);
+          return false;
+        }
+        
+        console.log('Final variants structure:', json.extensions.KHR_materials_variants);
+        return true;
+      } catch (error) {
+        console.error('Error loading external variants:', error);
+        throw error;
+      }
+    }
+    return false;
+  }
 
   // Add a debug method to validate the loaded GLTF structure
   validateGltf(json) {
@@ -41563,9 +41634,35 @@ class GLTFExternalMaterialsExtension {
       }
     }
     
+    // Check textures
+    if (!json.textures) {
+      console.warn('No textures found in GLTF after loading external sources');
+    } else if (!Array.isArray(json.textures)) {
+      console.error('Textures is not an array:', json.textures);
+    } else {
+      console.log(`Found ${json.textures.length} textures`);
+      // Check first texture for expected structure
+      if (json.textures.length > 0) {
+        console.log('First texture sample:', JSON.stringify(json.textures[0]));
+      }
+    }
+    
+    // Check images
+    if (!json.images) {
+      console.warn('No images found in GLTF after loading external sources');
+    } else if (!Array.isArray(json.images)) {
+      console.error('Images is not an array:', json.images);
+    } else {
+      console.log(`Found ${json.images.length} images`);
+      // Check first image for expected structure
+      if (json.images.length > 0) {
+        console.log('First image sample:', JSON.stringify(json.images[0]).substring(0, 100) + '...');
+      }
+    }
+    
     // Check variants
     if (!json.extensions || !json.extensions.KHR_materials_variants) {
-      console.error('No variants found in GLTF after loading external sources');
+      console.warn('No variants found in GLTF after loading external sources');
     } else if (!json.extensions.KHR_materials_variants.variants) {
       console.error('No variants array in KHR_materials_variants extension');
     } else if (!Array.isArray(json.extensions.KHR_materials_variants.variants)) {
@@ -41597,8 +41694,8 @@ class GLTFExternalMaterialsExtension {
       }
     }
     
-    if (!hasMappings) {
-      console.error('No variant mappings found in mesh primitives');
+    if (!hasMappings && json.extensions && json.extensions.KHR_materials_variants) {
+      console.warn('No variant mappings found in mesh primitives');
     }
     
     console.log('------- VALIDATION COMPLETE -------');
@@ -41848,6 +41945,7 @@ class GLTFLoader extends Loader {
 	}
 
 // Improved parse method with better debugging
+// Improved parse method with better debugging
 parse(data, path, onLoad, onError) {
   let json;
   const extensions = {};
@@ -41884,11 +41982,21 @@ parse(data, path, onLoad, onError) {
   
   // Check if we might have external references that need async loading
   const hasExternalMaterials = typeof json.materials === 'string';
+  const hasExternalTextures = typeof json.textures === 'string';
+  const hasExternalImages = json.externalImagesUri !== undefined;
   const hasExternalVariants = json.extensions && 
                              typeof json.extensions.KHR_materials_variants === 'string';
   
-  if (hasExternalMaterials || hasExternalVariants) {
-    console.log('GLTF has external references: materials=', hasExternalMaterials, 'variants=', hasExternalVariants);
+  const hasExternalReferences = hasExternalMaterials || hasExternalTextures || 
+                               hasExternalImages || hasExternalVariants;
+  
+  if (hasExternalReferences) {
+    console.log('GLTF has external references:', {
+      materials: hasExternalMaterials, 
+      textures: hasExternalTextures,
+      images: hasExternalImages,
+      variants: hasExternalVariants
+    });
     
     // We need to load these first before proceeding with parsing
     this._loadExternalReferences(json, path)
@@ -42039,6 +42147,8 @@ async _loadExternalReferences(json, path) {
   console.log('Loading external references...');
   console.log('Original JSON structure:', JSON.stringify({
     hasMaterials: json.materials ? (typeof json.materials === 'string' ? 'string reference' : 'embedded') : 'none',
+    hasTextures: json.textures ? (typeof json.textures === 'string' ? 'string reference' : 'embedded') : 'none',
+    hasImages: json.externalImagesUri ? 'external reference' : 'embedded',
     hasVariants: json.extensions && json.extensions.KHR_materials_variants ? 
       (typeof json.extensions.KHR_materials_variants === 'string' ? 'string reference' : 'embedded') : 'none'
   }));
@@ -42077,24 +42187,52 @@ async _loadExternalReferences(json, path) {
     throw new Error('External materials extension not registered');
   }
   
+  // Track all processing
+  const processResults = {
+    materialsProcessed: false,
+    texturesProcessed: false,
+    imagesProcessed: false,
+    variantsProcessed: false
+  };
+  
   // Process external materials if present
-  let materialsProcessed = false;
   if (typeof json.materials === 'string') {
     try {
-      materialsProcessed = await externalMaterialsExt.loadMaterials(json);
-      console.log('Materials processed:', materialsProcessed);
+      processResults.materialsProcessed = await externalMaterialsExt.loadMaterials(json);
+      console.log('Materials processed:', processResults.materialsProcessed);
     } catch (error) {
       console.error('Failed to load external materials:', error);
       throw error;
     }
   }
   
+  // Process external textures if present
+  if (typeof json.textures === 'string') {
+    try {
+      processResults.texturesProcessed = await externalMaterialsExt.loadTextures(json);
+      console.log('Textures processed:', processResults.texturesProcessed);
+    } catch (error) {
+      console.error('Failed to load external textures:', error);
+      throw error;
+    }
+  }
+  
+  // Process external images if present
+  if (json.externalImagesUri) {
+    try {
+      processResults.imagesProcessed = await externalMaterialsExt.loadImages(json);
+      console.log('Images processed:', processResults.imagesProcessed);
+    } catch (error) {
+      console.error('Failed to load external images:', error);
+      throw error;
+    }
+  }
+  
   // Process external variants if present
-  let variantsProcessed = false;
   if (json.extensions && typeof json.extensions.KHR_materials_variants === 'string') {
     try {
-      variantsProcessed = await externalMaterialsExt.loadVariants(json);
-      console.log('Variants processed:', variantsProcessed);
+      processResults.variantsProcessed = await externalMaterialsExt.loadVariants(json);
+      console.log('Variants processed:', processResults.variantsProcessed);
     } catch (error) {
       console.error('Failed to load external variants:', error);
       throw error;
@@ -42105,6 +42243,8 @@ async _loadExternalReferences(json, path) {
   if (externalMaterialsExt.validateGltf) {
     externalMaterialsExt.validateGltf(json);
   }
+  
+  console.log('All external references processed:', processResults);
   
   return json;
 }
@@ -53617,6 +53757,186 @@ const ControlsMixin = (ModelViewerElement) => {
 		  return 'model';
 		}
 
+applyTexture(objectUuid, textureType, textureUrl) {
+  const object = this.getObjectByUuid(objectUuid);
+  if (!object || !object.material) {
+    console.error('Object or material not found for UUID:', objectUuid);
+    return false;
+  }
+  
+  // Create a texture loader
+  const textureLoader = new TextureLoader();
+  
+  return new Promise((resolve) => {
+    textureLoader.load(
+      textureUrl,
+      (texture) => {
+        // Apply texture based on type
+        if (textureType === 'map') {
+          // For base color map, set the color space correctly
+          texture.colorSpace = SRGBColorSpace;
+        } else if (textureType === 'normalMap') {
+          // Normal maps need to be in linear space
+          texture.colorSpace = NoColorSpace;
+        }
+        
+        // Keep texture name in sync with material if possible
+        texture.name = `${object.material.name}_${textureType}`;
+        
+        // Apply the texture to the material
+        object.material[textureType] = texture;
+        object.material.needsUpdate = true;
+        
+        // Request a render update
+        this.requestRender();
+        
+        resolve(true);
+      },
+      undefined, // onProgress callback
+      (error) => {
+        console.error('Error loading texture:', error);
+        resolve(false);
+      }
+    );
+  });
+}
+
+
+/**
+ * Handle texture image uploads by replacing existing image files
+ * without modifying textures.json or images.json
+ * @param {File} file - The image file
+ * @param {string} textureType - The type of texture (map, normalMap, etc.)
+ * @param {string} materialName - The name of the material to update
+ * @returns {Promise<boolean>} Success status
+ */
+async handleTextureUpload(file, textureType, materialName) {
+  try {
+    const modelViewer = this;
+    
+    // Find the material by name in the scene
+    const scene = modelViewer.getScene()?._model;
+    if (!scene) {
+      console.error('Could not get scene to update texture');
+      return false;
+    }
+    
+    let materialObject = null;
+    scene.traverse((object) => {
+      if (object.material && object.material.name === materialName) {
+        materialObject = object.material;
+      }
+    });
+    
+    if (!materialObject) {
+      console.error(`Could not find material "${materialName}" in scene`);
+      return false;
+    }
+    
+    // Determine filename to use based on material name
+    // For baseColor (map), use the material name directly
+    let filename = materialName;
+    if (textureType !== 'map') {
+      // For other texture types, append the type
+      filename = `${materialName}_${textureType}`;
+    }
+    
+    // Add the file extension (.jpg by default)
+    filename = `${filename}.jpg`;
+    
+    console.log(`Using filename ${filename} for ${textureType} texture of material ${materialName}`);
+    
+    // Determine the base URL for the model
+    const modelUrl = modelViewer.src;
+    if (!modelUrl) {
+      console.error('Model URL not available');
+      return false;
+    }
+    
+    const urlParts = modelUrl.split('/');
+    urlParts.pop(); // Remove filename
+    const baseUrl = urlParts.join('/') + '/';
+    
+    // Create a FormData object to send the file
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('filename', filename);
+    formData.append('skipJsonUpdate', 'true'); // Tell the API not to update JSON files
+    
+    // Upload the image file
+    console.log(`Uploading texture image as: ${filename}`);
+    const uploadResponse = await fetch('/api/upload-image', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!uploadResponse.ok) {
+      const errorData = await uploadResponse.json();
+      throw new Error(`Failed to upload texture image: ${errorData.error || uploadResponse.statusText}`);
+    }
+    
+    const uploadResult = await uploadResponse.json();
+    console.log('Texture image uploaded successfully:', uploadResult);
+    
+    // Now update the texture in the material
+    const textureLoader = new TextureLoader();
+    
+    // Bypass cache by adding a timestamp query parameter
+    const textureURL = `${baseUrl}${filename}?t=${Date.now()}`;
+    console.log(`Loading new texture from: ${textureURL}`);
+    
+    // Load the new texture and apply it to the material
+    return new Promise((resolve) => {
+      textureLoader.load(
+        textureURL,
+        (texture) => {
+          // Preserve texture properties from the current texture if it exists
+          const currentTexture = materialObject[textureType];
+          if (currentTexture) {
+            texture.wrapS = currentTexture.wrapS;
+            texture.wrapT = currentTexture.wrapT;
+            if (currentTexture.repeat) texture.repeat.copy(currentTexture.repeat);
+            if (currentTexture.offset) texture.offset.copy(currentTexture.offset);
+            texture.rotation = currentTexture.rotation || 0;
+            
+            // For normal maps, maintain the intensity
+            if (textureType === 'normalMap' && materialObject.normalScale) {
+              materialObject.normalScale.copy(materialObject.normalScale);
+            }
+          }
+          
+          // Set the name to match the material
+          texture.name = `${materialName}_${textureType}`;
+          
+          // Apply the texture to the material
+          materialObject[textureType] = texture;
+          
+          // Special handling for different texture types
+          if (textureType === 'map') {
+            materialObject.map.colorSpace = SRGBColorSpace;
+          } else if (textureType === 'normalMap') {
+            materialObject.normalMap.colorSpace = NoColorSpace;
+          }
+          
+          // Make sure material updates
+          materialObject.needsUpdate = true;
+          
+          console.log(`Texture ${textureType} updated for material "${materialName}"`);
+          resolve(true);
+        },
+        undefined, // onProgress callback not needed
+        (error) => {
+          console.error('Error loading texture:', error);
+          resolve(false);
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Error handling texture upload:', error);
+    return false;
+  }
+}
+
 		setMaterialColor(uuid, colorHex) {
 		  const object = this.getObjectByUuid(uuid);
 		  
@@ -53645,6 +53965,7 @@ const ControlsMixin = (ModelViewerElement) => {
 		  }
 		}
 
+
 async downloadMaterialsJson() {
   var modelViewer = this;
   try {
@@ -53657,27 +53978,109 @@ async downloadMaterialsJson() {
     console.log('Available variants:', availableVariants);
     
     // Check if we have stored the original materials
-    if (!modelViewer._originalMaterialsStructure) {
+    if (!modelViewer._originalMaterialsStructure || 
+        !Array.isArray(modelViewer._originalMaterialsStructure) || 
+        modelViewer._originalMaterialsStructure.length === 0) {
+      
       console.log('No original materials cache found. Attempting to load from model.');
       
-      // Try to access the original materials from the model
+      // Try multiple approaches to get materials
+      
+      // Approach 1: Get from parser.json
       try {
         const gltf = modelViewer.parser?.json;
         if (gltf && gltf.materials && Array.isArray(gltf.materials)) {
           modelViewer._originalMaterialsStructure = JSON.parse(JSON.stringify(gltf.materials));
-          console.log('Loaded materials structure from model with', modelViewer._originalMaterialsStructure.length, 'materials');
+          console.log('Loaded materials structure from parser.json with', 
+            modelViewer._originalMaterialsStructure.length, 'materials');
         } else {
-          console.error('Could not find materials in the model');
-          return null;
+          console.warn('Could not find materials in parser.json');
         }
       } catch (err) {
-        console.error('Failed to load materials from model:', err);
+        console.warn('Failed to load materials from parser.json:', err);
+      }
+      
+      // Approach 2: Try to get from model loader data
+      if (!modelViewer._originalMaterialsStructure || 
+          !Array.isArray(modelViewer._originalMaterialsStructure) || 
+          modelViewer._originalMaterialsStructure.length === 0) {
+          
+        try {
+          const gltfLoader = modelViewer.model?.userData?.gltfLoader;
+          if (gltfLoader?.parser?.json?.materials && Array.isArray(gltfLoader.parser.json.materials)) {
+            modelViewer._originalMaterialsStructure = JSON.parse(JSON.stringify(gltfLoader.parser.json.materials));
+            console.log('Loaded materials structure from gltfLoader with', 
+              modelViewer._originalMaterialsStructure.length, 'materials');
+          } else {
+            console.warn('Could not find materials in gltfLoader');
+          }
+        } catch (err) {
+          console.warn('Failed to load materials from gltfLoader:', err);
+        }
+      }
+      
+      // Approach 3: Check for cached model-viewer userData
+      if (!modelViewer._originalMaterialsStructure || 
+          !Array.isArray(modelViewer._originalMaterialsStructure) || 
+          modelViewer._originalMaterialsStructure.length === 0) {
+        
+        try {
+          if (modelViewer.userData?.gltfData?.materials && 
+              Array.isArray(modelViewer.userData.gltfData.materials)) {
+            
+            modelViewer._originalMaterialsStructure = 
+              JSON.parse(JSON.stringify(modelViewer.userData.gltfData.materials));
+              
+            console.log('Loaded materials structure from userData with', 
+              modelViewer._originalMaterialsStructure.length, 'materials');
+          }
+        } catch (err) {
+          console.warn('Failed to load materials from userData:', err);
+        }
+      }
+      
+      // Approach 4: If all else fails, try to access an externalized materials.json
+      if (!modelViewer._originalMaterialsStructure || 
+          !Array.isArray(modelViewer._originalMaterialsStructure) || 
+          modelViewer._originalMaterialsStructure.length === 0) {
+          
+        try {
+          const src = modelViewer.src;
+          if (src) {
+            const urlParts = src.split('/');
+            urlParts.pop(); // Remove filename
+            const baseUrl = urlParts.join('/') + '/';
+            const materialsUrl = baseUrl + 'materials.json';
+            
+            console.log('Attempting to load materials from external file:', materialsUrl);
+            
+            const response = await fetch(materialsUrl);
+            if (response.ok) {
+              const materialsData = await response.json();
+              if (Array.isArray(materialsData)) {
+                modelViewer._originalMaterialsStructure = JSON.parse(JSON.stringify(materialsData));
+                console.log('Loaded materials structure from external file with', 
+                  modelViewer._originalMaterialsStructure.length, 'materials');
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to load materials from external file:', err);
+        }
+      }
+      
+      // If all approaches failed, return an error
+      if (!modelViewer._originalMaterialsStructure || 
+          !Array.isArray(modelViewer._originalMaterialsStructure) || 
+          modelViewer._originalMaterialsStructure.length === 0) {
+        console.error('Could not find materials in the model using any method');
         return null;
       }
     }
     
     // Create a deep copy of the original structure to modify
     const materialsCopy = JSON.parse(JSON.stringify(modelViewer._originalMaterialsStructure));
+    console.log('Working with materials copy containing:', materialsCopy.length, 'materials');
     
     // Process each variant to update only what has changed
     for (const variantName of availableVariants) {
@@ -53690,7 +54093,11 @@ async downloadMaterialsJson() {
       await new Promise(resolve => setTimeout(resolve, 50));
       
       // Get the scene
-      const scene = modelViewer.getScene()._model;
+      const scene = modelViewer.getScene()?._model;
+      if (!scene) {
+        console.warn(`Could not get scene for variant ${variantName}`);
+        continue;
+      }
       
       // Find all materials that are applied for this variant
       const variantMaterials = [];
@@ -53973,9 +54380,550 @@ async downloadMaterialsJson() {
     return null;
   }
 }
+/**
+ * Download textures.json based on current model state
+ * @returns {Array} The textures data, or null if there was an error
+ */
+/**
+ * Enhanced Download textures.json function with better tracking of updated textures
+ * @returns {Array} The textures data, or null if there was an error
+ */
+async downloadTexturesJson() {
+  var modelViewer = this;
+  try {
+    // Check if we have stored the original textures
+    if (!modelViewer._originalTexturesStructure) {
+      console.log('No original textures cache found. Attempting to load from model.');
+      
+      // Try to access the original textures from the model
+      try {
+        const gltf = modelViewer.parser?.json;
+        if (gltf && gltf.textures && Array.isArray(gltf.textures)) {
+          modelViewer._originalTexturesStructure = JSON.parse(JSON.stringify(gltf.textures));
+          console.log('Loaded textures structure from model with', modelViewer._originalTexturesStructure.length, 'textures');
+        } else {
+          console.warn('Could not find textures in the model');
+          
+          // Try to access the original textures from the model loader data
+          const gltfLoader = modelViewer.model?.userData?.gltfLoader;
+          if (gltfLoader?.parser?.json?.textures && Array.isArray(gltfLoader.parser.json.textures)) {
+            modelViewer._originalTexturesStructure = JSON.parse(JSON.stringify(gltfLoader.parser.json.textures));
+            console.log('Loaded textures structure from gltfLoader with', 
+              modelViewer._originalTexturesStructure.length, 'textures');
+          } else {
+            console.warn('Could not find textures in gltfLoader');
+            
+            // Try external textures.json as a last resort
+            try {
+              const src = modelViewer.src;
+              if (src) {
+                const urlParts = src.split('/');
+                urlParts.pop(); // Remove filename
+                const baseUrl = urlParts.join('/') + '/';
+                const texturesUrl = baseUrl + 'textures.json';
+                
+                console.log('Attempting to load textures from external file:', texturesUrl);
+                
+                const response = await fetch(texturesUrl);
+                if (response.ok) {
+                  const texturesData = await response.json();
+                  if (Array.isArray(texturesData)) {
+                    modelViewer._originalTexturesStructure = JSON.parse(JSON.stringify(texturesData));
+                    console.log('Loaded textures structure from external file with', 
+                      modelViewer._originalTexturesStructure.length, 'textures');
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn('Failed to load textures from external file:', err);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load textures from model:', err);
+      }
+      
+      // If all attempts failed, return null
+      if (!modelViewer._originalTexturesStructure) {
+        console.error('Could not find textures in the model using any method');
+        return null;
+      }
+    }
+    
+    // Create a deep copy of the original structure
+    const texturesCopy = JSON.parse(JSON.stringify(modelViewer._originalTexturesStructure));
+    console.log('Working with textures copy containing:', texturesCopy.length, 'textures');
+    
+    // Get the scene to extract texture information
+    const scene = modelViewer.getScene()?._model;
+    if (!scene) {
+      console.warn('Could not get scene to update textures');
+      return texturesCopy; // Return the original copy without updates
+    }
+    
+    // Track all textures from the scene that need updating
+    const sceneMaterials = [];
+    const sceneTextures = new Map(); // Map to track unique textures by UUID
+    
+    // Get a map of image names to indices for fast lookups when updating source indices
+    const getImagesMap = async () => {
+      // Get the images data
+      let imagesData = modelViewer._originalImagesStructure;
+      
+      if (!imagesData) {
+        // Try to load it if not available
+        try {
+          imagesData = await modelViewer.downloadImagesJson();
+        } catch (err) {
+          console.warn('Could not load images data for texture source mapping:', err);
+          return new Map();
+        }
+      }
+      
+      if (!imagesData || !Array.isArray(imagesData)) {
+        return new Map();
+      }
+      
+      // Create mapping of both name and URI to index
+      const imageMap = new Map();
+      imagesData.forEach((image, index) => {
+        if (image.name) {
+          imageMap.set(image.name, index);
+        }
+        if (image.uri) {
+          // Map both the full URI and just the filename
+          imageMap.set(image.uri, index);
+          
+          // Also map the filename without path
+          const uriParts = image.uri.split('/');
+          const filename = uriParts[uriParts.length - 1];
+          if (filename !== image.uri) {
+            imageMap.set(filename, index);
+          }
+        }
+      });
+      
+      return imageMap;
+    };
+    
+    // Get the images map for source lookups
+    const imagesMap = await getImagesMap();
+    
+    // Collect all materials and textures from the scene
+    scene.traverse((object) => {
+      if (object.material) {
+        // Add to materials list
+        sceneMaterials.push({
+          meshName: object.name,
+          material: object.material
+        });
+        
+        // Now collect all textures from this material
+        const material = object.material;
+        const textureProperties = [
+          { name: 'map', textureType: 'baseColorTexture' },
+          { name: 'normalMap', textureType: 'normalTexture' },
+          { name: 'metalnessMap', textureType: 'metallicRoughnessTexture' },
+          { name: 'roughnessMap', textureType: 'metallicRoughnessTexture' },
+          { name: 'emissiveMap', textureType: 'emissiveTexture' },
+          { name: 'aoMap', textureType: 'occlusionTexture' }
+        ];
+        
+        // Check if material has extended properties for sheen, etc.
+        if (material.sheenColorMap) {
+          textureProperties.push({ name: 'sheenColorMap', textureType: 'sheenColorTexture' });
+        }
+        if (material.sheenRoughnessMap) {
+          textureProperties.push({ name: 'sheenRoughnessMap', textureType: 'sheenRoughnessTexture' });
+        }
+        
+        // Collect each texture
+        for (const prop of textureProperties) {
+          const texture = material[prop.name];
+          if (texture && !sceneTextures.has(texture.uuid)) {
+            sceneTextures.set(texture.uuid, {
+              texture,
+              textureType: prop.textureType,
+              materialName: material.name,
+              propName: prop.name
+            });
+          }
+        }
+      }
+    });
+    
+    console.log(`Found ${sceneMaterials.length} materials and ${sceneTextures.size} unique textures in the scene`);
+    
+    // Process each texture to update its properties in the textures JSON structure
+    for (const { texture, textureType, materialName, propName } of sceneTextures.values()) {
+      // Find a matching texture in the texture copy by name (if the texture has a name)
+      const textureIndex = texture.name ? 
+        texturesCopy.findIndex(t => t.name === texture.name) : -1;
+      
+      if (textureIndex === -1) {
+        console.warn(`Texture "${texture.name || 'unnamed'}" from material "${materialName}" not found in original structure`);
+        
+        // This is a new texture, so we need to add it to the textures array
+        if (texture.image && texture.image.src) {
+          // Extract image filename from src
+          const srcParts = texture.image.src.split('/');
+          const imageFilename = srcParts[srcParts.length - 1].split('?')[0]; // Remove query params
+          
+          // Find the source index in the images array
+          const sourceIndex = imagesMap.get(imageFilename);
+          
+          if (sourceIndex !== undefined) {
+            // Create new texture entry
+            const newTexture = {
+              name: texture.name || `${materialName}_${propName}`,
+              source: sourceIndex,
+              // Add standard GLTF sampler properties from the Three.js texture
+              sampler: texturesCopy.length > 0 ? texturesCopy[0].sampler : 0
+            };
+            
+            // If texture has transforms, add those
+            if (texture.offset || texture.repeat || texture.rotation !== undefined) {
+              newTexture.extensions = {
+                KHR_texture_transform: {}
+              };
+              
+              const transform = newTexture.extensions.KHR_texture_transform;
+              
+              if (texture.offset) {
+                transform.offset = [texture.offset.x, texture.offset.y];
+              }
+              
+              if (texture.repeat) {
+                transform.scale = [texture.repeat.x, texture.repeat.y];
+              }
+              
+              if (texture.rotation !== undefined) {
+                transform.rotation = texture.rotation;
+              }
+            }
+            
+            // Add the new texture to the copy
+            texturesCopy.push(newTexture);
+            console.log(`Added new texture "${newTexture.name}" with source ${sourceIndex}`);
+          } else {
+            console.warn(`Could not find source index for image ${imageFilename}`);
+          }
+        }
+        
+        continue;
+      }
+      
+      console.log(`Updating texture "${texture.name}" (${textureType}) from material "${materialName}"`);
+      
+      // Update the texture properties
+      const textureToUpdate = texturesCopy[textureIndex];
+      
+      // If the texture source (image) has changed, update it
+      if (texture.image && texture.image.src) {
+        // Extract image filename from src
+        const srcParts = texture.image.src.split('/');
+        const imageFilename = srcParts[srcParts.length - 1].split('?')[0]; // Remove query params
+        
+        // Find the source index in the images array
+        const sourceIndex = imagesMap.get(imageFilename);
+        
+        if (sourceIndex !== undefined && textureToUpdate.source !== sourceIndex) {
+          console.log(`Updating texture source from ${textureToUpdate.source} to ${sourceIndex} (${imageFilename})`);
+          textureToUpdate.source = sourceIndex;
+        }
+      }
+      
+      // Update texture coordinate set if defined
+      if (texture.channel !== undefined) {
+        textureToUpdate.texCoord = texture.channel;
+      }
+      
+      // Update KHR_texture_transform extension if defined
+      if (texture.offset || texture.repeat || texture.rotation !== undefined) {
+        // Ensure the extensions object exists
+        if (!textureToUpdate.extensions) {
+          textureToUpdate.extensions = {};
+        }
+        
+        // Ensure the KHR_texture_transform extension exists
+        if (!textureToUpdate.extensions.KHR_texture_transform) {
+          textureToUpdate.extensions.KHR_texture_transform = {};
+        }
+        
+        const transform = textureToUpdate.extensions.KHR_texture_transform;
+        
+        // Update offset
+        if (texture.offset) {
+          transform.offset = [texture.offset.x, texture.offset.y];
+        }
+        
+        // Update scale (repeat in three.js)
+        if (texture.repeat) {
+          transform.scale = [texture.repeat.x, texture.repeat.y];
+        }
+        
+        // Update rotation
+        if (texture.rotation !== undefined) {
+          transform.rotation = texture.rotation;
+        }
+      }
+    }
+    
+    return texturesCopy;
+  } catch (error) {
+    console.error('Error extracting textures:', error);
+    return null;
+  }
+}
 
-// Setup function to load materials when the model is loaded
-async setupExternalMaterials() {
+/**
+ * Download images.json based on current model state
+ * @returns {Array} The images data, or null if there was an error
+ */
+/**
+ * Enhanced Download images.json function with better active texture tracking
+ * @returns {Array} The images data, or null if there was an error
+ */
+async downloadImagesJson() {
+  var modelViewer = this;
+  try {
+    // Check if we have stored the original images
+    if (!modelViewer._originalImagesStructure) {
+      console.log('No original images cache found. Attempting to load from model.');
+      
+      // Try to access the original images from the model
+      try {
+        const gltf = modelViewer.parser?.json;
+        if (gltf && gltf.images && Array.isArray(gltf.images)) {
+          modelViewer._originalImagesStructure = JSON.parse(JSON.stringify(gltf.images));
+          console.log('Loaded images structure from model with', modelViewer._originalImagesStructure.length, 'images');
+        } else {
+          console.warn('Could not find images in the model');
+          
+          // Try to access the original images from the model loader data
+          const gltfLoader = modelViewer.model?.userData?.gltfLoader;
+          if (gltfLoader?.parser?.json?.images && Array.isArray(gltfLoader.parser.json.images)) {
+            modelViewer._originalImagesStructure = JSON.parse(JSON.stringify(gltfLoader.parser.json.images));
+            console.log('Loaded images structure from gltfLoader with', 
+              modelViewer._originalImagesStructure.length, 'images');
+          } else {
+            console.warn('Could not find images in gltfLoader');
+            
+            // Try external images.json as a last resort
+            try {
+              const src = modelViewer.src;
+              if (src) {
+                const urlParts = src.split('/');
+                urlParts.pop(); // Remove filename
+                const baseUrl = urlParts.join('/') + '/';
+                const imagesUrl = baseUrl + 'images.json';
+                
+                console.log('Attempting to load images from external file:', imagesUrl);
+                
+                const response = await fetch(imagesUrl);
+                if (response.ok) {
+                  const imagesData = await response.json();
+                  if (Array.isArray(imagesData)) {
+                    modelViewer._originalImagesStructure = JSON.parse(JSON.stringify(imagesData));
+                    console.log('Loaded images structure from external file with', 
+                      modelViewer._originalImagesStructure.length, 'images');
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn('Failed to load images from external file:', err);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load images from model:', err);
+      }
+      
+      // If all attempts failed, return null
+      if (!modelViewer._originalImagesStructure) {
+        console.error('Could not find images in the model using any method');
+        return null;
+      }
+    }
+    
+    // Create a deep copy of the original structure
+    const imagesCopy = JSON.parse(JSON.stringify(modelViewer._originalImagesStructure));
+    console.log('Working with images copy containing:', imagesCopy.length, 'images');
+    
+    // Get the scene to extract actual used images from textures
+    const scene = modelViewer.getScene()?._model;
+    if (!scene) {
+      console.warn('Could not get scene to update images data');
+      return imagesCopy; // Return the original copy without updates
+    }
+    
+    // Create a mapping of current textures and their sources
+    const sceneTextures = new Map();
+    const activeImageUris = new Set();
+    
+    // Collect all textures from the scene
+    scene.traverse((object) => {
+      if (object.material) {
+        // Collect standard textures
+        const textureProps = [
+          'map', 'normalMap', 'metalnessMap', 'roughnessMap', 
+          'emissiveMap', 'aoMap', 'sheenColorMap', 'sheenRoughnessMap'
+        ];
+        
+        for (const prop of textureProps) {
+          const texture = object.material[prop];
+          if (texture && !sceneTextures.has(texture.uuid)) {
+            sceneTextures.set(texture.uuid, {
+              texture,
+              propName: prop,
+              materialName: object.material.name
+            });
+            
+            // Extract image source information
+            if (texture.image && texture.image.src) {
+              const srcParts = texture.image.src.split('/');
+              const filename = srcParts[srcParts.length - 1].split('?')[0]; // Remove any query params
+              
+              activeImageUris.add(filename);
+              
+              // Log for debugging
+              console.log(`Found texture ${prop} in material ${object.material.name} with image: ${filename}`);
+            }
+          }
+        }
+      }
+    });
+    
+    // Now we need to make sure our images.json has entries for all active image URIs
+    // But we don't want to modify the original entries to maintain compatibility
+    
+    // First check if all active images are already in the structure
+    for (const uri of activeImageUris) {
+      const imageExists = imagesCopy.some(img => 
+        img.uri === uri || 
+        (img.uri && img.uri.endsWith(uri))
+      );
+      
+      if (!imageExists) {
+        console.log(`Adding new image entry for: ${uri}`);
+        
+        // Create a new image entry 
+        const newImage = {
+          name: uri.split('.')[0], // Use filename without extension as name
+          uri: uri,
+          mimeType: uri.endsWith('.jpg') || uri.endsWith('.jpeg') ? 
+            'image/jpeg' : uri.endsWith('.png') ? 
+            'image/png' : 'image/jpeg' // Default to JPEG
+        };
+        
+        // Add to the structure
+        imagesCopy.push(newImage);
+      }
+    }
+    
+    return imagesCopy;
+  } catch (error) {
+    console.error('Error extracting images:', error);
+    return null;
+  }
+}
+/**
+ * Helper function to download JSON data as a file
+ * @param {Object} data - The data to download
+ * @param {string} filename - The filename to use
+ */
+downloadJsonFile(data, filename) {
+  const jsonStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  
+  // Create a download link
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  
+  // Add to document, click, and remove
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  
+  // Clean up the URL object
+  URL.revokeObjectURL(a.href);
+}
+
+/**
+ * Download all resource JSON files (materials, textures, images)
+ */
+async downloadAllResourceJson() {
+  // Get the materials JSON
+  const materialsJson = await this.downloadMaterialsJson();
+  if (materialsJson) {
+    this.downloadJsonFile(materialsJson, 'materials.json');
+  }
+  
+  // Get the textures JSON
+  const texturesJson = await this.downloadTexturesJson();
+  if (texturesJson) {
+    this.downloadJsonFile(texturesJson, 'textures.json');
+  }
+  
+  // Get the images JSON
+  const imagesJson = await this.downloadImagesJson();
+  if (imagesJson) {
+    this.downloadJsonFile(imagesJson, 'images.json');
+  }
+}
+
+/**
+ * Enhanced saveGLTF method to export materials, textures, and images
+ * @returns {Object} Object containing materials, textures, and images data
+ */
+async saveGLTF() {
+  try {
+    // Get updated materials
+    const updatedMaterials = await this.downloadMaterialsJson();
+    if (!updatedMaterials) {
+      throw new Error('Failed to get updated materials');
+    }
+    
+    // Get updated textures - using the downloadTexturesJson function
+    let updatedTextures = null;
+    try {
+      updatedTextures = await this.downloadTexturesJson();
+      console.log('Textures loaded successfully:', updatedTextures?.length || 0, 'textures');
+    } catch (textureError) {
+      console.warn('Failed to get updated textures:', textureError);
+    }
+    
+    // Get updated images - using the downloadImagesJson function
+    let updatedImages = null;
+    try {
+      updatedImages = await this.downloadImagesJson();
+      console.log('Images loaded successfully:', updatedImages?.length || 0, 'images');
+    } catch (imageError) {
+      console.warn('Failed to get updated images:', imageError);
+    }
+    
+    // For debugging
+    console.log('saveGLTF output:', {
+      materialCount: updatedMaterials?.length || 0,
+      textureCount: updatedTextures?.length || 0,
+      imageCount: updatedImages?.length || 0
+    });
+    
+    // Return all the data
+    return {
+      materials: updatedMaterials,
+      textures: updatedTextures,
+      images: updatedImages
+    };
+  } catch (error) {
+    console.error('Error getting resource JSON:', error);
+    throw error;
+  }
+}
+
+
+async setupExternalResources() {
   var modelViewer = this;
   
   try {
@@ -53986,40 +54934,177 @@ async setupExternalMaterials() {
       return false;
     }
     
-    // Generate the materials.json URL from the model URL
+    // Generate base URL for external resources
     const urlParts = modelUrl.split('/');
     const lastPart = urlParts.pop(); // Remove the filename
-    const materialsUrl = urlParts.join('/') + '/materials.json';
+    const baseUrl = urlParts.join('/') + '/';
     
-    console.log('Attempting to load materials from:', materialsUrl);
+    // Initialize success trackers
+    let materialsSuccess = false;
+    let texturesSuccess = false;
+    let imagesSuccess = false;
     
-    // Fetch the materials.json file
-    const response = await fetch(materialsUrl);
-    if (!response.ok) {
-      console.warn(`Could not load materials.json: ${response.status} ${response.statusText}`);
-      return false;
+    // 1. Load materials.json if needed
+    if (modelViewer.parser?.json?.materials === "materials.json") {
+      const materialsUrl = baseUrl + 'materials.json';
+      console.log('Loading external materials from:', materialsUrl);
+      
+      try {
+        const materialsResponse = await fetch(materialsUrl);
+        if (materialsResponse.ok) {
+          const materialsData = await materialsResponse.json();
+          // Validate materials data
+          if (!Array.isArray(materialsData)) {
+            console.error('External materials file does not contain a valid array');
+          } else {
+            this.initOriginalMaterialsStructure(materialsData);
+            materialsSuccess = true;
+          }
+        } else {
+          console.warn(`Could not load materials.json: ${materialsResponse.status} ${materialsResponse.statusText}`);
+        }
+      } catch (materialError) {
+        console.error('Error loading materials.json:', materialError);
+      }
     }
     
-    const materialsData = await response.json();
+    // 2. Load textures.json if needed
+    if (modelViewer.parser?.json?.textures === "textures.json") {
+      const texturesUrl = baseUrl + 'textures.json';
+      console.log('Loading external textures from:', texturesUrl);
+      
+      try {
+        const texturesResponse = await fetch(texturesUrl);
+        if (texturesResponse.ok) {
+          const texturesData = await texturesResponse.json();
+          // Validate textures data
+          if (!Array.isArray(texturesData)) {
+            console.error('External textures file does not contain a valid array');
+          } else {
+            this.initTexturesStructure(texturesData);
+            texturesSuccess = true;
+          }
+        } else {
+          console.warn(`Could not load textures.json: ${texturesResponse.status} ${texturesResponse.statusText}`);
+        }
+      } catch (textureError) {
+        console.error('Error loading textures.json:', textureError);
+      }
+    }
     
-    // Initialize the materials structure with the loaded data
-    this.initOriginalMaterialsStructure(materialsData);
+    // 3. Load images.json if needed
+    const gltf = modelViewer.parser?.json;
+    if (gltf && gltf.externalImagesUri) {
+      const imagesUrl = baseUrl + gltf.externalImagesUri;
+      console.log('Loading external images from:', imagesUrl);
+      
+      try {
+        const imagesResponse = await fetch(imagesUrl);
+        if (imagesResponse.ok) {
+          const imagesData = await imagesResponse.json();
+          
+          // Validate images data
+          if (!Array.isArray(imagesData)) {
+            console.error('External images file does not contain a valid array');
+          } else {
+            // Combine model-specific images with external images
+            const modelImages = Array.isArray(gltf.images) ? gltf.images : [];
+            const allImages = [...modelImages, ...imagesData];
+            
+            this.initImagesStructure(allImages);
+            imagesSuccess = true;
+          }
+        } else {
+          console.warn(`Could not load ${gltf.externalImagesUri}: ${imagesResponse.status} ${imagesResponse.statusText}`);
+        }
+      } catch (imageError) {
+        console.error(`Error loading ${gltf.externalImagesUri}:`, imageError);
+      }
+    }
     
-    return true;
+    // Return overall success status
+    return {
+      materialsLoaded: materialsSuccess,
+      texturesLoaded: texturesSuccess,
+      imagesLoaded: imagesSuccess
+    };
   } catch (error) {
-    console.error('Error setting up external materials:', error);
+    console.error('Error setting up external resources:', error);
     return false;
   }
 }
 
-
-// Function to initialize the material structure cache when model is loaded
+// Initialize materials structure
+// Enhanced initialization function to store original materials
 initOriginalMaterialsStructure(json) {
   if (Array.isArray(json)) {
-    this._originalMaterialsStructure = json;
+    // Store a deep copy to prevent reference issues
+    this._originalMaterialsStructure = JSON.parse(JSON.stringify(json));
+    
+    // Create mapping for easier reference
+    this._materialNameToIndexMap = new Map();
+    
+    json.forEach((material, index) => {
+      if (material.name) {
+        this._materialNameToIndexMap.set(material.name, index);
+      }
+    });
+    
     console.log('Original materials structure initialized with', json.length, 'materials');
+    return true;
   } else {
     console.error('Invalid materials data provided:', json);
+    return false;
+  }
+}
+
+// Initialize textures structure
+initTexturesStructure(json) {
+  if (Array.isArray(json)) {
+    // Store a deep copy to prevent reference issues
+    this._originalTexturesStructure = JSON.parse(JSON.stringify(json));
+    
+    // Create mapping for easier reference
+    this._textureNameToIndexMap = new Map();
+    
+    json.forEach((texture, index) => {
+      if (texture.name) {
+        this._textureNameToIndexMap.set(texture.name, index);
+      }
+    });
+    
+    console.log('Original textures structure initialized with', json.length, 'textures');
+    return true;
+  } else {
+    console.error('Invalid textures data provided:', json);
+    return false;
+  }
+}
+
+// Initialize images structure
+initImagesStructure(json) {
+  if (Array.isArray(json)) {
+    // Store a deep copy to prevent reference issues
+    this._originalImagesStructure = JSON.parse(JSON.stringify(json));
+    
+    // Create mapping for easier reference
+    this._imageNameToIndexMap = new Map();
+    this._imageUriToIndexMap = new Map();
+    
+    json.forEach((image, index) => {
+      if (image.name) {
+        this._imageNameToIndexMap.set(image.name, index);
+      }
+      if (image.uri) {
+        this._imageUriToIndexMap.set(image.uri, index);
+      }
+    });
+    
+    console.log('Original images structure initialized with', json.length, 'images');
+    return true;
+  } else {
+    console.error('Invalid images data provided:', json);
+    return false;
   }
 }
 
@@ -54073,22 +55158,6 @@ initOriginalMaterialsStructure(json) {
 		    console.error('Error exporting GLTF:', error);
 		  }
 		}
-
-	async saveGLTF() {
-  try {
-    // Get updated materials
-    const updatedMaterials = await this.downloadMaterialsJson();
-    
-    if (!updatedMaterials) {
-      throw new Error('Failed to get updated materials');
-    }
-    
-    return updatedMaterials;
-  } catch (error) {
-    console.error('Error getting materials JSON:', error);
-    throw error;
-  }
-}
 
 
 		async exportUSDZ() {
@@ -63159,7 +64228,7 @@ class ModelViewerElementBase extends u$1 {
         finally {
             updateSourceProgress(1.0);
 
-             const result = await this.setupExternalMaterials();
+             const result = await this.setupExternalResources();
 			  if (result) {
 			    console.log('External materials loaded successfully');
 			  } else {

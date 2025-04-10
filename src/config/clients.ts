@@ -8,7 +8,7 @@ export interface ClientConfig {
 export const clients: Record<string, ClientConfig> = {
   Artwood: {
     name: "1",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/Art.gltf",
+    modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/Art1.gltf",
     description: "Artwood Editor"
   },
   Sweef: {

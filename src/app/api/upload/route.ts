@@ -1,4 +1,4 @@
-// Adjusted src/app/api/upload/route.ts for your environment structure
+// src/app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import https from 'https';
 import fetch from 'node-fetch';
@@ -7,10 +7,9 @@ const REGION = process.env.BUNNY_REGION || '';
 const BASE_HOSTNAME = 'storage.bunnycdn.com';
 const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
 const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
-const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || ''; // Add fallback
-const BUNNY_API_KEY = process.env.BUNNY_API_KEY || ''; // Add fallback
+const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || ''; 
+const BUNNY_API_KEY = process.env.BUNNY_API_KEY || ''; 
 const BUNNY_PULL_ZONE_URL = process.env.BUNNY_PULL_ZONE_URL || 'cdn.charpstar.net';
-
 
 // Helper to extract the zone name and base path from the environment variable
 const getStorageZoneDetails = () => {
@@ -22,28 +21,60 @@ const getStorageZoneDetails = () => {
 
 export async function POST(request: NextRequest) {
   try {
-    const requestBody = await request.json();
+    // Log request information for debugging
+    console.log("Received upload request");
     
-    if (!requestBody || !requestBody.data || !requestBody.filename) {
-      return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
+    // Parse the JSON body
+    let requestBody;
+    try {
+      requestBody = await request.json();
+      console.log("Request body parsed successfully");
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError);
+      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
     }
     
-    // Extract just the materials data
-    const materialsData = requestBody.data;
+    if (!requestBody || !requestBody.data || !requestBody.filename) {
+      console.error("Missing required fields in request body");
+      return NextResponse.json({ error: 'Invalid request data - missing data or filename' }, { status: 400 });
+    }
+    
+    // Extract the data and filename
+    const resourceData = requestBody.data;
     const filename = requestBody.filename;
     
-    // Convert materials data to string and buffer
-    const jsonString = JSON.stringify(materialsData, null, 2);
+    // Log what we're trying to process
+    console.log(`Processing upload for ${filename} with data of type ${typeof resourceData}`);
+    
+    // Validate the filename is one of our expected types
+    const validFilenames = ['materials.json', 'textures.json', 'images.json'];
+    if (!validFilenames.includes(filename)) {
+      console.error(`Invalid filename: ${filename}`);
+      return NextResponse.json({ error: 'Invalid filename. Must be one of: ' + validFilenames.join(', ') }, { status: 400 });
+    }
+    
+    // Convert data to string and buffer with extra error handling
+    let jsonString;
+    try {
+      jsonString = JSON.stringify(resourceData, null, 2);
+      console.log(`Successfully stringified ${filename} data, length: ${jsonString.length}`);
+    } catch (stringifyError) {
+      console.error(`Error stringifying ${filename} data:`, stringifyError);
+      return NextResponse.json({ error: 'Failed to stringify JSON data' }, { status: 500 });
+    }
+    
     const buffer = Buffer.from(jsonString);
     
     // Get storage zone details
     const { zoneName, basePath } = getStorageZoneDetails();
+    console.log(`Storage zone: ${zoneName}, base path: ${basePath}`);
     
-    // Construct the path for the file
-    // For materials.json, we want it directly in the folder: Client-Editor/Artwood/materials.json
-    const filePath = `${basePath}Sweef/${filename}`;
+    // Construct the path for the file in BunnyCDN
+    const clientName = requestBody.client || 'Artwood';
+    const filePath = `${basePath}${clientName}/${filename}`;
+    console.log(`Full file path for upload: ${filePath}`);
     
-    // 1. Upload the file
+    // Upload to BunnyCDN
     const uploadPromise = new Promise((resolve, reject) => {
       const options = {
         method: 'PUT',
@@ -66,6 +97,9 @@ export async function POST(request: NextRequest) {
         });
         
         res.on('end', () => {
+          console.log(`Upload response status: ${res.statusCode}`);
+          console.log(`Upload response data: ${data}`);
+          
           if (res.statusCode === 200 || res.statusCode === 201) {
             resolve({ success: true });
           } else {
@@ -75,21 +109,31 @@ export async function POST(request: NextRequest) {
       });
       
       req.on('error', (error) => {
+        console.error(`Request error during upload: ${error.message}`);
         reject(error);
       });
       
+      // Log right before writing data
+      console.log(`Writing ${buffer.length} bytes of data to request`);
       req.write(buffer);
       req.end();
+      console.log('Request ended');
     });
     
-    await uploadPromise;
+    try {
+      await uploadPromise;
+      console.log('Upload completed successfully');
+    } catch (uploadError) {
+      console.error('Error during upload:', uploadError);
+      return NextResponse.json({ error: 'Failed to upload file: ' + uploadError.message }, { status: 500 });
+    }
     
-    // 2. Purge the cache for this file
-    // Construct full URL for the CDN
+    // Construct the CDN URL for the uploaded file
     const fileUrl = `https://${BUNNY_PULL_ZONE_URL}/${filePath}`;
-    console.log(`Purging cache for: ${fileUrl}`);
     
-      try {
+    // Purge the cache for this file
+    console.log(`Purging cache for: ${fileUrl}`);
+    try {
       const purgeResponse = await fetch('https://api.bunny.net/purge?async=false', {
         method: 'POST',
         headers: {
@@ -103,33 +147,24 @@ export async function POST(request: NextRequest) {
         const errorText = await purgeResponse.text();
         console.warn(`Cache purge warning: ${purgeResponse.status} - ${errorText}`);
       } else {
-        // Check if there's a response body before trying to parse it
-        const contentType = purgeResponse.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const responseText = await purgeResponse.text();
-          if (responseText.trim()) {
-            const purgeResult = JSON.parse(responseText);
-            console.log('Cache purge result:', purgeResult);
-          } else {
-            console.log('Cache purge successful (empty response)');
-          }
-        } else {
-          console.log('Cache purge successful');
-        }
+        console.log('Cache purge successful');
       }
     } catch (purgeError) {
       console.error('Error purging cache:', purgeError);
+      // Continue even if purge fails
     }
     
+    console.log('Successfully completed entire upload process');
     return NextResponse.json({ 
       success: true, 
-      message: 'File uploaded and cache purged',
-      fileUrl: fileUrl
+      message: `File ${filename} uploaded and cache purged`,
+      fileUrl: fileUrl,
+      resourceType: filename.split('.')[0]
     });
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('Uncaught error in upload route:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: 'Failed to upload file: ' + (error.message || 'Unknown error') },
       { status: 500 }
     );
   }

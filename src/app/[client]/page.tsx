@@ -122,9 +122,7 @@ export default function ClientPage() {
     }
   };
 
-  // Handle save functionality
-
-// Simplified handleSave function for page.tsx
+// Debugged handleSave function for page.tsx
 const handleSave = async () => {
   if (!modelViewerRef.current?.saveGLTF) {
     console.error('saveGLTF method not available');
@@ -132,44 +130,123 @@ const handleSave = async () => {
   }
 
   try {
-    // Get the materials data from saveGLTF
-    const materialsData = await modelViewerRef.current.saveGLTF();
+    // Get all resource data from saveGLTF
+    console.log('Calling saveGLTF...');
+    const resourceData = await modelViewerRef.current.saveGLTF();
     
-    // Always use 'materials.json' as the filename
-    const filename = 'materials.json';
-    
-    console.log('Saving materials.json file...');
-    
-    // Upload to Bunny CDN
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: materialsData,
-        filename: filename
-      })
+    // Debug what we got back
+    console.log('saveGLTF returned:', {
+      hasMaterials: !!resourceData.materials,
+      hasTextures: !!resourceData.textures,
+      hasImages: !!resourceData.images,
+      materialsCount: resourceData.materials?.length,
+      texturesCount: resourceData.textures?.length,
+      imagesCount: resourceData.images?.length
     });
+    
+    // Track upload results
+    const uploadResults = {
+      materials: false,
+      textures: false,
+      images: false
+    };
+    
+    // Upload materials.json
+    if (resourceData.materials) {
+      console.log('Uploading materials.json...');
+      const materialsResponse = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: resourceData.materials,
+          filename: 'materials.json'
+        })
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Failed to upload file: ${errorData.error || response.statusText}`);
+      if (materialsResponse.ok) {
+        const result = await materialsResponse.json();
+        console.log('Materials saved successfully:', result.fileUrl);
+        uploadResults.materials = true;
+      } else {
+        const errorData = await materialsResponse.json();
+        console.error(`Failed to upload materials: ${errorData.error || materialsResponse.statusText}`);
+      }
+    } else {
+      console.warn('No materials data available to upload');
     }
     
-    const result = await response.json();
+    // Upload textures.json if available
+    if (resourceData.textures) {
+      console.log('Uploading textures.json...');
+      const texturesResponse = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: resourceData.textures,
+          filename: 'textures.json'
+        })
+      });
+
+      if (texturesResponse.ok) {
+        const result = await texturesResponse.json();
+        console.log('Textures saved successfully:', result.fileUrl);
+        uploadResults.textures = true;
+      } else {
+        const errorData = await texturesResponse.json();
+        console.error(`Failed to upload textures: ${errorData.error || texturesResponse.statusText}`);
+      }
+    } else {
+      console.warn('No textures data available to upload');
+    }
     
-    // Show success message
-    console.log('Materials saved successfully:', result.fileUrl);
+    // Upload images.json if available
+    if (resourceData.images) {
+      console.log('Uploading images.json...');
+      const imagesResponse = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: resourceData.images,
+          filename: 'images.json'
+        })
+      });
+
+      if (imagesResponse.ok) {
+        const result = await imagesResponse.json();
+        console.log('Images saved successfully:', result.fileUrl);
+        uploadResults.images = true;
+      } else {
+        const errorData = await imagesResponse.json();
+        console.error(`Failed to upload images: ${errorData.error || imagesResponse.statusText}`);
+      }
+    } else {
+      console.warn('No images data available to upload');
+    }
     
-    // Optional: Add a visual notification of success
-    // For example, you could set a state variable to show a toast notification
+    // Check overall success and provide feedback
+    const successCount = Object.values(uploadResults).filter(Boolean).length;
+    const totalCount = Object.keys(uploadResults).length;
+    
+    if (successCount === totalCount) {
+      console.log('All files saved successfully!');
+      // Here you could add a toast notification or some UI feedback
+    } else if (successCount > 0) {
+      console.log(`${successCount}/${totalCount} files saved successfully`);
+      // Partial success notification
+    } else {
+      console.error('Failed to save any files');
+      // Error notification
+    }
     
   } catch (error) {
-    console.error('Error saving materials:', error);
-    
-    // Optional: Add a visual notification of error
-    // For example, you could set a state variable to show an error toast
+    console.error('Error saving resources:', error);
+    // Error notification
   }
 };
 
