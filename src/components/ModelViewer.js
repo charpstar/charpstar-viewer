@@ -88,43 +88,44 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
     }
   };
 
-  return (
-    <div
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      className="w-full h-full flex items-center justify-center transition-colors duration-200"
-    >
-      <div className="w-full h-full flex items-center justify-center">
-        {isClient && modelSrc && (
-          <model-viewer
-            src={modelSrc}
-            alt="A 3D model"
-            id="model-viewer"
-            disable-pan
-            shadow-intensity="0.5"
-            environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
-            exposure="1.5"
-            tone-mapping="aces"
-            shadow-softness="1"
-            style={{ width: '100%', height: '100%' }}
-            camera-controls
-          ></model-viewer>
-        )}
-        
-        {!modelSrc && !clientModelUrl && (
-          <div className="text-center">
-            <p className="text-gray-600 text-sm mb-2">
-              Drag and drop a <strong>.glb</strong> or <strong>.gltf</strong> file here to view it.
-            </p>
-            <p className="text-gray-500 text-xs">
-              The model structure will be displayed in the left panel once loaded.
-            </p>
-          </div>
-        )}
-      </div>
+return (
+  <div
+    onDrop={handleDrop}
+    onDragOver={handleDragOver}
+    onDragLeave={handleDragLeave}
+    className="w-full h-full flex items-center justify-center transition-colors duration-200 rounded-md bg-[#F8F9FA]"
+  >
+    <div className="w-full h-full flex items-center justify-center">
+      {isClient && modelSrc && (
+        <model-viewer
+          src={modelSrc}
+          alt="A 3D model"
+          id="model-viewer"
+          disable-pan
+          shadow-intensity="0.6"
+          environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
+          exposure="1.5"
+          tone-mapping="aces"
+          shadow-softness="1"
+          camera-orbit="0deg 75deg auto"
+          style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
+          camera-controls
+        ></model-viewer>
+      )}
+      
+      {!modelSrc && !clientModelUrl && (
+        <div className="text-center p-6 rounded-lg border-2 border-dashed border-gray-300 bg-white">
+          <p className="text-gray-600 text-sm mb-3">
+            Drag and drop a <strong>.glb</strong> or <strong>.gltf</strong> file here to view it.
+          </p>
+          <p className="text-gray-500 text-xs">
+            The model structure will be displayed in the left panel once loaded.
+          </p>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 };
 
 export default ModelViewer;

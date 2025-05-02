@@ -54,11 +54,12 @@ const PANEL_CONFIG = {
 const initialJson: IJsonModel = {
   global: {
     tabEnableClose: false, // Disable close buttons globally
-    tabEnablePopout: true, // Enable popout globally
+    tabEnablePopout: false, // Enable popout globally
+    tabEnableDrag: false,   // Disable tab dragging
     splitterSize: 4,
     tabSetMinHeight: 100,
     tabSetMinWidth: 100,
-    enableEdgeDock: true
+    enableEdgeDock: false
   },
   borders: [],
   layout: {
@@ -431,16 +432,6 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
         realtimeResize={true}
         popoutURL="/popout.html" 
       />
-      <Button 
-        onClick={handleResetLayout}
-        variant="outline"
-        size="sm"
-        className="absolute bottom-4 right-4 bg-white/80 text-xs opacity-70 hover:opacity-100 transition-opacity"
-        title="Reset layout to default"
-      >
-        <RotateCcw size={14} className="mr-1" />
-        Reset Layout
-      </Button>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-// components/material/TextureMapInput.tsx
+// src/components/material/TextureMapInput.tsx
 import React from 'react';
 
 interface TextureMapInputProps {
@@ -6,7 +6,6 @@ interface TextureMapInputProps {
   textureType: string;
   hasTexture: boolean;
   onTextureUpload: (e: React.ChangeEvent<HTMLInputElement>, textureType: string) => void;
-  onTextureClear: (textureType: string) => void;
 }
 
 const TextureMapInput: React.FC<TextureMapInputProps> = ({
@@ -14,7 +13,6 @@ const TextureMapInput: React.FC<TextureMapInputProps> = ({
   textureType,
   hasTexture,
   onTextureUpload,
-  onTextureClear
 }) => {
   const inputId = `${textureType}Input`;
   
@@ -36,28 +34,23 @@ const TextureMapInput: React.FC<TextureMapInputProps> = ({
             </div>
           )}
         </div>
-        <div className="flex">
-          <label htmlFor={inputId} className="cursor-pointer">
-            <div className="bg-gray-200 hover:bg-gray-300 text-xs p-1 rounded">
-              {hasTexture ? 'Change' : 'Add'}
-            </div>
-            <input
-              type="file"
-              id={inputId}
-              accept="image/*"
-              className="sr-only"
-              onChange={(e) => onTextureUpload(e, textureType)}
-            />
-          </label>
-          {hasTexture && (
-            <button
-              className="bg-gray-200 hover:bg-gray-300 text-xs p-1 rounded ml-1"
-              onClick={() => onTextureClear(textureType)}
-            >
-              Clear
-            </button>
-          )}
-        </div>
+        {/* Only show Change button if a texture already exists */}
+        {hasTexture && (
+          <div className="flex">
+            <label htmlFor={inputId} className="cursor-pointer">
+              <div className="bg-gray-200 hover:bg-gray-300 text-xs p-1 rounded">
+                Change
+              </div>
+              <input
+                type="file"
+                id={inputId}
+                accept="image/*"
+                className="sr-only"
+                onChange={(e) => onTextureUpload(e, textureType)}
+              />
+            </label>
+          </div>
+        )}
       </div>
     </div>
   );

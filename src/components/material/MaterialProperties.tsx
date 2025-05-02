@@ -589,7 +589,6 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           textureType="map"
           hasTexture={!!material.map}
           onTextureUpload={handleTextureUpload}
-          onTextureClear={clearTexture}
         />
 
         {/* Roughness */}
@@ -616,7 +615,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           textureType="roughnessMap"
           hasTexture={!!material.roughnessMap}
           onTextureUpload={handleTextureUpload}
-          onTextureClear={clearTexture}
+    
         />
         
         {/* Metalness */}
@@ -633,6 +632,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
               parseInput={parsePercentage}
               sliderWidth="w-28"
               inputWidth="w-12"
+              
             />
           </div>
         </div>
@@ -643,7 +643,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           textureType="metalnessMap"
           hasTexture={!!material.metalnessMap}
           onTextureUpload={handleTextureUpload}
-          onTextureClear={clearTexture}
+     
         />
         
         {/* Normal Map */}
@@ -652,7 +652,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           textureType="normalMap"
           hasTexture={!!material.normalMap}
           onTextureUpload={handleTextureUpload}
-          onTextureClear={clearTexture}
+    
         />
 
         {/* Normal Map Intensity - only show if normal map exists */}
@@ -734,8 +734,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           label="Ambient Occlusion"
           textureType="aoMap"
           hasTexture={!!material.aoMap}
-          onTextureUpload={handleTextureUpload}
-          onTextureClear={clearTexture}
+          onTextureUpload={handleTextureUpload}    
         />
         
         {/* AO Map Intensity (only show if AO map exists) */}
@@ -795,7 +794,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
               textureType="alphaMap"
               hasTexture={!!material.alphaMap}
               onTextureUpload={handleTextureUpload}
-              onTextureClear={clearTexture}
+         
             />
             {/* Sheen section - only show for MeshPhysicalMaterial */}
             {isMeshPhysicalMaterial ? (
@@ -838,7 +837,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
                   textureType="sheenColorMap"
                   hasTexture={!!material.sheenColorMap}
                   onTextureUpload={handleTextureUpload}
-                  onTextureClear={clearTexture}
+           
                 />
 
                 {/* Sheen Color Map Tiling (separate from base maps) */}

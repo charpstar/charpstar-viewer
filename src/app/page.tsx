@@ -2,44 +2,18 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Model } from 'flexlayout-react';
-import FlexLayout from '@/components/layout/FlexLayout';
 import Header from '@/components/layout/Header';
-import 'flexlayout-react/style/dark.css';
-import '@/styles/flexlayout-custom.css';
+import SimpleLayout from '@/components/layout/SimpleLayout';
 
 export default function Home() {
   const [modelStructure, setModelStructure] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const [activeEnvironment, setActiveEnvironment] = useState<'v5' | 'v6' | null>('v6'); // Set v6 as default
-  const [layoutModel, setLayoutModel] = useState<Model | null>(null);
-  const [visiblePanels, setVisiblePanels] = useState({
-    scene: true,
-    materials: true,
-    variants: true
-  });
   const modelViewerRef = useRef<any>(null);
 
   // Handler for node selection
   const handleNodeSelect = (node: any) => {
     console.log('Home component received selected node:', node.name, node.type);
     setSelectedNode(node);
-  };
-
-  // Improved panel visibility toggle
-  const handleTogglePanel = (panel: 'scene' | 'materials' | 'variants') => {
-    console.log(`Toggling panel visibility: ${panel} → ${!visiblePanels[panel]}`);
-    
-    // Update state with the new panel visibility
-    setVisiblePanels(prev => ({
-      ...prev,
-      [panel]: !prev[panel]
-    }));
-  };
-
-  // Handle layout model updates
-  const handleLayoutModelUpdate = (model: Model) => {
-    setLayoutModel(model);
   };
 
   // Export functions
@@ -70,23 +44,6 @@ export default function Home() {
     }
   };
 
-  // Environment tester functions
-  const handleEnvironmentChange = (env: 'v5' | 'v6') => {
-    if (modelViewerRef.current) {
-      if (env === 'v5') {
-        modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/warm.hdr";
-        modelViewerRef.current.exposure = "1.3";
-        modelViewerRef.current.toneMapping = "commerce";
-      } else {
-        modelViewerRef.current.environmentImage = "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr";
-        modelViewerRef.current.exposure = "1.5";
-        modelViewerRef.current.toneMapping = "aces";
-      }
-      
-      setActiveEnvironment(env);
-    }
-  };
-
   // Function to fetch the model structure
   const fetchModelStructure = () => {
     if (modelViewerRef.current && typeof modelViewerRef.current.getModelStructure === 'function') {
@@ -114,9 +71,6 @@ export default function Home() {
         }
         
         modelViewer.addEventListener('load', fetchModelStructure);
-        
-        // Apply the current environment settings
-        handleEnvironmentChange(activeEnvironment || 'v6');
       }
     };
 
@@ -151,7 +105,7 @@ export default function Home() {
         modelViewerRef.current.removeEventListener('load', fetchModelStructure);
       }
     };
-  }, [activeEnvironment]);
+  }, []);
 
   // Handler for variant change
   const handleVariantChange = () => {
@@ -160,35 +114,27 @@ export default function Home() {
   };
 
   return (
-    <div className="layout-container">
-      {/* Header - with explicit z-index to ensure it's above the layout */}
-      <div className="header-container">
+    <div className="flex flex-col h-screen">
+      {/* Header */}
+      <div className="flex-none">
         <Header 
           modelViewerRef={modelViewerRef}
-          layoutModel={layoutModel}
           onExportGLB={handleExportGLB}
           onExportGLTF={handleExportGLTF}
           onExportUSDZ={handleExportUSDZ}
-          onEnvironmentChange={handleEnvironmentChange}
-          activeEnvironment={activeEnvironment}
-          visiblePanels={visiblePanels}
-          onTogglePanel={handleTogglePanel}
         />
       </div>
       
-      {/* Main Area with FlexLayout */}
-      <div className="main-container">
-        <FlexLayout
-          modelStructure={modelStructure}
-          selectedNode={selectedNode}
-          modelViewerRef={modelViewerRef}
-          onNodeSelect={handleNodeSelect}
-          onModelLoaded={fetchModelStructure}
-          onVariantChange={handleVariantChange}
-          visiblePanels={visiblePanels}
-          onLayoutModelUpdate={handleLayoutModelUpdate}
-          onTogglePanel={handleTogglePanel}
-        />
+      {/* Main Area with SimpleLayout */}
+      <div className="flex-1 overflow-hidden">
+       <SimpleLayout
+  modelStructure={modelStructure}
+  selectedNode={selectedNode}
+  modelViewerRef={modelViewerRef}
+  onNodeSelect={handleNodeSelect}
+  onModelLoaded={fetchModelStructure}
+  onVariantChange={handleVariantChange}
+/>
       </div>
     </div>
   );
