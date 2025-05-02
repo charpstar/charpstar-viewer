@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
               className="text-xs h-7 px-3"
             >
               <Save size={14} className="mr-2" />
-              Save Changes
+              Save Changes to Live
             </Button>
           ) : (
             // Show Export buttons for regular view
