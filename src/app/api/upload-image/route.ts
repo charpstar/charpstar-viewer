@@ -57,9 +57,24 @@ export async function POST(request: NextRequest) {
     // Get storage zone details
     const { zoneName, basePath } = getStorageZoneDetails();
     
+    // Get the client and target directory from the form data
+    const clientName = formData.get('client') as string || 'Sweef';
+    const targetDirectory = formData.get('targetDirectory') as string || '';
+    
     // Construct the target path for the file in BunnyCDN
-    const clientName = formData.get('client') as string || 'Artwood';
-    const filePath = `${basePath}${clientName}/${filename}`;
+    let filePath = `${basePath}${clientName}/`;
+    
+    // Add the target directory if specified
+    if (targetDirectory) {
+      // Make sure there's no leading or trailing slashes
+      const cleanDirectory = targetDirectory.replace(/^\/+|\/+$/g, '');
+      filePath += `${cleanDirectory}/`;
+    }
+    
+    // Add the filename
+    filePath += filename;
+    
+    console.log(`Target upload path: ${filePath}`);
     
     // Read the file from the temporary location
     const fileBuffer = fs.readFileSync(filepath);

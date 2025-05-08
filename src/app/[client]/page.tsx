@@ -15,6 +15,7 @@ export default function ClientPage() {
   const [modelStructure, setModelStructure] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const modelViewerRef = useRef<any>(null);
+  const [modelLoaded, setModelLoaded] = useState(false);
 
   // Validate client
   if (!isValidClient(clientName)) {
@@ -23,20 +24,58 @@ export default function ClientPage() {
 
   const clientConfig = clients[clientName];
 
-  // Function to fetch the model structure
+  // Enhanced function to fetch the model structure with retry logic
   const fetchModelStructure = () => {
     if (modelViewerRef.current && typeof modelViewerRef.current.getModelStructure === 'function') {
       try {
         const structure = modelViewerRef.current.getModelStructure();
-        console.log('Model structure loaded:', structure);
-        setModelStructure(structure);
+        
+        if (structure) {
+          console.log('Model structure loaded:', structure);
+          setModelStructure(structure);
+          return true;
+        } else {
+          console.warn('Model structure is empty or null');
+          return false;
+        }
       } catch (error) {
         console.error('Error fetching model structure:', error);
+        return false;
       }
     } else {
       console.warn('modelViewer or getModelStructure method not available');
+      return false;
     }
   };
+  
+  // Set up retry logic for fetching model structure
+  useEffect(() => {
+    if (modelLoaded && !modelStructure) {
+      console.log('Model loaded but structure not yet available, attempting to fetch...');
+      
+      // Try immediately first
+      if (!fetchModelStructure()) {
+        // If first attempt fails, set up a retry mechanism
+        const retryAttempts = 5;
+        let currentAttempt = 0;
+        
+        const retryInterval = setInterval(() => {
+          currentAttempt++;
+          console.log(`Retry attempt ${currentAttempt} of ${retryAttempts}`);
+          
+          if (fetchModelStructure() || currentAttempt >= retryAttempts) {
+            clearInterval(retryInterval);
+            
+            if (currentAttempt >= retryAttempts && !modelStructure) {
+              console.error('Failed to fetch model structure after multiple attempts');
+            }
+          }
+        }, 500); // Try every 500ms
+        
+        return () => clearInterval(retryInterval);
+      }
+    }
+  }, [modelLoaded, modelStructure]);
 
   // Set up model viewer reference
   useEffect(() => {
@@ -46,7 +85,8 @@ export default function ClientPage() {
         modelViewerRef.current = modelViewer;
         
         if (modelViewer.getAttribute('src')) {
-          fetchModelStructure();
+          // We don't call fetchModelStructure here anymore
+          // It will be called by the onModelLoaded handler
         }
       }
     };
@@ -70,6 +110,13 @@ export default function ClientPage() {
       observer.disconnect();
     };
   }, []);
+
+  // Handler for model loaded event
+  const handleModelLoaded = () => {
+    console.log('Model loaded event received');
+    setModelLoaded(true);
+    fetchModelStructure();
+  };
 
   // Handler for variant change
   const handleVariantChange = () => {
@@ -121,7 +168,8 @@ export default function ClientPage() {
           },
           body: JSON.stringify({
             data: resourceData.materials,
-            filename: 'materials.json'
+            filename: 'materials.json',
+            client: clientName // Add client name to request
           })
         });
 
@@ -135,58 +183,6 @@ export default function ClientPage() {
         }
       } else {
         console.warn('No materials data available to upload');
-      }
-      
-      // Upload textures.json if available
-      if (resourceData.textures) {
-        console.log('Uploading textures.json...');
-        const texturesResponse = await fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            data: resourceData.textures,
-            filename: 'textures.json'
-          })
-        });
-
-        if (texturesResponse.ok) {
-          const result = await texturesResponse.json();
-          console.log('Textures saved successfully:', result.fileUrl);
-          uploadResults.textures = true;
-        } else {
-          const errorData = await texturesResponse.json();
-          console.error(`Failed to upload textures: ${errorData.error || texturesResponse.statusText}`);
-        }
-      } else {
-        console.warn('No textures data available to upload');
-      }
-      
-      // Upload images.json if available
-      if (resourceData.images) {
-        console.log('Uploading images.json...');
-        const imagesResponse = await fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            data: resourceData.images,
-            filename: 'images.json'
-          })
-        });
-
-        if (imagesResponse.ok) {
-          const result = await imagesResponse.json();
-          console.log('Images saved successfully:', result.fileUrl);
-          uploadResults.images = true;
-        } else {
-          const errorData = await imagesResponse.json();
-          console.error(`Failed to upload images: ${errorData.error || imagesResponse.statusText}`);
-        }
-      } else {
-        console.warn('No images data available to upload');
       }
       
       // Check overall success and provide feedback
@@ -220,15 +216,15 @@ export default function ClientPage() {
       </div>
       
       <div className="flex-1 overflow-hidden">
- <SimpleLayout
-  modelStructure={modelStructure}
-  selectedNode={selectedNode}
-  modelViewerRef={modelViewerRef}
-  onNodeSelect={handleNodeSelect}
-  onModelLoaded={fetchModelStructure}
-  onVariantChange={handleVariantChange}
-  clientModelUrl={clientConfig?.modelUrl} // Only in client page
-/>
+        <SimpleLayout
+          modelStructure={modelStructure}
+          selectedNode={selectedNode}
+          modelViewerRef={modelViewerRef}
+          onNodeSelect={handleNodeSelect}
+          onModelLoaded={handleModelLoaded}
+          onVariantChange={handleVariantChange}
+          clientModelUrl={clientConfig?.modelUrl} // Only in client page
+        />
       </div>
     </div>
   );

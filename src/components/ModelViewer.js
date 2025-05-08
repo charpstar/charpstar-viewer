@@ -34,27 +34,27 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
         window.currentFileName = fileNameRef.current;
         
         // Set a small delay to ensure the model is fully processed
+        // Increased timeout to ensure model is fully loaded and processed
         setTimeout(() => {
           if (onModelLoaded && !modelLoadedRef.current) {
+            console.log('Triggering onModelLoaded callback');
             modelLoadedRef.current = true;
             onModelLoaded();
           }
-        }, 100);
+        }, 500); // Increased from 100ms to 500ms
       };
       
       modelViewer.addEventListener('load', handleLoad);
       
-      // If it's a client model, trigger the load handler immediately
-      if (clientModelUrl) {
-        handleLoad();
-      }
+      // For client models, we should NOT trigger the load handler immediately
+      // but rather wait for the actual 'load' event from the model-viewer
       
       return () => {
         modelViewer.removeEventListener('load', handleLoad);
         modelLoadedRef.current = false;
       };
     }
-  }, [isClient, modelSrc, onModelLoaded, clientModelUrl]);
+  }, [isClient, modelSrc, onModelLoaded]);
 
   // Only enable drag and drop if no client model URL is provided
   const handleDrop = (e) => {
@@ -88,44 +88,44 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
     }
   };
 
-return (
-  <div
-    onDrop={handleDrop}
-    onDragOver={handleDragOver}
-    onDragLeave={handleDragLeave}
-    className="w-full h-full flex items-center justify-center transition-colors duration-200 rounded-md bg-[#F8F9FA]"
-  >
-    <div className="w-full h-full flex items-center justify-center">
-      {isClient && modelSrc && (
-        <model-viewer
-          src={modelSrc}
-          alt="A 3D model"
-          id="model-viewer"
-          disable-pan
-          shadow-intensity="0.6"
-          environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
-          exposure="1.5"
-          tone-mapping="aces"
-          shadow-softness="1"
-          camera-orbit="0deg 75deg auto"
-          style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
-          camera-controls
-        ></model-viewer>
-      )}
-      
-      {!modelSrc && !clientModelUrl && (
-        <div className="text-center p-6 rounded-lg border-2 border-dashed border-gray-300 bg-white">
-          <p className="text-gray-600 text-sm mb-3">
-            Drag and drop a <strong>.glb</strong> or <strong>.gltf</strong> file here to view it.
-          </p>
-          <p className="text-gray-500 text-xs">
-            The model structure will be displayed in the left panel once loaded.
-          </p>
-        </div>
-      )}
+  return (
+    <div
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      className="w-full h-full flex items-center justify-center transition-colors duration-200 rounded-md bg-[#F8F9FA]"
+    >
+      <div className="w-full h-full flex items-center justify-center">
+        {isClient && modelSrc && (
+          <model-viewer
+            src={modelSrc}
+            alt="A 3D model"
+            id="model-viewer"
+            disable-pan
+            shadow-intensity="0.6"
+            environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
+            exposure="1.5"
+            tone-mapping="aces"
+            shadow-softness="1"
+            camera-orbit="0deg 75deg auto"
+            style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
+            camera-controls
+          ></model-viewer>
+        )}
+        
+        {!modelSrc && !clientModelUrl && (
+          <div className="text-center p-6 rounded-lg border-2 border-dashed border-gray-300 bg-white">
+            <p className="text-gray-600 text-sm mb-3">
+              Drag and drop a <strong>.glb</strong> or <strong>.gltf</strong> file here to view it.
+            </p>
+            <p className="text-gray-500 text-xs">
+              The model structure will be displayed in the left panel once loaded.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default ModelViewer;

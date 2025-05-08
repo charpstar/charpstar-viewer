@@ -52,8 +52,7 @@ export async function POST(request: NextRequest) {
       console.error(`Invalid filename: ${filename}`);
       return NextResponse.json({ error: 'Invalid filename. Must be one of: ' + validFilenames.join(', ') }, { status: 400 });
     }
-    
-    // Convert data to string and buffer with extra error handling
+
     let jsonString;
     try {
       jsonString = JSON.stringify(resourceData, null, 2);
@@ -70,7 +69,7 @@ export async function POST(request: NextRequest) {
     console.log(`Storage zone: ${zoneName}, base path: ${basePath}`);
     
     // Construct the path for the file in BunnyCDN
-    const clientName = requestBody.client || 'Artwood';
+    const clientName = requestBody.client || 'Sweef-Test';
     const filePath = `${basePath}${clientName}/${filename}`;
     console.log(`Full file path for upload: ${filePath}`);
     
