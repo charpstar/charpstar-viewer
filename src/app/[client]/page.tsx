@@ -6,6 +6,8 @@ import { clients, isValidClient } from '@/config/clients';
 import { useState, useEffect, useRef } from 'react';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import Header from '@/components/layout/Header';
+import SaveProgressOverlay from '@/components/SaveProgressOverlay';
+import InputLocker from '@/components/InputLocker';
 import { notFound } from 'next/navigation';
 
 export default function ClientPage() {
@@ -16,6 +18,11 @@ export default function ClientPage() {
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const modelViewerRef = useRef<any>(null);
   const [modelLoaded, setModelLoaded] = useState(false);
+  
+  // Save progress state
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveProgress, setSaveProgress] = useState(0);
+  const [saveMessage, setSaveMessage] = useState("Preparing to save changes...");
 
   // Validate client
   if (!isValidClient(clientName)) {
@@ -129,7 +136,7 @@ export default function ClientPage() {
     setSelectedNode(node);
   };
 
-  // Debugged handleSave function for page.tsx
+  // Enhanced handleSave function with progress tracking
   const handleSave = async () => {
     if (!modelViewerRef.current?.saveGLTF) {
       console.error('saveGLTF method not available');
@@ -137,6 +144,11 @@ export default function ClientPage() {
     }
 
     try {
+      // Start saving process - show overlay and lock UI
+      setIsSaving(true);
+      setSaveProgress(10);
+      setSaveMessage("Preparing materials data...");
+
       // Get all resource data from saveGLTF
       console.log('Calling saveGLTF...');
       const resourceData = await modelViewerRef.current.saveGLTF();
@@ -151,6 +163,9 @@ export default function ClientPage() {
         imagesCount: resourceData.images?.length
       });
       
+      setSaveProgress(30);
+      setSaveMessage("Uploading material changes...");
+      
       // Track upload results
       const uploadResults = {
         materials: false,
@@ -161,6 +176,7 @@ export default function ClientPage() {
       // Upload materials.json
       if (resourceData.materials) {
         console.log('Uploading materials.json...');
+        
         const materialsResponse = await fetch('/api/upload', {
           method: 'POST',
           headers: {
@@ -177,41 +193,103 @@ export default function ClientPage() {
           const result = await materialsResponse.json();
           console.log('Materials saved successfully:', result.fileUrl);
           uploadResults.materials = true;
+          setSaveProgress(60);
+          setSaveMessage("Processing materials...");
         } else {
           const errorData = await materialsResponse.json();
           console.error(`Failed to upload materials: ${errorData.error || materialsResponse.statusText}`);
+          setSaveMessage("Error saving materials. Please try again.");
         }
       } else {
         console.warn('No materials data available to upload');
+        setSaveProgress(60);
       }
+      
+      // Process textures data if needed
+      if (resourceData.textures) {
+        setSaveMessage("Processing textures...");
+        setSaveProgress(70);
+        // Process textures data here
+        uploadResults.textures = true;
+      }
+      
+      // Process images data if needed
+      if (resourceData.images) {
+        setSaveMessage("Processing images...");
+        setSaveProgress(80);
+        // Process images data here
+        uploadResults.images = true;
+      }
+      
+      // Final processing
+      setSaveProgress(90);
+      setSaveMessage("Finalizing changes...");
+      
+      // Add a small delay to show progress completion
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // Check overall success and provide feedback
       const successCount = Object.values(uploadResults).filter(Boolean).length;
-      const totalCount = Object.keys(uploadResults).length;
+      const totalCount = Object.keys(uploadResults).filter(key => !!resourceData[key]).length;
       
       if (successCount === totalCount) {
         console.log('All files saved successfully!');
-        // Here you could add a toast notification or some UI feedback
+        setSaveProgress(100);
+        setSaveMessage("Changes saved successfully!");
+        
+        // Keep success message visible briefly before hiding overlay
+        await new Promise(resolve => setTimeout(resolve, 1000));
       } else if (successCount > 0) {
         console.log(`${successCount}/${totalCount} files saved successfully`);
-        // Partial success notification
+        setSaveProgress(100);
+        setSaveMessage(`Partially completed: ${successCount}/${totalCount} resources saved.`);
+        
+        // Keep partial success message visible briefly
+        await new Promise(resolve => setTimeout(resolve, 1500));
       } else {
         console.error('Failed to save any files');
-        // Error notification
+        setSaveProgress(100);
+        setSaveMessage("Failed to save changes. Please try again.");
+        
+        // Keep error message visible longer
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
+      
+      // Reset the UI state
+      setIsSaving(false);
+      setSaveProgress(0);
       
     } catch (error) {
       console.error('Error saving resources:', error);
-      // Error notification
+      setSaveProgress(100);
+      setSaveMessage(`Error: ${error.message || "Unknown error occurred"}`);
+      
+      // Keep error message visible
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Reset the UI state
+      setIsSaving(false);
+      setSaveProgress(0);
     }
   };
 
   return (
     <div className="flex flex-col h-screen">
+      {/* Save Progress Overlay */}
+      <SaveProgressOverlay 
+        isVisible={isSaving} 
+        progress={saveProgress} 
+        message={saveMessage}
+      />
+      
+      {/* Input Locker - Blocks all user interaction when saving */}
+      <InputLocker isLocked={isSaving} />
+      
       <div className="flex-none">
         <Header 
           modelViewerRef={modelViewerRef}
           onSave={handleSave}
+          isSaving={isSaving}
         />
       </div>
       

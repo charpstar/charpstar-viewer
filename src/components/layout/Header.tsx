@@ -13,6 +13,7 @@ interface HeaderProps {
   onExportGLTF?: () => void;
   onExportUSDZ?: () => void;
   onSave?: () => void;
+  isSaving?: boolean; // New prop to indicate saving status
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -20,7 +21,8 @@ const Header: React.FC<HeaderProps> = ({
   onExportGLB,
   onExportGLTF,
   onExportUSDZ,
-  onSave
+  onSave,
+  isSaving = false, // Default to false
 }) => {
   const params = useParams();
   const clientName = params?.client as string;
@@ -46,10 +48,11 @@ const Header: React.FC<HeaderProps> = ({
               variant="default"
               size="sm"
               onClick={onSave}
+              disabled={isSaving} // Disable when saving
               className="text-xs h-7 px-3"
             >
               <Save size={14} className="mr-2" />
-              Save Changes to Live
+              {isSaving ? "Saving..." : "Save Changes to Live"}
             </Button>
           ) : (
             // Show Export buttons for regular view
