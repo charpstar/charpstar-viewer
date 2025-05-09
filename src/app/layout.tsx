@@ -12,7 +12,7 @@ const jost = Jost({
 });
 
 export const metadata = {
-  title: 'Charpstar 3D Viewer',
+  title: 'Charpstar 3D Editor',
   description: 'A 3D drag-and-drop viewer using Next.js',
 };
 
