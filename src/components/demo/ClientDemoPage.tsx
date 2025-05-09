@@ -1,4 +1,5 @@
 // src/components/demo/ClientDemoPage.tsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { clients, isValidClient } from '@/config/clients';
@@ -7,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Search, ChevronDown, ChevronRight, LayoutGrid, List, Eye, RefreshCw, Palette } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import VariantSelector from '@/components/demo/VariantSelector';
-import ModelViewer from '@/components/ModelViewer'; // Import your existing ModelViewer component
+import CompactModelStats from '@/components/demo/ModelStats'; // Import the new CompactModelStats component
+import ModelViewer from '@/components/ModelViewer';
 import { notFound } from 'next/navigation';
 
 // Helper function to parse model name and extract category
@@ -77,6 +79,7 @@ export default function ClientDemoPage() {
   const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
   const [modelLoadError, setModelLoadError] = useState(false);
   const [currentModelUrl, setCurrentModelUrl] = useState<string | null>(null);
+
   
   // Validate client
   if (!isValidClient(clientName)) {
@@ -184,16 +187,17 @@ export default function ClientDemoPage() {
   const totalModelCount = Object.values(filteredCategories)
     .reduce((count, models) => count + models.length, 0);
   
-  // Handle model loaded event
+ // Handle model loaded event
   const handleModelLoaded = () => {
     console.log('Model loaded callback received');
     
     // After the model loads, store a reference to the model-viewer element
     setTimeout(() => {
-      const modelViewer = document.getElementById('model-viewer');
+      // Get the initialized model-viewer element with our custom functions attached
+      const modelViewer = window.modelViewerElement;
       if (modelViewer && !modelViewerRef.current) {
         modelViewerRef.current = modelViewer;
-        console.log('Stored model-viewer reference');
+        console.log('Stored model-viewer reference with custom functions');
       }
     }, 100);
   };
@@ -207,7 +211,7 @@ export default function ClientDemoPage() {
         />
       </div>
       
-     <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         {/* Left side - Model navigation */}
         <div className="w-1/5 border-r border-gray-200 bg-white shadow-inner flex flex-col">
           {/* Search and Filter Controls */}
@@ -374,6 +378,14 @@ export default function ClientDemoPage() {
                   onModelLoaded={handleModelLoaded}
                 />
                 
+                {/* Compact Stats Panel positioned in the top-right corner of the viewer */}
+                {!modelLoadError && (
+                  <CompactModelStats
+                    modelViewerRef={modelViewerRef}
+                    modelName={selectedModel}
+                  />
+                )}
+                
                 {modelLoadError && (
                   <div className="absolute inset-0 bg-gray-100 bg-opacity-80 flex flex-col items-center justify-center">
                     <div className="text-red-500 mb-2">Error loading model</div>
@@ -401,15 +413,15 @@ export default function ClientDemoPage() {
         </div>
         
         {/* Right side - Variants panel */}
-        <div className="w-1/8 border-l border-gray-200 bg-white shadow-inner flex flex-col">
-          <div className="p-3 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <Palette size={16} className="text-gray-600" />
-              <h3 className="text-sm font-medium text-gray-800">Material Variants</h3>
+        <div className="w-1/6 border-l border-gray-200 bg-white shadow-inner flex flex-col">
+          <div className="p-2 border-b border-gray-200">
+            <div className="flex items-center space-x-1.5">
+              <Palette size={14} className="text-gray-600" />
+              <h3 className="text-xs font-medium text-gray-800">Material Variants</h3>
             </div>
           </div>
           
-          <div className="flex-1 p-3 overflow-y-auto scrollbar-thin">
+          <div className="flex-1 p-2 overflow-y-auto scrollbar-thin">
             {selectedModel && !modelLoadError ? (
               <VariantSelector 
                 modelViewerRef={modelViewerRef}
@@ -417,13 +429,13 @@ export default function ClientDemoPage() {
               />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <Palette size={24} className="text-gray-300 mb-2" />
-                <p className="text-gray-400 text-sm">
+                <Palette size={20} className="text-gray-300 mb-2" />
+                <p className="text-xs text-gray-400">
                   {isLoading 
                     ? "Loading..." 
                     : modelLoadError 
-                      ? "Cannot load variants for this model" 
-                      : "Select a model to view available variants"}
+                      ? "Cannot load variants" 
+                      : "Select a model to view variants"}
                 </p>
               </div>
             )}

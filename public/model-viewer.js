@@ -54544,6 +54544,133 @@ initImagesStructure(json) {
   }
 }
 
+
+totalMeshCount() {
+  if (!this[$scene] || !this[$scene].model) {
+    console.warn('Cannot count meshes: Scene or model not available');
+    return 0;
+  }
+  
+  let count = 0;
+  this[$scene].model.traverse((object) => {
+    if (object.isMesh) {
+      count++;
+    }
+  });
+  
+  return count;
+}
+
+// Count the total number of materials in the scene
+totalMaterialCount() {
+  if (!this[$scene] || !this[$scene].model) {
+    console.warn('Cannot count materials: Scene or model not available');
+    return 0;
+  }
+  
+  // Use a Set to avoid counting duplicate materials
+  const materials = new Set();
+  
+  this[$scene].model.traverse((object) => {
+    if (object.material) {
+      // Handle both single materials and material arrays
+      if (Array.isArray(object.material)) {
+        object.material.forEach(mat => {
+          if (mat) materials.add(mat);
+        });
+      } else {
+        materials.add(object.material);
+      }
+    }
+  });
+  
+  return materials.size;
+}
+
+// Get polygon statistics (vertices and triangles)
+getPolyStats() {
+  if (!this[$scene] || !this[$scene].model) {
+    console.warn('Cannot get polygon stats: Scene or model not available');
+    return { vertices: 0, triangles: 0 };
+  }
+  
+  let vertexCount = 0;
+  let triangleCount = 0;
+  
+  this[$scene].model.traverse((object) => {
+    if (object.isMesh && object.geometry) {
+      const geometry = object.geometry;
+      
+      // Count vertices
+      if (geometry.attributes && geometry.attributes.position) {
+        vertexCount += geometry.attributes.position.count;
+      }
+      
+      // Count triangles/faces
+      if (geometry.index) {
+        // Indexed geometry
+        triangleCount += geometry.index.count / 3;
+      } else if (geometry.attributes && geometry.attributes.position) {
+        // Non-indexed geometry
+        triangleCount += geometry.attributes.position.count / 3;
+      }
+    }
+  });
+  
+  return {
+    vertices: Math.round(vertexCount),
+    triangles: Math.round(triangleCount)
+  };
+}
+
+// Check for double-sided materials
+checkForDoubleSided() {
+  if (!this[$scene] || !this[$scene].model) {
+    console.warn('Cannot check for double-sided materials: Scene or model not available');
+    return { count: 0, materials: [] };
+  }
+  
+  const doubleSidedMaterials = new Set();
+  
+  this[$scene].model.traverse((object) => {
+    if (object.material) {
+      // Handle both single materials and material arrays
+      if (Array.isArray(object.material)) {
+        object.material.forEach(mat => {
+          if (mat && mat.side === DoubleSide) {
+            doubleSidedMaterials.add(mat);
+          }
+        });
+      } else if (object.material.side === DoubleSide) {
+        doubleSidedMaterials.add(object.material);
+      }
+    }
+  });
+  
+  // Create array of material names
+  const materialNames = Array.from(doubleSidedMaterials).map(mat => mat.name || 'Unnamed Material');
+  
+  return {
+    count: doubleSidedMaterials.size,
+    materials: materialNames
+  };
+}
+
+// Get comprehensive model statistics in a single call
+getModelStats() {
+  const polyStats = this.getPolyStats();
+  const doubleSidedInfo = this.checkForDoubleSided();
+  
+  return {
+    meshCount: this.totalMeshCount(),
+    materialCount: this.totalMaterialCount(),
+    vertices: polyStats.vertices,
+    triangles: polyStats.triangles,
+    doubleSidedCount: doubleSidedInfo.count,
+    doubleSidedMaterials: doubleSidedInfo.materials
+  };
+}
+
 		async exportGLB() {
 		  try {
 		    // Use the existing exportScene method which returns a Blob

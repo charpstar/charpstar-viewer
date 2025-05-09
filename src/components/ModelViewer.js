@@ -2,12 +2,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { initializeModelViewer } from '@/utils/modelViewerInitializer';
 
 const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
   const [modelSrc, setModelSrc] = useState(clientModelUrl || null);
   const [isClient, setIsClient] = useState(false);
   const fileNameRef = useRef('model');
   const modelLoadedRef = useRef(false);
+  const modelViewerElementRef = useRef(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -32,6 +34,9 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
         // Store references
         window.modelViewerElement = modelViewer;
         window.currentFileName = fileNameRef.current;
+        
+        // Initialize our custom model viewer functions
+        modelViewerElementRef.current = initializeModelViewer(modelViewer);
         
         // Set a small delay to ensure the model is fully processed
         // Increased timeout to ensure model is fully loaded and processed
@@ -106,7 +111,6 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
             environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
             exposure="1.5"
             tone-mapping="aces"
-            
             camera-orbit="0deg 75deg auto"
             style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
             camera-controls
