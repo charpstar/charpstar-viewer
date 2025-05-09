@@ -167,19 +167,30 @@ export async function POST(request: NextRequest) {
         fileUrl,
         filename
       });
-    } catch (error) {
-      if (error.message === 'Only JPG files are supported for texture uploads') {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        );
+    } catch (error: unknown) {
+      // Properly type check the error
+      if (error instanceof Error) {
+        if (error.message === 'Only JPG files are supported for texture uploads') {
+          return NextResponse.json(
+            { error: error.message },
+            { status: 400 }
+          );
+        }
       }
+      // Re-throw for the outer catch block to handle
       throw error;
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Image upload error:', error);
+    
+    // Safely extract error message
+    let errorMessage = 'Failed to upload image';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to upload image' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
