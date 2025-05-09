@@ -10,7 +10,7 @@ import VariantSelector from '@/components/demo/VariantSelector';
 import { notFound } from 'next/navigation';
 
 // Helper function to parse model name and extract category
-const parseModelName = (filename) => {
+const parseModelName = (filename: string) => {
   // Remove file extension
   const name = filename.replace('.gltf', '');
   
@@ -40,8 +40,8 @@ const parseModelName = (filename) => {
 };
 
 // Group models by category
-const groupModelsByCategory = (models) => {
-  const grouped = {};
+const groupModelsByCategory = (models: string[]) => {
+  const grouped: Record<string, string[]> = {};
   
   models.forEach(model => {
     const { category } = parseModelName(model);
@@ -56,7 +56,7 @@ const groupModelsByCategory = (models) => {
   // Sort categories alphabetically
   return Object.keys(grouped)
     .sort()
-    .reduce((result, key) => {
+    .reduce((result: Record<string, string[]>, key) => {
       result[key] = grouped[key].sort();
       return result;
     }, {});
@@ -64,14 +64,14 @@ const groupModelsByCategory = (models) => {
 
 export default function ClientDemoPage() {
   const params = useParams();
-  const clientName = params?.client || '';
-  const modelViewerRef = useRef(null);
+  const clientName = params?.client as string || '';
+  const modelViewerRef = useRef<any>(null);
   
   const [isLoading, setIsLoading] = useState(true);
-  const [modelList, setModelList] = useState([]);
-  const [groupedModels, setGroupedModels] = useState({});
-  const [expandedCategories, setExpandedCategories] = useState({});
-  const [selectedModel, setSelectedModel] = useState(null);
+  const [modelList, setModelList] = useState<string[]>([]);
+  const [groupedModels, setGroupedModels] = useState<Record<string, string[]>>({});
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
   const [modelLoadError, setModelLoadError] = useState(false);
@@ -102,7 +102,7 @@ export default function ClientDemoPage() {
         setGroupedModels(grouped);
         
         // Auto-expand categories with few items
-        const initialExpanded = {};
+        const initialExpanded: Record<string, boolean> = {};
         Object.keys(grouped).forEach(category => {
           initialExpanded[category] = grouped[category].length <= 10;
         });
@@ -124,7 +124,7 @@ export default function ClientDemoPage() {
   }, [clientName]);
   
   // Toggle category expansion
-  const toggleCategory = (category) => {
+  const toggleCategory = (category: string) => {
     setExpandedCategories(prev => ({
       ...prev,
       [category]: !prev[category]
@@ -132,13 +132,13 @@ export default function ClientDemoPage() {
   };
   
   // Select a model to view
-  const handleSelectModel = (model) => {
+  const handleSelectModel = (model: string) => {
     setSelectedModel(model);
     setModelLoadError(false);
   };
   
   // Handle search
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
@@ -154,7 +154,7 @@ export default function ClientDemoPage() {
   
   // Filter models based on search query
   const filteredCategories = searchQuery 
-    ? Object.keys(groupedModels).reduce((filtered, category) => {
+    ? Object.keys(groupedModels).reduce((filtered: Record<string, string[]>, category) => {
         const matchingModels = groupedModels[category].filter(model => 
           model.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -168,7 +168,7 @@ export default function ClientDemoPage() {
     : groupedModels;
   
   // Get model URL
-  const getModelUrl = (modelName) => {
+  const getModelUrl = (modelName: string) => {
     // This would be replaced with actual URL construction
     const baseUrl = clientConfig.modelUrl.split('/');
     baseUrl.pop(); // Remove the file name
