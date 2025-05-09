@@ -351,12 +351,12 @@ export default function ClientDemoPage() {
           <div className="h-full rounded-lg overflow-hidden shadow-md bg-[#F8F9FA] flex items-center justify-center relative">
             {selectedModel ? (
               <>
-                <model-viewer
+              <model-viewer
                   ref={modelViewerRef}
                   src={getModelUrl(selectedModel)}
                   alt={selectedModel}
                   id="model-viewer"
-                  camera-controls
+                  camera-controls=""
                   shadow-intensity="0"
                   environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
                   exposure="1.5"
