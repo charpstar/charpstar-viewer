@@ -9,6 +9,30 @@ import Header from '@/components/layout/Header';
 import VariantSelector from '@/components/demo/VariantSelector';
 import { notFound } from 'next/navigation';
 
+// Add this declaration right at the top of the file
+declare namespace JSX {
+  interface IntrinsicElements {
+    'model-viewer': React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLElement> & {
+        src?: string;
+        alt?: string;
+        'camera-controls'?: boolean | string;
+        'auto-rotate'?: boolean | string;
+        'shadow-intensity'?: string;
+        'environment-image'?: string;
+        exposure?: string;
+        'tone-mapping'?: string;
+        'camera-orbit'?: string;
+        style?: React.CSSProperties;
+        id?: string;
+        ref?: React.RefObject<any>;
+        onError?: (event: any) => void;
+      },
+      HTMLElement
+    >;
+  }
+}
+
 // Helper function to parse model name and extract category
 const parseModelName = (filename: string) => {
   // Remove file extension
@@ -351,7 +375,7 @@ export default function ClientDemoPage() {
           <div className="h-full rounded-lg overflow-hidden shadow-md bg-[#F8F9FA] flex items-center justify-center relative">
             {selectedModel ? (
               <>
-              <model-viewer
+                <model-viewer
                   ref={modelViewerRef}
                   src={getModelUrl(selectedModel)}
                   alt={selectedModel}
