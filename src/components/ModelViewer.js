@@ -107,6 +107,7 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
             alt="A 3D model"
             id="model-viewer"
             disable-pan
+            interaction-prompt = "none"
             shadow-intensity="0"
             environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
             exposure="1.5"
