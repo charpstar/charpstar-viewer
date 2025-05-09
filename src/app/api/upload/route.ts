@@ -122,9 +122,20 @@ export async function POST(request: NextRequest) {
     try {
       await uploadPromise;
       console.log('Upload completed successfully');
-    } catch (uploadError) {
+    } catch (uploadError: unknown) {
       console.error('Error during upload:', uploadError);
-      return NextResponse.json({ error: 'Failed to upload file: ' + uploadError.message }, { status: 500 });
+      
+      // Handle the unknown error type properly
+      let errorMessage = 'Unknown error';
+      if (uploadError instanceof Error) {
+        errorMessage = uploadError.message;
+      } else if (typeof uploadError === 'string') {
+        errorMessage = uploadError;
+      } else if (uploadError && typeof uploadError === 'object' && 'message' in uploadError) {
+        errorMessage = String(uploadError.message);
+      }
+      
+      return NextResponse.json({ error: 'Failed to upload file: ' + errorMessage }, { status: 500 });
     }
     
     // Construct the CDN URL for the uploaded file
@@ -160,10 +171,21 @@ export async function POST(request: NextRequest) {
       fileUrl: fileUrl,
       resourceType: filename.split('.')[0]
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Uncaught error in upload route:', error);
+    
+    // Handle the unknown error type properly
+    let errorMessage = 'Unknown error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = String(error.message);
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to upload file: ' + (error.message || 'Unknown error') },
+      { error: 'Failed to upload file: ' + errorMessage },
       { status: 500 }
     );
   }
