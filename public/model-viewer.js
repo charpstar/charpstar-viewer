@@ -54057,14 +54057,13 @@ async downloadMaterialsJson() {
     
     // Get all available variants
     const availableVariants = modelViewer.availableVariants || [];
-    console.log('Available variants:', availableVariants);
+
     
     // Check if we have stored the original materials
     if (!modelViewer._originalMaterialsStructure || 
         !Array.isArray(modelViewer._originalMaterialsStructure) || 
         modelViewer._originalMaterialsStructure.length === 0) {
-      
-      console.log('No original materials cache found. Loading materials data...');
+
       
       // Prioritize external materials.json file
       const src = modelViewer.src;
@@ -54074,16 +54073,14 @@ async downloadMaterialsJson() {
           urlParts.pop(); // Remove filename
           const baseUrl = urlParts.join('/') + '/';
           const materialsUrl = baseUrl + 'materials.json';
-          
-          console.log('Attempting to load materials from external file:', materialsUrl);
+
           
           const response = await fetch(materialsUrl);
           if (response.ok) {
             const materialsData = await response.json();
             if (Array.isArray(materialsData)) {
               modelViewer._originalMaterialsStructure = JSON.parse(JSON.stringify(materialsData));
-              console.log('Loaded materials structure from external file with', 
-                modelViewer._originalMaterialsStructure.length, 'materials');
+
             }
           }
         } catch (err) {
@@ -54095,19 +54092,17 @@ async downloadMaterialsJson() {
       if (!modelViewer._originalMaterialsStructure || 
           !Array.isArray(modelViewer._originalMaterialsStructure) || 
           modelViewer._originalMaterialsStructure.length === 0) {
-        console.error('Could not find materials in the model using any method');
+
         return null;
       }
     }
     
     // Create a deep copy of the original structure to modify
     const materialsCopy = JSON.parse(JSON.stringify(modelViewer._originalMaterialsStructure));
-    console.log('Working with materials copy containing:', materialsCopy.length, 'materials');
-    
+
     // Process each variant to update only what has changed
     for (const variantName of availableVariants) {
-      console.log(`Processing variant: ${variantName}`);
-      
+
       // Switch to this variant
       modelViewer.variantName = variantName;
       
@@ -54117,7 +54112,7 @@ async downloadMaterialsJson() {
       // Get the scene
       const scene = modelViewer.getScene()?._model;
       if (!scene) {
-        console.warn(`Could not get scene for variant ${variantName}`);
+     //   console.warn(`Could not get scene for variant ${variantName}`);
         continue;
       }
       
@@ -54136,14 +54131,14 @@ async downloadMaterialsJson() {
             materialName: object.material.name
           });
           
-          console.log(`Found material "${object.material.name}" on mesh "${object.name}" for variant "${variantName}"`);
+   //       console.log(`Found material "${object.material.name}" on mesh "${object.name}" for variant "${variantName}"`);
         }
       });
 
-      console.log(`Found ${materialCount} total materials for variant ${variantName}`);
+  //    console.log(`Found ${materialCount} total materials for variant ${variantName}`);
       
       if (variantMaterials.length === 0) {
-        console.warn(`No materials found for variant ${variantName}`);
+    //    console.warn(`No materials found for variant ${variantName}`);
         continue;
       }
       
@@ -54153,11 +54148,11 @@ async downloadMaterialsJson() {
         const materialToUpdate = materialsCopy.find(m => m.name === materialName);
         
         if (!materialToUpdate) {
-          console.warn(`Material "${materialName}" for mesh "${meshName}" not found in original structure`);
+   //       console.warn(`Material "${materialName}" for mesh "${meshName}" not found in original structure`);
           continue;
         }
         
-        console.log(`Updating material "${materialName}" for mesh "${meshName}" in variant "${variantName}"`);
+      //  console.log(`Updating material "${materialName}" for mesh "${meshName}" in variant "${variantName}"`);
         
         // Initialize pbrMetallicRoughness if it doesn't exist
         if (!materialToUpdate.pbrMetallicRoughness) {
@@ -54188,13 +54183,13 @@ async downloadMaterialsJson() {
         // Update roughness if defined in the material
         if (material.roughness !== undefined) {
           materialToUpdate.pbrMetallicRoughness.roughnessFactor = Number(material.roughness.toFixed(9));
-          console.log(`Updated roughness for "${materialName}" to ${materialToUpdate.pbrMetallicRoughness.roughnessFactor}`);
+     //     console.log(`Updated roughness for "${materialName}" to ${materialToUpdate.pbrMetallicRoughness.roughnessFactor}`);
         }
 
         // Update metalness if defined in the material
         if (material.metalness !== undefined) {
           materialToUpdate.pbrMetallicRoughness.metallicFactor = Number(material.metalness.toFixed(9));
-          console.log(`Updated metalness for "${materialName}" to ${materialToUpdate.pbrMetallicRoughness.metallicFactor}`);
+     //     console.log(`Updated metalness for "${materialName}" to ${materialToUpdate.pbrMetallicRoughness.metallicFactor}`);
         }
         
         // Update color - Always add baseColorFactor if color is not default white
@@ -54206,7 +54201,7 @@ async downloadMaterialsJson() {
             material.color.b,
             material.opacity !== undefined ? material.opacity : 1.0
           ];
-          console.log(`Updated baseColorFactor for "${materialName}" to:`, materialToUpdate.pbrMetallicRoughness.baseColorFactor);
+       //   console.log(`Updated baseColorFactor for "${materialName}" to:`, materialToUpdate.pbrMetallicRoughness.baseColorFactor);
         }
         
         // Update double sided if defined
@@ -54220,7 +54215,7 @@ async downloadMaterialsJson() {
         if (material.aoMap && material.aoMapIntensity !== undefined) {
           if (materialToUpdate.occlusionTexture) {
             materialToUpdate.occlusionTexture.strength = material.aoMapIntensity;
-            console.log(`Updated AO map strength for "${materialName}" to ${material.aoMapIntensity}`);
+        //    console.log(`Updated AO map strength for "${materialName}" to ${material.aoMapIntensity}`);
           }
         }
         
@@ -54229,9 +54224,9 @@ async downloadMaterialsJson() {
           if (materialToUpdate.normalTexture) {
             const oldScale = materialToUpdate.normalTexture.scale;
             materialToUpdate.normalTexture.scale = material.normalScale.x;
-            console.log(`Updated normal map scale for "${materialName}" from ${oldScale} to ${materialToUpdate.normalTexture.scale}`);
+        //    console.log(`Updated normal map scale for "${materialName}" from ${oldScale} to ${materialToUpdate.normalTexture.scale}`);
           } else {
-            console.warn(`Material has normalMap but no normalTexture in original structure for "${materialName}"`);
+       //     console.warn(`Material has normalMap but no normalTexture in original structure for "${materialName}"`);
           }
         }
         
@@ -54326,13 +54321,13 @@ async downloadMaterialsJson() {
             sheenExtension.sheenColorFactor[1] = material.sheenColor.g;
             sheenExtension.sheenColorFactor[2] = material.sheenColor.b;
             
-            console.log(`Updated sheen color for "${materialName}" to`, sheenExtension.sheenColorFactor);
+          //  console.log(`Updated sheen color for "${materialName}" to`, sheenExtension.sheenColorFactor);
           }
           
           // Update sheen roughness
           if (material.sheenRoughness !== undefined) {
             sheenExtension.sheenRoughnessFactor = Number(material.sheenRoughness.toFixed(9));
-            console.log(`Updated sheen roughness for "${materialName}" to ${sheenExtension.sheenRoughnessFactor}`);
+        //    console.log(`Updated sheen roughness for "${materialName}" to ${sheenExtension.sheenRoughnessFactor}`);
           }
           
           // Update sheen color map transforms if map exists
@@ -54378,7 +54373,10 @@ async downloadMaterialsJson() {
     }
     
     // Restore the original variant
-    modelViewer.variantName = currentVariantName;
+     if (currentVariantName) {
+      	console.log ('Last edited variant:',currentVariantName)
+        modelViewer.variantName = currentVariantName;
+      }
     
     return materialsCopy;
   } catch (error) {
@@ -54387,6 +54385,7 @@ async downloadMaterialsJson() {
     // Try to restore the original variant
     try {
       if (currentVariantName) {
+      	console.log ('Last edited variant:',currentVariantName)
         modelViewer.variantName = currentVariantName;
       }
     } catch (e) {

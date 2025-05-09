@@ -16,6 +16,27 @@ const TextureMapInput: React.FC<TextureMapInputProps> = ({
 }) => {
   const inputId = `${textureType}Input`;
   
+  // Handler to show error if non-jpg file is selected
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    
+    if (file) {
+      // Check if the file is a JPG
+      const isJpg = file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
+      
+      if (!isJpg) {
+        // Reset the input
+        e.target.value = '';
+        // Show error
+        alert('Please select only JPG files for textures.');
+        return;
+      }
+      
+      // If it's a valid JPG, proceed with the upload
+      onTextureUpload(e, textureType);
+    }
+  };
+  
   return (
     <div className="flex items-center justify-between">
       <label className="text-sm">{label}</label>
@@ -44,9 +65,9 @@ const TextureMapInput: React.FC<TextureMapInputProps> = ({
               <input
                 type="file"
                 id={inputId}
-                accept="image/*"
+                accept=".jpg,.jpeg,image/jpeg"
                 className="sr-only"
-                onChange={(e) => onTextureUpload(e, textureType)}
+                onChange={handleFileSelect}
               />
             </label>
           </div>

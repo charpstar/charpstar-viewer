@@ -2,18 +2,20 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Save, Download } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { Save, Download, ArrowLeft } from 'lucide-react';
+import { useParams, usePathname } from 'next/navigation';
 import { isValidClient } from '@/config/clients';
 
 interface HeaderProps {
-  modelViewerRef: React.RefObject<any>;
+  modelViewerRef?: React.RefObject<any>;
   onExportGLB?: () => void;
   onExportGLTF?: () => void;
   onExportUSDZ?: () => void;
   onSave?: () => void;
-  isSaving?: boolean; // New prop to indicate saving status
+  isSaving?: boolean;
+  title?: string; // Added title prop
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -22,11 +24,18 @@ const Header: React.FC<HeaderProps> = ({
   onExportGLTF,
   onExportUSDZ,
   onSave,
-  isSaving = false, // Default to false
+  isSaving = false,
+  title,
 }) => {
   const params = useParams();
+  const pathname = usePathname();
   const clientName = params?.client as string;
   const isClientView = isValidClient(clientName);
+  const isDemoView = pathname?.includes('/demo');
+  
+  // Determine if in editor or demo mode
+  const isEditorMode = isClientView && !isDemoView;
+  const isDemoMode = isClientView && isDemoView;
 
   return (
     <header className="h-12 bg-white text-[#111827] flex items-center justify-between px-6 border-b border-gray-200 shadow-sm w-full">
@@ -37,25 +46,59 @@ const Header: React.FC<HeaderProps> = ({
           width={100}
           height={28}
         />
+        
+        {title && (
+          <div className="ml-6 text-lg font-medium text-gray-700">
+            {title}
+          </div>
+        )}
       </div>
       
       <div className="flex items-center space-x-4">
+        {/* Navigation between editor and demo */}
+        {isClientView && (
+          <div className="mr-4">
+            {isDemoMode ? (
+              <Link href={`/${clientName}`}>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-xs h-9"
+                >
+                  <ArrowLeft size={14} className="mr-2" />
+                  Back to Editor
+                </Button>
+              </Link>
+            ) : (
+              <Link href={`/${clientName}/demo`}>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-xs h-9"
+                >
+                  View Demo Catalog
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
+        
         {/* Export/Save Buttons */}
         <div className="flex space-x-3">
-          {isClientView ? (
-            // Show Save button for client view
+          {isEditorMode ? (
+            // Show Save button for client editor view
             <Button 
               variant="default"
               size="sm"
               onClick={onSave}
-              disabled={isSaving} // Disable when saving
+              disabled={isSaving}
               className="text-xs h-7 px-3"
             >
               <Save size={14} className="mr-2" />
               {isSaving ? "Saving..." : "Save Changes to Live"}
             </Button>
-          ) : (
-            // Show Export buttons for regular view
+          ) : !isDemoMode && (
+            // Show Export buttons for regular view (not demo)
             <>
               <Button 
                 variant="outline" 

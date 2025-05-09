@@ -5,7 +5,6 @@ import path from 'path';
 import os from 'os';
 import https from 'https';
 import fs from 'fs';
-import { Readable } from 'stream';
 
 const REGION = process.env.BUNNY_REGION || '';
 const BASE_HOSTNAME = 'storage.bunnycdn.com';
@@ -24,15 +23,28 @@ const getStorageZoneDetails = () => {
 };
 
 // Helper to save a file from FormData temporarily
-async function saveFormFile(formData: FormData): Promise<{ filepath: string, filename: string }> {
+async function saveFormFile(formData: FormData): Promise<{ filepath: string, filename: string, contentType: string }> {
   const file = formData.get('file') as File;
   if (!file) {
     throw new Error('No file provided');
   }
   
+  // Check file type - only accept JPG files
+  const contentType = file.type;
+  const isJpg = contentType === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
+  
+  if (!isJpg) {
+    throw new Error('Only JPG files are supported for texture uploads');
+  }
+  
   // Get filename from the FormData or use the file's name
   const suggestedFilename = formData.get('filename') as string;
-  const filename = suggestedFilename || file.name;
+  let filename = suggestedFilename || file.name;
+  
+  // Ensure the filename has a .jpg extension
+  if (!filename.toLowerCase().endsWith('.jpg') && !filename.toLowerCase().endsWith('.jpeg')) {
+    filename = filename.replace(/\.[^/.]+$/, "") + '.jpg';
+  }
   
   // Create a temporary file path
   const tempDir = os.tmpdir();
@@ -43,7 +55,7 @@ async function saveFormFile(formData: FormData): Promise<{ filepath: string, fil
   const buffer = Buffer.from(arrayBuffer);
   await writeFile(filepath, buffer);
   
-  return { filepath, filename };
+  return { filepath, filename, contentType };
 }
 
 export async function POST(request: NextRequest) {
@@ -51,109 +63,119 @@ export async function POST(request: NextRequest) {
     // Parse the multipart form data
     const formData = await request.formData();
     
-    // Save the file temporarily
-    const { filepath, filename } = await saveFormFile(formData);
-    
-    // Get storage zone details
-    const { zoneName, basePath } = getStorageZoneDetails();
-    
-    // Get the client and target directory from the form data
-    const clientName = formData.get('client') as string || 'SweefV2';
-    const targetDirectory = formData.get('targetDirectory') as string || '';
-    
-    // Construct the target path for the file in BunnyCDN
-    let filePath = `${basePath}${clientName}/`;
-    
-    // Add the target directory if specified
-    if (targetDirectory) {
-      // Make sure there's no leading or trailing slashes
-      const cleanDirectory = targetDirectory.replace(/^\/+|\/+$/g, '');
-      filePath += `${cleanDirectory}/`;
-    }
-    
-    // Add the filename
-    filePath += filename;
-    
-    console.log(`Target upload path: ${filePath}`);
-    
-    // Read the file from the temporary location
-    const fileBuffer = fs.readFileSync(filepath);
-    
-    // Upload to BunnyCDN
-    const uploadPromise = new Promise((resolve, reject) => {
-      const options = {
-        method: 'PUT',
-        host: HOSTNAME,
-        path: `/${zoneName}/${filePath}`,
-        headers: {
-          AccessKey: ACCESS_KEY,
-          'Content-Type': 'image/jpeg', // Assuming JPEG, adjust if needed
-          'Content-Length': fileBuffer.length,
-        },
-      };
-      
-      console.log(`Uploading image to: ${options.host}${options.path}`);
-      
-      const req = https.request(options, (res) => {
-        let data = '';
-        
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        
-        res.on('end', () => {
-          if (res.statusCode === 200 || res.statusCode === 201) {
-            resolve({ success: true });
-          } else {
-            reject(new Error(`Upload failed with status ${res.statusCode}: ${data}`));
-          }
-        });
-      });
-      
-      req.on('error', (error) => {
-        reject(error);
-      });
-      
-      req.write(fileBuffer);
-      req.end();
-    });
-    
-    await uploadPromise;
-    
-    // Clean up the temporary file
-    fs.unlinkSync(filepath);
-    
-    // Construct the CDN URL for the uploaded file
-    const fileUrl = `https://${BUNNY_PULL_ZONE_URL}/${filePath}`;
-    
-    // Purge the cache for this file
     try {
-      console.log(`Purging cache for: ${fileUrl}`);
-      const purgeResponse = await fetch('https://api.bunny.net/purge?async=false', {
-        method: 'POST',
-        headers: {
-          'AccessKey': BUNNY_API_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ urls: [fileUrl] })
+      // Save the file temporarily and validate it's a JPG
+      const { filepath, filename, contentType } = await saveFormFile(formData);
+      
+      // Get storage zone details
+      const { zoneName, basePath } = getStorageZoneDetails();
+      
+      // Get the client and target directory from the form data
+      const clientName = formData.get('client') as string || 'SweefV2';
+      const targetDirectory = formData.get('targetDirectory') as string || '';
+      
+      // Construct the target path for the file in BunnyCDN
+      let filePath = `${basePath}${clientName}/`;
+      
+      // Add the target directory if specified
+      if (targetDirectory) {
+        // Make sure there's no leading or trailing slashes
+        const cleanDirectory = targetDirectory.replace(/^\/+|\/+$/g, '');
+        filePath += `${cleanDirectory}/`;
+      }
+      
+      // Add the filename
+      filePath += filename;
+      
+      console.log(`Target upload path: ${filePath}`);
+      
+      // Read the file from the temporary location
+      const fileBuffer = fs.readFileSync(filepath);
+      
+      // Upload to BunnyCDN
+      const uploadPromise = new Promise((resolve, reject) => {
+        const options = {
+          method: 'PUT',
+          host: HOSTNAME,
+          path: `/${zoneName}/${filePath}`,
+          headers: {
+            AccessKey: ACCESS_KEY,
+            'Content-Type': 'image/jpeg',
+            'Content-Length': fileBuffer.length,
+          },
+        };
+        
+        console.log(`Uploading image to: ${options.host}${options.path}`);
+        
+        const req = https.request(options, (res) => {
+          let data = '';
+          
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+          
+          res.on('end', () => {
+            if (res.statusCode === 200 || res.statusCode === 201) {
+              resolve({ success: true });
+            } else {
+              reject(new Error(`Upload failed with status ${res.statusCode}: ${data}`));
+            }
+          });
+        });
+        
+        req.on('error', (error) => {
+          reject(error);
+        });
+        
+        req.write(fileBuffer);
+        req.end();
       });
       
-      if (!purgeResponse.ok) {
-        const errorText = await purgeResponse.text();
-        console.warn(`Cache purge warning: ${purgeResponse.status} - ${errorText}`);
-      } else {
-        console.log('Cache purge successful');
+      await uploadPromise;
+      
+      // Clean up the temporary file
+      fs.unlinkSync(filepath);
+      
+      // Construct the CDN URL for the uploaded file
+      const fileUrl = `https://${BUNNY_PULL_ZONE_URL}/${filePath}`;
+      
+      // Purge the cache for this file
+      try {
+        console.log(`Purging cache for: ${fileUrl}`);
+        const purgeResponse = await fetch('https://api.bunny.net/purge?async=false', {
+          method: 'POST',
+          headers: {
+            'AccessKey': BUNNY_API_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ urls: [fileUrl] })
+        });
+        
+        if (!purgeResponse.ok) {
+          const errorText = await purgeResponse.text();
+          console.warn(`Cache purge warning: ${purgeResponse.status} - ${errorText}`);
+        } else {
+          console.log('Cache purge successful');
+        }
+      } catch (purgeError) {
+        console.error('Error purging cache:', purgeError);
       }
-    } catch (purgeError) {
-      console.error('Error purging cache:', purgeError);
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'JPG texture uploaded and cache purged',
+        fileUrl,
+        filename
+      });
+    } catch (error) {
+      if (error.message === 'Only JPG files are supported for texture uploads') {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 400 }
+        );
+      }
+      throw error;
     }
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Image uploaded and cache purged',
-      fileUrl,
-      filename
-    });
   } catch (error) {
     console.error('Image upload error:', error);
     return NextResponse.json(

@@ -13,7 +13,7 @@ export const clients: Record<string, ClientConfig> = {
   },
   SweefV2: {
     name: "1",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/SweefV2/VAL-15COZY.gltf",
+    modelUrl: "https://cdn.charpstar.net/Client-Editor/SweefV2/TIG-2.gltf",
     description: "Sweef Editor"
   }
  

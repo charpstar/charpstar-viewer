@@ -252,49 +252,59 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     }
   };
 
-  // Handle texture upload
-  const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, textureType: string) => {
-    const file = event.target.files?.[0];
-    if (!file || !modelViewerRef?.current || !selectedNode || !material) {
-      return;
-    }
+// Updated handleTextureUpload function for MaterialProperties.tsx
+
+// Handle texture upload
+const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, textureType: string) => {
+  const file = event.target.files?.[0];
+  if (!file || !modelViewerRef?.current || !selectedNode || !material) {
+    return;
+  }
+  
+  // Reset the input so the same file can be selected again
+  event.target.value = '';
+  
+  // Check if the file is a JPG
+  const isJpg = file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
+  
+  if (!isJpg) {
+    alert('Only JPG files are supported for textures.');
+    return;
+  }
+  
+  try {
+    console.log(`Uploading ${textureType} texture from file:`, file.name);
     
-    // Reset the input so the same file can be selected again
-    event.target.value = '';
+    // Use the enhanced handleTextureUpload method that replaces existing files
+    const success = await modelViewerRef.current.handleTextureUpload(
+      file, 
+      textureType, 
+      material.name
+    );
     
-    try {
-      console.log(`Uploading ${textureType} texture from file:`, file.name);
+    if (success) {
+      console.log(`Texture ${textureType} updated successfully for ${material.name}`);
       
-      // Use the enhanced handleTextureUpload method that replaces existing files
-      const success = await modelViewerRef.current.handleTextureUpload(
-        file, 
-        textureType, 
-        material.name
-      );
+      // Update local state to reflect the texture was applied
+      setMaterial(prev => {
+        if (!prev) return null;
+        return { ...prev, [textureType]: { loaded: true } };
+      });
       
-      if (success) {
-        console.log(`Texture ${textureType} updated successfully for ${material.name}`);
-        
-        // Update local state to reflect the texture was applied
-        setMaterial(prev => {
-          if (!prev) return null;
-          return { ...prev, [textureType]: { loaded: true } };
-        });
-        
-        // Force a render update through the model viewer if needed
-        if (typeof modelViewerRef.current.requestRender === 'function') {
-          modelViewerRef.current.requestRender();
-        }
-        
-        // Increment the material refresh counter to trigger a UI update
-        materialRefreshCounter.current += 1;
-      } else {
-        console.error(`Failed to upload ${textureType} texture`);
+      // Force a render update through the model viewer if needed
+      if (typeof modelViewerRef.current.requestRender === 'function') {
+        modelViewerRef.current.requestRender();
       }
-    } catch (error) {
-      console.error(`Error uploading ${textureType} texture:`, error);
+      
+      // Increment the material refresh counter to trigger a UI update
+      materialRefreshCounter.current += 1;
+    } else {
+      console.error(`Failed to upload ${textureType} texture`);
     }
-  };
+  } catch (error) {
+    console.error(`Error uploading ${textureType} texture:`, error);
+  }
+};
 
   // Function to clear a texture
   const clearTexture = (textureType: string) => {
