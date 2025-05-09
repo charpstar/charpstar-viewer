@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     console.log(`Storage zone: ${zoneName}, base path: ${basePath}`);
     
     // Construct the path for the file in BunnyCDN
-    const clientName = requestBody.client || 'Sweef-Test';
+    const clientName = requestBody.client || 'SweefV2';
     const filePath = `${basePath}${clientName}/${filename}`;
     console.log(`Full file path for upload: ${filePath}`);
     

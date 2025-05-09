@@ -53757,7 +53757,7 @@ const ControlsMixin = (ModelViewerElement) => {
 		  return 'model';
 		}
 
-setPlaneGrid(size1 = .2, size2 = .2, distance = 10) {
+setPlaneGrid(size1 = .2, size2 = .2, distance = 15) {
   // Remove any existing grid
   if (this.gridHelper) {
     if (this.gridHelper.parent) {
@@ -53769,9 +53769,10 @@ setPlaneGrid(size1 = .2, size2 = .2, distance = 10) {
   
   // Create a new grid with the specified parameters
   const gridHelper = new InfiniteGridHelper(size1, size2, new Color('grey'), distance);
-  
+//this[$scene].shadow.remove(this[$scene].shadow.floor);
   // Add to scene model
   this[$scene].model.parent.add(gridHelper);
+
   
   // Store reference
   this.gridHelper = gridHelper;
@@ -53788,6 +53789,7 @@ setPlaneGrid(size1 = .2, size2 = .2, distance = 10) {
     }, 100);
   }
   
+
   // Return the grid helper for inspection
   return gridHelper;
 }

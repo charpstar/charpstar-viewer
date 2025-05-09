@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const { zoneName, basePath } = getStorageZoneDetails();
     
     // Get the client and target directory from the form data
-    const clientName = formData.get('client') as string || 'Sweef';
+    const clientName = formData.get('client') as string || 'SweefV2';
     const targetDirectory = formData.get('targetDirectory') as string || '';
     
     // Construct the target path for the file in BunnyCDN

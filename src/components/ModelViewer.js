@@ -102,11 +102,11 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
             alt="A 3D model"
             id="model-viewer"
             disable-pan
-            shadow-intensity="0.6"
+            shadow-intensity="0"
             environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
             exposure="1.5"
             tone-mapping="aces"
-            shadow-softness="1"
+            
             camera-orbit="0deg 75deg auto"
             style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
             camera-controls

@@ -11,9 +11,9 @@ export const clients: Record<string, ClientConfig> = {
     modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/Art1.gltf",
     description: "Artwood Editor"
   },
-  Sweef: {
+  SweefV2: {
     name: "1",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/Sweef/TIG-21.gltf",
+    modelUrl: "https://cdn.charpstar.net/Client-Editor/SweefV2/VAL-15COZY.gltf",
     description: "Sweef Editor"
   }
  
