@@ -259,10 +259,21 @@ export default function ClientPage() {
       setIsSaving(false);
       setSaveProgress(0);
       
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving resources:', error);
       setSaveProgress(100);
-      setSaveMessage(`Error: ${error.message || "Unknown error occurred"}`);
+      
+      // Fix for TypeScript error - properly type check the error
+      let errorMessage = "Unknown error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(error.message);
+      }
+      
+      setSaveMessage(`Error: ${errorMessage}`);
       
       // Keep error message visible
       await new Promise(resolve => setTimeout(resolve, 2000));
