@@ -7,31 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Search, ChevronDown, ChevronRight, LayoutGrid, List, Eye, RefreshCw, Palette } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import VariantSelector from '@/components/demo/VariantSelector';
+import ModelViewer from '@/components/ModelViewer'; // Import your existing ModelViewer component
 import { notFound } from 'next/navigation';
-
-// Add this declaration right at the top of the file
-declare namespace JSX {
-  interface IntrinsicElements {
-    'model-viewer': React.DetailedHTMLProps<
-      React.HTMLAttributes<HTMLElement> & {
-        src?: string;
-        alt?: string;
-        'camera-controls'?: boolean | string;
-        'auto-rotate'?: boolean | string;
-        'shadow-intensity'?: string;
-        'environment-image'?: string;
-        exposure?: string;
-        'tone-mapping'?: string;
-        'camera-orbit'?: string;
-        style?: React.CSSProperties;
-        id?: string;
-        ref?: React.RefObject<any>;
-        onError?: (event: any) => void;
-      },
-      HTMLElement
-    >;
-  }
-}
 
 // Helper function to parse model name and extract category
 const parseModelName = (filename: string) => {
@@ -99,6 +76,7 @@ export default function ClientDemoPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
   const [modelLoadError, setModelLoadError] = useState(false);
+  const [currentModelUrl, setCurrentModelUrl] = useState<string | null>(null);
   
   // Validate client
   if (!isValidClient(clientName)) {
@@ -135,6 +113,7 @@ export default function ClientDemoPage() {
         // Select first model by default
         if (models.length > 0) {
           setSelectedModel(models[0]);
+          setCurrentModelUrl(getModelUrl(models[0]));
         }
         
         setIsLoading(false);
@@ -158,6 +137,7 @@ export default function ClientDemoPage() {
   // Select a model to view
   const handleSelectModel = (model: string) => {
     setSelectedModel(model);
+    setCurrentModelUrl(getModelUrl(model));
     setModelLoadError(false);
   };
   
@@ -203,6 +183,20 @@ export default function ClientDemoPage() {
   const categoryCount = Object.keys(filteredCategories).length;
   const totalModelCount = Object.values(filteredCategories)
     .reduce((count, models) => count + models.length, 0);
+  
+  // Handle model loaded event
+  const handleModelLoaded = () => {
+    console.log('Model loaded callback received');
+    
+    // After the model loads, store a reference to the model-viewer element
+    setTimeout(() => {
+      const modelViewer = document.getElementById('model-viewer');
+      if (modelViewer && !modelViewerRef.current) {
+        modelViewerRef.current = modelViewer;
+        console.log('Stored model-viewer reference');
+      }
+    }, 100);
+  };
   
   return (
     <div className="flex flex-col h-screen bg-[#F9FAFB]">
@@ -375,20 +369,10 @@ export default function ClientDemoPage() {
           <div className="h-full rounded-lg overflow-hidden shadow-md bg-[#F8F9FA] flex items-center justify-center relative">
             {selectedModel ? (
               <>
-                <model-viewer
-                  ref={modelViewerRef}
-                  src={getModelUrl(selectedModel)}
-                  alt={selectedModel}
-                  id="model-viewer"
-                  camera-controls=""
-                  shadow-intensity="0"
-                  environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
-                  exposure="1.5"
-                  tone-mapping="aces"
-                  camera-orbit="0deg 75deg auto"
-                  style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
-                  onError={handleModelError}
-                ></model-viewer>
+                <ModelViewer 
+                  clientModelUrl={currentModelUrl}
+                  onModelLoaded={handleModelLoaded}
+                />
                 
                 {modelLoadError && (
                   <div className="absolute inset-0 bg-gray-100 bg-opacity-80 flex flex-col items-center justify-center">
