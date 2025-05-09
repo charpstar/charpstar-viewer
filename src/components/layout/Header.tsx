@@ -63,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="text-xs h-9"
+                  className="text-xs h-7"
                 >
                   <ArrowLeft size={14} className="mr-2" />
                   Back to Editor
@@ -74,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="text-xs h-9"
+                  className="text-xs h-7"
                 >
                   View Demo Catalog
                 </Button>

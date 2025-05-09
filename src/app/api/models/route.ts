@@ -12,14 +12,6 @@ ANT-25.gltf
 ANT-25-LC.gltf
 ANT-35.gltf
 ANT-35-LC.gltf
-BAG-L.gltf
-BAG-L-DET-SANS.gltf
-BAG-M.gltf
-BAG-M-DET-SANS.gltf
-BAG-S.gltf
-BAG-S-DET-SANS.gltf
-BAG-XL.gltf
-BAG-XL-DET-SANS.gltf
 BEC-90X200.gltf
 BEC-120X200.gltf
 BEC-140X200.gltf
