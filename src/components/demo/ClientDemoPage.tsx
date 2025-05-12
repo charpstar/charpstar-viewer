@@ -213,7 +213,7 @@ export default function ClientDemoPage() {
       
       <div className="flex flex-1 overflow-hidden">
         {/* Left side - Model navigation */}
-        <div className="w-1/5 border-r border-gray-200 bg-white shadow-inner flex flex-col">
+        <div className="w-1/10 border-r border-gray-200 bg-white shadow-inner flex flex-col">
           {/* Search and Filter Controls */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
@@ -420,7 +420,7 @@ export default function ClientDemoPage() {
         </div>
         
         {/* Right side - Variants panel */}
-        <div className="w-1/6 border-l border-gray-200 bg-white shadow-inner flex flex-col">
+        <div className="w-1/10 border-l border-gray-200 bg-white shadow-inner flex flex-col">
           <div className="p-2 border-b border-gray-200">
             <div className="flex items-center space-x-1.5">
               <Palette size={14} className="text-gray-600" />
