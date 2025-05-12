@@ -22,12 +22,12 @@ const CameraControlsPanel: React.FC<CameraControlsPanelProps> = ({ modelViewerRe
 
   // Camera angle presets with verified Lucide icons
   const cameraPresets = [
-    { name: 'Default', orbit: '-25deg 80deg 80%', icon: <Compass size={16} /> },
+    { name: 'Default', orbit: '-25deg 80deg 80%', icon: <Square size={16} /> },
     { name: 'Front', orbit: '0deg 88deg 80%', icon: <Square size={16} /> },
-    { name: 'Back', orbit: '180deg 90deg 80%', icon: <BookOpen size={16} /> },
-    { name: 'Side', orbit: '90deg 91deg 80%', icon: <PanelRight size={16} /> },
-    { name: 'Top', orbit: '0deg -200deg 80%', icon: <ArrowDown size={16} /> },
-    { name: 'Table', orbit: '-35deg 71deg 80%', icon: <Table size={16} /> }
+    { name: 'Back', orbit: '180deg 90deg 80%', icon: <Square size={16} /> },
+    { name: 'Side', orbit: '90deg 91deg 80%', icon: <Square size={16} /> },
+    { name: 'Top', orbit: '0deg -200deg 80%', icon: <Square size={16} /> },
+    { name: 'Table', orbit: '-35deg 71deg 80%', icon: <Square size={16} /> }
   ];
 
 
