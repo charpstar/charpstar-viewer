@@ -109,9 +109,9 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
             disable-pan
             interaction-prompt = "none"
             shadow-intensity="0"
-            environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
-            exposure="1.5"
-            tone-mapping="aces"
+            environment-image="https://sweef.charpstar.net/HDR/Sweef-HDR.hdr"
+            exposure="1"
+            tone-mapping="auto"
             camera-orbit="0deg 75deg auto"
             style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
             camera-controls

@@ -2,8 +2,8 @@
 
 import './globals.css';
 import { Jost } from 'next/font/google';
-import Script from 'next/script';
 import { ReactNode } from 'react';
+import SimpleClientViewerScript from '@/components/SimpleClientViewerScript';
 
 const jost = Jost({ 
   subsets: ['latin'],
@@ -24,8 +24,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={`${jost.className} text-[14px]`}>
-        {/* Include your custom model-viewer.js */}
-        <Script src="/model-viewer.js" strategy="beforeInteractive" type="module" />
+        {/* Load the appropriate viewer script based on client */}
+        <SimpleClientViewerScript />
         {children}
       </body>
     </html>
