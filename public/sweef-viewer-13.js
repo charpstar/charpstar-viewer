@@ -55412,26 +55412,30 @@ async downloadMaterialsJson() {
             this[$jumpCamera] = true;
             this.requestUpdate($jumpCamera, false);
         }
-                async createSweefPoster() {
-            const modelViewer = this;
-            modelViewer.cameraOrbit = "-25deg 80deg 80%";
-            var tempFieldOfView = modelViewer.minFieldOfView;
-            modelViewer.minFieldOfView = "45deg";
-            await modelViewer.updateFraming();
-            modelViewer.style.visibility = "hidden";
-            modelViewer.style.width = `${500}px`;
-            modelViewer.style.height = `${500}px`;
-            await new Promise(resolve => setTimeout(resolve, 500));
-            await rafPasses();
-            await rafPasses();
-            const url = await modelViewer.toDataURL("image/png", 1);
-            modelViewer.skyboxImage = "";
-            modelViewer.style.width = '';
-            modelViewer.style.height = '';
-            modelViewer.minFieldOfView = tempFieldOfView;
-            modelViewer.style.visibility = "visible";
-            return url;
+        async createSweefPosterX(cameraOrbitX) {
+        if (cameraOrbitX) {
+		this.cameraOrbit = cameraOrbitX;
         }
+        else {
+        this.cameraOrbit = "-25deg 80deg 80%";   
+        }
+		var tempFieldOfView = this.minFieldOfView;
+		this.minFieldOfView = "45deg";
+		await this.updateFraming();
+		this.style.visibility = "hidden";
+		this.style.width = `${2000}px`;
+        this.style.height = `${2000}px`;
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		const url = await this.toDataURL("image/png",0.80);
+		this.skyboxImage = "";
+		this.style.width = '';
+    	this.style.height = '';
+		this.minFieldOfView = tempFieldOfView;
+		this.style.visibility = "visible";
+         //this.sweefRenderRefresh();  
+        this[$scene].isdirty = true;
+		return url;
+		}
         dimensionLineToggle() {
             
             if (this.dimensionLineVisible == true) {
@@ -60731,7 +60735,7 @@ async downloadMaterialsJson() {
         requestRender() {
 		  this[$scene].isDirty = true;
 		  }
-		  
+
         updated(changedProperties) {
             super.updated(changedProperties);
             const controls = this[$controls];

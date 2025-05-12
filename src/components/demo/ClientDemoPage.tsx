@@ -1,5 +1,4 @@
-// src/components/demo/ClientDemoPage.tsx
-
+// src/components/demo/ClientDemoPage.tsx (updated with camera controls)
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { clients, isValidClient } from '@/config/clients';
@@ -8,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Search, ChevronDown, ChevronRight, LayoutGrid, List, Eye, RefreshCw, Palette } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import VariantSelector from '@/components/demo/VariantSelector';
-import CompactModelStats from '@/components/demo/ModelStats'; // Import the new CompactModelStats component
+import CompactModelStats from '@/components/demo/ModelStats';
+import CameraControlsPanel from '@/components/demo/CameraControlsPanel'; // Import the new component
 import ModelViewer from '@/components/ModelViewer';
 import { notFound } from 'next/navigation';
 
@@ -383,6 +383,13 @@ export default function ClientDemoPage() {
                   <CompactModelStats
                     modelViewerRef={modelViewerRef}
                     modelName={selectedModel}
+                  />
+                )}
+                
+                {/* Camera Controls Panel positioned at the bottom of the viewer */}
+                {!modelLoadError && (
+                  <CameraControlsPanel
+                    modelViewerRef={modelViewerRef}
                   />
                 )}
                 
