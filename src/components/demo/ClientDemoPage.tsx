@@ -1,7 +1,7 @@
 // src/components/demo/ClientDemoPage.tsx (updated with camera controls)
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { clients, isValidClient } from '@/config/clients';
+import { clients, isValidClient } from '@/config/clientConfig';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, ChevronDown, ChevronRight, LayoutGrid, List, Eye, RefreshCw, Palette } from 'lucide-react';

@@ -2,7 +2,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { clients, isValidClient } from '@/config/clients';
+import { clients, isValidClient } from '@/config/clientConfig';
 import { useState, useEffect, useRef } from 'react';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import Header from '@/components/layout/Header';

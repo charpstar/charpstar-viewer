@@ -1,139 +1,158 @@
 // src/app/api/models/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { clients } from '@/config/clients';
+import { clients, getClientConfig } from '@/config/clientConfig';
+import https from 'https';
 
-// Load all models from paste.txt content
-const getAllModels = () => {
-  try {
-    // For this demo, we'll use the content from paste.txt directly
-    // In production, this would come from your actual model directory
-    const pasteContent = `ZEB-210X210-R-L-WOL.gltf
-ANT-25.gltf
-ANT-25-LC.gltf
-ANT-35.gltf
-ANT-35-LC.gltf
-BEC-90X200.gltf
-BEC-120X200.gltf
-BEC-140X200.gltf
-BEC-160X200.gltf
-BEC-180X200.gltf
-BJO-3.gltf
-BJO-15CHL.gltf
-BJO-CHL15.gltf
-BJO-FOOT1.gltf
-BLA-5.gltf
-BLA-5-LC.gltf
-BLA-5-RI.gltf
-BLA-25C25.gltf
-BLA-25C25-LC.gltf
-BLA-25C25-RI.gltf
-BLA-25E.gltf
-BLA-25E-LC.gltf
-BLA-25E-RI.gltf
-BLA-C90.gltf
-BLA-C90-LC.gltf
-BLA-C90-RI.gltf
-BLA-E25.gltf
-BLA-E25-LC.gltf
-BLA-E25-RI.gltf
-VAL-1.gltf
-VAL-1-LC.gltf
-VAL-1-RI.gltf
-VAL-3.gltf
-VAL-3C3.gltf
-VAL-3C3-RI.gltf
-VAL-3C15.gltf
-VAL-3C15-RI.gltf
-VAL-3-LC.gltf
-VAL-3-RI.gltf
-VAL-4.gltf
-VAL-4-LC.gltf
-VAL-4-RI.gltf
-VAL-15.gltf
-VAL-15C3.gltf
-VAL-15C3-RI.gltf
-VAL-15CHL.gltf
-VAL-15CHL-RI.gltf
-VAL-15COZY.gltf
-VAL-15COZY-RI.gltf
-VAL-15-LC.gltf
-VAL-15-RI.gltf
-VAL-35.gltf
-VAL-35-LC.gltf
-VAL-35-RI.gltf
-VAL-CHL15.gltf
-VAL-CHL15-RI.gltf
-VAL-COZY15.gltf
-VAL-COZY15-RI.gltf
-VAL-FOOT1.gltf
-VAL-FOOT1-LC.gltf
-VAL-FOOT1-RI.gltf
-VAL-FOOT2.gltf
-VAL-FOOT2-LC.gltf
-VAL-FOOT2-RI.gltf
-LEJ-1.gltf
-LEJ-1-AR.gltf
-LEJ-1-LC.gltf
-LEJ-2.gltf
-LEJ-2-LC.gltf
-LEJ-2-ROUND.gltf
-LEJ-2-ROUND-LC.gltf
-LEJ-3.gltf
-LEJ-3-LC.gltf
-LEJ-3-ROUND.gltf
-LEJ-3-ROUND-LC.gltf
-LEJ-25-ROUND.gltf
-LEJ-25-ROUND-LC.gltf
-LEJ-FOOT1.gltf
-LEJ-FOOT1-LC.gltf
-LEJ-FOOT2.gltf
-LEJ-FOOT2-LC.gltf
-ZEB-90X200.gltf
-ZEB-120X200.gltf
-ZEB-140X200.gltf
-ZEB-160X200.gltf
-ZEB-160X200-L-CHL.gltf
-ZEB-160X200-L-WOL.gltf
-ZEB-160X200-PL.gltf
-ZEB-160X200-PL-L-CHL.gltf
-ZEB-160X200-PL-L-WOL.gltf
-ZEB-160X200-R.gltf
-ZEB-160X200-R-L-CHL.gltf
-ZEB-160X200-R-L-WOL.gltf
-ZEB-180X200.gltf
-ZEB-180X200-L-CHL.gltf
-ZEB-180X200-L-WOL.gltf
-ZEB-180X200-PL.gltf
-ZEB-180X200-PL-L-CHL.gltf
-ZEB-180X200-PL-L-WOL.gltf
-ZEB-180X200-R.gltf
-ZEB-180X200-R-L-CHL.gltf
-ZEB-180X200-R-L-WOL.gltf
-ZEB-210X210.gltf
-ZEB-210X210-L-CHL.gltf
-ZEB-210X210-L-WOL.gltf
-ZEB-210X210-PL.gltf
-ZEB-210X210-PL-L-CHL.gltf
-ZEB-210X210-PL-L-WOL.gltf
-ZEB-210X210-R.gltf
-ZEB-210X210-R-L-CHL.gltf`;
+const REGION = process.env.BUNNY_REGION || '';
+const BASE_HOSTNAME = 'storage.bunnycdn.com';
+const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
+const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
+const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || ''; 
 
-    return pasteContent.split('\n').filter(line => line.trim() !== '');
-  } catch (error) {
-    console.error('Error loading models from paste.txt:', error);
-    return [];
-  }
+// Helper to extract the zone name from the environment variable
+const getStorageZoneDetails = () => {
+  const parts = STORAGE_ZONE_PATH.split('/');
+  const zoneName = parts[0];
+  return { zoneName };
 };
 
-// Get client models with basic filtering
-const getClientModels = async (clientName: string) => {
-  // In a real implementation, this would fetch the model list from the server
-  // For this demo, we'll use the sample data from paste.txt
-  const allModels = getAllModels();
+// Helper to filter valid model filenames
+// Exclude files with lowercase characters, spaces, underscores, or "ANIM" in the name
+const isValidModelFilename = (filename: string): boolean => {
+  console.log(`Checking filename: ${filename}`);
   
-  // Filter models based on client (in a real implementation)
-  // For demo purposes, we'll return all models for any valid client
-  return allModels;
+  // Check for lowercase characters
+  if (/[a-z]/.test(filename)) {
+    console.log(`- Rejected: contains lowercase characters`);
+    return false;
+  }
+  
+  // Check for spaces
+  if (filename.includes(' ')) {
+    console.log(`- Rejected: contains spaces`);
+    return false;
+  }
+  
+  // Check for underscores
+  if (filename.includes('_')) {
+    console.log(`- Rejected: contains underscores`);
+    return false;
+  }
+  
+  // Check for "ANIM" in the name
+  if (filename.includes('ANIM')) {
+    console.log(`- Rejected: contains "ANIM"`);
+    return false;
+  }
+  
+  // File passed all checks
+  console.log(`- Accepted: passed all filters`);
+  return true;
+};
+
+// Fetch files from BunnyCDN directory
+const fetchFilesFromBunnyCDN = async (path: string): Promise<string[]> => {
+  return new Promise((resolve, reject) => {
+    const { zoneName } = getStorageZoneDetails();
+    
+    const options = {
+      method: 'GET',
+      host: HOSTNAME,
+      path: `/${zoneName}/${path}/`,
+      headers: {
+        AccessKey: ACCESS_KEY,
+        accept: 'application/json'
+      },
+    };
+    
+    console.log(`Fetching files from: ${options.host}${options.path}`);
+    
+    const req = https.request(options, (res) => {
+      let data = '';
+      
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          try {
+            const files = JSON.parse(data);
+            
+            if (!Array.isArray(files)) {
+              console.error('Unexpected response format from BunnyCDN:', files);
+              return reject(new Error('Invalid response format from BunnyCDN'));
+            }
+            
+            console.log(`Total files found: ${files.length}`);
+            
+            // First filter only .gltf files
+            const gltfFiles = files.filter((file: any) => 
+              file.IsDirectory === false && file.ObjectName.endsWith('.gltf')
+            );
+            
+            console.log(`Total GLTF files found: ${gltfFiles.length}`);
+            
+            // Log all GLTF files for debugging
+            gltfFiles.forEach((file: any) => {
+              console.log(`GLTF file: ${file.ObjectName}`);
+            });
+            
+            // Then apply our custom filename filter
+            const validGltfFiles = gltfFiles
+              .filter((file: any) => isValidModelFilename(file.ObjectName))
+              .map((file: any) => file.ObjectName);
+            
+            console.log(`Valid GLTF files after filtering: ${validGltfFiles.length}`);
+            
+            // If no valid files found, let's try a more permissive filter for debugging
+            if (validGltfFiles.length === 0 && gltfFiles.length > 0) {
+              console.log('No files passed the filter. Returning all GLTF files for debugging.');
+              resolve(gltfFiles.map((file: any) => file.ObjectName));
+            } else {
+              resolve(validGltfFiles);
+            }
+          } catch (error) {
+            console.error('Failed to parse BunnyCDN response:', error);
+            console.error('Response data:', data);
+            reject(new Error(`Failed to parse BunnyCDN response: ${error}`));
+          }
+        } else {
+          console.error(`BunnyCDN API returned status ${res.statusCode}:`, data);
+          reject(new Error(`BunnyCDN API returned status ${res.statusCode}: ${data}`));
+        }
+      });
+    });
+    
+    req.on('error', (error) => {
+      console.error('Error making request to BunnyCDN:', error);
+      reject(error);
+    });
+    
+    req.end();
+  });
+};
+
+// Get client models from BunnyCDN
+const getClientModels = async (clientName: string): Promise<string[]> => {
+  try {
+    const clientConfig = getClientConfig(clientName);
+    const basePath = clientConfig.bunnyCdn.basePath;
+    
+    console.log(`Fetching models for client ${clientName} from path: ${basePath}`);
+    
+    // Fetch all files from the client's base path in BunnyCDN
+    const models = await fetchFilesFromBunnyCDN(basePath);
+    
+    // Log the models for debugging
+    console.log(`Returning ${models.length} models:`, models);
+    
+    return models;
+  } catch (error) {
+    console.error('Error fetching models from BunnyCDN:', error);
+    // Return empty array instead of using fallback
+    return [];
+  }
 };
 
 export async function GET(request: NextRequest) {
@@ -150,6 +169,10 @@ export async function GET(request: NextRequest) {
     
     const models = await getClientModels(clientName);
     
+    // Log the response for debugging
+    console.log(`API returning ${models.length} models for client ${clientName}`);
+    
+    // Return just the array of models to maintain compatibility with existing code
     return NextResponse.json(models);
   } catch (error) {
     console.error('Error fetching model list:', error);

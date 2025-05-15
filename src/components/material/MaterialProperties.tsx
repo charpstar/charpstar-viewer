@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Link, Link2Off } from 'lucide-react';
-import TextureMapInput from './TextureMapInput';
 import DebouncedColorPicker from './DebouncedColorPicker';
 import { SliderWithInput } from '@/components/ui/slider-with-input';
 
@@ -18,7 +17,7 @@ interface Material {
   map?: any; // base color texture map
   textureRepeat: { x: number; y: number }; // Make this non-optional
   normalMap?: any;
-  normalMapIntensity?: number; // Added normal map intensity
+  normalMapIntensity?: number;
   roughnessMap?: any;
   metalnessMap?: any;
   alphaMap?: any; // opacity map
@@ -26,7 +25,7 @@ interface Material {
   aoMapIntensity?: number;
   sheenRoughness?: number;
   sheenColor?: string | { r: number; g: number; b: number };
-  sheenColorMapRepeat?: { x: number; y: number }; // Add repeat values for sheen color map
+  sheenColorMapRepeat?: { x: number; y: number };
   sheenColorMap?: any;
   sheenColorMap_channel?: number; // UV set for sheen (0 or 1)
   [key: string]: any; // Add index signature to allow string indexing
@@ -48,7 +47,6 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   const [isMeshPhysicalMaterial, setIsMeshPhysicalMaterial] = useState(false);
   const [uniformTiling, setUniformTiling] = useState(true);
   const [uniformSheenTiling, setUniformSheenTiling] = useState(true);
-  const materialRefreshCounter = useRef(0);
 
   // Convert color object to hex string
   const rgbToHex = (color: { r: number; g: number; b: number }) => {
@@ -109,12 +107,6 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
       console.error(`Error updating ${property}:`, error);
     }
   }, [modelViewerRef, selectedNode]);
-
-  // Legacy handler for backward compatibility
-  const handleColorChangeEvent = (e: React.ChangeEvent<HTMLInputElement>, property: string = 'color') => {
-    const newColorHex = e.target.value;
-    handleColorChange(newColorHex, property);
-  };
 
   const handleSharedTilingChange = (axis: 'x' | 'y', value: number) => {
     if (!modelViewerRef?.current || !selectedNode) return;
@@ -252,80 +244,6 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     }
   };
 
-// Updated handleTextureUpload function for MaterialProperties.tsx
-
-// Handle texture upload
-const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, textureType: string) => {
-  const file = event.target.files?.[0];
-  if (!file || !modelViewerRef?.current || !selectedNode || !material) {
-    return;
-  }
-  
-  // Reset the input so the same file can be selected again
-  event.target.value = '';
-  
-  // Check if the file is a JPG
-  const isJpg = file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
-  
-  if (!isJpg) {
-    alert('Only JPG files are supported for textures.');
-    return;
-  }
-  
-  try {
-    console.log(`Uploading ${textureType} texture from file:`, file.name);
-    
-    // Use the enhanced handleTextureUpload method that replaces existing files
-    const success = await modelViewerRef.current.handleTextureUpload(
-      file, 
-      textureType, 
-      material.name
-    );
-    
-    if (success) {
-      console.log(`Texture ${textureType} updated successfully for ${material.name}`);
-      
-      // Update local state to reflect the texture was applied
-      setMaterial(prev => {
-        if (!prev) return null;
-        return { ...prev, [textureType]: { loaded: true } };
-      });
-      
-      // Force a render update through the model viewer if needed
-      if (typeof modelViewerRef.current.requestRender === 'function') {
-        modelViewerRef.current.requestRender();
-      }
-      
-      // Increment the material refresh counter to trigger a UI update
-      materialRefreshCounter.current += 1;
-    } else {
-      console.error(`Failed to upload ${textureType} texture`);
-    }
-  } catch (error) {
-    console.error(`Error uploading ${textureType} texture:`, error);
-  }
-};
-
-  // Function to clear a texture
-  const clearTexture = (textureType: string) => {
-    if (!modelViewerRef?.current || !selectedNode) return;
-    
-    try {
-      const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
-      if (object && object.material) {
-        object.material[textureType] = null;
-        object.material.needsUpdate = true;
-        
-        setMaterial(prev => {
-          if (!prev) return null;
-          return { ...prev, [textureType]: null };
-        });
-      }
-    } catch (error) {
-      console.error(`Error clearing ${textureType} texture:`, error);
-    }
-  };
-
   // Get the shared texture repeat values
   const getSharedTextureRepeat = (object: any): { x: number; y: number } => {
     // Try to get repeat values from any applied map, prioritizing the base color map
@@ -422,11 +340,9 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
     return { x: 1, y: 1 };
   };
   
-  // Then in the useEffect that fetches material data, modify it like this:
+  // Second effect to get sheen-specific texture repeat values
   useEffect(() => {
     if (!selectedNode || selectedNode.type !== 'Mesh' || !modelViewerRef?.current) {
-      setMaterial(null);
-      setIsMeshPhysicalMaterial(false);
       return;
     }
     
@@ -434,69 +350,23 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
       const object = modelViewerRef.current.getObjectByUuid?.(selectedNode.uuid);
       
       if (object && object.material) {
-        console.log('Found material for mesh:', object.material);
-        
-        // Check if the material is MeshPhysicalMaterial
-        setIsMeshPhysicalMaterial(object.material.type === 'MeshPhysicalMaterial');
-  
-        // Get the shared texture repeat values
-        const sharedRepeat = getSharedTextureRepeat(object);
-        
         // Get sheen-specific repeat values if they exist
         const sheenRepeat = getSheenTextureRepeat(object);
         
-        // Log the values to debug
-        console.log('Sheen repeat values:', sheenRepeat);
-        
-        const materialData: Material = {
-          // Other material properties remain the same
-          name: object.material.name || 'Material',
-          type: object.material.type || 'Material',
-          color: object.material.color ? { 
-            r: object.material.color.r, 
-            g: object.material.color.g, 
-            b: object.material.color.b 
-          } : '#ffffff',
-          roughness: object.material.roughness !== undefined ? object.material.roughness : 0.5,
-          metalness: object.material.metalness !== undefined ? object.material.metalness : 0,
-          opacity: object.material.opacity !== undefined ? object.material.opacity : 1,
-          map: object.material.map || null,
-          textureRepeat: { 
-            x: sharedRepeat.x || 1,
-            y: sharedRepeat.y || 1
-          },
-          normalMap: object.material.normalMap || null,
-          normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0,
-          roughnessMap: object.material.roughnessMap || null,
-          metalnessMap: object.material.metalnessMap || null,
-          alphaMap: object.material.alphaMap || null,
-          aoMap: object.material.aoMap || null,
-          aoMapIntensity: object.material.aoMapIntensity !== undefined ? object.material.aoMapIntensity : 1.0,
-          sheenRoughness: object.material.sheenRoughness !== undefined ? object.material.sheenRoughness : 0,
-          sheenColor: object.material.sheenColor ? {
-            r: object.material.sheenColor.r,
-            g: object.material.sheenColor.g,
-            b: object.material.sheenColor.b
-          } : '#ffffff',
-          sheenColorMap: object.material.sheenColorMap || null,
-          // Update this to use the new sheenRepeat values
-          sheenColorMapRepeat: { 
-            x: sheenRepeat.x || 1,
-            y: sheenRepeat.y || 1
-          },
-          sheenColorMap_channel: object.material.sheenColorMap?.channel || 0
-        };
-        
-        setMaterial(materialData);
-      } else {
-        console.log('No material found for mesh');
-        setMaterial(null);
-        setIsMeshPhysicalMaterial(false);
+        // Update the material with sheen-specific properties
+        setMaterial(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            sheenColorMapRepeat: { 
+              x: sheenRepeat.x || 1,
+              y: sheenRepeat.y || 1
+            },
+          };
+        });
       }
     } catch (error) {
-      console.error('Error accessing material:', error);
-      setMaterial(null);
-      setIsMeshPhysicalMaterial(false);
+      console.error('Error accessing sheen material properties:', error);
     }
   }, [selectedNode, modelViewerRef, variantChangeCounter]);
 
@@ -564,6 +434,22 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
     return parseFloat(cleaned) / 100;
   };
   
+  // Helper component to display texture information (read-only)
+  const TextureInfo = ({ label, hasTexture }: { label: string, hasTexture: boolean }) => (
+    <div className="flex items-center justify-between">
+      <label className="text-sm">{label}</label>
+      <div className="flex items-center">
+        <div 
+          className="w-24 h-6 bg-gray-100 rounded overflow-hidden flex items-center justify-center"
+          title={hasTexture ? `${label} texture is applied` : `No ${label.toLowerCase()} texture applied`}
+        >
+          <div className={`text-xs ${hasTexture ? 'text-gray-500' : 'text-gray-400'} truncate px-1`}>
+            {hasTexture ? 'Texture ✓' : 'None'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="text-sm">
@@ -586,13 +472,11 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           debounceTime={50}
         />
         
-        {/* Base Color Map/Texture */}
-        <TextureMapInput
-          label="Base Color Map"
-          textureType="map"
-          hasTexture={!!material.map}
-          onTextureUpload={handleTextureUpload}
-        />
+        {/* Base Color Map/Texture (Read-only) 
+        <TextureInfo 
+          label="Base Color Map" 
+          hasTexture={!!material.map} 
+        />*/}
 
         {/* Roughness */}
         <div className="flex items-center justify-between">
@@ -612,13 +496,11 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           </div>
         </div>
         
-        {/* Roughness Map */}
-        <TextureMapInput
-          label="Roughness Map"
-          textureType="roughnessMap"
-          hasTexture={!!material.roughnessMap}
-          onTextureUpload={handleTextureUpload}
-        />
+        {/* Roughness Map (Read-only) 
+        <TextureInfo 
+          label="Roughness Map" 
+          hasTexture={!!material.roughnessMap} 
+        />*/}
         
         {/* Metalness */}
         <div className="flex items-center justify-between">
@@ -638,21 +520,17 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           </div>
         </div>
                 
-        {/* Metalness Map */}
-        <TextureMapInput
-          label="Metalness Map"
-          textureType="metalnessMap"
-          hasTexture={!!material.metalnessMap}
-          onTextureUpload={handleTextureUpload}
-        />
+        {/* Metalness Map (Read-only) 
+        <TextureInfo 
+          label="Metalness Map" 
+          hasTexture={!!material.metalnessMap} 
+        />*/}
         
-        {/* Normal Map */}
-        <TextureMapInput
-          label="Normal Map"
-          textureType="normalMap"
-          hasTexture={!!material.normalMap}
-          onTextureUpload={handleTextureUpload}
-        />
+        {/* Normal Map (Read-only) 
+        <TextureInfo 
+          label="Normal Map" 
+          hasTexture={!!material.normalMap} 
+        />*/}
 
         {/* Normal Map Intensity - only show if normal map exists */}
         {material.normalMap && (
@@ -728,13 +606,11 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
           </div>
         )}
         
-        {/* AO Map */}
-        <TextureMapInput
-          label="Ambient Occlusion"
-          textureType="aoMap"
-          hasTexture={!!material.aoMap}
-          onTextureUpload={handleTextureUpload}    
-        />
+        {/* AO Map (Read-only) 
+        <TextureInfo 
+          label="Ambient Occlusion" 
+          hasTexture={!!material.aoMap} 
+        />*/}
         
         {/* AO Map Intensity (only show if AO map exists) */}
         {material.aoMap && (
@@ -770,7 +646,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
         {advancedOpen && (
           <div className="mt-4 space-y-4">
             {/* Opacity */}
-            <div className="flex items-center justify-between">
+          {/*    <div className="flex items-center justify-between">
               <label className="text-sm">Opacity</label>
               <div className="flex items-center">
                 <SliderWithInput
@@ -787,13 +663,11 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
               </div>
             </div>
             
-            {/* Alpha Map (Opacity Map) */}
-            <TextureMapInput
-              label="Opacity Map"
-              textureType="alphaMap"
-              hasTexture={!!material.alphaMap}
-              onTextureUpload={handleTextureUpload}
-            />
+           Alpha Map (Opacity Map) - Read-only 
+            <TextureInfo 
+              label="Opacity Map" 
+              hasTexture={!!material.alphaMap} 
+            />*/}
             
             {/* Sheen section - only show for MeshPhysicalMaterial */}
             {isMeshPhysicalMaterial ? (
@@ -826,13 +700,11 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
                   debounceTime={50}
                 />
 
-                {/* Sheen Color Map */}
-                <TextureMapInput
-                  label="Sheen Color Map"
-                  textureType="sheenColorMap"
-                  hasTexture={!!material.sheenColorMap}
-                  onTextureUpload={handleTextureUpload}
-                />
+                {/* Sheen Color Map - Read-only 
+                <TextureInfo 
+                  label="Sheen Color Map" 
+                  hasTexture={!!material.sheenColorMap} 
+                />*/}
 
                 {/* Sheen Color Map Tiling (separate from base maps) */}
                 {material.sheenColorMap && (
@@ -889,7 +761,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
                   </div>
                 )}
 
-                {/* UV Set Selection */}
+                {/* UV Set Selection 
                 <div className="flex items-center justify-between">
                   <label className="text-sm">UV Set</label>
                   <div className="flex space-x-2">
@@ -914,7 +786,7 @@ const handleTextureUpload = async (event: React.ChangeEvent<HTMLInputElement>, t
                       UV1
                     </button>
                   </div>
-                </div>
+                </div>*/}
               </div>
             ) : (
               <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">

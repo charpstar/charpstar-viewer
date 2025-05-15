@@ -1,6 +1,7 @@
 // src/components/demo/VariantSelector.tsx
-import React, { useState, useEffect } from 'react';
-import { Check } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Check, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface VariantSelectorProps {
   modelViewerRef: React.RefObject<any>;
@@ -14,8 +15,10 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   const [variants, setVariants] = useState<string[]>([]);
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   // Track if we're on the initial page load
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Load variants whenever the model changes
   useEffect(() => {
@@ -67,17 +70,23 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
       let attempts = 0;
       const maxAttempts = 10;
       
-      const intervalId = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         attempts++;
         
         if (fetchVariants() || attempts >= maxAttempts) {
-          clearInterval(intervalId);
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
           setLoading(false);
         }
       }, 300);
       
       return () => {
-        clearInterval(intervalId);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       };
     }
   }, [modelViewerRef, modelName, isInitialLoad]);
@@ -124,6 +133,23 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
       console.error('Error selecting variant:', error);
     }
   };
+
+  // Filter variants based on search query
+  const filteredVariants = searchQuery
+    ? variants.filter(variant => 
+        variant.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : variants;
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
   
   // If loading or no variants available
   if (loading) {
@@ -143,37 +169,63 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   }
   
   return (
-    <div className="space-y-3">
-      {variants.length > 0 && (
-        <p className="text-xs text-gray-500">
-          {variants.length} {variants.length === 1 ? 'variant' : 'variants'} available
-        </p>
-      )}
-      
-      <div className="space-y-2">
-        {variants.map((variant) => (
-          <div 
-            key={variant}
-            className={`border rounded-md ${
-              currentVariant === variant 
-                ? 'border-blue-500 bg-blue-50' 
-                : 'border-gray-200 hover:border-gray-300'
-            } transition-colors duration-150 cursor-pointer`}
-            onClick={() => handleSelectVariant(variant)}
+    <div className="space-y-2 pb-4">
+      {/* Search box */}
+      <div className="relative mb-3">
+        <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+          <Search size={16} className="text-gray-400" />
+        </div>
+        <Input
+          type="text"
+          placeholder="Search variants..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="pl-8 pr-8 py-1 h-8 text-sm bg-gray-50 border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+        />
+        {searchQuery && (
+          <button
+            onClick={clearSearch}
+            className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 hover:text-gray-600"
           >
-            <div className="flex items-center p-2">
-              <div className="flex-1">
-                <div className="text-xs">{variant}</div>
-              </div>
-              
-              {currentVariant === variant && (
-                <div className="flex-shrink-0">
-                  <Check size={14} className="text-blue-600" />
-                </div>
-              )}
-            </div>
+            <span className="text-xs">✕</span>
+          </button>
+        )}
+      </div>
+      
+      {/* Variants count */}
+      <div className="text-xs text-gray-500 mb-2">
+        {filteredVariants.length === variants.length 
+          ? `${variants.length} variants available` 
+          : `Showing ${filteredVariants.length} of ${variants.length} variants`
+        }
+      </div>
+      
+      {/* Variants list */}
+      <div className="grid grid-cols-1 gap-2 max-h-96 overflow">
+        {filteredVariants.length === 0 ? (
+          <div className="text-gray-500 text-xs italic p-2 text-center">
+            No variants match your search
           </div>
-        ))}
+        ) : (
+          filteredVariants.map((variant, index) => (
+            <div 
+              key={index}
+              className={`p-2 cursor-pointer border rounded-sm ${
+                currentVariant === variant 
+                  ? 'bg-blue-50 border-blue-200' 
+                  : 'bg-white border-gray-200 hover:bg-gray-50'
+              }`}
+              onClick={() => handleSelectVariant(variant)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-sm truncate">{variant}</div>
+                {currentVariant === variant && (
+                  <div className="text-xs text-blue-600 ml-1">✓</div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

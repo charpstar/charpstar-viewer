@@ -3,13 +3,20 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { initializeModelViewer } from '@/utils/modelViewerInitializer';
+import { useParams } from 'next/navigation';
+import { getClientConfig } from '@/config/clientConfig';
 
 const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
+  const params = useParams();
+  const clientName = params?.client;
   const [modelSrc, setModelSrc] = useState(clientModelUrl || null);
   const [isClient, setIsClient] = useState(false);
   const fileNameRef = useRef('model');
   const modelLoadedRef = useRef(false);
   const modelViewerElementRef = useRef(null);
+
+  // Get the appropriate environment image based on client
+  const environmentImage = getClientConfig(clientName).hdrPath;
 
   useEffect(() => {
     setIsClient(true);
@@ -109,7 +116,7 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
             disable-pan
             interaction-prompt = "none"
             shadow-intensity="0"
-            environment-image="https://sweef.charpstar.net/HDR/Sweef-HDR.hdr"
+            environment-image={environmentImage}
             exposure="1"
             tone-mapping="auto"
             camera-orbit="0deg 75deg auto"

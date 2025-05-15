@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import https from 'https';
 import fetch from 'node-fetch';
+import { getDefaultClientName, getClientConfig } from '@/config/clientConfig';
 
 const REGION = process.env.BUNNY_REGION || '';
 const BASE_HOSTNAME = 'storage.bunnycdn.com';
@@ -10,6 +11,7 @@ const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
 const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || ''; 
 const BUNNY_API_KEY = process.env.BUNNY_API_KEY || ''; 
 const BUNNY_PULL_ZONE_URL = process.env.BUNNY_PULL_ZONE_URL || 'cdn.charpstar.net';
+const DEFAULT_CLIENT = getDefaultClientName();
 
 // Helper to extract the zone name and base path from the environment variable
 const getStorageZoneDetails = () => {
@@ -68,9 +70,17 @@ export async function POST(request: NextRequest) {
     const { zoneName, basePath } = getStorageZoneDetails();
     console.log(`Storage zone: ${zoneName}, base path: ${basePath}`);
     
-    // Construct the path for the file in BunnyCDN
-    const clientName = requestBody.client || 'SweefV2';
-    const filePath = `${basePath}${clientName}/${filename}`;
+    // Get client name from request or use default
+    const clientName = requestBody.client || DEFAULT_CLIENT;
+    
+    // Get client-specific BunnyCDN configuration
+    const clientConfig = getClientConfig(clientName);
+    
+    // Determine the appropriate folder based on file type
+    let targetFolder = clientConfig.bunnyCdn.resourcesFolder;
+    
+    // Construct the path for the file in BunnyCDN using client-specific paths
+    const filePath = `${clientConfig.bunnyCdn.basePath}/${targetFolder}/${filename}`;
     console.log(`Full file path for upload: ${filePath}`);
     
     // Upload to BunnyCDN

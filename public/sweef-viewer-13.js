@@ -40765,7 +40765,7 @@ class GLTFExternalMaterialsExtension {
   async loadMaterials(json) {
     if (typeof json.materials === 'string') {
       const materialsPath = json.materials;
-      const resolvedURL = this.parser.options.path + materialsPath;
+      const resolvedURL = this.parser.options.path + "resources/" + materialsPath;
       
       try {
         console.log('Loading external materials from:', resolvedURL);
@@ -40798,7 +40798,7 @@ class GLTFExternalMaterialsExtension {
   async loadTextures(json) {
     if (typeof json.textures === 'string') {
       const texturesPath = json.textures;
-      const resolvedURL = this.parser.options.path + texturesPath;
+      const resolvedURL = this.parser.options.path + "resources/" + texturesPath;
       
       try {
         console.log('Loading external textures from:', resolvedURL);
@@ -40831,7 +40831,7 @@ class GLTFExternalMaterialsExtension {
   async loadImages(json) {
     if (json.externalImagesUri) {
       const imagesPath = json.externalImagesUri;
-      const resolvedURL = this.parser.options.path + imagesPath;
+      const resolvedURL = this.parser.options.path + "resources/" + imagesPath;
       
       try {
         console.log('Loading external images from:', resolvedURL);
@@ -54675,7 +54675,7 @@ async downloadMaterialsJson() {
           const urlParts = src.split('/');
           urlParts.pop(); // Remove filename
           const baseUrl = urlParts.join('/') + '/';
-          const materialsUrl = baseUrl + 'materials.json';
+          const materialsUrl = baseUrl + 'resources/materials.json';
 
           
           const response = await fetch(materialsUrl);
@@ -55040,7 +55040,7 @@ async downloadMaterialsJson() {
 	    
 	    // 1. Load materials.json if needed
 	    if (modelViewer.parser?.json?.materials === "materials.json") {
-	      const materialsUrl = baseUrl + 'materials.json';
+		  const materialsUrl = baseUrl + 'resources/materials.json';
 	      console.log('Loading external materials from:', materialsUrl);
 	      
 	      try {

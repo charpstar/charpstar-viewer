@@ -5,6 +5,7 @@ import path from 'path';
 import os from 'os';
 import https from 'https';
 import fs from 'fs';
+import { getDefaultClientName, getClientConfig } from '@/config/clientConfig';
 
 const REGION = process.env.BUNNY_REGION || '';
 const BASE_HOSTNAME = 'storage.bunnycdn.com';
@@ -13,6 +14,7 @@ const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
 const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || ''; 
 const BUNNY_API_KEY = process.env.BUNNY_API_KEY || ''; 
 const BUNNY_PULL_ZONE_URL = process.env.BUNNY_PULL_ZONE_URL || 'cdn.charpstar.net';
+const DEFAULT_CLIENT = getDefaultClientName();
 
 // Helper to extract the zone name and base path from the environment variable
 const getStorageZoneDetails = () => {
@@ -71,11 +73,14 @@ export async function POST(request: NextRequest) {
       const { zoneName, basePath } = getStorageZoneDetails();
       
       // Get the client and target directory from the form data
-      const clientName = formData.get('client') as string || 'SweefV2';
+      const clientName = formData.get('client') as string || DEFAULT_CLIENT;
       const targetDirectory = formData.get('targetDirectory') as string || '';
       
+      // Get client-specific BunnyCDN configuration
+      const clientConfig = getClientConfig(clientName);
+      
       // Construct the target path for the file in BunnyCDN
-      let filePath = `${basePath}${clientName}/`;
+      let filePath = `${clientConfig.bunnyCdn.basePath}/${clientConfig.bunnyCdn.imagesFolder}/`;
       
       // Add the target directory if specified
       if (targetDirectory) {

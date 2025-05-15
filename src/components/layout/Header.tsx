@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Save, Download, ArrowLeft } from 'lucide-react';
 import { useParams, usePathname } from 'next/navigation';
-import { isValidClient } from '@/config/clients';
+import { isValidClient } from '@/config/clientConfig';
 
 interface HeaderProps {
   modelViewerRef?: React.RefObject<any>;
