@@ -12,6 +12,9 @@ export interface ClientConfig {
   scriptPath: string;
   resourcesPath: string;
   
+  // Security
+  livePassword: string;
+  
   // BunnyCDN specific paths
   bunnyCdn: {
     basePath: string;          
@@ -28,6 +31,7 @@ const DEFAULT_CONFIG: ClientConfig = {
   hdrPath: "https://cdn.charpstar.net/HDR/default.hdr",
   scriptPath: "/model-viewer.js",
   resourcesPath: "",
+  livePassword: "",
   bunnyCdn: {
     basePath: "Client-Editor/Default",
     resourcesFolder: "resources",
@@ -44,6 +48,7 @@ export const clients: Record<string, ClientConfig> = {
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
     scriptPath: "/sweef-viewer-13.js",
     resourcesPath: "SweefV2",
+    livePassword: "sweef2024",
     bunnyCdn: {
       basePath: "Client-Editor/SweefV2",
       resourcesFolder: "resources",
@@ -57,6 +62,7 @@ export const clients: Record<string, ClientConfig> = {
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
     scriptPath: "/sweef-viewer-13.js",
     resourcesPath: "Artwood",
+    livePassword: "artwood2024",
     bunnyCdn: {
       basePath: "Client-Editor/ArtwoodTest",
       resourcesFolder: "resources",

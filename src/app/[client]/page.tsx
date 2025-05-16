@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import Header from '@/components/layout/Header';
 import SaveProgressOverlay from '@/components/SaveProgressOverlay';
+import SavePasswordDialog from '@/components/SavePasswordDialog';
 import InputLocker from '@/components/InputLocker';
 import { notFound } from 'next/navigation';
 
@@ -23,6 +24,9 @@ export default function ClientPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveProgress, setSaveProgress] = useState(0);
   const [saveMessage, setSaveMessage] = useState("Preparing to save changes...");
+  
+  // Password dialog state
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
   // Validate client
   if (!isValidClient(clientName)) {
@@ -136,8 +140,13 @@ export default function ClientPage() {
     setSelectedNode(node);
   };
 
-  // Enhanced handleSave function with progress tracking
+  // Enhanced handleSave function with password confirmation
   const handleSave = async () => {
+    setIsPasswordDialogOpen(true);
+  };
+
+  // New function to handle the actual save after password confirmation
+  const handleConfirmedSave = async () => {
     if (!modelViewerRef.current?.saveGLTF) {
       console.error('saveGLTF method not available');
       return;
@@ -284,6 +293,16 @@ export default function ClientPage() {
     }
   };
 
+  // Handle password confirmation
+  const handlePasswordConfirm = (password: string) => {
+    const isCorrect = password === clientConfig.livePassword;
+    if (isCorrect) {
+      setIsPasswordDialogOpen(false);
+      handleConfirmedSave();
+    }
+    return isCorrect; // Return whether the password was correct
+  };
+
   return (
     <div className="flex flex-col h-screen">
       {/* Save Progress Overlay */}
@@ -291,6 +310,13 @@ export default function ClientPage() {
         isVisible={isSaving} 
         progress={saveProgress} 
         message={saveMessage}
+      />
+      
+      {/* Password Confirmation Dialog */}
+      <SavePasswordDialog
+        isOpen={isPasswordDialogOpen}
+        onClose={() => setIsPasswordDialogOpen(false)}
+        onConfirm={handlePasswordConfirm}
       />
       
       {/* Input Locker - Blocks all user interaction when saving */}
