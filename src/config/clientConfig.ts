@@ -14,9 +14,9 @@ export interface ClientConfig {
   
   // BunnyCDN specific paths
   bunnyCdn: {
-    basePath: string;         // Base path in BunnyCDN storage
-    resourcesFolder: string;  // Folder for resources (materials.json, textures.json, etc.)
-    imagesFolder: string;     // Folder for image uploads
+    basePath: string;          
+    resourcesFolder: string; 
+    imagesFolder: string;      
   };
 }
 
@@ -50,15 +50,15 @@ export const clients: Record<string, ClientConfig> = {
       imagesFolder: "images"
     }
   },
-  Artwood: {
-    name: "Artwood",
+  ArtwoodTest: {
+    name: "ArtwoodTest",
     description: "Artwood Editor",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/Art1.gltf",
-    hdrPath: "https://cdn.charpstar.net/HDR/default.hdr",
-    scriptPath: "/model-viewer.js",
+    modelUrl: "https://cdn.charpstar.net/Client-Editor/ArtwoodTest/VAL-3.gltf",
+    hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
+    scriptPath: "/sweef-viewer-13.js",
     resourcesPath: "Artwood",
     bunnyCdn: {
-      basePath: "Client-Editor/Artwood",
+      basePath: "Client-Editor/ArtwoodTest",
       resourcesFolder: "resources",
       imagesFolder: "images"
     }
