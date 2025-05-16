@@ -43,7 +43,6 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   variantChangeCounter = 0 // Default to 0
 }) => {
   const [material, setMaterial] = useState<Material | null>(null);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [isMeshPhysicalMaterial, setIsMeshPhysicalMaterial] = useState(false);
   const [uniformTiling, setUniformTiling] = useState(true);
   const [uniformSheenTiling, setUniformSheenTiling] = useState(true);
@@ -633,167 +632,164 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         )}
       </div>
       
-      {/* Advanced options */}
-      <div className="mt-4 border-t border-gray-200 pt-2">
-        <button 
-          className="flex items-center text-sm font-medium w-full justify-between py-1"
-          onClick={() => setAdvancedOpen(!advancedOpen)}
-        >
-          Advanced options
-          {advancedOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </button>
+      {/* Separator for better visual distinction between base and advanced properties */}
+      <div className="my-6 border-t border-gray-300"></div>
+      
+      {/* Advanced options header - now just a label, not a toggle */}
+      <div className="flex items-center text-sm font-medium w-full justify-between py-1">
+        Advanced options
+      </div>
+      
+      <div className="mt-4 space-y-4">
+        {/* Opacity - Commented out as requested */}
+        {/*
+        <div className="flex items-center justify-between">
+          <label className="text-sm">Opacity</label>
+          <div className="flex items-center">
+            <SliderWithInput
+              min={0}
+              max={1}
+              step={0.01}
+              value={material.opacity !== undefined ? material.opacity : 1}
+              onChange={(value) => handlePropertyChange('opacity', value)}
+              displayFormat={(value) => `${Math.round(value * 100)}%`}
+              parseInput={parsePercentage}
+              sliderWidth="w-28"
+              inputWidth="w-12"
+            />
+          </div>
+        </div>
+        */}
         
-        {advancedOpen && (
-          <div className="mt-4 space-y-4">
-            {/* Opacity */}
-          {/*    <div className="flex items-center justify-between">
-              <label className="text-sm">Opacity</label>
-              <div className="flex items-center">
-                <SliderWithInput
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={material.opacity !== undefined ? material.opacity : 1}
-                  onChange={(value) => handlePropertyChange('opacity', value)}
-                  displayFormat={(value) => `${Math.round(value * 100)}%`}
-                  parseInput={parsePercentage}
-                  sliderWidth="w-28"
-                  inputWidth="w-12"
-                />
-              </div>
+        {/* Alpha Map (Opacity Map) - Read-only 
+        <TextureInfo 
+          label="Opacity Map" 
+          hasTexture={!!material.alphaMap} 
+        />*/}
+        
+        {/* Sheen section - only show for MeshPhysicalMaterial */}
+        {isMeshPhysicalMaterial ? (
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Sheen Properties</h3>
+            
+            {/* Sheen Roughness */}
+            <div className="flex items-center justify-between">
+            <label className="text-sm">Sheen Roughness</label>
+            <div className="flex items-center">
+              <SliderWithInput
+                min={0}
+                max={1}
+                step={0.01}
+                value={material.sheenRoughness || 0}
+                onChange={(value) => handlePropertyChange('sheenRoughness', value)}
+                displayFormat={(value) => `${Math.round(value * 100)}%`}
+                parseInput={parsePercentage}
+                sliderWidth="w-28"
+                inputWidth="w-12"
+              />
             </div>
+          </div>
             
-           Alpha Map (Opacity Map) - Read-only 
+            {/* Sheen Color - Using DebouncedColorPicker */}
+            <DebouncedColorPicker 
+              label="Sheen Color"
+              color={getColorHex(material.sheenColor)}
+              onChange={(colorHex) => handleColorChange(colorHex, 'sheenColor')}
+              debounceTime={50}
+            />
+
+            {/* Sheen Color Map - Read-only 
             <TextureInfo 
-              label="Opacity Map" 
-              hasTexture={!!material.alphaMap} 
+              label="Sheen Color Map" 
+              hasTexture={!!material.sheenColorMap} 
             />*/}
-            
-            {/* Sheen section - only show for MeshPhysicalMaterial */}
-            {isMeshPhysicalMaterial ? (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium">Sheen Properties</h3>
-                
-                {/* Sheen Roughness */}
-                <div className="flex items-center justify-between">
-                <label className="text-sm">Sheen Roughness</label>
-                <div className="flex items-center">
-                  <SliderWithInput
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={material.sheenRoughness || 0}
-                    onChange={(value) => handlePropertyChange('sheenRoughness', value)}
-                    displayFormat={(value) => `${Math.round(value * 100)}%`}
-                    parseInput={parsePercentage}
-                    sliderWidth="w-28"
-                    inputWidth="w-12"
-                  />
+
+            {/* Sheen Color Map Tiling (separate from base maps) */}
+            {material.sheenColorMap && (
+              <div className="space-y-2 p-2 rounded border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs font-medium text-gray-700">Sheen Tiling</div>
+                  <button 
+                    onClick={() => setUniformSheenTiling(!uniformSheenTiling)}
+                    className="flex items-center text-xs text-gray-600 p-1 rounded hover:bg-gray-100"
+                    title={uniformSheenTiling ? "Using uniform tiling (X=Y)" : "Using separate X and Y tiling"}
+                  >
+                    {uniformSheenTiling ? <Link size={16} /> : <Link2Off size={16} />}
+                  </button>
                 </div>
-              </div>
                 
-                {/* Sheen Color - Using DebouncedColorPicker */}
-                <DebouncedColorPicker 
-                  label="Sheen Color"
-                  color={getColorHex(material.sheenColor)}
-                  onChange={(colorHex) => handleColorChange(colorHex, 'sheenColor')}
-                  debounceTime={50}
-                />
-
-                {/* Sheen Color Map - Read-only 
-                <TextureInfo 
-                  label="Sheen Color Map" 
-                  hasTexture={!!material.sheenColorMap} 
-                />*/}
-
-                {/* Sheen Color Map Tiling (separate from base maps) */}
-                {material.sheenColorMap && (
-                  <div className="space-y-2 p-2 rounded border border-gray-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs font-medium text-gray-700">Sheen Tiling</div>
-                      <button 
-                        onClick={() => setUniformSheenTiling(!uniformSheenTiling)}
-                        className="flex items-center text-xs text-gray-600 p-1 rounded hover:bg-gray-100"
-                        title={uniformSheenTiling ? "Using uniform tiling (X=Y)" : "Using separate X and Y tiling"}
-                      >
-                        {uniformSheenTiling ? <Link size={16} /> : <Link2Off size={16} />}
-                      </button>
+                {uniformSheenTiling ? (
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-gray-600">Uniform Tiling</label>
+                    <input
+                      type="number"
+                      min="0.1"
+                      step="0.1"
+                      value={(material.sheenColorMapRepeat?.x || 1)}
+                      onChange={(e) => handleUniformSheenTilingChange(parseFloat(e.target.value))}
+                      className="w-20 text-xs p-1 border rounded"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-gray-600">Tiling X</label>
+                      <input
+                        type="number"
+                        min="0.1"
+                        step="0.1"
+                        value={material.sheenColorMapRepeat?.x || 1}
+                        onChange={(e) => handleSheenTilingChange('x', parseFloat(e.target.value))}
+                        className="w-20 text-xs p-1 border rounded"
+                      />
                     </div>
-                    
-                    {uniformSheenTiling ? (
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-600">Uniform Tiling</label>
-                        <input
-                          type="number"
-                          min="0.1"
-                          step="0.1"
-                          value={(material.sheenColorMapRepeat?.x || 1)}
-                          onChange={(e) => handleUniformSheenTilingChange(parseFloat(e.target.value))}
-                          className="w-20 text-xs p-1 border rounded"
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-600">Tiling X</label>
-                          <input
-                            type="number"
-                            min="0.1"
-                            step="0.1"
-                            value={material.sheenColorMapRepeat?.x || 1}
-                            onChange={(e) => handleSheenTilingChange('x', parseFloat(e.target.value))}
-                            className="w-20 text-xs p-1 border rounded"
-                          />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-600">Tiling Y</label>
-                          <input
-                            type="number"
-                            min="0.1"
-                            step="0.1"
-                            value={material.sheenColorMapRepeat?.y || 1}
-                            onChange={(e) => handleSheenTilingChange('y', parseFloat(e.target.value))}
-                            className="w-20 text-xs p-1 border rounded"
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-gray-600">Tiling Y</label>
+                      <input
+                        type="number"
+                        min="0.1"
+                        step="0.1"
+                        value={material.sheenColorMapRepeat?.y || 1}
+                        onChange={(e) => handleSheenTilingChange('y', parseFloat(e.target.value))}
+                        className="w-20 text-xs p-1 border rounded"
+                      />
+                    </div>
+                  </>
                 )}
-
-                {/* UV Set Selection 
-                <div className="flex items-center justify-between">
-                  <label className="text-sm">UV Set</label>
-                  <div className="flex space-x-2">
-                    <button
-                      className={`px-2 py-1 text-xs rounded ${
-                        material.sheenColorMap_channel === 0 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-gray-200 hover:bg-gray-300'
-                      }`}
-                      onClick={() => handleUVSetChange(0)}
-                    >
-                      UV0
-                    </button>
-                    <button
-                      className={`px-2 py-1 text-xs rounded ${
-                        material.sheenColorMap_channel === 1 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-gray-200 hover:bg-gray-300'
-                      }`}
-                      onClick={() => handleUVSetChange(1)}
-                    >
-                      UV1
-                    </button>
-                  </div>
-                </div>*/}
-              </div>
-            ) : (
-              <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
-                Sheen properties are only available for MeshPhysicalMaterial.
-                Current material type: {material.type}
               </div>
             )}
+
+            {/* UV Set Selection 
+            <div className="flex items-center justify-between">
+              <label className="text-sm">UV Set</label>
+              <div className="flex space-x-2">
+                <button
+                  className={`px-2 py-1 text-xs rounded ${
+                    material.sheenColorMap_channel === 0 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                  onClick={() => handleUVSetChange(0)}
+                >
+                  UV0
+                </button>
+                <button
+                  className={`px-2 py-1 text-xs rounded ${
+                    material.sheenColorMap_channel === 1 
+                      ? 'bg-blue-500 text-white' 
+                      : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                  onClick={() => handleUVSetChange(1)}
+                >
+                  UV1
+                </button>
+              </div>
+            </div>*/}
+          </div>
+        ) : (
+          <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
+            Sheen properties are only available for MeshPhysicalMaterial.
+            Current material type: {material.type}
           </div>
         )}
       </div>

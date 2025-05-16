@@ -26,15 +26,7 @@ const parseModelName = (filename: string) => {
   
   // Remove common suffixes for cleaner display
   displayName = displayName
-    .replace(/-LC$/, '') // Left Corner suffix
-    .replace(/-RI$/, '') // Right Interior suffix
-    .replace(/-L-CHL$/, '') // Left Chaise Lounge suffix
-    .replace(/-L-WOL$/, '') // Left Wood Leg suffix
-    .replace(/-PL-L-CHL$/, '') // Platform Left Chaise Lounge suffix
-    .replace(/-PL-L-WOL$/, '') // Platform Left Wood Leg suffix
-    .replace(/-R-L-CHL$/, '') // Right Left Chaise Lounge suffix
-    .replace(/-R-L-WOL$/, ''); // Right Left Wood Leg suffix
-  
+
   return {
     fullName: name,
     category,
