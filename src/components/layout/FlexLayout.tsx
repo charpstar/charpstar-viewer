@@ -278,11 +278,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
     if (!model || !isInitialized) return;
 
     Object.entries(visiblePanels).forEach(([panel, isVisible]) => {
-      const panelType = panel as
-        | "scene"
-        | "statistics"
-        | "materials"
-        | "variants";
+      const panelType = panel as "scene" | "materials" | "variants";
       const { tabsetId } = PANEL_CONFIG[panelType];
       const panelExists = model.getNodeById(tabsetId) !== undefined;
 
@@ -301,11 +297,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
 
       // Initial setup for panel visibility
       Object.entries(visiblePanels).forEach(([panel, isVisible]) => {
-        const panelType = panel as
-          | "scene"
-          | "statistics"
-          | "materials"
-          | "variants";
+        const panelType = panel as "scene" | "materials" | "variants";
         const { tabsetId } = PANEL_CONFIG[panelType];
         const panelExists = model.getNodeById(tabsetId) !== undefined;
 
@@ -345,9 +337,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
         Object.entries(PANEL_CONFIG).forEach(([panelType, config]) => {
           if (config.tabId === tabId) {
             // Update the visibility state in the parent component
-            onTogglePanel(
-              panelType as "scene" | "statistics" | "materials" | "variants"
-            );
+            onTogglePanel(panelType as "scene" | "materials" | "variants");
           }
         });
       }
@@ -360,9 +350,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
         Object.entries(PANEL_CONFIG).forEach(([panelType, config]) => {
           if (config.tabsetId === tabsetId) {
             // Update the visibility state in the parent component
-            onTogglePanel(
-              panelType as "scene" | "statistics" | "materials" | "variants"
-            );
+            onTogglePanel(panelType as "scene" | "materials" | "variants");
           }
         });
       }

@@ -25,13 +25,10 @@ interface HeaderProps {
   activeEnvironment: "v5" | "v6" | null;
   visiblePanels: {
     scene: boolean;
-    statistics: boolean;
     materials: boolean;
     variants: boolean;
   };
-  onTogglePanel: (
-    panel: "scene" | "statistics" | "materials" | "variants"
-  ) => void;
+  onTogglePanel: (panel: "scene" | "materials" | "variants") => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -46,9 +43,7 @@ const Header: React.FC<HeaderProps> = ({
   onTogglePanel,
 }) => {
   // Handle panel toggle with immediate UI feedback
-  const handlePanelToggle = (
-    panel: "scene" | "statistics" | "materials" | "variants"
-  ) => {
+  const handlePanelToggle = (panel: "scene" | "materials" | "variants") => {
     // Call the toggle function from props
     onTogglePanel(panel);
   };
@@ -77,12 +72,6 @@ const Header: React.FC<HeaderProps> = ({
               onCheckedChange={() => handlePanelToggle("scene")}
             >
               Scene Hierarchy
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={visiblePanels.statistics}
-              onCheckedChange={() => handlePanelToggle("statistics")}
-            >
-              Model Statistics
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={visiblePanels.materials}
