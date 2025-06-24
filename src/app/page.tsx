@@ -9,18 +9,104 @@ import "flexlayout-react/style/dark.css";
 import "@/styles/flexlayout-custom.css";
 
 export default function Home() {
+  // Use state for isSynsam to avoid hydration mismatch
+  const [isSynsam, setIsSynsam] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsSynsam(
+        new URLSearchParams(window.location.search).get("script") === "synsam"
+      );
+    }
+  }, []);
+
   const [modelStructure, setModelStructure] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [activeEnvironment, setActiveEnvironment] = useState<
-    "v5" | "v6" | null
-  >("v6"); // Set v6 as default
+    "v5" | "v6" | "synsam" | null
+  >(null); // Set after mount
   const [layoutModel, setLayoutModel] = useState<Model | null>(null);
   const [visiblePanels, setVisiblePanels] = useState({
     scene: true,
     materials: true,
     variants: true,
   });
+  const [exposure, setExposure] = useState(1.2);
+  const [toneMapping, setToneMapping] = useState("aces");
   const modelViewerRef = useRef<any>(null);
+
+  // Set activeEnvironment on mount based on isSynsam
+  useEffect(() => {
+    if (isSynsam) {
+      setActiveEnvironment("synsam");
+    } else {
+      setActiveEnvironment("v6");
+    }
+  }, [isSynsam]);
+
+  // Dynamically load the correct model-viewer script based on mode
+  useEffect(() => {
+    if (isSynsam) {
+      // Check if model-viewer is already defined
+      if (customElements.get("model-viewer")) {
+        console.log(
+          "model-viewer already defined, skipping space-opera.js load"
+        );
+        return;
+      }
+
+      // Check if space-opera.js is already loaded
+      if (document.querySelector('script[src="/space-opera.js"]')) {
+        console.log("space-opera.js already loaded");
+        return;
+      }
+
+      // Polyfill process for browser if not present
+      if (typeof window !== "undefined" && !(window as any).process) {
+        (window as any).process = { env: { NODE_ENV: "production" } };
+      }
+      console.log("Loading space-opera.js for Synsam mode");
+      const script = document.createElement("script");
+      script.src = "/space-opera.js";
+      script.async = true;
+      document.body.appendChild(script);
+      return () => {
+        console.log("Removing space-opera.js script");
+        document.body.removeChild(script);
+      };
+    } else {
+      // Check if model-viewer is already defined
+      if (customElements.get("model-viewer")) {
+        console.log(
+          "model-viewer already defined, skipping model-viewer.js load"
+        );
+        return;
+      }
+
+      // Check if model-viewer.js is already loaded
+      if (document.querySelector('script[src="/model-viewer.js"]')) {
+        console.log("model-viewer.js already loaded");
+        return;
+      }
+
+      // Only load the default model-viewer.js if NOT in Synsam mode
+      console.log("Loading model-viewer.js for standard mode");
+      const script = document.createElement("script");
+      script.type = "module";
+      script.src = "/model-viewer.js";
+      script.async = true;
+      document.body.appendChild(script);
+      return () => {
+        console.log("Removing model-viewer.js script");
+        document.body.removeChild(script);
+      };
+    }
+  }, [isSynsam]);
+
+  // Set Synsam HDR in shadow DOM if in Synsam mode
+  // useEffect(() => {
+  //   ... (removed - now handled in setupModelViewer)
+  // }, [isSynsam]);
 
   // Handler for node selection
   const handleNodeSelect = (node: any) => {
@@ -33,8 +119,6 @@ export default function Home() {
     console.log(
       `Toggling panel visibility: ${panel} → ${!visiblePanels[panel]}`
     );
-
-    // Update state with the new panel visibility
     setVisiblePanels((prev) => ({
       ...prev,
       [panel]: !prev[panel],
@@ -84,42 +168,70 @@ export default function Home() {
   };
 
   // Environment tester functions
-  const handleEnvironmentChange = (env: "v5" | "v6") => {
-    if (modelViewerRef.current) {
-      console.log(`Switching to ${env} environment`);
+  const handleEnvironmentChange = (env: "v5" | "v6" | "synsam") => {
+    if (env === "synsam") {
+      // Reload page with synsam script parameter
+      window.location.search = "?script=synsam";
+      return;
+    }
 
+    if (isSynsam) {
+      // If currently in Synsam mode and switching to V5/V6, reload without script param
+      window.location.search = ""; // Remove synsam param to go back to standard
+      return;
+    }
+
+    // Set the active environment state (this will trigger the useEffect to apply settings)
+    setActiveEnvironment(env);
+
+    // Try to apply settings immediately if model-viewer exists
+    const modelViewer = document.getElementById("model-viewer");
+    if (modelViewer) {
       if (env === "v5") {
-        modelViewerRef.current.setAttribute(
+        modelViewer.setAttribute(
           "environment-image",
           "https://cdn.charpstar.net/Demos/warm.hdr"
         );
-        modelViewerRef.current.setAttribute("exposure", "1.3");
-        modelViewerRef.current.setAttribute("tone-mapping", "commerce");
-        console.log(
-          "Applied V5 settings: warm.hdr, exposure 1.3, commerce tone-mapping"
-        );
+        modelViewer.setAttribute("exposure", exposure.toString());
+        modelViewer.setAttribute("tone-mapping", toneMapping);
       } else {
-        modelViewerRef.current.setAttribute(
+        modelViewer.setAttribute(
           "environment-image",
           "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
         );
-        modelViewerRef.current.setAttribute("exposure", "1.2");
-        modelViewerRef.current.setAttribute("tone-mapping", "aces");
-        console.log(
-          "Applied V6 settings: HDR_Furniture.hdr, exposure 1.2, aces tone-mapping"
-        );
+        modelViewer.setAttribute("exposure", exposure.toString());
+        modelViewer.setAttribute("tone-mapping", toneMapping);
       }
-
-      // Force a re-render by calling requestRender if available
-      if (typeof modelViewerRef.current.requestRender === "function") {
-        modelViewerRef.current.requestRender();
+      if (typeof (modelViewer as any).requestRender === "function") {
+        (modelViewer as any).requestRender();
       }
+    }
+    // If model-viewer doesn't exist yet, the settings will be applied when it's created (via useEffect)
+  };
 
-      setActiveEnvironment(env);
-    } else {
-      console.warn(
-        "Model viewer reference not available for environment change"
-      );
+  const handleExposureChange = (value: number) => {
+    setExposure(value);
+
+    // Apply to model-viewer immediately if it exists
+    const modelViewer = document.getElementById("model-viewer");
+    if (modelViewer) {
+      modelViewer.setAttribute("exposure", value.toString());
+      if (typeof (modelViewer as any).requestRender === "function") {
+        (modelViewer as any).requestRender();
+      }
+    }
+  };
+
+  const handleToneMappingChange = (value: string) => {
+    setToneMapping(value);
+
+    // Apply to model-viewer immediately if it exists
+    const modelViewer = document.getElementById("model-viewer");
+    if (modelViewer) {
+      modelViewer.setAttribute("tone-mapping", value);
+      if (typeof (modelViewer as any).requestRender === "function") {
+        (modelViewer as any).requestRender();
+      }
     }
   };
 
@@ -154,8 +266,39 @@ export default function Home() {
 
         modelViewer.addEventListener("load", fetchModelStructure);
 
-        // Apply the current environment settings
-        handleEnvironmentChange(activeEnvironment || "v6");
+        // Apply current environment settings if we have an active environment and not in Synsam mode
+        if (
+          !isSynsam &&
+          activeEnvironment &&
+          (activeEnvironment === "v5" || activeEnvironment === "v6")
+        ) {
+          if (activeEnvironment === "v5") {
+            modelViewer.setAttribute(
+              "environment-image",
+              "https://cdn.charpstar.net/Demos/warm.hdr"
+            );
+            modelViewer.setAttribute("exposure", exposure.toString());
+            modelViewer.setAttribute("tone-mapping", toneMapping);
+          } else if (activeEnvironment === "v6") {
+            modelViewer.setAttribute(
+              "environment-image",
+              "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
+            );
+            modelViewer.setAttribute("exposure", exposure.toString());
+            modelViewer.setAttribute("tone-mapping", toneMapping);
+          }
+        }
+
+        // Apply Synsam settings if in Synsam mode
+        if (isSynsam) {
+          console.log("Model-viewer found in Synsam mode, applying Synsam HDR");
+          modelViewer.setAttribute(
+            "environment-image",
+            "https://charpstar.se/3DTester/SynsamNewHDRI.jpg"
+          );
+          modelViewer.removeAttribute("tone-mapping");
+          console.log("Synsam HDR applied to model-viewer");
+        }
       }
     };
 
@@ -193,13 +336,17 @@ export default function Home() {
         modelViewerRef.current.removeEventListener("load", fetchModelStructure);
       }
     };
-  }, [activeEnvironment]);
+  }, [activeEnvironment, isSynsam, exposure, toneMapping]); // Add exposure and toneMapping to dependencies
 
   // Handler for variant change
   const handleVariantChange = () => {
     console.log("Variant changed, updating material view");
     // This will trigger a re-render of material properties
   };
+
+  if (typeof window !== "undefined" && !window.process) {
+    (window as any).process = { env: { NODE_ENV: "production" } };
+  }
 
   return (
     <div className="layout-container">
@@ -215,6 +362,10 @@ export default function Home() {
           activeEnvironment={activeEnvironment}
           visiblePanels={visiblePanels}
           onTogglePanel={handleTogglePanel}
+          exposure={exposure}
+          onExposureChange={handleExposureChange}
+          toneMapping={toneMapping}
+          onToneMappingChange={handleToneMappingChange}
         />
       </div>
 

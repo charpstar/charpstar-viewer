@@ -149,7 +149,7 @@ interface FlexLayoutProps {
   };
   onLayoutModelUpdate: (model: Model) => void;
   onTogglePanel: (panel: "scene" | "materials" | "variants") => void;
-  activeEnvironment: "v5" | "v6" | null;
+  activeEnvironment: "v5" | "v6" | "synsam" | null;
 }
 
 // Simple hook to replace useLayoutPersistence

@@ -44,9 +44,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background: #f9fafb;
+  --header: #f3f4f6;
+  --sidebar: #e5e7eb;
+  --viewer: #ffffff;
+  --text: #111827;
+  --accent: #3b82f6;
 }
 
 @theme inline {
@@ -90,25 +93,9 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-:root {
-  --background: #f9fafb;
-  --header: #f3f4f6;
-  --sidebar: #e5e7eb;
-  --viewer: #ffffff;
-  --text: #111827;
-  --accent: #3b82f6;
-}
-
 body {
   background-color: var(--background);
   color: var(--text);
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
 }
 
 /* Custom scrollbar styles */
@@ -171,4 +158,91 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Model-viewer dimension system CSS - extracted from model-viewer.js */
+.cmv-dot {
+  display: none;
+  border: none;
+  box-sizing: border-box;
+  background: #eeeeee;
+  pointer-events: none;
+  --min-hotspot-opacity: 0;
+}
+
+.cmv-dim {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: bold;
+  background-color: #eeeeee;
+  border-radius: 2px;
+  border: 1px solid #aabbaa;
+  box-sizing: border-box;
+  color: #333;
+  display: block;
+  overflow-wrap: break-word;
+  position: absolute;
+  width: max-content;
+  height: max-content;
+  transform: translate3d(-55%, -55%, 0);
+  pointer-events: none;
+  --min-hotspot-opacity: 0;
+}
+
+.cmv-dimensionLineContainer {
+  pointer-events: none;
+  position: fixed;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cmv-dimensionLine {
+  stroke: #999;
+  stroke-width: 2;
+  stroke-dasharray: 2;
+}
+
+.cmv-show {
+  --min-hotspot-opacity: 1;
+}
+
+.cmv-hide {
+  display: none;
+}
+
+.cmv-active {
+  box-shadow: 0 8px 8px -5px grey;
+}
+
+.cmv-tr-button-container {
+  display: flex;
+  z-index: 200;
+  position: absolute;
+  bottom: 15px;
+  right: 2px;
+  flex-direction: column;
+}
+
+.cmv-tr-button-container img {
+  margin-right: 10px;
+}
+
+.cmv-tr-button-container div {
+  box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset,
+    rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
+  margin-bottom: 10px;
 }

@@ -2,7 +2,6 @@
 
 import "./globals.css";
 import { Jost } from "next/font/google";
-import Script from "next/script";
 import { ReactNode } from "react";
 
 const jost = Jost({
@@ -23,16 +22,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className={`${jost.className} text-[14px]`}>
-        {/* Include your custom model-viewer.js by default */}
-        <Script
-          src="/model-viewer.js"
-          strategy="beforeInteractive"
-          type="module"
-          id="model-viewer-script"
-        />
-        {children}
-      </body>
+      <body className={`${jost.className} text-[14px]`}>{children}</body>
     </html>
   );
 }

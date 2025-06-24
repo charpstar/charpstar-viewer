@@ -12,7 +12,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
+import { Slider } from "@/components/ui/slider";
 import { Model } from "flexlayout-react";
 
 interface HeaderProps {
@@ -21,14 +24,18 @@ interface HeaderProps {
   onExportGLB: () => void;
   onExportGLTF: () => void;
   onExportUSDZ: () => void;
-  onEnvironmentChange: (type: "v5" | "v6") => void;
-  activeEnvironment: "v5" | "v6" | null;
+  onEnvironmentChange: (type: "v5" | "v6" | "synsam") => void;
+  activeEnvironment: "v5" | "v6" | "synsam" | null;
   visiblePanels: {
     scene: boolean;
     materials: boolean;
     variants: boolean;
   };
   onTogglePanel: (panel: "scene" | "materials" | "variants") => void;
+  exposure: number;
+  onExposureChange: (value: number) => void;
+  toneMapping: string;
+  onToneMappingChange: (value: string) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -41,6 +48,10 @@ const Header: React.FC<HeaderProps> = ({
   activeEnvironment,
   visiblePanels,
   onTogglePanel,
+  exposure,
+  onExposureChange,
+  toneMapping,
+  onToneMappingChange,
 }) => {
   // Handle panel toggle with immediate UI feedback
   const handlePanelToggle = (panel: "scene" | "materials" | "variants") => {
@@ -106,7 +117,85 @@ const Header: React.FC<HeaderProps> = ({
           >
             V6 ACES Tester
           </Button>
+          <Button
+            variant={activeEnvironment === "synsam" ? "default" : "outline"}
+            size="sm"
+            onClick={() => onEnvironmentChange("synsam")}
+            className="text-xs h-8"
+          >
+            Synsam Tester
+          </Button>
         </div>
+
+        {/* Environment Controls - Only show for V5/V6 */}
+        {(activeEnvironment === "v5" || activeEnvironment === "v6") && (
+          <div className="flex items-center space-x-4 border-x px-4">
+            {/* Exposure Slider */}
+            <div className="flex items-center space-x-2">
+              <label className="text-xs font-medium">Exposure:</label>
+              <div className="w-20">
+                <Slider
+                  value={[exposure]}
+                  onValueChange={(value) => onExposureChange(value[0])}
+                  min={0.1}
+                  max={3.0}
+                  step={0.1}
+                  className="w-full"
+                />
+              </div>
+              <span className="text-xs w-8 text-right">
+                {exposure.toFixed(1)}
+              </span>
+            </div>
+
+            {/* Tone Mapping Dropdown */}
+            <div className="flex items-center space-x-2">
+              <label className="text-xs font-medium">Tone Mapping:</label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-8 min-w-20"
+                  >
+                    {toneMapping.charAt(0).toUpperCase() + toneMapping.slice(1)}
+                    <ChevronsUpDown size={14} className="ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>Tone Mapping</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuRadioGroup
+                    value={toneMapping}
+                    onValueChange={onToneMappingChange}
+                  >
+                    <DropdownMenuRadioItem value="neutral">
+                      Neutral
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="aces">
+                      ACES
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="agx">
+                      AgX
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="cineon">
+                      Cineon
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="reinhard">
+                      Reinhard
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="linear">
+                      Linear
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="none">
+                      None
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        )}
 
         {/* Export Buttons */}
         <div className="flex space-x-2">

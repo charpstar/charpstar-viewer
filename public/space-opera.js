@@ -12,9 +12,6 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-
-const { log } = require("node:console");
-
 /* global Reflect, Promise */
 
 var extendStatics = function (d, b) {
@@ -2813,7 +2810,7 @@ const textFromCSSResult = (value) => {
     return value;
   } else {
     throw new Error(`Value passed to 'css' function must be a 'css' function result: ${value}. Use 'unsafeCSS' to pass non-literal values, but
-            take care to ensure page security.`);
+          take care to ensure page security.`);
   }
 };
 /**
@@ -3072,7 +3069,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -3148,7 +3145,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -3184,7 +3181,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -4383,7 +4380,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -4615,7 +4612,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -4863,7 +4860,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -5763,9 +5760,9 @@ function getIsExtends(element) {
   let is = "",
     typeExtension = "";
   /*
-  NOTE: technically, this can be wrong for certain svg elements
-  with `-` in the name like `<font-face>`
-  */
+NOTE: technically, this can be wrong for certain svg elements
+with `-` in the name like `<font-face>`
+*/
   if (localName) {
     if (localName.indexOf("-") > -1) {
       is = localName;
@@ -17780,16 +17777,16 @@ const LegacyElementMixin = dedupingMixin((base) => {
     }
 
     /**
-     * Convenience method to remove an event listener from a given element,
-     * late bound to a named method on this element.
-     *
-     * @param {?EventTarget} node Element to remove event listener from.
-     * @param {string} eventName Name of event to stop listening to.
-     * @param {string} methodName Name of handler method on `this` to not call
-     anymore.
-     * @return {void}
-     * @override
-     */
+   * Convenience method to remove an event listener from a given element,
+   * late bound to a named method on this element.
+   *
+   * @param {?EventTarget} node Element to remove event listener from.
+   * @param {string} eventName Name of event to stop listening to.
+   * @param {string} methodName Name of handler method on `this` to not call
+   anymore.
+   * @return {void}
+   * @override
+   */
     unlisten(node, eventName, methodName) {
       node = /** @type {!EventTarget} */ (node || this);
       let bl =
@@ -18569,25 +18566,25 @@ function mergeProperties(target, source) {
 const LegacyElement = LegacyElementMixin(HTMLElement);
 
 /* Note about construction and extension of legacy classes.
-  [Changed in Q4 2018 to optimize performance.]
+[Changed in Q4 2018 to optimize performance.]
 
-  When calling `Polymer` or `mixinBehaviors`, the generated class below is
-  made. The list of behaviors was previously made into one generated class per
-  behavior, but this is no longer the case as behaviors are now called
-  manually. Note, there may *still* be multiple generated classes in the
-  element's prototype chain if extension is used with `mixinBehaviors`.
+When calling `Polymer` or `mixinBehaviors`, the generated class below is
+made. The list of behaviors was previously made into one generated class per
+behavior, but this is no longer the case as behaviors are now called
+manually. Note, there may *still* be multiple generated classes in the
+element's prototype chain if extension is used with `mixinBehaviors`.
 
-  The generated class is directly tied to the info object and behaviors
-  used to create it. That list of behaviors is filtered so it's only the
-  behaviors not active on the superclass. In order to call through to the
-  entire list of lifecycle methods, it's important to call `super`.
+The generated class is directly tied to the info object and behaviors
+used to create it. That list of behaviors is filtered so it's only the
+behaviors not active on the superclass. In order to call through to the
+entire list of lifecycle methods, it's important to call `super`.
 
-  The element's `properties` and `observers` are controlled via the finalization
-  mechanism provided by `PropertiesMixin`. `Properties` and `observers` are
-  collected by manually traversing the prototype chain and merging.
+The element's `properties` and `observers` are controlled via the finalization
+mechanism provided by `PropertiesMixin`. `Properties` and `observers` are
+collected by manually traversing the prototype chain and merging.
 
-  To limit changes, the `_registered` method is called via `_initializeProperties`
-  and not `_finalizeClass`.
+To limit changes, the `_registered` method is called via `_initializeProperties`
+and not `_finalizeClass`.
 
 */
 /**
@@ -18686,12 +18683,12 @@ function GenerateClassFromInfo(info, Base, behaviors) {
      */
     _registered() {
       /* NOTE: `beforeRegister` is called here for bc, but the behavior
-        is different than in 1.x. In 1.0, the method was called *after*
-        mixing prototypes together but *before* processing of meta-objects.
-        However, dynamic effects can still be set here and can be done either
-        in `beforeRegister` or `registered`. It is no longer possible to set
-        `is` in `beforeRegister` as you could in 1.x.
-      */
+      is different than in 1.x. In 1.0, the method was called *after*
+      mixing prototypes together but *before* processing of meta-objects.
+      However, dynamic effects can still be set here and can be done either
+      in `beforeRegister` or `registered`. It is no longer possible to set
+      `is` in `beforeRegister` as you could in 1.x.
+    */
       // only proceed if the generated class' prototype has not been registered.
       const generatedProto = PolymerGenerated.prototype;
       if (
@@ -22256,15 +22253,15 @@ class CustomStyle extends HTMLElement {
       style.textContent = cssFromModules(include) + style.textContent;
     }
     /*
-    HTML Imports styling the main document are deprecated in Chrome
-    https://crbug.com/523952
+  HTML Imports styling the main document are deprecated in Chrome
+  https://crbug.com/523952
 
-    If this element is not in the main document, then it must be in an HTML Import document.
-    In that case, move the custom style to the main document.
+  If this element is not in the main document, then it must be in an HTML Import document.
+  In that case, move the custom style to the main document.
 
-    The ordering of `<custom-style>` should stay the same as when loaded by HTML Imports, but there may be odd
-    cases of ordering w.r.t the main document styles.
-    */
+  The ordering of `<custom-style>` should stay the same as when loaded by HTML Imports, but there may be odd
+  cases of ordering w.r.t the main document styles.
+  */
     if (this.ownerDocument !== window.document) {
       window.document.head.appendChild(this);
     }
@@ -22315,32 +22312,32 @@ The layout class stylesheet provides a simple set of class-based flexbox rules,
 that let you specify layout properties directly in markup. You must include this
 file in every element that needs to use them.
 
-    Sample use:
+  Sample use:
 
-    ```
-    <custom-element-demo>
-      <template>
-        <script src="../webcomponentsjs/webcomponents-lite.js"></script>
-        <next-code-block></next-code-block>
-      </template>
-    </custom-element-demo>
-    ```
+  ```
+  <custom-element-demo>
+    <template>
+      <script src="../webcomponentsjs/webcomponents-lite.js"></script>
+      <next-code-block></next-code-block>
+    </template>
+  </custom-element-demo>
+  ```
 
-    ```js
-    import {html} from '@polymer/polymer/lib/utils/html-tag.js';
-    import '@polymer/iron-flex-layout/iron-flex-layout-classes.js';
+  ```js
+  import {html} from '@polymer/polymer/lib/utils/html-tag.js';
+  import '@polymer/iron-flex-layout/iron-flex-layout-classes.js';
 
-    const template = html`
-      <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
-      <style>
-        .test { width: 100px; }
-      </style>
-      <div class="layout horizontal center-center">
-        <div class="test">horizontal layout center alignment</div>
-      </div>
-    `;
-    document.body.appendChild(template.content);
-    ```
+  const template = html`
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <style>
+      .test { width: 100px; }
+    </style>
+    <div class="layout horizontal center-center">
+      <div class="test">horizontal layout center alignment</div>
+    </div>
+  `;
+  document.body.appendChild(template.content);
+  ```
 
 2. [Custom CSS
 mixins](https://github.com/PolymerElements/iron-flex-layout/blob/master/iron-flex-layout.html).
@@ -22362,356 +22359,356 @@ you to import the `dom-modules` in every element that needs to use them.
 */
 const template = html$1`
 <custom-style>
-  <style is="custom-style">
-    [hidden] {
-      display: none !important;
-    }
-  </style>
+<style is="custom-style">
+  [hidden] {
+    display: none !important;
+  }
+</style>
 </custom-style>
 <custom-style>
-  <style is="custom-style">
-    html {
+<style is="custom-style">
+  html {
 
-      --layout: {
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-      };
+    --layout: {
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+    };
 
-      --layout-inline: {
-        display: -ms-inline-flexbox;
-        display: -webkit-inline-flex;
-        display: inline-flex;
-      };
+    --layout-inline: {
+      display: -ms-inline-flexbox;
+      display: -webkit-inline-flex;
+      display: inline-flex;
+    };
 
-      --layout-horizontal: {
-        @apply --layout;
+    --layout-horizontal: {
+      @apply --layout;
 
-        -ms-flex-direction: row;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-      };
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+    };
 
-      --layout-horizontal-reverse: {
-        @apply --layout;
+    --layout-horizontal-reverse: {
+      @apply --layout;
 
-        -ms-flex-direction: row-reverse;
-        -webkit-flex-direction: row-reverse;
-        flex-direction: row-reverse;
-      };
+      -ms-flex-direction: row-reverse;
+      -webkit-flex-direction: row-reverse;
+      flex-direction: row-reverse;
+    };
 
-      --layout-vertical: {
-        @apply --layout;
+    --layout-vertical: {
+      @apply --layout;
 
-        -ms-flex-direction: column;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-      };
+      -ms-flex-direction: column;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+    };
 
-      --layout-vertical-reverse: {
-        @apply --layout;
+    --layout-vertical-reverse: {
+      @apply --layout;
 
-        -ms-flex-direction: column-reverse;
-        -webkit-flex-direction: column-reverse;
-        flex-direction: column-reverse;
-      };
+      -ms-flex-direction: column-reverse;
+      -webkit-flex-direction: column-reverse;
+      flex-direction: column-reverse;
+    };
 
-      --layout-wrap: {
-        -ms-flex-wrap: wrap;
-        -webkit-flex-wrap: wrap;
-        flex-wrap: wrap;
-      };
+    --layout-wrap: {
+      -ms-flex-wrap: wrap;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+    };
 
-      --layout-wrap-reverse: {
-        -ms-flex-wrap: wrap-reverse;
-        -webkit-flex-wrap: wrap-reverse;
-        flex-wrap: wrap-reverse;
-      };
+    --layout-wrap-reverse: {
+      -ms-flex-wrap: wrap-reverse;
+      -webkit-flex-wrap: wrap-reverse;
+      flex-wrap: wrap-reverse;
+    };
 
-      --layout-flex-auto: {
-        -ms-flex: 1 1 auto;
-        -webkit-flex: 1 1 auto;
-        flex: 1 1 auto;
-      };
+    --layout-flex-auto: {
+      -ms-flex: 1 1 auto;
+      -webkit-flex: 1 1 auto;
+      flex: 1 1 auto;
+    };
 
-      --layout-flex-none: {
-        -ms-flex: none;
-        -webkit-flex: none;
-        flex: none;
-      };
+    --layout-flex-none: {
+      -ms-flex: none;
+      -webkit-flex: none;
+      flex: none;
+    };
 
-      --layout-flex: {
-        -ms-flex: 1 1 0.000000001px;
-        -webkit-flex: 1;
-        flex: 1;
-        -webkit-flex-basis: 0.000000001px;
-        flex-basis: 0.000000001px;
-      };
+    --layout-flex: {
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
+    };
 
-      --layout-flex-2: {
-        -ms-flex: 2;
-        -webkit-flex: 2;
-        flex: 2;
-      };
+    --layout-flex-2: {
+      -ms-flex: 2;
+      -webkit-flex: 2;
+      flex: 2;
+    };
 
-      --layout-flex-3: {
-        -ms-flex: 3;
-        -webkit-flex: 3;
-        flex: 3;
-      };
+    --layout-flex-3: {
+      -ms-flex: 3;
+      -webkit-flex: 3;
+      flex: 3;
+    };
 
-      --layout-flex-4: {
-        -ms-flex: 4;
-        -webkit-flex: 4;
-        flex: 4;
-      };
+    --layout-flex-4: {
+      -ms-flex: 4;
+      -webkit-flex: 4;
+      flex: 4;
+    };
 
-      --layout-flex-5: {
-        -ms-flex: 5;
-        -webkit-flex: 5;
-        flex: 5;
-      };
+    --layout-flex-5: {
+      -ms-flex: 5;
+      -webkit-flex: 5;
+      flex: 5;
+    };
 
-      --layout-flex-6: {
-        -ms-flex: 6;
-        -webkit-flex: 6;
-        flex: 6;
-      };
+    --layout-flex-6: {
+      -ms-flex: 6;
+      -webkit-flex: 6;
+      flex: 6;
+    };
 
-      --layout-flex-7: {
-        -ms-flex: 7;
-        -webkit-flex: 7;
-        flex: 7;
-      };
+    --layout-flex-7: {
+      -ms-flex: 7;
+      -webkit-flex: 7;
+      flex: 7;
+    };
 
-      --layout-flex-8: {
-        -ms-flex: 8;
-        -webkit-flex: 8;
-        flex: 8;
-      };
+    --layout-flex-8: {
+      -ms-flex: 8;
+      -webkit-flex: 8;
+      flex: 8;
+    };
 
-      --layout-flex-9: {
-        -ms-flex: 9;
-        -webkit-flex: 9;
-        flex: 9;
-      };
+    --layout-flex-9: {
+      -ms-flex: 9;
+      -webkit-flex: 9;
+      flex: 9;
+    };
 
-      --layout-flex-10: {
-        -ms-flex: 10;
-        -webkit-flex: 10;
-        flex: 10;
-      };
+    --layout-flex-10: {
+      -ms-flex: 10;
+      -webkit-flex: 10;
+      flex: 10;
+    };
 
-      --layout-flex-11: {
-        -ms-flex: 11;
-        -webkit-flex: 11;
-        flex: 11;
-      };
+    --layout-flex-11: {
+      -ms-flex: 11;
+      -webkit-flex: 11;
+      flex: 11;
+    };
 
-      --layout-flex-12: {
-        -ms-flex: 12;
-        -webkit-flex: 12;
-        flex: 12;
-      };
+    --layout-flex-12: {
+      -ms-flex: 12;
+      -webkit-flex: 12;
+      flex: 12;
+    };
 
-      /* alignment in cross axis */
+    /* alignment in cross axis */
 
-      --layout-start: {
-        -ms-flex-align: start;
-        -webkit-align-items: flex-start;
-        align-items: flex-start;
-      };
+    --layout-start: {
+      -ms-flex-align: start;
+      -webkit-align-items: flex-start;
+      align-items: flex-start;
+    };
 
-      --layout-center: {
-        -ms-flex-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-      };
+    --layout-center: {
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    };
 
-      --layout-end: {
-        -ms-flex-align: end;
-        -webkit-align-items: flex-end;
-        align-items: flex-end;
-      };
+    --layout-end: {
+      -ms-flex-align: end;
+      -webkit-align-items: flex-end;
+      align-items: flex-end;
+    };
 
-      --layout-baseline: {
-        -ms-flex-align: baseline;
-        -webkit-align-items: baseline;
-        align-items: baseline;
-      };
+    --layout-baseline: {
+      -ms-flex-align: baseline;
+      -webkit-align-items: baseline;
+      align-items: baseline;
+    };
 
-      /* alignment in main axis */
+    /* alignment in main axis */
 
-      --layout-start-justified: {
-        -ms-flex-pack: start;
-        -webkit-justify-content: flex-start;
-        justify-content: flex-start;
-      };
+    --layout-start-justified: {
+      -ms-flex-pack: start;
+      -webkit-justify-content: flex-start;
+      justify-content: flex-start;
+    };
 
-      --layout-center-justified: {
-        -ms-flex-pack: center;
-        -webkit-justify-content: center;
-        justify-content: center;
-      };
+    --layout-center-justified: {
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+    };
 
-      --layout-end-justified: {
-        -ms-flex-pack: end;
-        -webkit-justify-content: flex-end;
-        justify-content: flex-end;
-      };
+    --layout-end-justified: {
+      -ms-flex-pack: end;
+      -webkit-justify-content: flex-end;
+      justify-content: flex-end;
+    };
 
-      --layout-around-justified: {
-        -ms-flex-pack: distribute;
-        -webkit-justify-content: space-around;
-        justify-content: space-around;
-      };
+    --layout-around-justified: {
+      -ms-flex-pack: distribute;
+      -webkit-justify-content: space-around;
+      justify-content: space-around;
+    };
 
-      --layout-justified: {
-        -ms-flex-pack: justify;
-        -webkit-justify-content: space-between;
-        justify-content: space-between;
-      };
+    --layout-justified: {
+      -ms-flex-pack: justify;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+    };
 
-      --layout-center-center: {
-        @apply --layout-center;
-        @apply --layout-center-justified;
-      };
+    --layout-center-center: {
+      @apply --layout-center;
+      @apply --layout-center-justified;
+    };
 
-      /* self alignment */
+    /* self alignment */
 
-      --layout-self-start: {
-        -ms-align-self: flex-start;
-        -webkit-align-self: flex-start;
-        align-self: flex-start;
-      };
+    --layout-self-start: {
+      -ms-align-self: flex-start;
+      -webkit-align-self: flex-start;
+      align-self: flex-start;
+    };
 
-      --layout-self-center: {
-        -ms-align-self: center;
-        -webkit-align-self: center;
-        align-self: center;
-      };
+    --layout-self-center: {
+      -ms-align-self: center;
+      -webkit-align-self: center;
+      align-self: center;
+    };
 
-      --layout-self-end: {
-        -ms-align-self: flex-end;
-        -webkit-align-self: flex-end;
-        align-self: flex-end;
-      };
+    --layout-self-end: {
+      -ms-align-self: flex-end;
+      -webkit-align-self: flex-end;
+      align-self: flex-end;
+    };
 
-      --layout-self-stretch: {
-        -ms-align-self: stretch;
-        -webkit-align-self: stretch;
-        align-self: stretch;
-      };
+    --layout-self-stretch: {
+      -ms-align-self: stretch;
+      -webkit-align-self: stretch;
+      align-self: stretch;
+    };
 
-      --layout-self-baseline: {
-        -ms-align-self: baseline;
-        -webkit-align-self: baseline;
-        align-self: baseline;
-      };
+    --layout-self-baseline: {
+      -ms-align-self: baseline;
+      -webkit-align-self: baseline;
+      align-self: baseline;
+    };
 
-      /* multi-line alignment in main axis */
+    /* multi-line alignment in main axis */
 
-      --layout-start-aligned: {
-        -ms-flex-line-pack: start;  /* IE10 */
-        -ms-align-content: flex-start;
-        -webkit-align-content: flex-start;
-        align-content: flex-start;
-      };
+    --layout-start-aligned: {
+      -ms-flex-line-pack: start;  /* IE10 */
+      -ms-align-content: flex-start;
+      -webkit-align-content: flex-start;
+      align-content: flex-start;
+    };
 
-      --layout-end-aligned: {
-        -ms-flex-line-pack: end;  /* IE10 */
-        -ms-align-content: flex-end;
-        -webkit-align-content: flex-end;
-        align-content: flex-end;
-      };
+    --layout-end-aligned: {
+      -ms-flex-line-pack: end;  /* IE10 */
+      -ms-align-content: flex-end;
+      -webkit-align-content: flex-end;
+      align-content: flex-end;
+    };
 
-      --layout-center-aligned: {
-        -ms-flex-line-pack: center;  /* IE10 */
-        -ms-align-content: center;
-        -webkit-align-content: center;
-        align-content: center;
-      };
+    --layout-center-aligned: {
+      -ms-flex-line-pack: center;  /* IE10 */
+      -ms-align-content: center;
+      -webkit-align-content: center;
+      align-content: center;
+    };
 
-      --layout-between-aligned: {
-        -ms-flex-line-pack: justify;  /* IE10 */
-        -ms-align-content: space-between;
-        -webkit-align-content: space-between;
-        align-content: space-between;
-      };
+    --layout-between-aligned: {
+      -ms-flex-line-pack: justify;  /* IE10 */
+      -ms-align-content: space-between;
+      -webkit-align-content: space-between;
+      align-content: space-between;
+    };
 
-      --layout-around-aligned: {
-        -ms-flex-line-pack: distribute;  /* IE10 */
-        -ms-align-content: space-around;
-        -webkit-align-content: space-around;
-        align-content: space-around;
-      };
+    --layout-around-aligned: {
+      -ms-flex-line-pack: distribute;  /* IE10 */
+      -ms-align-content: space-around;
+      -webkit-align-content: space-around;
+      align-content: space-around;
+    };
 
-      /*******************************
-                Other Layout
-      *******************************/
+    /*******************************
+              Other Layout
+    *******************************/
 
-      --layout-block: {
-        display: block;
-      };
+    --layout-block: {
+      display: block;
+    };
 
-      --layout-invisible: {
-        visibility: hidden !important;
-      };
+    --layout-invisible: {
+      visibility: hidden !important;
+    };
 
-      --layout-relative: {
-        position: relative;
-      };
+    --layout-relative: {
+      position: relative;
+    };
 
-      --layout-fit: {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-      };
+    --layout-fit: {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    };
 
-      --layout-scroll: {
-        -webkit-overflow-scrolling: touch;
-        overflow: auto;
-      };
+    --layout-scroll: {
+      -webkit-overflow-scrolling: touch;
+      overflow: auto;
+    };
 
-      --layout-fullbleed: {
-        margin: 0;
-        height: 100vh;
-      };
+    --layout-fullbleed: {
+      margin: 0;
+      height: 100vh;
+    };
 
-      /* fixed position */
+    /* fixed position */
 
-      --layout-fixed-top: {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-      };
+    --layout-fixed-top: {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+    };
 
-      --layout-fixed-right: {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-      };
+    --layout-fixed-right: {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    };
 
-      --layout-fixed-bottom: {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        left: 0;
-      };
+    --layout-fixed-bottom: {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    };
 
-      --layout-fixed-left: {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-      };
+    --layout-fixed-left: {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+    };
 
-    }
-  </style>
+  }
+</style>
 </custom-style>`;
 
 template.setAttribute("style", "display: none;");
@@ -22733,326 +22730,326 @@ found at http://polymer.github.io/PATENTS.txt
 */
 const template$1 = html$1`
 <custom-style>
-  <style is="custom-style">
-    html {
+<style is="custom-style">
+  html {
 
-      /* Material Design color palette for Google products */
+    /* Material Design color palette for Google products */
 
-      --google-red-100: #f4c7c3;
-      --google-red-300: #e67c73;
-      --google-red-500: #db4437;
-      --google-red-700: #c53929;
+    --google-red-100: #f4c7c3;
+    --google-red-300: #e67c73;
+    --google-red-500: #db4437;
+    --google-red-700: #c53929;
 
-      --google-blue-100: #c6dafc;
-      --google-blue-300: #7baaf7;
-      --google-blue-500: #4285f4;
-      --google-blue-700: #3367d6;
+    --google-blue-100: #c6dafc;
+    --google-blue-300: #7baaf7;
+    --google-blue-500: #4285f4;
+    --google-blue-700: #3367d6;
 
-      --google-green-100: #b7e1cd;
-      --google-green-300: #57bb8a;
-      --google-green-500: #0f9d58;
-      --google-green-700: #0b8043;
+    --google-green-100: #b7e1cd;
+    --google-green-300: #57bb8a;
+    --google-green-500: #0f9d58;
+    --google-green-700: #0b8043;
 
-      --google-yellow-100: #fce8b2;
-      --google-yellow-300: #f7cb4d;
-      --google-yellow-500: #f4b400;
-      --google-yellow-700: #f09300;
+    --google-yellow-100: #fce8b2;
+    --google-yellow-300: #f7cb4d;
+    --google-yellow-500: #f4b400;
+    --google-yellow-700: #f09300;
 
-      --google-grey-100: #f5f5f5;
-      --google-grey-300: #e0e0e0;
-      --google-grey-500: #9e9e9e;
-      --google-grey-700: #616161;
+    --google-grey-100: #f5f5f5;
+    --google-grey-300: #e0e0e0;
+    --google-grey-500: #9e9e9e;
+    --google-grey-700: #616161;
 
-      /* Material Design color palette from online spec document */
+    /* Material Design color palette from online spec document */
 
-      --paper-red-50: #ffebee;
-      --paper-red-100: #ffcdd2;
-      --paper-red-200: #ef9a9a;
-      --paper-red-300: #e57373;
-      --paper-red-400: #ef5350;
-      --paper-red-500: #f44336;
-      --paper-red-600: #e53935;
-      --paper-red-700: #d32f2f;
-      --paper-red-800: #c62828;
-      --paper-red-900: #b71c1c;
-      --paper-red-a100: #ff8a80;
-      --paper-red-a200: #ff5252;
-      --paper-red-a400: #ff1744;
-      --paper-red-a700: #d50000;
+    --paper-red-50: #ffebee;
+    --paper-red-100: #ffcdd2;
+    --paper-red-200: #ef9a9a;
+    --paper-red-300: #e57373;
+    --paper-red-400: #ef5350;
+    --paper-red-500: #f44336;
+    --paper-red-600: #e53935;
+    --paper-red-700: #d32f2f;
+    --paper-red-800: #c62828;
+    --paper-red-900: #b71c1c;
+    --paper-red-a100: #ff8a80;
+    --paper-red-a200: #ff5252;
+    --paper-red-a400: #ff1744;
+    --paper-red-a700: #d50000;
 
-      --paper-pink-50: #fce4ec;
-      --paper-pink-100: #f8bbd0;
-      --paper-pink-200: #f48fb1;
-      --paper-pink-300: #f06292;
-      --paper-pink-400: #ec407a;
-      --paper-pink-500: #e91e63;
-      --paper-pink-600: #d81b60;
-      --paper-pink-700: #c2185b;
-      --paper-pink-800: #ad1457;
-      --paper-pink-900: #880e4f;
-      --paper-pink-a100: #ff80ab;
-      --paper-pink-a200: #ff4081;
-      --paper-pink-a400: #f50057;
-      --paper-pink-a700: #c51162;
+    --paper-pink-50: #fce4ec;
+    --paper-pink-100: #f8bbd0;
+    --paper-pink-200: #f48fb1;
+    --paper-pink-300: #f06292;
+    --paper-pink-400: #ec407a;
+    --paper-pink-500: #e91e63;
+    --paper-pink-600: #d81b60;
+    --paper-pink-700: #c2185b;
+    --paper-pink-800: #ad1457;
+    --paper-pink-900: #880e4f;
+    --paper-pink-a100: #ff80ab;
+    --paper-pink-a200: #ff4081;
+    --paper-pink-a400: #f50057;
+    --paper-pink-a700: #c51162;
 
-      --paper-purple-50: #f3e5f5;
-      --paper-purple-100: #e1bee7;
-      --paper-purple-200: #ce93d8;
-      --paper-purple-300: #ba68c8;
-      --paper-purple-400: #ab47bc;
-      --paper-purple-500: #9c27b0;
-      --paper-purple-600: #8e24aa;
-      --paper-purple-700: #7b1fa2;
-      --paper-purple-800: #6a1b9a;
-      --paper-purple-900: #4a148c;
-      --paper-purple-a100: #ea80fc;
-      --paper-purple-a200: #e040fb;
-      --paper-purple-a400: #d500f9;
-      --paper-purple-a700: #aa00ff;
+    --paper-purple-50: #f3e5f5;
+    --paper-purple-100: #e1bee7;
+    --paper-purple-200: #ce93d8;
+    --paper-purple-300: #ba68c8;
+    --paper-purple-400: #ab47bc;
+    --paper-purple-500: #9c27b0;
+    --paper-purple-600: #8e24aa;
+    --paper-purple-700: #7b1fa2;
+    --paper-purple-800: #6a1b9a;
+    --paper-purple-900: #4a148c;
+    --paper-purple-a100: #ea80fc;
+    --paper-purple-a200: #e040fb;
+    --paper-purple-a400: #d500f9;
+    --paper-purple-a700: #aa00ff;
 
-      --paper-deep-purple-50: #ede7f6;
-      --paper-deep-purple-100: #d1c4e9;
-      --paper-deep-purple-200: #b39ddb;
-      --paper-deep-purple-300: #9575cd;
-      --paper-deep-purple-400: #7e57c2;
-      --paper-deep-purple-500: #673ab7;
-      --paper-deep-purple-600: #5e35b1;
-      --paper-deep-purple-700: #512da8;
-      --paper-deep-purple-800: #4527a0;
-      --paper-deep-purple-900: #311b92;
-      --paper-deep-purple-a100: #b388ff;
-      --paper-deep-purple-a200: #7c4dff;
-      --paper-deep-purple-a400: #651fff;
-      --paper-deep-purple-a700: #6200ea;
+    --paper-deep-purple-50: #ede7f6;
+    --paper-deep-purple-100: #d1c4e9;
+    --paper-deep-purple-200: #b39ddb;
+    --paper-deep-purple-300: #9575cd;
+    --paper-deep-purple-400: #7e57c2;
+    --paper-deep-purple-500: #673ab7;
+    --paper-deep-purple-600: #5e35b1;
+    --paper-deep-purple-700: #512da8;
+    --paper-deep-purple-800: #4527a0;
+    --paper-deep-purple-900: #311b92;
+    --paper-deep-purple-a100: #b388ff;
+    --paper-deep-purple-a200: #7c4dff;
+    --paper-deep-purple-a400: #651fff;
+    --paper-deep-purple-a700: #6200ea;
 
-      --paper-indigo-50: #e8eaf6;
-      --paper-indigo-100: #c5cae9;
-      --paper-indigo-200: #9fa8da;
-      --paper-indigo-300: #7986cb;
-      --paper-indigo-400: #5c6bc0;
-      --paper-indigo-500: #3f51b5;
-      --paper-indigo-600: #3949ab;
-      --paper-indigo-700: #303f9f;
-      --paper-indigo-800: #283593;
-      --paper-indigo-900: #1a237e;
-      --paper-indigo-a100: #8c9eff;
-      --paper-indigo-a200: #536dfe;
-      --paper-indigo-a400: #3d5afe;
-      --paper-indigo-a700: #304ffe;
+    --paper-indigo-50: #e8eaf6;
+    --paper-indigo-100: #c5cae9;
+    --paper-indigo-200: #9fa8da;
+    --paper-indigo-300: #7986cb;
+    --paper-indigo-400: #5c6bc0;
+    --paper-indigo-500: #3f51b5;
+    --paper-indigo-600: #3949ab;
+    --paper-indigo-700: #303f9f;
+    --paper-indigo-800: #283593;
+    --paper-indigo-900: #1a237e;
+    --paper-indigo-a100: #8c9eff;
+    --paper-indigo-a200: #536dfe;
+    --paper-indigo-a400: #3d5afe;
+    --paper-indigo-a700: #304ffe;
 
-      --paper-blue-50: #e3f2fd;
-      --paper-blue-100: #bbdefb;
-      --paper-blue-200: #90caf9;
-      --paper-blue-300: #64b5f6;
-      --paper-blue-400: #42a5f5;
-      --paper-blue-500: #2196f3;
-      --paper-blue-600: #1e88e5;
-      --paper-blue-700: #1976d2;
-      --paper-blue-800: #1565c0;
-      --paper-blue-900: #0d47a1;
-      --paper-blue-a100: #82b1ff;
-      --paper-blue-a200: #448aff;
-      --paper-blue-a400: #2979ff;
-      --paper-blue-a700: #2962ff;
+    --paper-blue-50: #e3f2fd;
+    --paper-blue-100: #bbdefb;
+    --paper-blue-200: #90caf9;
+    --paper-blue-300: #64b5f6;
+    --paper-blue-400: #42a5f5;
+    --paper-blue-500: #2196f3;
+    --paper-blue-600: #1e88e5;
+    --paper-blue-700: #1976d2;
+    --paper-blue-800: #1565c0;
+    --paper-blue-900: #0d47a1;
+    --paper-blue-a100: #82b1ff;
+    --paper-blue-a200: #448aff;
+    --paper-blue-a400: #2979ff;
+    --paper-blue-a700: #2962ff;
 
-      --paper-light-blue-50: #e1f5fe;
-      --paper-light-blue-100: #b3e5fc;
-      --paper-light-blue-200: #81d4fa;
-      --paper-light-blue-300: #4fc3f7;
-      --paper-light-blue-400: #29b6f6;
-      --paper-light-blue-500: #03a9f4;
-      --paper-light-blue-600: #039be5;
-      --paper-light-blue-700: #0288d1;
-      --paper-light-blue-800: #0277bd;
-      --paper-light-blue-900: #01579b;
-      --paper-light-blue-a100: #80d8ff;
-      --paper-light-blue-a200: #40c4ff;
-      --paper-light-blue-a400: #00b0ff;
-      --paper-light-blue-a700: #0091ea;
+    --paper-light-blue-50: #e1f5fe;
+    --paper-light-blue-100: #b3e5fc;
+    --paper-light-blue-200: #81d4fa;
+    --paper-light-blue-300: #4fc3f7;
+    --paper-light-blue-400: #29b6f6;
+    --paper-light-blue-500: #03a9f4;
+    --paper-light-blue-600: #039be5;
+    --paper-light-blue-700: #0288d1;
+    --paper-light-blue-800: #0277bd;
+    --paper-light-blue-900: #01579b;
+    --paper-light-blue-a100: #80d8ff;
+    --paper-light-blue-a200: #40c4ff;
+    --paper-light-blue-a400: #00b0ff;
+    --paper-light-blue-a700: #0091ea;
 
-      --paper-cyan-50: #e0f7fa;
-      --paper-cyan-100: #b2ebf2;
-      --paper-cyan-200: #80deea;
-      --paper-cyan-300: #4dd0e1;
-      --paper-cyan-400: #26c6da;
-      --paper-cyan-500: #00bcd4;
-      --paper-cyan-600: #00acc1;
-      --paper-cyan-700: #0097a7;
-      --paper-cyan-800: #00838f;
-      --paper-cyan-900: #006064;
-      --paper-cyan-a100: #84ffff;
-      --paper-cyan-a200: #18ffff;
-      --paper-cyan-a400: #00e5ff;
-      --paper-cyan-a700: #00b8d4;
+    --paper-cyan-50: #e0f7fa;
+    --paper-cyan-100: #b2ebf2;
+    --paper-cyan-200: #80deea;
+    --paper-cyan-300: #4dd0e1;
+    --paper-cyan-400: #26c6da;
+    --paper-cyan-500: #00bcd4;
+    --paper-cyan-600: #00acc1;
+    --paper-cyan-700: #0097a7;
+    --paper-cyan-800: #00838f;
+    --paper-cyan-900: #006064;
+    --paper-cyan-a100: #84ffff;
+    --paper-cyan-a200: #18ffff;
+    --paper-cyan-a400: #00e5ff;
+    --paper-cyan-a700: #00b8d4;
 
-      --paper-teal-50: #e0f2f1;
-      --paper-teal-100: #b2dfdb;
-      --paper-teal-200: #80cbc4;
-      --paper-teal-300: #4db6ac;
-      --paper-teal-400: #26a69a;
-      --paper-teal-500: #009688;
-      --paper-teal-600: #00897b;
-      --paper-teal-700: #00796b;
-      --paper-teal-800: #00695c;
-      --paper-teal-900: #004d40;
-      --paper-teal-a100: #a7ffeb;
-      --paper-teal-a200: #64ffda;
-      --paper-teal-a400: #1de9b6;
-      --paper-teal-a700: #00bfa5;
+    --paper-teal-50: #e0f2f1;
+    --paper-teal-100: #b2dfdb;
+    --paper-teal-200: #80cbc4;
+    --paper-teal-300: #4db6ac;
+    --paper-teal-400: #26a69a;
+    --paper-teal-500: #009688;
+    --paper-teal-600: #00897b;
+    --paper-teal-700: #00796b;
+    --paper-teal-800: #00695c;
+    --paper-teal-900: #004d40;
+    --paper-teal-a100: #a7ffeb;
+    --paper-teal-a200: #64ffda;
+    --paper-teal-a400: #1de9b6;
+    --paper-teal-a700: #00bfa5;
 
-      --paper-green-50: #e8f5e9;
-      --paper-green-100: #c8e6c9;
-      --paper-green-200: #a5d6a7;
-      --paper-green-300: #81c784;
-      --paper-green-400: #66bb6a;
-      --paper-green-500: #4caf50;
-      --paper-green-600: #43a047;
-      --paper-green-700: #388e3c;
-      --paper-green-800: #2e7d32;
-      --paper-green-900: #1b5e20;
-      --paper-green-a100: #b9f6ca;
-      --paper-green-a200: #69f0ae;
-      --paper-green-a400: #00e676;
-      --paper-green-a700: #00c853;
+    --paper-green-50: #e8f5e9;
+    --paper-green-100: #c8e6c9;
+    --paper-green-200: #a5d6a7;
+    --paper-green-300: #81c784;
+    --paper-green-400: #66bb6a;
+    --paper-green-500: #4caf50;
+    --paper-green-600: #43a047;
+    --paper-green-700: #388e3c;
+    --paper-green-800: #2e7d32;
+    --paper-green-900: #1b5e20;
+    --paper-green-a100: #b9f6ca;
+    --paper-green-a200: #69f0ae;
+    --paper-green-a400: #00e676;
+    --paper-green-a700: #00c853;
 
-      --paper-light-green-50: #f1f8e9;
-      --paper-light-green-100: #dcedc8;
-      --paper-light-green-200: #c5e1a5;
-      --paper-light-green-300: #aed581;
-      --paper-light-green-400: #9ccc65;
-      --paper-light-green-500: #8bc34a;
-      --paper-light-green-600: #7cb342;
-      --paper-light-green-700: #689f38;
-      --paper-light-green-800: #558b2f;
-      --paper-light-green-900: #33691e;
-      --paper-light-green-a100: #ccff90;
-      --paper-light-green-a200: #b2ff59;
-      --paper-light-green-a400: #76ff03;
-      --paper-light-green-a700: #64dd17;
+    --paper-light-green-50: #f1f8e9;
+    --paper-light-green-100: #dcedc8;
+    --paper-light-green-200: #c5e1a5;
+    --paper-light-green-300: #aed581;
+    --paper-light-green-400: #9ccc65;
+    --paper-light-green-500: #8bc34a;
+    --paper-light-green-600: #7cb342;
+    --paper-light-green-700: #689f38;
+    --paper-light-green-800: #558b2f;
+    --paper-light-green-900: #33691e;
+    --paper-light-green-a100: #ccff90;
+    --paper-light-green-a200: #b2ff59;
+    --paper-light-green-a400: #76ff03;
+    --paper-light-green-a700: #64dd17;
 
-      --paper-lime-50: #f9fbe7;
-      --paper-lime-100: #f0f4c3;
-      --paper-lime-200: #e6ee9c;
-      --paper-lime-300: #dce775;
-      --paper-lime-400: #d4e157;
-      --paper-lime-500: #cddc39;
-      --paper-lime-600: #c0ca33;
-      --paper-lime-700: #afb42b;
-      --paper-lime-800: #9e9d24;
-      --paper-lime-900: #827717;
-      --paper-lime-a100: #f4ff81;
-      --paper-lime-a200: #eeff41;
-      --paper-lime-a400: #c6ff00;
-      --paper-lime-a700: #aeea00;
+    --paper-lime-50: #f9fbe7;
+    --paper-lime-100: #f0f4c3;
+    --paper-lime-200: #e6ee9c;
+    --paper-lime-300: #dce775;
+    --paper-lime-400: #d4e157;
+    --paper-lime-500: #cddc39;
+    --paper-lime-600: #c0ca33;
+    --paper-lime-700: #afb42b;
+    --paper-lime-800: #9e9d24;
+    --paper-lime-900: #827717;
+    --paper-lime-a100: #f4ff81;
+    --paper-lime-a200: #eeff41;
+    --paper-lime-a400: #c6ff00;
+    --paper-lime-a700: #aeea00;
 
-      --paper-yellow-50: #fffde7;
-      --paper-yellow-100: #fff9c4;
-      --paper-yellow-200: #fff59d;
-      --paper-yellow-300: #fff176;
-      --paper-yellow-400: #ffee58;
-      --paper-yellow-500: #ffeb3b;
-      --paper-yellow-600: #fdd835;
-      --paper-yellow-700: #fbc02d;
-      --paper-yellow-800: #f9a825;
-      --paper-yellow-900: #f57f17;
-      --paper-yellow-a100: #ffff8d;
-      --paper-yellow-a200: #ffff00;
-      --paper-yellow-a400: #ffea00;
-      --paper-yellow-a700: #ffd600;
+    --paper-yellow-50: #fffde7;
+    --paper-yellow-100: #fff9c4;
+    --paper-yellow-200: #fff59d;
+    --paper-yellow-300: #fff176;
+    --paper-yellow-400: #ffee58;
+    --paper-yellow-500: #ffeb3b;
+    --paper-yellow-600: #fdd835;
+    --paper-yellow-700: #fbc02d;
+    --paper-yellow-800: #f9a825;
+    --paper-yellow-900: #f57f17;
+    --paper-yellow-a100: #ffff8d;
+    --paper-yellow-a200: #ffff00;
+    --paper-yellow-a400: #ffea00;
+    --paper-yellow-a700: #ffd600;
 
-      --paper-amber-50: #fff8e1;
-      --paper-amber-100: #ffecb3;
-      --paper-amber-200: #ffe082;
-      --paper-amber-300: #ffd54f;
-      --paper-amber-400: #ffca28;
-      --paper-amber-500: #ffc107;
-      --paper-amber-600: #ffb300;
-      --paper-amber-700: #ffa000;
-      --paper-amber-800: #ff8f00;
-      --paper-amber-900: #ff6f00;
-      --paper-amber-a100: #ffe57f;
-      --paper-amber-a200: #ffd740;
-      --paper-amber-a400: #ffc400;
-      --paper-amber-a700: #ffab00;
+    --paper-amber-50: #fff8e1;
+    --paper-amber-100: #ffecb3;
+    --paper-amber-200: #ffe082;
+    --paper-amber-300: #ffd54f;
+    --paper-amber-400: #ffca28;
+    --paper-amber-500: #ffc107;
+    --paper-amber-600: #ffb300;
+    --paper-amber-700: #ffa000;
+    --paper-amber-800: #ff8f00;
+    --paper-amber-900: #ff6f00;
+    --paper-amber-a100: #ffe57f;
+    --paper-amber-a200: #ffd740;
+    --paper-amber-a400: #ffc400;
+    --paper-amber-a700: #ffab00;
 
-      --paper-orange-50: #fff3e0;
-      --paper-orange-100: #ffe0b2;
-      --paper-orange-200: #ffcc80;
-      --paper-orange-300: #ffb74d;
-      --paper-orange-400: #ffa726;
-      --paper-orange-500: #ff9800;
-      --paper-orange-600: #fb8c00;
-      --paper-orange-700: #f57c00;
-      --paper-orange-800: #ef6c00;
-      --paper-orange-900: #e65100;
-      --paper-orange-a100: #ffd180;
-      --paper-orange-a200: #ffab40;
-      --paper-orange-a400: #ff9100;
-      --paper-orange-a700: #ff6500;
+    --paper-orange-50: #fff3e0;
+    --paper-orange-100: #ffe0b2;
+    --paper-orange-200: #ffcc80;
+    --paper-orange-300: #ffb74d;
+    --paper-orange-400: #ffa726;
+    --paper-orange-500: #ff9800;
+    --paper-orange-600: #fb8c00;
+    --paper-orange-700: #f57c00;
+    --paper-orange-800: #ef6c00;
+    --paper-orange-900: #e65100;
+    --paper-orange-a100: #ffd180;
+    --paper-orange-a200: #ffab40;
+    --paper-orange-a400: #ff9100;
+    --paper-orange-a700: #ff6500;
 
-      --paper-deep-orange-50: #fbe9e7;
-      --paper-deep-orange-100: #ffccbc;
-      --paper-deep-orange-200: #ffab91;
-      --paper-deep-orange-300: #ff8a65;
-      --paper-deep-orange-400: #ff7043;
-      --paper-deep-orange-500: #ff5722;
-      --paper-deep-orange-600: #f4511e;
-      --paper-deep-orange-700: #e64a19;
-      --paper-deep-orange-800: #d84315;
-      --paper-deep-orange-900: #bf360c;
-      --paper-deep-orange-a100: #ff9e80;
-      --paper-deep-orange-a200: #ff6e40;
-      --paper-deep-orange-a400: #ff3d00;
-      --paper-deep-orange-a700: #dd2c00;
+    --paper-deep-orange-50: #fbe9e7;
+    --paper-deep-orange-100: #ffccbc;
+    --paper-deep-orange-200: #ffab91;
+    --paper-deep-orange-300: #ff8a65;
+    --paper-deep-orange-400: #ff7043;
+    --paper-deep-orange-500: #ff5722;
+    --paper-deep-orange-600: #f4511e;
+    --paper-deep-orange-700: #e64a19;
+    --paper-deep-orange-800: #d84315;
+    --paper-deep-orange-900: #bf360c;
+    --paper-deep-orange-a100: #ff9e80;
+    --paper-deep-orange-a200: #ff6e40;
+    --paper-deep-orange-a400: #ff3d00;
+    --paper-deep-orange-a700: #dd2c00;
 
-      --paper-brown-50: #efebe9;
-      --paper-brown-100: #d7ccc8;
-      --paper-brown-200: #bcaaa4;
-      --paper-brown-300: #a1887f;
-      --paper-brown-400: #8d6e63;
-      --paper-brown-500: #795548;
-      --paper-brown-600: #6d4c41;
-      --paper-brown-700: #5d4037;
-      --paper-brown-800: #4e342e;
-      --paper-brown-900: #3e2723;
+    --paper-brown-50: #efebe9;
+    --paper-brown-100: #d7ccc8;
+    --paper-brown-200: #bcaaa4;
+    --paper-brown-300: #a1887f;
+    --paper-brown-400: #8d6e63;
+    --paper-brown-500: #795548;
+    --paper-brown-600: #6d4c41;
+    --paper-brown-700: #5d4037;
+    --paper-brown-800: #4e342e;
+    --paper-brown-900: #3e2723;
 
-      --paper-grey-50: #fafafa;
-      --paper-grey-100: #f5f5f5;
-      --paper-grey-200: #eeeeee;
-      --paper-grey-300: #e0e0e0;
-      --paper-grey-400: #bdbdbd;
-      --paper-grey-500: #9e9e9e;
-      --paper-grey-600: #757575;
-      --paper-grey-700: #616161;
-      --paper-grey-800: #424242;
-      --paper-grey-900: #212121;
+    --paper-grey-50: #fafafa;
+    --paper-grey-100: #f5f5f5;
+    --paper-grey-200: #eeeeee;
+    --paper-grey-300: #e0e0e0;
+    --paper-grey-400: #bdbdbd;
+    --paper-grey-500: #9e9e9e;
+    --paper-grey-600: #757575;
+    --paper-grey-700: #616161;
+    --paper-grey-800: #424242;
+    --paper-grey-900: #212121;
 
-      --paper-blue-grey-50: #eceff1;
-      --paper-blue-grey-100: #cfd8dc;
-      --paper-blue-grey-200: #b0bec5;
-      --paper-blue-grey-300: #90a4ae;
-      --paper-blue-grey-400: #78909c;
-      --paper-blue-grey-500: #607d8b;
-      --paper-blue-grey-600: #546e7a;
-      --paper-blue-grey-700: #455a64;
-      --paper-blue-grey-800: #37474f;
-      --paper-blue-grey-900: #263238;
+    --paper-blue-grey-50: #eceff1;
+    --paper-blue-grey-100: #cfd8dc;
+    --paper-blue-grey-200: #b0bec5;
+    --paper-blue-grey-300: #90a4ae;
+    --paper-blue-grey-400: #78909c;
+    --paper-blue-grey-500: #607d8b;
+    --paper-blue-grey-600: #546e7a;
+    --paper-blue-grey-700: #455a64;
+    --paper-blue-grey-800: #37474f;
+    --paper-blue-grey-900: #263238;
 
-      /* opacity for dark text on a light background */
-      --dark-divider-opacity: 0.12;
-      --dark-disabled-opacity: 0.38; /* or hint text or icon */
-      --dark-secondary-opacity: 0.54;
-      --dark-primary-opacity: 0.87;
+    /* opacity for dark text on a light background */
+    --dark-divider-opacity: 0.12;
+    --dark-disabled-opacity: 0.38; /* or hint text or icon */
+    --dark-secondary-opacity: 0.54;
+    --dark-primary-opacity: 0.87;
 
-      /* opacity for light text on a dark background */
-      --light-divider-opacity: 0.12;
-      --light-disabled-opacity: 0.3; /* or hint text or icon */
-      --light-secondary-opacity: 0.7;
-      --light-primary-opacity: 1.0;
+    /* opacity for light text on a dark background */
+    --light-divider-opacity: 0.12;
+    --light-disabled-opacity: 0.3; /* or hint text or icon */
+    --light-secondary-opacity: 0.7;
+    --light-primary-opacity: 1.0;
 
-    }
+  }
 
-  </style>
+</style>
 </custom-style>
 `;
 template$1.setAttribute("style", "display: none;");
@@ -23070,60 +23067,60 @@ found at http://polymer.github.io/PATENTS.txt
 */
 const template$2 = html$1`
 <custom-style>
-  <style is="custom-style">
-    html {
-      /*
-       * You can use these generic variables in your elements for easy theming.
-       * For example, if all your elements use \`--primary-text-color\` as its main
-       * color, then switching from a light to a dark theme is just a matter of
-       * changing the value of \`--primary-text-color\` in your application.
-       */
-      --primary-text-color: var(--light-theme-text-color);
-      --primary-background-color: var(--light-theme-background-color);
-      --secondary-text-color: var(--light-theme-secondary-color);
-      --disabled-text-color: var(--light-theme-disabled-color);
-      --divider-color: var(--light-theme-divider-color);
-      --error-color: var(--paper-deep-orange-a700);
+<style is="custom-style">
+  html {
+    /*
+     * You can use these generic variables in your elements for easy theming.
+     * For example, if all your elements use \`--primary-text-color\` as its main
+     * color, then switching from a light to a dark theme is just a matter of
+     * changing the value of \`--primary-text-color\` in your application.
+     */
+    --primary-text-color: var(--light-theme-text-color);
+    --primary-background-color: var(--light-theme-background-color);
+    --secondary-text-color: var(--light-theme-secondary-color);
+    --disabled-text-color: var(--light-theme-disabled-color);
+    --divider-color: var(--light-theme-divider-color);
+    --error-color: var(--paper-deep-orange-a700);
 
-      /*
-       * Primary and accent colors. Also see color.js for more colors.
-       */
-      --primary-color: var(--paper-indigo-500);
-      --light-primary-color: var(--paper-indigo-100);
-      --dark-primary-color: var(--paper-indigo-700);
+    /*
+     * Primary and accent colors. Also see color.js for more colors.
+     */
+    --primary-color: var(--paper-indigo-500);
+    --light-primary-color: var(--paper-indigo-100);
+    --dark-primary-color: var(--paper-indigo-700);
 
-      --accent-color: var(--paper-pink-a200);
-      --light-accent-color: var(--paper-pink-a100);
-      --dark-accent-color: var(--paper-pink-a400);
+    --accent-color: var(--paper-pink-a200);
+    --light-accent-color: var(--paper-pink-a100);
+    --dark-accent-color: var(--paper-pink-a400);
 
 
-      /*
-       * Material Design Light background theme
-       */
-      --light-theme-background-color: #ffffff;
-      --light-theme-base-color: #000000;
-      --light-theme-text-color: var(--paper-grey-900);
-      --light-theme-secondary-color: #737373;  /* for secondary text and icons */
-      --light-theme-disabled-color: #9b9b9b;  /* disabled/hint text */
-      --light-theme-divider-color: #dbdbdb;
+    /*
+     * Material Design Light background theme
+     */
+    --light-theme-background-color: #ffffff;
+    --light-theme-base-color: #000000;
+    --light-theme-text-color: var(--paper-grey-900);
+    --light-theme-secondary-color: #737373;  /* for secondary text and icons */
+    --light-theme-disabled-color: #9b9b9b;  /* disabled/hint text */
+    --light-theme-divider-color: #dbdbdb;
 
-      /*
-       * Material Design Dark background theme
-       */
-      --dark-theme-background-color: var(--paper-grey-900);
-      --dark-theme-base-color: #ffffff;
-      --dark-theme-text-color: #ffffff;
-      --dark-theme-secondary-color: #bcbcbc;  /* for secondary text and icons */
-      --dark-theme-disabled-color: #646464;  /* disabled/hint text */
-      --dark-theme-divider-color: #3c3c3c;
+    /*
+     * Material Design Dark background theme
+     */
+    --dark-theme-background-color: var(--paper-grey-900);
+    --dark-theme-base-color: #ffffff;
+    --dark-theme-text-color: #ffffff;
+    --dark-theme-secondary-color: #bcbcbc;  /* for secondary text and icons */
+    --dark-theme-disabled-color: #646464;  /* disabled/hint text */
+    --dark-theme-divider-color: #3c3c3c;
 
-      /*
-       * Deprecated values because of their confusing names.
-       */
-      --text-primary-color: var(--dark-theme-text-color);
-      --default-primary-color: var(--primary-color);
-    }
-  </style>
+    /*
+     * Deprecated values because of their confusing names.
+     */
+    --text-primary-color: var(--dark-theme-text-color);
+    --default-primary-color: var(--primary-color);
+  }
+</style>
 </custom-style>`;
 template$2.setAttribute("style", "display: none;");
 document.head.appendChild(template$2.content);
@@ -23161,161 +23158,161 @@ part of the polymer project is also subject to an additional IP rights grant
 found at http://polymer.github.io/PATENTS.txt
 */
 const template$3 = html$1`<custom-style>
-  <style is="custom-style">
-    html {
+<style is="custom-style">
+  html {
 
-      /* Shared Styles */
-      --paper-font-common-base: {
-        font-family: 'Roboto', 'Noto', sans-serif;
-        -webkit-font-smoothing: antialiased;
-      };
+    /* Shared Styles */
+    --paper-font-common-base: {
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    };
 
-      --paper-font-common-code: {
-        font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
-        -webkit-font-smoothing: antialiased;
-      };
+    --paper-font-common-code: {
+      font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
+      -webkit-font-smoothing: antialiased;
+    };
 
-      --paper-font-common-expensive-kerning: {
-        text-rendering: optimizeLegibility;
-      };
+    --paper-font-common-expensive-kerning: {
+      text-rendering: optimizeLegibility;
+    };
 
-      --paper-font-common-nowrap: {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      };
+    --paper-font-common-nowrap: {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    };
 
-      /* Material Font Styles */
+    /* Material Font Styles */
 
-      --paper-font-display4: {
-        @apply --paper-font-common-base;
-        @apply --paper-font-common-nowrap;
+    --paper-font-display4: {
+      @apply --paper-font-common-base;
+      @apply --paper-font-common-nowrap;
 
-        font-size: 112px;
-        font-weight: 300;
-        letter-spacing: -.044em;
-        line-height: 120px;
-      };
+      font-size: 112px;
+      font-weight: 300;
+      letter-spacing: -.044em;
+      line-height: 120px;
+    };
 
-      --paper-font-display3: {
-        @apply --paper-font-common-base;
-        @apply --paper-font-common-nowrap;
+    --paper-font-display3: {
+      @apply --paper-font-common-base;
+      @apply --paper-font-common-nowrap;
 
-        font-size: 56px;
-        font-weight: 400;
-        letter-spacing: -.026em;
-        line-height: 60px;
-      };
+      font-size: 56px;
+      font-weight: 400;
+      letter-spacing: -.026em;
+      line-height: 60px;
+    };
 
-      --paper-font-display2: {
-        @apply --paper-font-common-base;
+    --paper-font-display2: {
+      @apply --paper-font-common-base;
 
-        font-size: 45px;
-        font-weight: 400;
-        letter-spacing: -.018em;
-        line-height: 48px;
-      };
+      font-size: 45px;
+      font-weight: 400;
+      letter-spacing: -.018em;
+      line-height: 48px;
+    };
 
-      --paper-font-display1: {
-        @apply --paper-font-common-base;
+    --paper-font-display1: {
+      @apply --paper-font-common-base;
 
-        font-size: 34px;
-        font-weight: 400;
-        letter-spacing: -.01em;
-        line-height: 40px;
-      };
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: -.01em;
+      line-height: 40px;
+    };
 
-      --paper-font-headline: {
-        @apply --paper-font-common-base;
+    --paper-font-headline: {
+      @apply --paper-font-common-base;
 
-        font-size: 24px;
-        font-weight: 400;
-        letter-spacing: -.012em;
-        line-height: 32px;
-      };
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -.012em;
+      line-height: 32px;
+    };
 
-      --paper-font-title: {
-        @apply --paper-font-common-base;
-        @apply --paper-font-common-nowrap;
+    --paper-font-title: {
+      @apply --paper-font-common-base;
+      @apply --paper-font-common-nowrap;
 
-        font-size: 20px;
-        font-weight: 500;
-        line-height: 28px;
-      };
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 28px;
+    };
 
-      --paper-font-subhead: {
-        @apply --paper-font-common-base;
+    --paper-font-subhead: {
+      @apply --paper-font-common-base;
 
-        font-size: 16px;
-        font-weight: 400;
-        line-height: 24px;
-      };
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+    };
 
-      --paper-font-body2: {
-        @apply --paper-font-common-base;
+    --paper-font-body2: {
+      @apply --paper-font-common-base;
 
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 24px;
-      };
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 24px;
+    };
 
-      --paper-font-body1: {
-        @apply --paper-font-common-base;
+    --paper-font-body1: {
+      @apply --paper-font-common-base;
 
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 20px;
-      };
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+    };
 
-      --paper-font-caption: {
-        @apply --paper-font-common-base;
-        @apply --paper-font-common-nowrap;
+    --paper-font-caption: {
+      @apply --paper-font-common-base;
+      @apply --paper-font-common-nowrap;
 
-        font-size: 12px;
-        font-weight: 400;
-        letter-spacing: 0.011em;
-        line-height: 20px;
-      };
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.011em;
+      line-height: 20px;
+    };
 
-      --paper-font-menu: {
-        @apply --paper-font-common-base;
-        @apply --paper-font-common-nowrap;
+    --paper-font-menu: {
+      @apply --paper-font-common-base;
+      @apply --paper-font-common-nowrap;
 
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 24px;
-      };
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 24px;
+    };
 
-      --paper-font-button: {
-        @apply --paper-font-common-base;
-        @apply --paper-font-common-nowrap;
+    --paper-font-button: {
+      @apply --paper-font-common-base;
+      @apply --paper-font-common-nowrap;
 
-        font-size: 14px;
-        font-weight: 500;
-        letter-spacing: 0.018em;
-        line-height: 24px;
-        text-transform: uppercase;
-      };
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.018em;
+      line-height: 24px;
+      text-transform: uppercase;
+    };
 
-      --paper-font-code2: {
-        @apply --paper-font-common-code;
+    --paper-font-code2: {
+      @apply --paper-font-common-code;
 
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 20px;
-      };
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 20px;
+    };
 
-      --paper-font-code1: {
-        @apply --paper-font-common-code;
+    --paper-font-code1: {
+      @apply --paper-font-common-code;
 
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 20px;
-      };
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+    };
 
-    }
+  }
 
-  </style>
+</style>
 </custom-style>`;
 template$3.setAttribute("style", "display: none;");
 document.head.appendChild(template$3.content);
@@ -23332,68 +23329,68 @@ found at http://polymer.github.io/PATENTS.txt
 */
 const template$4 = html$1`
 <custom-style>
-  <style is="custom-style">
-    html {
+<style is="custom-style">
+  html {
 
-      --shadow-transition: {
-        transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      };
+    --shadow-transition: {
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    };
 
-      --shadow-none: {
-        box-shadow: none;
-      };
+    --shadow-none: {
+      box-shadow: none;
+    };
 
-      /* from http://codepen.io/shyndman/pen/c5394ddf2e8b2a5c9185904b57421cdb */
+    /* from http://codepen.io/shyndman/pen/c5394ddf2e8b2a5c9185904b57421cdb */
 
-      --shadow-elevation-2dp: {
-        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                    0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                    0 3px 1px -2px rgba(0, 0, 0, 0.2);
-      };
+    --shadow-elevation-2dp: {
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    };
 
-      --shadow-elevation-3dp: {
-        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14),
-                    0 1px 8px 0 rgba(0, 0, 0, 0.12),
-                    0 3px 3px -2px rgba(0, 0, 0, 0.4);
-      };
+    --shadow-elevation-3dp: {
+      box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 8px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 3px -2px rgba(0, 0, 0, 0.4);
+    };
 
-      --shadow-elevation-4dp: {
-        box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-                    0 1px 10px 0 rgba(0, 0, 0, 0.12),
-                    0 2px 4px -1px rgba(0, 0, 0, 0.4);
-      };
+    --shadow-elevation-4dp: {
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    };
 
-      --shadow-elevation-6dp: {
-        box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
-                    0 1px 18px 0 rgba(0, 0, 0, 0.12),
-                    0 3px 5px -1px rgba(0, 0, 0, 0.4);
-      };
+    --shadow-elevation-6dp: {
+      box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 5px -1px rgba(0, 0, 0, 0.4);
+    };
 
-      --shadow-elevation-8dp: {
-        box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
-                    0 3px 14px 2px rgba(0, 0, 0, 0.12),
-                    0 5px 5px -3px rgba(0, 0, 0, 0.4);
-      };
+    --shadow-elevation-8dp: {
+      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                  0 3px 14px 2px rgba(0, 0, 0, 0.12),
+                  0 5px 5px -3px rgba(0, 0, 0, 0.4);
+    };
 
-      --shadow-elevation-12dp: {
-        box-shadow: 0 12px 16px 1px rgba(0, 0, 0, 0.14),
-                    0 4px 22px 3px rgba(0, 0, 0, 0.12),
-                    0 6px 7px -4px rgba(0, 0, 0, 0.4);
-      };
+    --shadow-elevation-12dp: {
+      box-shadow: 0 12px 16px 1px rgba(0, 0, 0, 0.14),
+                  0 4px 22px 3px rgba(0, 0, 0, 0.12),
+                  0 6px 7px -4px rgba(0, 0, 0, 0.4);
+    };
 
-      --shadow-elevation-16dp: {
-        box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
-                    0  6px 30px 5px rgba(0, 0, 0, 0.12),
-                    0  8px 10px -5px rgba(0, 0, 0, 0.4);
-      };
+    --shadow-elevation-16dp: {
+      box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+                  0  6px 30px 5px rgba(0, 0, 0, 0.12),
+                  0  8px 10px -5px rgba(0, 0, 0, 0.4);
+    };
 
-      --shadow-elevation-24dp: {
-        box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14),
-                    0 9px 46px 8px rgba(0, 0, 0, 0.12),
-                    0 11px 15px -7px rgba(0, 0, 0, 0.4);
-      };
-    }
-  </style>
+    --shadow-elevation-24dp: {
+      box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14),
+                  0 9px 46px 8px rgba(0, 0, 0, 0.12),
+                  0 11px 15px -7px rgba(0, 0, 0, 0.4);
+    };
+  }
+</style>
 </custom-style>`;
 template$4.setAttribute("style", "display: none;");
 document.head.appendChild(template$4.content);
@@ -23412,74 +23409,74 @@ const $_documentContainer = document.createElement("template");
 $_documentContainer.setAttribute("style", "display: none;");
 
 $_documentContainer.innerHTML = `<dom-module id="paper-dialog-shared-styles">
-  <template>
-    <style>
-      :host {
-        display: block;
-        margin: 24px 40px;
+<template>
+  <style>
+    :host {
+      display: block;
+      margin: 24px 40px;
 
-        background: var(--paper-dialog-background-color, var(--primary-background-color));
-        color: var(--paper-dialog-color, var(--primary-text-color));
+      background: var(--paper-dialog-background-color, var(--primary-background-color));
+      color: var(--paper-dialog-color, var(--primary-text-color));
 
-        @apply --paper-font-body1;
-        @apply --shadow-elevation-16dp;
-        @apply --paper-dialog;
-      }
+      @apply --paper-font-body1;
+      @apply --shadow-elevation-16dp;
+      @apply --paper-dialog;
+    }
 
-      :host > ::slotted(*) {
-        margin-top: 20px;
-        padding: 0 24px;
-      }
+    :host > ::slotted(*) {
+      margin-top: 20px;
+      padding: 0 24px;
+    }
 
-      :host > ::slotted(.no-padding) {
-        padding: 0;
-      }
+    :host > ::slotted(.no-padding) {
+      padding: 0;
+    }
 
-      
-      :host > ::slotted(*:first-child) {
-        margin-top: 24px;
-      }
+    
+    :host > ::slotted(*:first-child) {
+      margin-top: 24px;
+    }
 
-      :host > ::slotted(*:last-child) {
-        margin-bottom: 24px;
-      }
+    :host > ::slotted(*:last-child) {
+      margin-bottom: 24px;
+    }
 
-      /* In 1.x, this selector was \`:host > ::content h2\`. In 2.x <slot> allows
-      to select direct children only, which increases the weight of this
-      selector, so we have to re-define first-child/last-child margins below. */
-      :host > ::slotted(h2) {
-        position: relative;
-        margin: 0;
+    /* In 1.x, this selector was \`:host > ::content h2\`. In 2.x <slot> allows
+    to select direct children only, which increases the weight of this
+    selector, so we have to re-define first-child/last-child margins below. */
+    :host > ::slotted(h2) {
+      position: relative;
+      margin: 0;
 
-        @apply --paper-font-title;
-        @apply --paper-dialog-title;
-      }
+      @apply --paper-font-title;
+      @apply --paper-dialog-title;
+    }
 
-      /* Apply mixin again, in case it sets margin-top. */
-      :host > ::slotted(h2:first-child) {
-        margin-top: 24px;
-        @apply --paper-dialog-title;
-      }
+    /* Apply mixin again, in case it sets margin-top. */
+    :host > ::slotted(h2:first-child) {
+      margin-top: 24px;
+      @apply --paper-dialog-title;
+    }
 
-      /* Apply mixin again, in case it sets margin-bottom. */
-      :host > ::slotted(h2:last-child) {
-        margin-bottom: 24px;
-        @apply --paper-dialog-title;
-      }
+    /* Apply mixin again, in case it sets margin-bottom. */
+    :host > ::slotted(h2:last-child) {
+      margin-bottom: 24px;
+      @apply --paper-dialog-title;
+    }
 
-      :host > ::slotted(.paper-dialog-buttons),
-      :host > ::slotted(.buttons) {
-        position: relative;
-        padding: 8px 8px 8px 24px;
-        margin: 0;
+    :host > ::slotted(.paper-dialog-buttons),
+    :host > ::slotted(.buttons) {
+      position: relative;
+      padding: 8px 8px 8px 24px;
+      margin: 0;
 
-        color: var(--paper-dialog-button-color, var(--primary-color));
+      color: var(--paper-dialog-button-color, var(--primary-color));
 
-        @apply --layout-horizontal;
-        @apply --layout-end-justified;
-      }
-    </style>
-  </template>
+      @apply --layout-horizontal;
+      @apply --layout-end-justified;
+    }
+  </style>
+</template>
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);
@@ -23818,31 +23815,31 @@ CSS properties            | Action
 `verticalAlign` and `horizontalAlign`. This will override the element's css
 position.
 
-    <div class="container">
-      <iron-fit-impl vertical-align="top" horizontal-align="auto">
-        Positioned into the container
-      </iron-fit-impl>
-    </div>
+  <div class="container">
+    <iron-fit-impl vertical-align="top" horizontal-align="auto">
+      Positioned into the container
+    </iron-fit-impl>
+  </div>
 
 Use `noOverlap` to position the element around another element without
 overlapping it.
 
-    <div class="container">
-      <iron-fit-impl no-overlap vertical-align="auto" horizontal-align="auto">
-        Positioned around the container
-      </iron-fit-impl>
-    </div>
+  <div class="container">
+    <iron-fit-impl no-overlap vertical-align="auto" horizontal-align="auto">
+      Positioned around the container
+    </iron-fit-impl>
+  </div>
 
 Use `horizontalOffset, verticalOffset` to offset the element from its
 `positionTarget`; `Polymer.IronFitBehavior` will collapse these in order to
 keep the element within `fitInto` boundaries, while preserving the element's
 CSS margin values.
 
-    <div class="container">
-      <iron-fit-impl vertical-align="top" vertical-offset="20">
-        With vertical offset
-      </iron-fit-impl>
-    </div>
+  <div class="container">
+    <iron-fit-impl vertical-align="top" vertical-offset="20">
+      With vertical offset
+    </iron-fit-impl>
+  </div>
 
 @demo demo/index.html
 @polymerBehavior
@@ -25075,28 +25072,28 @@ Custom property | Description | Default
 Polymer({
   /** @override */
   _template: html$1`
-    <style>
-      :host {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: var(--iron-overlay-backdrop-background-color, #000);
-        opacity: 0;
-        transition: opacity 0.2s;
-        pointer-events: none;
-        @apply --iron-overlay-backdrop;
-      }
+  <style>
+    :host {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--iron-overlay-backdrop-background-color, #000);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      @apply --iron-overlay-backdrop;
+    }
 
-      :host(.opened) {
-        opacity: var(--iron-overlay-backdrop-opacity, 0.6);
-        pointer-events: auto;
-        @apply --iron-overlay-backdrop-opened;
-      }
-    </style>
+    :host(.opened) {
+      opacity: var(--iron-overlay-backdrop-opacity, 0.6);
+      pointer-events: auto;
+      @apply --iron-overlay-backdrop-opened;
+    }
+  </style>
 
-    <slot></slot>
+  <slot></slot>
 `,
 
   is: "iron-overlay-backdrop",
@@ -27151,55 +27148,55 @@ const composedContains = (ancestor, descendant) => {
 };
 
 /**
-  Use `Polymer.IronOverlayBehavior` to implement an element that can be hidden
-  or shown, and displays on top of other content. It includes an optional
-  backdrop, and can be used to implement a variety of UI controls including
-  dialogs and drop downs. Multiple overlays may be displayed at once.
+Use `Polymer.IronOverlayBehavior` to implement an element that can be hidden
+or shown, and displays on top of other content. It includes an optional
+backdrop, and can be used to implement a variety of UI controls including
+dialogs and drop downs. Multiple overlays may be displayed at once.
 
-  See the [demo source
-  code](https://github.com/PolymerElements/iron-overlay-behavior/blob/master/demo/simple-overlay.html)
-  for an example.
+See the [demo source
+code](https://github.com/PolymerElements/iron-overlay-behavior/blob/master/demo/simple-overlay.html)
+for an example.
 
-  ### Closing and canceling
+### Closing and canceling
 
-  An overlay may be hidden by closing or canceling. The difference between close
-  and cancel is user intent. Closing generally implies that the user
-  acknowledged the content on the overlay. By default, it will cancel whenever
-  the user taps outside it or presses the escape key. This behavior is
-  configurable with the `no-cancel-on-esc-key` and the
-  `no-cancel-on-outside-click` properties. `close()` should be called explicitly
-  by the implementer when the user interacts with a control in the overlay
-  element. When the dialog is canceled, the overlay fires an
-  'iron-overlay-canceled' event. Call `preventDefault` on this event to prevent
-  the overlay from closing.
+An overlay may be hidden by closing or canceling. The difference between close
+and cancel is user intent. Closing generally implies that the user
+acknowledged the content on the overlay. By default, it will cancel whenever
+the user taps outside it or presses the escape key. This behavior is
+configurable with the `no-cancel-on-esc-key` and the
+`no-cancel-on-outside-click` properties. `close()` should be called explicitly
+by the implementer when the user interacts with a control in the overlay
+element. When the dialog is canceled, the overlay fires an
+'iron-overlay-canceled' event. Call `preventDefault` on this event to prevent
+the overlay from closing.
 
-  ### Positioning
+### Positioning
 
-  By default the element is sized and positioned to fit and centered inside the
-  window. You can position and size it manually using CSS. See
-  `Polymer.IronFitBehavior`.
+By default the element is sized and positioned to fit and centered inside the
+window. You can position and size it manually using CSS. See
+`Polymer.IronFitBehavior`.
 
-  ### Backdrop
+### Backdrop
 
-  Set the `with-backdrop` attribute to display a backdrop behind the overlay.
-  The backdrop is appended to `<body>` and is of type `<iron-overlay-backdrop>`.
-  See its doc page for styling options.
+Set the `with-backdrop` attribute to display a backdrop behind the overlay.
+The backdrop is appended to `<body>` and is of type `<iron-overlay-backdrop>`.
+See its doc page for styling options.
 
-  In addition, `with-backdrop` will wrap the focus within the content in the
-  light DOM. Override the [`_focusableNodes`
-  getter](#Polymer.IronOverlayBehavior:property-_focusableNodes) to achieve a
-  different behavior.
+In addition, `with-backdrop` will wrap the focus within the content in the
+light DOM. Override the [`_focusableNodes`
+getter](#Polymer.IronOverlayBehavior:property-_focusableNodes) to achieve a
+different behavior.
 
-  ### Limitations
+### Limitations
 
-  The element is styled to appear on top of other content by setting its
-  `z-index` property. You must ensure no element has a stacking context with a
-  higher `z-index` than its parent stacking context. You should place this
-  element as a child of `<body>` whenever possible.
+The element is styled to appear on top of other content by setting its
+`z-index` property. You must ensure no element has a stacking context with a
+higher `z-index` than its parent stacking context. You should place this
+element as a child of `<body>` whenever possible.
 
-  @demo demo/index.html
-  @polymerBehavior
- */
+@demo demo/index.html
+@polymerBehavior
+*/
 const IronOverlayBehavior = [
   IronFitBehavior,
   IronResizableBehavior,
@@ -27239,42 +27236,42 @@ found at http://polymer.github.io/PATENTS.txt
 */
 
 /**
-  Use `Polymer.PaperDialogBehavior` and `paper-dialog-shared-styles.html` to
-  implement a Material Design dialog.
+Use `Polymer.PaperDialogBehavior` and `paper-dialog-shared-styles.html` to
+implement a Material Design dialog.
 
-  For example, if `<paper-dialog-impl>` implements this behavior:
+For example, if `<paper-dialog-impl>` implements this behavior:
 
-      <paper-dialog-impl>
-          <h2>Header</h2>
-          <div>Dialog body</div>
-          <div class="buttons">
-              <paper-button dialog-dismiss>Cancel</paper-button>
-              <paper-button dialog-confirm>Accept</paper-button>
-          </div>
-      </paper-dialog-impl>
+    <paper-dialog-impl>
+        <h2>Header</h2>
+        <div>Dialog body</div>
+        <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm>Accept</paper-button>
+        </div>
+    </paper-dialog-impl>
 
-  `paper-dialog-shared-styles.html` provide styles for a header, content area,
-  and an action area for buttons. Use the `<h2>` tag for the header and the
-  `buttons` class for the action area. You can use the `paper-dialog-scrollable`
-  element (in its own repository) if you need a scrolling content area.
+`paper-dialog-shared-styles.html` provide styles for a header, content area,
+and an action area for buttons. Use the `<h2>` tag for the header and the
+`buttons` class for the action area. You can use the `paper-dialog-scrollable`
+element (in its own repository) if you need a scrolling content area.
 
-  Use the `dialog-dismiss` and `dialog-confirm` attributes on interactive
-  controls to close the dialog. If the user dismisses the dialog with
-  `dialog-confirm`, the `closingReason` will update to include `confirmed:
-  true`.
+Use the `dialog-dismiss` and `dialog-confirm` attributes on interactive
+controls to close the dialog. If the user dismisses the dialog with
+`dialog-confirm`, the `closingReason` will update to include `confirmed:
+true`.
 
-  ### Accessibility
+### Accessibility
 
-  This element has `role="dialog"` by default. Depending on the context, it may
-  be more appropriate to override this attribute with `role="alertdialog"`.
+This element has `role="dialog"` by default. Depending on the context, it may
+be more appropriate to override this attribute with `role="alertdialog"`.
 
-  If `modal` is set, the element will prevent the focus from exiting the
-  element. It will also ensure that focus remains in the dialog.
+If `modal` is set, the element will prevent the focus from exiting the
+element. It will also ensure that focus remains in the dialog.
 
-  @hero hero.svg
-  @demo demo/index.html
-  @polymerBehavior PaperDialogBehavior
- */
+@hero hero.svg
+@demo demo/index.html
+@polymerBehavior PaperDialogBehavior
+*/
 const PaperDialogBehaviorImpl = {
   hostAttributes: { role: "dialog", tabindex: "-1" },
 
@@ -27389,16 +27386,16 @@ For example, the following code implements a dialog with a header, scrolling
 content area and buttons. Focus will be given to the `dialog-confirm` button
 when the dialog is opened.
 
-    <paper-dialog>
-      <h2>Header</h2>
-      <paper-dialog-scrollable>
-        Lorem ipsum...
-      </paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm autofocus>Accept</paper-button>
-      </div>
-    </paper-dialog>
+  <paper-dialog>
+    <h2>Header</h2>
+    <paper-dialog-scrollable>
+      Lorem ipsum...
+    </paper-dialog-scrollable>
+    <div class="buttons">
+      <paper-button dialog-dismiss>Cancel</paper-button>
+      <paper-button dialog-confirm autofocus>Accept</paper-button>
+    </div>
+  </paper-dialog>
 
 ### Styling
 
@@ -27414,16 +27411,16 @@ for more info.
 
 For example:
 
-    <script type="module">
-      import '@polymer/neon-animation/animations/fade-out-animation.js';
-      import '@polymer/neon-animation/animations/scale-up-animation.js';
-    </script>
+  <script type="module">
+    import '@polymer/neon-animation/animations/fade-out-animation.js';
+    import '@polymer/neon-animation/animations/scale-up-animation.js';
+  </script>
 
-    <paper-dialog entry-animation="scale-up-animation"
-                  exit-animation="fade-out-animation">
-      <h2>Header</h2>
-      <div>Dialog body</div>
-    </paper-dialog>
+  <paper-dialog entry-animation="scale-up-animation"
+                exit-animation="fade-out-animation">
+    <h2>Header</h2>
+    <div>Dialog body</div>
+  </paper-dialog>
 
 ### Accessibility
 
@@ -27437,8 +27434,8 @@ implemented by this element.
 */
 Polymer({
   _template: html$1`
-    <style include="paper-dialog-shared-styles"></style>
-    <slot></slot>
+  <style include="paper-dialog-shared-styles"></style>
+  <slot></slot>
 `,
 
   is: "paper-dialog",
@@ -27988,7 +27985,7 @@ Examples:
 
 If I create an instance like this:
 
-    <iron-meta key="info" value="foo/bar"></iron-meta>
+  <iron-meta key="info" value="foo/bar"></iron-meta>
 
 Note that value="foo/bar" is the metadata I've defined. I could define more
 attributes or use child nodes to define additional metadata.
@@ -27996,17 +27993,17 @@ attributes or use child nodes to define additional metadata.
 Now I can access that element (and it's metadata) from any iron-meta instance
 via the byKey method, e.g.
 
-    meta.byKey('info');
+  meta.byKey('info');
 
 Pure imperative form would be like:
 
-    document.createElement('iron-meta').byKey('info');
+  document.createElement('iron-meta').byKey('info');
 
 Or, in a Polymer element, you can include a meta in your template:
 
-    <iron-meta id="meta"></iron-meta>
-    ...
-    this.$.meta.byKey('info');
+  <iron-meta id="meta"></iron-meta>
+  ...
+  this.$.meta.byKey('info');
 
 @group Iron Elements
 @demo demo/index.html
@@ -28105,44 +28102,44 @@ square.
 
 Example using src:
 
-    <iron-icon src="star.png"></iron-icon>
+  <iron-icon src="star.png"></iron-icon>
 
 Example setting size to 32px x 32px:
 
-    <iron-icon class="big" src="big_star.png"></iron-icon>
+  <iron-icon class="big" src="big_star.png"></iron-icon>
 
-    <style is="custom-style">
-      .big {
-        --iron-icon-height: 32px;
-        --iron-icon-width: 32px;
-      }
-    </style>
+  <style is="custom-style">
+    .big {
+      --iron-icon-height: 32px;
+      --iron-icon-width: 32px;
+    }
+  </style>
 
 The iron elements include several sets of icons. To use the default set of
 icons, import `iron-icons.js` and use the `icon` attribute to specify an icon:
 
-    <script type="module">
-      import "@polymer/iron-icons/iron-icons.js";
-    </script>
+  <script type="module">
+    import "@polymer/iron-icons/iron-icons.js";
+  </script>
 
-    <iron-icon icon="menu"></iron-icon>
+  <iron-icon icon="menu"></iron-icon>
 
 To use a different built-in set of icons, import the specific
 `iron-icons/<iconset>-icons.js`, and specify the icon as `<iconset>:<icon>`.
 For example, to use a communication icon, you would use:
 
-    <script type="module">
-      import "@polymer/iron-icons/communication-icons.js";
-    </script>
+  <script type="module">
+    import "@polymer/iron-icons/communication-icons.js";
+  </script>
 
-    <iron-icon icon="communication:email"></iron-icon>
+  <iron-icon icon="communication:email"></iron-icon>
 
 You can also create custom icon sets of bitmap or SVG icons.
 
 Example of using an icon named `cherry` from a custom iconset with the ID
 `fruit`:
 
-    <iron-icon icon="fruit:cherry"></iron-icon>
+  <iron-icon icon="fruit:cherry"></iron-icon>
 
 See `<iron-iconset>` and `<iron-iconset-svg>` for more information about how to
 create a custom iconset.
@@ -28169,26 +28166,26 @@ Custom property | Description | Default
 */
 Polymer({
   _template: html$1`
-    <style>
-      :host {
-        @apply --layout-inline;
-        @apply --layout-center-center;
-        position: relative;
+  <style>
+    :host {
+      @apply --layout-inline;
+      @apply --layout-center-center;
+      position: relative;
 
-        vertical-align: middle;
+      vertical-align: middle;
 
-        fill: var(--iron-icon-fill-color, currentcolor);
-        stroke: var(--iron-icon-stroke-color, none);
+      fill: var(--iron-icon-fill-color, currentcolor);
+      stroke: var(--iron-icon-stroke-color, none);
 
-        width: var(--iron-icon-width, 24px);
-        height: var(--iron-icon-height, 24px);
-        @apply --iron-icon;
-      }
+      width: var(--iron-icon-width, 24px);
+      height: var(--iron-icon-height, 24px);
+      @apply --iron-icon;
+    }
 
-      :host([hidden]) {
-        display: none;
-      }
-    </style>
+    :host([hidden]) {
+      display: none;
+    }
+  </style>
 `,
 
   is: "iron-icon",
@@ -28299,25 +28296,25 @@ in the announcing element.
 
 Example:
 
-    Polymer({
+  Polymer({
 
-      is: 'x-chatty',
+    is: 'x-chatty',
 
-      attached: function() {
-        // This will create the singleton element if it has not
-        // been created yet:
-        Polymer.IronA11yAnnouncer.requestAvailability();
-      }
-    });
+    attached: function() {
+      // This will create the singleton element if it has not
+      // been created yet:
+      Polymer.IronA11yAnnouncer.requestAvailability();
+    }
+  });
 
 After the `iron-a11y-announcer` has been made available, elements can
 make announces by firing bubbling `iron-announce` events.
 
 Example:
 
-    this.fire('iron-announce', {
-      text: 'This is an announcement!'
-    }, { bubbles: true });
+  this.fire('iron-announce', {
+    text: 'This is an announcement!'
+  }, { bubbles: true });
 
 Note: announcements are only audible if you have a screen reader enabled.
 
@@ -28326,14 +28323,14 @@ Note: announcements are only audible if you have a screen reader enabled.
 const IronA11yAnnouncer = Polymer({
   /** @override */
   _template: html$1`
-    <style>
-      :host {
-        display: inline-block;
-        position: fixed;
-        clip: rect(0px,0px,0px,0px);
-      }
-    </style>
-    <div aria-live$="[[mode]]">[[_text]]</div>
+  <style>
+    :host {
+      display: inline-block;
+      position: fixed;
+      clip: rect(0px,0px,0px,0px);
+    }
+  </style>
+  <div aria-live$="[[mode]]">[[_text]]</div>
 `,
 
   is: "iron-a11y-announcer",
@@ -28490,17 +28487,17 @@ const IronValidatableBehavior = {
   },
 
   /**
-   * Returns true if the `value` is valid, and updates `invalid`. If you want
-   * your element to have custom validation logic, do not override this method;
-   * override `_getValidity(value)` instead.
+ * Returns true if the `value` is valid, and updates `invalid`. If you want
+ * your element to have custom validation logic, do not override this method;
+ * override `_getValidity(value)` instead.
 
-   * @param {Object} value Deprecated: The value to be validated. By default,
-   * it is passed to the validator's `validate()` function, if a validator is
-   set.
-   * If this argument is not specified, then the element's `value` property
-   * is used, if it exists.
-   * @return {boolean} True if `value` is valid.
-   */
+ * @param {Object} value Deprecated: The value to be validated. By default,
+ * it is passed to the validator's `validate()` function, if a validator is
+ set.
+ * If this argument is not specified, then the element's `value` property
+ * is used, if it exists.
+ * @return {boolean} True if `value` is valid.
+ */
   validate: function (value) {
     // If this is an element that also has a value property, and there was
     // no explicit value argument passed, use the element's property instead.
@@ -28545,20 +28542,20 @@ binding and prevention of invalid input. To use it, you must distribute a native
 `<input>` yourself. You can continue to use the native `input` as you would
 normally:
 
-    <iron-input>
-      <input>
-    </iron-input>
+  <iron-input>
+    <input>
+  </iron-input>
 
-    <iron-input>
-      <input type="email" disabled>
-    </iron-input>
+  <iron-input>
+    <input type="email" disabled>
+  </iron-input>
 
 ### Two-way binding
 
 By default you can only get notified of changes to a native `<input>`'s `value`
 due to user input:
 
-    <input value="{{myValue::input}}">
+  <input value="{{myValue::input}}">
 
 This means that if you imperatively set the value (i.e. `someNativeInput.value =
 'foo'`), no events will be fired and this change cannot be observed.
@@ -28567,9 +28564,9 @@ This means that if you imperatively set the value (i.e. `someNativeInput.value =
 '`value` property; this property can be used for two-way data binding.
 `bind-value` will notify if it is changed either by user input or by script.
 
-    <iron-input bind-value="{{myValue}}">
-      <input>
-    </iron-input>
+  <iron-input bind-value="{{myValue}}">
+    <input>
+  </iron-input>
 
 Note: this means that if you want to imperatively set the native `input`'s, you
 _must_ set `bind-value` instead, so that the wrapper `iron-input` can be
@@ -28588,24 +28585,24 @@ attribute.
 `iron-input` also fires an `iron-input-validate` event after `validate()` is
 called. You can use it to implement a custom validator:
 
-    var CatsOnlyValidator = {
-      validate: function(ironInput) {
-        var valid = !ironInput.bindValue || ironInput.bindValue === 'cat';
-        ironInput.invalid = !valid;
-        return valid;
-      }
+  var CatsOnlyValidator = {
+    validate: function(ironInput) {
+      var valid = !ironInput.bindValue || ironInput.bindValue === 'cat';
+      ironInput.invalid = !valid;
+      return valid;
     }
-    ironInput.addEventListener('iron-input-validate', function() {
-      CatsOnly.validate(input2);
-    });
+  }
+  ironInput.addEventListener('iron-input-validate', function() {
+    CatsOnly.validate(input2);
+  });
 
 You can also use an element implementing an
 [`IronValidatorBehavior`](/element/PolymerElements/iron-validatable-behavior).
 This example can also be found in the demo for this element:
 
-    <iron-input validator="cats-only">
-      <input>
-    </iron-input>
+  <iron-input validator="cats-only">
+    <input>
+  </iron-input>
 
 ### Preventing invalid input
 
@@ -28614,21 +28611,21 @@ the `allowed-pattern` attribute to accomplish this. This feature is separate
 from validation, and `allowed-pattern` does not affect how the input is
 validated.
 
-    // Only allow typing digits, but a valid input has exactly 5 digits.
-    <iron-input allowed-pattern="[0-9]">
-      <input pattern="\d{5}">
-    </iron-input>
+  // Only allow typing digits, but a valid input has exactly 5 digits.
+  <iron-input allowed-pattern="[0-9]">
+    <input pattern="\d{5}">
+  </iron-input>
 
 @demo demo/index.html
 */
 Polymer({
   _template: html$1`
-    <style>
-      :host {
-        display: inline-block;
-      }
-    </style>
-    <slot id="content"></slot>
+  <style>
+    :host {
+      display: inline-block;
+    }
+  </style>
+  <slot id="content"></slot>
 `,
 
   is: "iron-input",
@@ -28948,10 +28945,10 @@ found at http://polymer.github.io/PATENTS.txt
 `<paper-input-container>`. It shows the number of characters entered in the
 input and the max length if it is specified.
 
-    <paper-input-container>
-      <input maxlength="20">
-      <paper-input-char-counter></paper-input-char-counter>
-    </paper-input-container>
+  <paper-input-container>
+    <input maxlength="20">
+    <paper-input-char-counter></paper-input-char-counter>
+  </paper-input-container>
 
 ### Styling
 
@@ -28964,25 +28961,25 @@ Custom property | Description | Default
 Polymer({
   /** @override */
   _template: html$1`
-    <style>
-      :host {
-        display: inline-block;
-        float: right;
+  <style>
+    :host {
+      display: inline-block;
+      float: right;
 
-        @apply --paper-font-caption;
-        @apply --paper-input-char-counter;
-      }
+      @apply --paper-font-caption;
+      @apply --paper-input-char-counter;
+    }
 
-      :host([hidden]) {
-        display: none !important;
-      }
+    :host([hidden]) {
+      display: none !important;
+    }
 
-      :host(:dir(rtl)) {
-        float: left;
-      }
-    </style>
+    :host(:dir(rtl)) {
+      float: left;
+    }
+  </style>
 
-    <span>[[_charCounterStr]]</span>
+  <span>[[_charCounterStr]]</span>
 `,
 
   is: "paper-input-char-counter",
@@ -29029,27 +29026,27 @@ found at http://polymer.github.io/PATENTS.txt
 */
 const template$5 = html$1`
 <custom-style>
-  <style is="custom-style">
-    html {
-      --paper-input-container-shared-input-style: {
-        position: relative; /* to make a stacking context */
-        outline: none;
-        box-shadow: none;
-        padding: 0;
-        margin: 0;
-        width: 100%;
-        max-width: 100%;
-        background: transparent;
-        border: none;
-        color: var(--paper-input-container-input-color, var(--primary-text-color));
-        -webkit-appearance: none;
-        text-align: inherit;
-        vertical-align: var(--paper-input-container-input-align, bottom);
+<style is="custom-style">
+  html {
+    --paper-input-container-shared-input-style: {
+      position: relative; /* to make a stacking context */
+      outline: none;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      max-width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--paper-input-container-input-color, var(--primary-text-color));
+      -webkit-appearance: none;
+      text-align: inherit;
+      vertical-align: var(--paper-input-container-input-align, bottom);
 
-        @apply --paper-font-subhead;
-      };
-    }
-  </style>
+      @apply --paper-font-subhead;
+    };
+  }
+</style>
 </custom-style>
 `;
 template$5.setAttribute("style", "display: none;");
@@ -29062,14 +29059,14 @@ counter, used to implement Material Design text fields.
 
 For example:
 
-    <paper-input-container>
-      <label slot="label">Your name</label>
-      <iron-input slot="input">
-        <input>
-      </iron-input>
-      // In Polymer 1.0, you would use `<input is="iron-input" slot="input">`
+  <paper-input-container>
+    <label slot="label">Your name</label>
+    <iron-input slot="input">
+      <input>
+    </iron-input>
+    // In Polymer 1.0, you would use `<input is="iron-input" slot="input">`
 instead of the above.
-    </paper-input-container>
+  </paper-input-container>
 
 You can style the nested `<input>` however you want; if you want it to look like
 a Material Design input, you can style it with the
@@ -29094,10 +29091,10 @@ custom input element should have the `paper-input-input` class, have a
 `notify:true` value property and optionally implements
 `Polymer.IronValidatableBehavior` if it is validatable.
 
-    <paper-input-container attr-for-value="ssn-value">
-      <label slot="label">Social security number</label>
-      <ssn-input slot="input" class="paper-input-input"></ssn-input>
-    </paper-input-container>
+  <paper-input-container attr-for-value="ssn-value">
+    <label slot="label">Social security number</label>
+    <ssn-input slot="input" class="paper-input-input"></ssn-input>
+  </paper-input-container>
 
 
 If you're using a `<paper-input-container>` imperatively, it's important to make
@@ -29122,16 +29119,16 @@ bottom of the input.
 These are child elements of a `<paper-input-container>` with the `prefix`
 or `suffix` attribute, and are displayed inline with the input, before or after.
 
-    <paper-input-container>
-      <div slot="prefix">$</div>
-      <label slot="label">Total</label>
-      <iron-input slot="input">
-        <input>
-      </iron-input>
-      // In Polymer 1.0, you would use `<input is="iron-input" slot="input">`
+  <paper-input-container>
+    <div slot="prefix">$</div>
+    <label slot="label">Total</label>
+    <iron-input slot="input">
+      <input>
+    </iron-input>
+    // In Polymer 1.0, you would use `<input is="iron-input" slot="input">`
 instead of the above. <paper-icon-button slot="suffix"
 icon="clear"></paper-icon-button>
-    </paper-input-container>
+  </paper-input-container>
 
 ### Styling
 
@@ -29171,256 +29168,256 @@ attribute to make it `display:inline-block`.
 Polymer({
   /** @override */
   _template: html$1`
-    <style>
-      :host {
-        display: block;
-        padding: 8px 0;
-        @apply --paper-input-container;
-      }
+  <style>
+    :host {
+      display: block;
+      padding: 8px 0;
+      @apply --paper-input-container;
+    }
 
-      :host([inline]) {
-        display: inline-block;
-      }
+    :host([inline]) {
+      display: inline-block;
+    }
 
-      :host([disabled]) {
-        pointer-events: none;
-        opacity: 0.33;
+    :host([disabled]) {
+      pointer-events: none;
+      opacity: 0.33;
 
-        @apply --paper-input-container-disabled;
-      }
+      @apply --paper-input-container-disabled;
+    }
 
-      :host([hidden]) {
-        display: none !important;
-      }
+    :host([hidden]) {
+      display: none !important;
+    }
 
-      [hidden] {
-        display: none !important;
-      }
+    [hidden] {
+      display: none !important;
+    }
 
-      .floated-label-placeholder {
-        @apply --paper-font-caption;
-      }
+    .floated-label-placeholder {
+      @apply --paper-font-caption;
+    }
 
-      .underline {
-        height: 2px;
-        position: relative;
-      }
+    .underline {
+      height: 2px;
+      position: relative;
+    }
 
-      .focused-line {
-        @apply --layout-fit;
-        border-bottom: 2px solid var(--paper-input-container-focus-color, var(--primary-color));
+    .focused-line {
+      @apply --layout-fit;
+      border-bottom: 2px solid var(--paper-input-container-focus-color, var(--primary-color));
 
-        -webkit-transform-origin: center center;
-        transform-origin: center center;
-        -webkit-transform: scale3d(0,1,1);
-        transform: scale3d(0,1,1);
+      -webkit-transform-origin: center center;
+      transform-origin: center center;
+      -webkit-transform: scale3d(0,1,1);
+      transform: scale3d(0,1,1);
 
-        @apply --paper-input-container-underline-focus;
-      }
+      @apply --paper-input-container-underline-focus;
+    }
 
-      .underline.is-highlighted .focused-line {
-        -webkit-transform: none;
-        transform: none;
-        -webkit-transition: -webkit-transform 0.25s;
-        transition: transform 0.25s;
+    .underline.is-highlighted .focused-line {
+      -webkit-transform: none;
+      transform: none;
+      -webkit-transition: -webkit-transform 0.25s;
+      transition: transform 0.25s;
 
-        @apply --paper-transition-easing;
-      }
+      @apply --paper-transition-easing;
+    }
 
-      .underline.is-invalid .focused-line {
-        border-color: var(--paper-input-container-invalid-color, var(--error-color));
-        -webkit-transform: none;
-        transform: none;
-        -webkit-transition: -webkit-transform 0.25s;
-        transition: transform 0.25s;
+    .underline.is-invalid .focused-line {
+      border-color: var(--paper-input-container-invalid-color, var(--error-color));
+      -webkit-transform: none;
+      transform: none;
+      -webkit-transition: -webkit-transform 0.25s;
+      transition: transform 0.25s;
 
-        @apply --paper-transition-easing;
-      }
+      @apply --paper-transition-easing;
+    }
 
-      .unfocused-line {
-        @apply --layout-fit;
-        border-bottom: 1px solid var(--paper-input-container-color, var(--secondary-text-color));
-        @apply --paper-input-container-underline;
-      }
+    .unfocused-line {
+      @apply --layout-fit;
+      border-bottom: 1px solid var(--paper-input-container-color, var(--secondary-text-color));
+      @apply --paper-input-container-underline;
+    }
 
-      :host([disabled]) .unfocused-line {
-        border-bottom: 1px dashed;
-        border-color: var(--paper-input-container-color, var(--secondary-text-color));
-        @apply --paper-input-container-underline-disabled;
-      }
+    :host([disabled]) .unfocused-line {
+      border-bottom: 1px dashed;
+      border-color: var(--paper-input-container-color, var(--secondary-text-color));
+      @apply --paper-input-container-underline-disabled;
+    }
 
-      .input-wrapper {
-        @apply --layout-horizontal;
-        @apply --layout-center;
-        position: relative;
-      }
+    .input-wrapper {
+      @apply --layout-horizontal;
+      @apply --layout-center;
+      position: relative;
+    }
 
-      .input-content {
-        @apply --layout-flex-auto;
-        @apply --layout-relative;
-        max-width: 100%;
-      }
+    .input-content {
+      @apply --layout-flex-auto;
+      @apply --layout-relative;
+      max-width: 100%;
+    }
 
-      .input-content ::slotted(label),
-      .input-content ::slotted(.paper-input-label) {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        font: inherit;
-        color: var(--paper-input-container-color, var(--secondary-text-color));
-        -webkit-transition: -webkit-transform 0.25s, width 0.25s;
-        transition: transform 0.25s, width 0.25s;
-        -webkit-transform-origin: left top;
-        transform-origin: left top;
-        /* Fix for safari not focusing 0-height date/time inputs with -webkit-apperance: none; */
-        min-height: 1px;
+    .input-content ::slotted(label),
+    .input-content ::slotted(.paper-input-label) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      font: inherit;
+      color: var(--paper-input-container-color, var(--secondary-text-color));
+      -webkit-transition: -webkit-transform 0.25s, width 0.25s;
+      transition: transform 0.25s, width 0.25s;
+      -webkit-transform-origin: left top;
+      transform-origin: left top;
+      /* Fix for safari not focusing 0-height date/time inputs with -webkit-apperance: none; */
+      min-height: 1px;
 
-        @apply --paper-font-common-nowrap;
-        @apply --paper-font-subhead;
-        @apply --paper-input-container-label;
-        @apply --paper-transition-easing;
-      }
+      @apply --paper-font-common-nowrap;
+      @apply --paper-font-subhead;
+      @apply --paper-input-container-label;
+      @apply --paper-transition-easing;
+    }
 
 
-      .input-content ::slotted(label):before,
-      .input-content ::slotted(.paper-input-label):before {
-        @apply --paper-input-container-label-before;
-      }
+    .input-content ::slotted(label):before,
+    .input-content ::slotted(.paper-input-label):before {
+      @apply --paper-input-container-label-before;
+    }
 
-      .input-content ::slotted(label):after,
-      .input-content ::slotted(.paper-input-label):after {
-        @apply --paper-input-container-label-after;
-      }
+    .input-content ::slotted(label):after,
+    .input-content ::slotted(.paper-input-label):after {
+      @apply --paper-input-container-label-after;
+    }
 
-      .input-content.label-is-floating ::slotted(label),
-      .input-content.label-is-floating ::slotted(.paper-input-label) {
-        -webkit-transform: translateY(-75%) scale(0.75);
-        transform: translateY(-75%) scale(0.75);
+    .input-content.label-is-floating ::slotted(label),
+    .input-content.label-is-floating ::slotted(.paper-input-label) {
+      -webkit-transform: translateY(-75%) scale(0.75);
+      transform: translateY(-75%) scale(0.75);
 
-        /* Since we scale to 75/100 of the size, we actually have 100/75 of the
-        original space now available */
-        width: 133%;
+      /* Since we scale to 75/100 of the size, we actually have 100/75 of the
+      original space now available */
+      width: 133%;
 
-        @apply --paper-input-container-label-floating;
-      }
+      @apply --paper-input-container-label-floating;
+    }
 
-      :host(:dir(rtl)) .input-content.label-is-floating ::slotted(label),
-      :host(:dir(rtl)) .input-content.label-is-floating ::slotted(.paper-input-label) {
-        right: 0;
-        left: auto;
-        -webkit-transform-origin: right top;
-        transform-origin: right top;
-      }
+    :host(:dir(rtl)) .input-content.label-is-floating ::slotted(label),
+    :host(:dir(rtl)) .input-content.label-is-floating ::slotted(.paper-input-label) {
+      right: 0;
+      left: auto;
+      -webkit-transform-origin: right top;
+      transform-origin: right top;
+    }
 
-      .input-content.label-is-highlighted ::slotted(label),
-      .input-content.label-is-highlighted ::slotted(.paper-input-label) {
-        color: var(--paper-input-container-focus-color, var(--primary-color));
+    .input-content.label-is-highlighted ::slotted(label),
+    .input-content.label-is-highlighted ::slotted(.paper-input-label) {
+      color: var(--paper-input-container-focus-color, var(--primary-color));
 
-        @apply --paper-input-container-label-focus;
-      }
+      @apply --paper-input-container-label-focus;
+    }
 
-      .input-content.is-invalid ::slotted(label),
-      .input-content.is-invalid ::slotted(.paper-input-label) {
-        color: var(--paper-input-container-invalid-color, var(--error-color));
-      }
+    .input-content.is-invalid ::slotted(label),
+    .input-content.is-invalid ::slotted(.paper-input-label) {
+      color: var(--paper-input-container-invalid-color, var(--error-color));
+    }
 
-      .input-content.label-is-hidden ::slotted(label),
-      .input-content.label-is-hidden ::slotted(.paper-input-label) {
-        visibility: hidden;
-      }
+    .input-content.label-is-hidden ::slotted(label),
+    .input-content.label-is-hidden ::slotted(.paper-input-label) {
+      visibility: hidden;
+    }
 
-      .input-content ::slotted(input),
-      .input-content ::slotted(iron-input),
-      .input-content ::slotted(textarea),
-      .input-content ::slotted(iron-autogrow-textarea),
-      .input-content ::slotted(.paper-input-input) {
-        @apply --paper-input-container-shared-input-style;
-        /* The apply shim doesn't apply the nested color custom property,
-          so we have to re-apply it here. */
-        color: var(--paper-input-container-input-color, var(--primary-text-color));
-        @apply --paper-input-container-input;
-      }
+    .input-content ::slotted(input),
+    .input-content ::slotted(iron-input),
+    .input-content ::slotted(textarea),
+    .input-content ::slotted(iron-autogrow-textarea),
+    .input-content ::slotted(.paper-input-input) {
+      @apply --paper-input-container-shared-input-style;
+      /* The apply shim doesn't apply the nested color custom property,
+        so we have to re-apply it here. */
+      color: var(--paper-input-container-input-color, var(--primary-text-color));
+      @apply --paper-input-container-input;
+    }
 
-      .input-content ::slotted(input)::-webkit-outer-spin-button,
-      .input-content ::slotted(input)::-webkit-inner-spin-button {
-        @apply --paper-input-container-input-webkit-spinner;
-      }
+    .input-content ::slotted(input)::-webkit-outer-spin-button,
+    .input-content ::slotted(input)::-webkit-inner-spin-button {
+      @apply --paper-input-container-input-webkit-spinner;
+    }
 
-      .input-content.focused ::slotted(input),
-      .input-content.focused ::slotted(iron-input),
-      .input-content.focused ::slotted(textarea),
-      .input-content.focused ::slotted(iron-autogrow-textarea),
-      .input-content.focused ::slotted(.paper-input-input) {
-        @apply --paper-input-container-input-focus;
-      }
+    .input-content.focused ::slotted(input),
+    .input-content.focused ::slotted(iron-input),
+    .input-content.focused ::slotted(textarea),
+    .input-content.focused ::slotted(iron-autogrow-textarea),
+    .input-content.focused ::slotted(.paper-input-input) {
+      @apply --paper-input-container-input-focus;
+    }
 
-      .input-content.is-invalid ::slotted(input),
-      .input-content.is-invalid ::slotted(iron-input),
-      .input-content.is-invalid ::slotted(textarea),
-      .input-content.is-invalid ::slotted(iron-autogrow-textarea),
-      .input-content.is-invalid ::slotted(.paper-input-input) {
-        @apply --paper-input-container-input-invalid;
-      }
+    .input-content.is-invalid ::slotted(input),
+    .input-content.is-invalid ::slotted(iron-input),
+    .input-content.is-invalid ::slotted(textarea),
+    .input-content.is-invalid ::slotted(iron-autogrow-textarea),
+    .input-content.is-invalid ::slotted(.paper-input-input) {
+      @apply --paper-input-container-input-invalid;
+    }
 
-      .prefix ::slotted(*) {
-        display: inline-block;
-        @apply --paper-font-subhead;
-        @apply --layout-flex-none;
-        @apply --paper-input-prefix;
-      }
+    .prefix ::slotted(*) {
+      display: inline-block;
+      @apply --paper-font-subhead;
+      @apply --layout-flex-none;
+      @apply --paper-input-prefix;
+    }
 
-      .suffix ::slotted(*) {
-        display: inline-block;
-        @apply --paper-font-subhead;
-        @apply --layout-flex-none;
+    .suffix ::slotted(*) {
+      display: inline-block;
+      @apply --paper-font-subhead;
+      @apply --layout-flex-none;
 
-        @apply --paper-input-suffix;
-      }
+      @apply --paper-input-suffix;
+    }
 
-      /* Firefox sets a min-width on the input, which can cause layout issues */
-      .input-content ::slotted(input) {
-        min-width: 0;
-      }
+    /* Firefox sets a min-width on the input, which can cause layout issues */
+    .input-content ::slotted(input) {
+      min-width: 0;
+    }
 
-      .input-content ::slotted(textarea) {
-        resize: none;
-      }
+    .input-content ::slotted(textarea) {
+      resize: none;
+    }
 
-      .add-on-content {
-        position: relative;
-      }
+    .add-on-content {
+      position: relative;
+    }
 
-      .add-on-content.is-invalid ::slotted(*) {
-        color: var(--paper-input-container-invalid-color, var(--error-color));
-      }
+    .add-on-content.is-invalid ::slotted(*) {
+      color: var(--paper-input-container-invalid-color, var(--error-color));
+    }
 
-      .add-on-content.is-highlighted ::slotted(*) {
-        color: var(--paper-input-container-focus-color, var(--primary-color));
-      }
-    </style>
+    .add-on-content.is-highlighted ::slotted(*) {
+      color: var(--paper-input-container-focus-color, var(--primary-color));
+    }
+  </style>
 
-    <div class="floated-label-placeholder" aria-hidden="true" hidden="[[noLabelFloat]]">&nbsp;</div>
+  <div class="floated-label-placeholder" aria-hidden="true" hidden="[[noLabelFloat]]">&nbsp;</div>
 
-    <div class="input-wrapper">
-      <span class="prefix"><slot name="prefix"></slot></span>
+  <div class="input-wrapper">
+    <span class="prefix"><slot name="prefix"></slot></span>
 
-      <div class$="[[_computeInputContentClass(noLabelFloat,alwaysFloatLabel,focused,invalid,_inputHasContent)]]" id="labelAndInputContainer">
-        <slot name="label"></slot>
-        <slot name="input"></slot>
-      </div>
-
-      <span class="suffix"><slot name="suffix"></slot></span>
+    <div class$="[[_computeInputContentClass(noLabelFloat,alwaysFloatLabel,focused,invalid,_inputHasContent)]]" id="labelAndInputContainer">
+      <slot name="label"></slot>
+      <slot name="input"></slot>
     </div>
 
-    <div class$="[[_computeUnderlineClass(focused,invalid)]]">
-      <div class="unfocused-line"></div>
-      <div class="focused-line"></div>
-    </div>
+    <span class="suffix"><slot name="suffix"></slot></span>
+  </div>
 
-    <div class$="[[_computeAddOnContentClass(focused,invalid)]]">
-      <slot name="add-on"></slot>
-    </div>
+  <div class$="[[_computeUnderlineClass(focused,invalid)]]">
+    <div class="unfocused-line"></div>
+    <div class="focused-line"></div>
+  </div>
+
+  <div class$="[[_computeAddOnContentClass(focused,invalid)]]">
+    <slot name="add-on"></slot>
+  </div>
 `,
 
   is: "paper-input-container",
@@ -29754,11 +29751,11 @@ found at http://polymer.github.io/PATENTS.txt
 `<paper-input-container>`. The error is displayed when the
 `<paper-input-container>` is `invalid`.
 
-    <paper-input-container>
-      <input pattern="[0-9]*">
-      <paper-input-error slot="add-on">Only numbers are
+  <paper-input-container>
+    <input pattern="[0-9]*">
+    <paper-input-error slot="add-on">Only numbers are
 allowed!</paper-input-error>
-    </paper-input-container>
+  </paper-input-container>
 
 ### Styling
 
@@ -29772,45 +29769,45 @@ Custom property | Description | Default
 Polymer({
   /** @override */
   _template: html$1`
-    <style>
-      :host {
-        display: inline-block;
-        visibility: hidden;
+  <style>
+    :host {
+      display: inline-block;
+      visibility: hidden;
 
-        color: var(--paper-input-container-invalid-color, var(--error-color));
+      color: var(--paper-input-container-invalid-color, var(--error-color));
 
-        @apply --paper-font-caption;
-        @apply --paper-input-error;
-        position: absolute;
-        left:0;
-        right:0;
-      }
+      @apply --paper-font-caption;
+      @apply --paper-input-error;
+      position: absolute;
+      left:0;
+      right:0;
+    }
 
-      :host([invalid]) {
-        visibility: visible;
-      }
+    :host([invalid]) {
+      visibility: visible;
+    }
 
-      #a11yWrapper {
-        visibility: hidden;
-      }
+    #a11yWrapper {
+      visibility: hidden;
+    }
 
-      :host([invalid]) #a11yWrapper {
-        visibility: visible;
-      }
-    </style>
+    :host([invalid]) #a11yWrapper {
+      visibility: visible;
+    }
+  </style>
 
-    <!--
-    If the paper-input-error element is directly referenced by an
-    \`aria-describedby\` attribute, such as when used as a paper-input add-on,
-    then applying \`visibility: hidden;\` to the paper-input-error element itself
-    does not hide the error.
+  <!--
+  If the paper-input-error element is directly referenced by an
+  \`aria-describedby\` attribute, such as when used as a paper-input add-on,
+  then applying \`visibility: hidden;\` to the paper-input-error element itself
+  does not hide the error.
 
-    For more information, see:
-    https://www.w3.org/TR/accname-1.1/#mapping_additional_nd_description
-    -->
-    <div id="a11yWrapper">
-      <slot></slot>
-    </div>
+  For more information, see:
+  https://www.w3.org/TR/accname-1.1/#mapping_additional_nd_description
+  -->
+  <div id="a11yWrapper">
+    <slot></slot>
+  </div>
 `,
 
   is: "paper-input-error",
@@ -29851,13 +29848,13 @@ found at http://polymer.github.io/PATENTS.txt
 */
 
 /**
-  IronFormElementBehavior adds a `name`, `value` and `required` properties to
-  a custom element. It mostly exists for backcompatibility with Polymer 1.x, and
-  is probably not something you want to use.
+IronFormElementBehavior adds a `name`, `value` and `required` properties to
+a custom element. It mostly exists for backcompatibility with Polymer 1.x, and
+is probably not something you want to use.
 
-  @demo demo/index.html
-  @polymerBehavior
- */
+@demo demo/index.html
+@polymerBehavior
+*/
 const IronFormElementBehavior = {
   properties: {
     /**
@@ -30538,23 +30535,23 @@ fields](https://www.google.com/design/spec/components/text-fields.html)
 
 `<paper-input>` is a single-line text field with Material Design styling.
 
-    <paper-input label="Input label"></paper-input>
+  <paper-input label="Input label"></paper-input>
 
 It may include an optional error message or character counter.
 
-    <paper-input error-message="Invalid input!" label="Input
-    label"></paper-input> <paper-input char-counter label="Input
-    label"></paper-input>
+  <paper-input error-message="Invalid input!" label="Input
+  label"></paper-input> <paper-input char-counter label="Input
+  label"></paper-input>
 
 It can also include custom prefix or suffix elements, which are displayed
 before or after the text input itself. In order for an element to be
 considered as a prefix, it must have the `prefix` attribute (and similarly
 for `suffix`).
 
-    <paper-input label="total">
-      <div prefix>$</div>
-      <paper-icon-button slot="suffix" icon="clear"></paper-icon-button>
-    </paper-input>
+  <paper-input label="total">
+    <div prefix>$</div>
+    <paper-icon-button slot="suffix" icon="clear"></paper-icon-button>
+  </paper-input>
 
 A `paper-input` can use the native `type=search` or `type=file` features.
 However, since we can't control the native styling of the input (search icon,
@@ -30562,9 +30559,9 @@ file button, date placeholder, etc.), in these cases the label will be
 automatically floated. The `placeholder` attribute can still be used for
 additional informational text.
 
-    <paper-input label="search!" type="search"
-        placeholder="search for cats" autosave="test" results="5">
-    </paper-input>
+  <paper-input label="search!" type="search"
+      placeholder="search for cats" autosave="test" results="5">
+  </paper-input>
 
 See `Polymer.PaperInputBehavior` for more API docs.
 
@@ -30591,110 +30588,110 @@ Polymer({
   is: "paper-input",
   /** @override */
   _template: html$1`
-    <style>
-      :host {
-        display: block;
-      }
+  <style>
+    :host {
+      display: block;
+    }
 
-      :host([focused]) {
-        outline: none;
-      }
+    :host([focused]) {
+      outline: none;
+    }
 
-      :host([hidden]) {
-        display: none !important;
-      }
+    :host([hidden]) {
+      display: none !important;
+    }
 
-      input {
-        /* Firefox sets a min-width on the input, which can cause layout issues */
-        min-width: 0;
-      }
+    input {
+      /* Firefox sets a min-width on the input, which can cause layout issues */
+      min-width: 0;
+    }
 
-      /* In 1.x, the <input> is distributed to paper-input-container, which styles it.
-      In 2.x the <iron-input> is distributed to paper-input-container, which styles
-      it, but in order for this to work correctly, we need to reset some
-      of the native input's properties to inherit (from the iron-input) */
-      iron-input > input {
-        @apply --paper-input-container-shared-input-style;
-        font-family: inherit;
-        font-weight: inherit;
-        font-size: inherit;
-        letter-spacing: inherit;
-        word-spacing: inherit;
-        line-height: inherit;
-        text-shadow: inherit;
-        color: inherit;
-        cursor: inherit;
-      }
+    /* In 1.x, the <input> is distributed to paper-input-container, which styles it.
+    In 2.x the <iron-input> is distributed to paper-input-container, which styles
+    it, but in order for this to work correctly, we need to reset some
+    of the native input's properties to inherit (from the iron-input) */
+    iron-input > input {
+      @apply --paper-input-container-shared-input-style;
+      font-family: inherit;
+      font-weight: inherit;
+      font-size: inherit;
+      letter-spacing: inherit;
+      word-spacing: inherit;
+      line-height: inherit;
+      text-shadow: inherit;
+      color: inherit;
+      cursor: inherit;
+    }
 
-      input:disabled {
-        @apply --paper-input-container-input-disabled;
-      }
+    input:disabled {
+      @apply --paper-input-container-input-disabled;
+    }
 
-      input::-webkit-outer-spin-button,
-      input::-webkit-inner-spin-button {
-        @apply --paper-input-container-input-webkit-spinner;
-      }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      @apply --paper-input-container-input-webkit-spinner;
+    }
 
-      input::-webkit-clear-button {
-        @apply --paper-input-container-input-webkit-clear;
-      }
+    input::-webkit-clear-button {
+      @apply --paper-input-container-input-webkit-clear;
+    }
 
-      input::-webkit-calendar-picker-indicator {
-        @apply --paper-input-container-input-webkit-calendar-picker-indicator;
-      }
+    input::-webkit-calendar-picker-indicator {
+      @apply --paper-input-container-input-webkit-calendar-picker-indicator;
+    }
 
-      input::-webkit-input-placeholder {
-        color: var(--paper-input-container-color, var(--secondary-text-color));
-      }
+    input::-webkit-input-placeholder {
+      color: var(--paper-input-container-color, var(--secondary-text-color));
+    }
 
-      input:-moz-placeholder {
-        color: var(--paper-input-container-color, var(--secondary-text-color));
-      }
+    input:-moz-placeholder {
+      color: var(--paper-input-container-color, var(--secondary-text-color));
+    }
 
-      input::-moz-placeholder {
-        color: var(--paper-input-container-color, var(--secondary-text-color));
-      }
+    input::-moz-placeholder {
+      color: var(--paper-input-container-color, var(--secondary-text-color));
+    }
 
-      input::-ms-clear {
-        @apply --paper-input-container-ms-clear;
-      }
+    input::-ms-clear {
+      @apply --paper-input-container-ms-clear;
+    }
 
-      input::-ms-reveal {
-        @apply --paper-input-container-ms-reveal;
-      }
+    input::-ms-reveal {
+      @apply --paper-input-container-ms-reveal;
+    }
 
-      input:-ms-input-placeholder {
-        color: var(--paper-input-container-color, var(--secondary-text-color));
-      }
+    input:-ms-input-placeholder {
+      color: var(--paper-input-container-color, var(--secondary-text-color));
+    }
 
-      label {
-        pointer-events: none;
-      }
-    </style>
+    label {
+      pointer-events: none;
+    }
+  </style>
 
-    <paper-input-container id="container" no-label-float="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" auto-validate$="[[autoValidate]]" disabled$="[[disabled]]" invalid="[[invalid]]">
+  <paper-input-container id="container" no-label-float="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" auto-validate$="[[autoValidate]]" disabled$="[[disabled]]" invalid="[[invalid]]">
 
-      <slot name="prefix" slot="prefix"></slot>
+    <slot name="prefix" slot="prefix"></slot>
 
-      <label hidden$="[[!label]]" aria-hidden="true" for$="[[_inputId]]" slot="label">[[label]]</label>
+    <label hidden$="[[!label]]" aria-hidden="true" for$="[[_inputId]]" slot="label">[[label]]</label>
 
-      <!-- Need to bind maxlength so that the paper-input-char-counter works correctly -->
-      <iron-input bind-value="{{value}}" slot="input" class="input-element" id$="[[_inputId]]" maxlength$="[[maxlength]]" allowed-pattern="[[allowedPattern]]" invalid="{{invalid}}" validator="[[validator]]">
-        <input aria-labelledby$="[[_ariaLabelledBy]]" aria-describedby$="[[_ariaDescribedBy]]" disabled$="[[disabled]]" title$="[[title]]" type$="[[type]]" pattern$="[[pattern]]" required$="[[required]]" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" minlength$="[[minlength]]" maxlength$="[[maxlength]]" min$="[[min]]" max$="[[max]]" step$="[[step]]" name$="[[name]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" list$="[[list]]" size$="[[size]]" autocapitalize$="[[autocapitalize]]" autocorrect$="[[autocorrect]]" on-change="_onChange" tabindex$="[[tabIndex]]" autosave$="[[autosave]]" results$="[[results]]" accept$="[[accept]]" multiple$="[[multiple]]" role$="[[inputRole]]" aria-haspopup$="[[inputAriaHaspopup]]">
-      </iron-input>
+    <!-- Need to bind maxlength so that the paper-input-char-counter works correctly -->
+    <iron-input bind-value="{{value}}" slot="input" class="input-element" id$="[[_inputId]]" maxlength$="[[maxlength]]" allowed-pattern="[[allowedPattern]]" invalid="{{invalid}}" validator="[[validator]]">
+      <input aria-labelledby$="[[_ariaLabelledBy]]" aria-describedby$="[[_ariaDescribedBy]]" disabled$="[[disabled]]" title$="[[title]]" type$="[[type]]" pattern$="[[pattern]]" required$="[[required]]" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" minlength$="[[minlength]]" maxlength$="[[maxlength]]" min$="[[min]]" max$="[[max]]" step$="[[step]]" name$="[[name]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" list$="[[list]]" size$="[[size]]" autocapitalize$="[[autocapitalize]]" autocorrect$="[[autocorrect]]" on-change="_onChange" tabindex$="[[tabIndex]]" autosave$="[[autosave]]" results$="[[results]]" accept$="[[accept]]" multiple$="[[multiple]]" role$="[[inputRole]]" aria-haspopup$="[[inputAriaHaspopup]]">
+    </iron-input>
 
-      <slot name="suffix" slot="suffix"></slot>
+    <slot name="suffix" slot="suffix"></slot>
 
-      <template is="dom-if" if="[[errorMessage]]">
-        <paper-input-error aria-live="assertive" slot="add-on">[[errorMessage]]</paper-input-error>
-      </template>
+    <template is="dom-if" if="[[errorMessage]]">
+      <paper-input-error aria-live="assertive" slot="add-on">[[errorMessage]]</paper-input-error>
+    </template>
 
-      <template is="dom-if" if="[[charCounter]]">
-        <paper-input-char-counter slot="add-on"></paper-input-char-counter>
-      </template>
+    <template is="dom-if" if="[[charCounter]]">
+      <paper-input-char-counter slot="add-on"></paper-input-char-counter>
+    </template>
 
-    </paper-input-container>
-  `,
+  </paper-input-container>
+`,
 
   behaviors: [PaperInputBehavior, IronFormElementBehavior],
 
@@ -30776,9 +30773,9 @@ The `<iron-dropdown>` element exposes attributes that allow the position
 of the `dropdown-content` relative to the `dropdown-trigger` to be
 configured.
 
-    <iron-dropdown horizontal-align="right" vertical-align="top">
-      <div slot="dropdown-content">Hello!</div>
-    </iron-dropdown>
+  <iron-dropdown horizontal-align="right" vertical-align="top">
+    <div slot="dropdown-content">Hello!</div>
+  </iron-dropdown>
 
 In the above example, the `<div>` assigned to the `dropdown-content` slot will
 be hidden until the dropdown element has `opened` set to true, or when the
@@ -30788,24 +30785,24 @@ be hidden until the dropdown element has `opened` set to true, or when the
 */
 Polymer({
   _template: html$1`
-    <style>
-      :host {
-        position: fixed;
-      }
+  <style>
+    :host {
+      position: fixed;
+    }
 
-      #contentWrapper ::slotted(*) {
-        overflow: auto;
-      }
+    #contentWrapper ::slotted(*) {
+      overflow: auto;
+    }
 
-      #contentWrapper.animating ::slotted(*) {
-        overflow: hidden;
-        pointer-events: none;
-      }
-    </style>
+    #contentWrapper.animating ::slotted(*) {
+      overflow: hidden;
+      pointer-events: none;
+    }
+  </style>
 
-    <div id="contentWrapper">
-      <slot id="content" name="dropdown-content"></slot>
-    </div>
+  <div id="contentWrapper">
+    <slot id="content" name="dropdown-content"></slot>
+  </div>
 `,
 
   is: "iron-dropdown",
@@ -31128,9 +31125,9 @@ found at http://polymer.github.io/PATENTS.txt
 Configuration:
 ```
 {
-  name: 'fade-in-animation',
-  node: <node>
-  timing: <animation-timing>
+name: 'fade-in-animation',
+node: <node>
+timing: <animation-timing>
 }
 ```
 */
@@ -31166,9 +31163,9 @@ found at http://polymer.github.io/PATENTS.txt
 Configuration:
 ```
 {
-  name: 'fade-out-animation',
-  node: <node>
-  timing: <animation-timing>
+name: 'fade-out-animation',
+node: <node>
+timing: <animation-timing>
 }
 ```
 */
@@ -31317,14 +31314,14 @@ will close automatically.
 
 Example:
 
-    <paper-menu-button>
-      <paper-icon-button icon="menu"
+  <paper-menu-button>
+    <paper-icon-button icon="menu"
 slot="dropdown-trigger"></paper-icon-button> <paper-listbox
 slot="dropdown-content"> <paper-item>Share</paper-item>
-        <paper-item>Settings</paper-item>
-        <paper-item>Help</paper-item>
-      </paper-listbox>
-    </paper-menu-button>
+      <paper-item>Settings</paper-item>
+      <paper-item>Help</paper-item>
+    </paper-listbox>
+  </paper-menu-button>
 
 ### Styling
 
@@ -31343,63 +31340,63 @@ Custom property | Description | Default
 */
 const PaperMenuButton = Polymer({
   _template: html$1`
-    <style>
-      :host {
-        display: inline-block;
-        position: relative;
-        padding: 8px;
-        outline: none;
+  <style>
+    :host {
+      display: inline-block;
+      position: relative;
+      padding: 8px;
+      outline: none;
 
-        @apply --paper-menu-button;
-      }
+      @apply --paper-menu-button;
+    }
 
-      :host([disabled]) {
-        cursor: auto;
-        color: var(--disabled-text-color);
+    :host([disabled]) {
+      cursor: auto;
+      color: var(--disabled-text-color);
 
-        @apply --paper-menu-button-disabled;
-      }
+      @apply --paper-menu-button-disabled;
+    }
 
-      iron-dropdown {
-        @apply --paper-menu-button-dropdown;
-      }
+    iron-dropdown {
+      @apply --paper-menu-button-dropdown;
+    }
 
-      .dropdown-content {
-        @apply --shadow-elevation-2dp;
+    .dropdown-content {
+      @apply --shadow-elevation-2dp;
 
-        position: relative;
-        border-radius: 2px;
-        background-color: var(--paper-menu-button-dropdown-background, var(--primary-background-color));
+      position: relative;
+      border-radius: 2px;
+      background-color: var(--paper-menu-button-dropdown-background, var(--primary-background-color));
 
-        @apply --paper-menu-button-content;
-      }
+      @apply --paper-menu-button-content;
+    }
 
-      :host([vertical-align="top"]) .dropdown-content {
-        margin-bottom: 20px;
-        margin-top: -10px;
-        top: 10px;
-      }
+    :host([vertical-align="top"]) .dropdown-content {
+      margin-bottom: 20px;
+      margin-top: -10px;
+      top: 10px;
+    }
 
-      :host([vertical-align="bottom"]) .dropdown-content {
-        bottom: 10px;
-        margin-bottom: -10px;
-        margin-top: 20px;
-      }
+    :host([vertical-align="bottom"]) .dropdown-content {
+      bottom: 10px;
+      margin-bottom: -10px;
+      margin-top: 20px;
+    }
 
-      #trigger {
-        cursor: pointer;
-      }
-    </style>
+    #trigger {
+      cursor: pointer;
+    }
+  </style>
 
-    <div id="trigger" on-tap="toggle">
-      <slot name="dropdown-trigger"></slot>
+  <div id="trigger" on-tap="toggle">
+    <slot name="dropdown-trigger"></slot>
+  </div>
+
+  <iron-dropdown id="dropdown" opened="{{opened}}" horizontal-align="[[horizontalAlign]]" vertical-align="[[verticalAlign]]" dynamic-align="[[dynamicAlign]]" horizontal-offset="[[horizontalOffset]]" vertical-offset="[[verticalOffset]]" no-overlap="[[noOverlap]]" open-animation-config="[[openAnimationConfig]]" close-animation-config="[[closeAnimationConfig]]" no-animations="[[noAnimations]]" focus-target="[[_dropdownContent]]" allow-outside-scroll="[[allowOutsideScroll]]" restore-focus-on-close="[[restoreFocusOnClose]]" on-iron-overlay-canceled="__onIronOverlayCanceled">
+    <div slot="dropdown-content" class="dropdown-content">
+      <slot id="content" name="dropdown-content"></slot>
     </div>
-
-    <iron-dropdown id="dropdown" opened="{{opened}}" horizontal-align="[[horizontalAlign]]" vertical-align="[[verticalAlign]]" dynamic-align="[[dynamicAlign]]" horizontal-offset="[[horizontalOffset]]" vertical-offset="[[verticalOffset]]" no-overlap="[[noOverlap]]" open-animation-config="[[openAnimationConfig]]" close-animation-config="[[closeAnimationConfig]]" no-animations="[[noAnimations]]" focus-target="[[_dropdownContent]]" allow-outside-scroll="[[allowOutsideScroll]]" restore-focus-on-close="[[restoreFocusOnClose]]" on-iron-overlay-canceled="__onIronOverlayCanceled">
-      <div slot="dropdown-content" class="dropdown-content">
-        <slot id="content" name="dropdown-content"></slot>
-      </div>
-    </iron-dropdown>
+  </iron-dropdown>
 `,
 
   is: "paper-menu-button",
@@ -31997,9 +31994,9 @@ effect can be visualized as a concentric circle with motion.
 
 Example:
 
-    <div style="position:relative">
-      <paper-ripple></paper-ripple>
-    </div>
+  <div style="position:relative">
+    <paper-ripple></paper-ripple>
+  </div>
 
 Note, it's important that the parent container of the ripple be relative
 position, otherwise the ripple will emanate outside of the desired container.
@@ -32012,39 +32009,39 @@ important if you call `downAction()` you will have to make sure to call
 
 Example:
 
-    <paper-ripple id="ripple" style="pointer-events: none;"></paper-ripple>
-    ...
-    downAction: function(e) {
-      this.$.ripple.downAction(e.detail);
-    },
-    upAction: function(e) {
-      this.$.ripple.upAction();
-    }
+  <paper-ripple id="ripple" style="pointer-events: none;"></paper-ripple>
+  ...
+  downAction: function(e) {
+    this.$.ripple.downAction(e.detail);
+  },
+  upAction: function(e) {
+    this.$.ripple.upAction();
+  }
 
 Styling ripple effect:
 
-  Use CSS color property to style the ripple:
+Use CSS color property to style the ripple:
 
-    paper-ripple {
-      color: #4285f4;
-    }
+  paper-ripple {
+    color: #4285f4;
+  }
 
-  Note that CSS color property is inherited so it is not required to set it on
-  the `paper-ripple` element directly.
+Note that CSS color property is inherited so it is not required to set it on
+the `paper-ripple` element directly.
 
 By default, the ripple is centered on the point of contact.  Apply the
 `recenters` attribute to have the ripple grow toward the center of its
 container.
 
-    <paper-ripple recenters></paper-ripple>
+  <paper-ripple recenters></paper-ripple>
 
 You can also  center the ripple inside its container from the start.
 
-    <paper-ripple center></paper-ripple>
+  <paper-ripple center></paper-ripple>
 
 Apply `circle` class to make the rippling effect within a circle.
 
-    <paper-ripple class="circle"></paper-ripple>
+  <paper-ripple class="circle"></paper-ripple>
 
 @element paper-ripple
 @demo demo/index.html
@@ -32052,75 +32049,75 @@ Apply `circle` class to make the rippling effect within a circle.
 Polymer({
   /** @override */
   _template: html$1`
-    <style>
-      :host {
-        display: block;
-        position: absolute;
-        border-radius: inherit;
-        overflow: hidden;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+  <style>
+    :host {
+      display: block;
+      position: absolute;
+      border-radius: inherit;
+      overflow: hidden;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
 
-        /* See PolymerElements/paper-behaviors/issues/34. On non-Chrome browsers,
-         * creating a node (with a position:absolute) in the middle of an event
-         * handler "interrupts" that event handler (which happens when the
-         * ripple is created on demand) */
-        pointer-events: none;
-      }
+      /* See PolymerElements/paper-behaviors/issues/34. On non-Chrome browsers,
+       * creating a node (with a position:absolute) in the middle of an event
+       * handler "interrupts" that event handler (which happens when the
+       * ripple is created on demand) */
+      pointer-events: none;
+    }
 
-      :host([animating]) {
-        /* This resolves a rendering issue in Chrome (as of 40) where the
-           ripple is not properly clipped by its parent (which may have
-           rounded corners). See: http://jsbin.com/temexa/4
+    :host([animating]) {
+      /* This resolves a rendering issue in Chrome (as of 40) where the
+         ripple is not properly clipped by its parent (which may have
+         rounded corners). See: http://jsbin.com/temexa/4
 
-           Note: We only apply this style conditionally. Otherwise, the browser
-           will create a new compositing layer for every ripple element on the
-           page, and that would be bad. */
-        -webkit-transform: translate(0, 0);
-        transform: translate3d(0, 0, 0);
-      }
+         Note: We only apply this style conditionally. Otherwise, the browser
+         will create a new compositing layer for every ripple element on the
+         page, and that would be bad. */
+      -webkit-transform: translate(0, 0);
+      transform: translate3d(0, 0, 0);
+    }
 
-      #background,
-      #waves,
-      .wave-container,
-      .wave {
-        pointer-events: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-      }
+    #background,
+    #waves,
+    .wave-container,
+    .wave {
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
 
-      #background,
-      .wave {
-        opacity: 0;
-      }
+    #background,
+    .wave {
+      opacity: 0;
+    }
 
-      #waves,
-      .wave {
-        overflow: hidden;
-      }
+    #waves,
+    .wave {
+      overflow: hidden;
+    }
 
-      .wave-container,
-      .wave {
-        border-radius: 50%;
-      }
+    .wave-container,
+    .wave {
+      border-radius: 50%;
+    }
 
-      :host(.circle) #background,
-      :host(.circle) #waves {
-        border-radius: 50%;
-      }
+    :host(.circle) #background,
+    :host(.circle) #waves {
+      border-radius: 50%;
+    }
 
-      :host(.circle) .wave-container {
-        overflow: hidden;
-      }
-    </style>
+    :host(.circle) .wave-container {
+      overflow: hidden;
+    }
+  </style>
 
-    <div id="background"></div>
-    <div id="waves"></div>
+  <div id="background"></div>
+  <div id="waves"></div>
 `,
 
   is: "paper-ripple",
@@ -32426,13 +32423,13 @@ Polymer({
   },
 
   /**
-  Fired when the animation finishes.
-  This is useful if you want to wait until
-  the ripple animation finishes to perform some action.
+Fired when the animation finishes.
+This is useful if you want to wait until
+the ripple animation finishes to perform some action.
 
-  @event transitionend
-  @param {{node: Object}} detail Contains the animated node.
-  */
+@event transitionend
+@param {{node: Object}} detail Contains the animated node.
+*/
 });
 
 /**
@@ -32724,82 +32721,82 @@ const $_documentContainer$2 = document.createElement("template");
 $_documentContainer$2.setAttribute("style", "display: none;");
 
 $_documentContainer$2.innerHTML = `<dom-module id="paper-dropdown-menu-shared-styles">
-  <template>
-    <style>
-      :host {
-        display: inline-block;
-        position: relative;
-        text-align: left;
+<template>
+  <style>
+    :host {
+      display: inline-block;
+      position: relative;
+      text-align: left;
 
-        /* NOTE(cdata): Both values are needed, since some phones require the
-         * value to be \`transparent\`.
-         */
-        -webkit-tap-highlight-color: rgba(0,0,0,0);
-        -webkit-tap-highlight-color: transparent;
+      /* NOTE(cdata): Both values are needed, since some phones require the
+       * value to be \`transparent\`.
+       */
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      -webkit-tap-highlight-color: transparent;
 
-        --paper-input-container-input: {
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          max-width: 100%;
-          box-sizing: border-box;
-          cursor: pointer;
-        };
+      --paper-input-container-input: {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        box-sizing: border-box;
+        cursor: pointer;
+      };
 
-        @apply --paper-dropdown-menu;
-      }
+      @apply --paper-dropdown-menu;
+    }
 
-      /* paper-dropdown-menu and paper-dropdown-menu-light both delegate focus
-       * to other internal elements which manage focus styling. */
-      :host(:focus) {
-        outline: none;
-      }
+    /* paper-dropdown-menu and paper-dropdown-menu-light both delegate focus
+     * to other internal elements which manage focus styling. */
+    :host(:focus) {
+      outline: none;
+    }
 
-      :host(:dir(rtl)) {
-        text-align: right;
+    :host(:dir(rtl)) {
+      text-align: right;
 
-        @apply(--paper-dropdown-menu);
-      }
+      @apply(--paper-dropdown-menu);
+    }
 
-      :host([disabled]) {
-        @apply --paper-dropdown-menu-disabled;
-      }
+    :host([disabled]) {
+      @apply --paper-dropdown-menu-disabled;
+    }
 
-      :host([noink]) paper-ripple {
-        display: none;
-      }
+    :host([noink]) paper-ripple {
+      display: none;
+    }
 
-      :host([no-label-float]) paper-ripple {
-        top: 8px;
-      }
+    :host([no-label-float]) paper-ripple {
+      top: 8px;
+    }
 
-      paper-ripple {
-        top: 12px;
-        left: 0px;
-        bottom: 8px;
-        right: 0px;
+    paper-ripple {
+      top: 12px;
+      left: 0px;
+      bottom: 8px;
+      right: 0px;
 
-        @apply --paper-dropdown-menu-ripple;
-      }
+      @apply --paper-dropdown-menu-ripple;
+    }
 
-      paper-menu-button {
-        display: block;
-        padding: 0;
+    paper-menu-button {
+      display: block;
+      padding: 0;
 
-        @apply --paper-dropdown-menu-button;
-      }
+      @apply --paper-dropdown-menu-button;
+    }
 
-      paper-input {
-        @apply --paper-dropdown-menu-input;
-      }
+    paper-input {
+      @apply --paper-dropdown-menu-input;
+    }
 
-      iron-icon {
-        color: var(--disabled-text-color);
+    iron-icon {
+      color: var(--disabled-text-color);
 
-        @apply --paper-dropdown-menu-icon;
-      }
-    </style>
-  </template>
+      @apply --paper-dropdown-menu-icon;
+    }
+  </style>
+</template>
 </dom-module>`;
 
 document.head.appendChild($_documentContainer$2.content);
@@ -33040,14 +33037,14 @@ displayed instead.
 
 Example:
 
-    <paper-dropdown-menu label="Your favourite pastry">
-      <paper-listbox slot="dropdown-content">
-        <paper-item>Croissant</paper-item>
-        <paper-item>Donut</paper-item>
-        <paper-item>Financier</paper-item>
-        <paper-item>Madeleine</paper-item>
-      </paper-listbox>
-    </paper-dropdown-menu>
+  <paper-dropdown-menu label="Your favourite pastry">
+    <paper-listbox slot="dropdown-content">
+      <paper-item>Croissant</paper-item>
+      <paper-item>Donut</paper-item>
+      <paper-item>Financier</paper-item>
+      <paper-item>Madeleine</paper-item>
+    </paper-listbox>
+  </paper-dropdown-menu>
 
 This example renders a dropdown menu with 4 options.
 
@@ -33088,20 +33085,20 @@ respectively.
 Polymer({
   /** @override */
   _template: html$1`
-    <style include="paper-dropdown-menu-shared-styles"></style>
+  <style include="paper-dropdown-menu-shared-styles"></style>
 
-    <paper-menu-button id="menuButton" vertical-align="[[verticalAlign]]" horizontal-align="[[horizontalAlign]]" dynamic-align="[[dynamicAlign]]" vertical-offset="[[_computeMenuVerticalOffset(noLabelFloat, verticalOffset)]]" disabled="[[disabled]]" no-animations="[[noAnimations]]" on-iron-select="_onIronSelect" on-iron-deselect="_onIronDeselect" opened="{{opened}}" close-on-activate allow-outside-scroll="[[allowOutsideScroll]]" restore-focus-on-close="[[restoreFocusOnClose]]">
-      <!-- support hybrid mode: user might be using paper-menu-button 1.x which distributes via <content> -->
-      <div class="dropdown-trigger" slot="dropdown-trigger">
-        <paper-ripple></paper-ripple>
-        <!-- paper-input has type="text" for a11y, do not remove -->
-        <paper-input id="input" type="text" invalid="[[invalid]]" readonly disabled="[[disabled]]" value="[[value]]" placeholder="[[placeholder]]" error-message="[[errorMessage]]" always-float-label="[[alwaysFloatLabel]]" no-label-float="[[noLabelFloat]]" label="[[label]]" input-role="button" input-aria-haspopup="listbox" autocomplete="off">
-          <!-- support hybrid mode: user might be using paper-input 1.x which distributes via <content> -->
-          <iron-icon icon="paper-dropdown-menu:arrow-drop-down" suffix slot="suffix"></iron-icon>
-        </paper-input>
-      </div>
-      <slot id="content" name="dropdown-content" slot="dropdown-content"></slot>
-    </paper-menu-button>
+  <paper-menu-button id="menuButton" vertical-align="[[verticalAlign]]" horizontal-align="[[horizontalAlign]]" dynamic-align="[[dynamicAlign]]" vertical-offset="[[_computeMenuVerticalOffset(noLabelFloat, verticalOffset)]]" disabled="[[disabled]]" no-animations="[[noAnimations]]" on-iron-select="_onIronSelect" on-iron-deselect="_onIronDeselect" opened="{{opened}}" close-on-activate allow-outside-scroll="[[allowOutsideScroll]]" restore-focus-on-close="[[restoreFocusOnClose]]">
+    <!-- support hybrid mode: user might be using paper-menu-button 1.x which distributes via <content> -->
+    <div class="dropdown-trigger" slot="dropdown-trigger">
+      <paper-ripple></paper-ripple>
+      <!-- paper-input has type="text" for a11y, do not remove -->
+      <paper-input id="input" type="text" invalid="[[invalid]]" readonly disabled="[[disabled]]" value="[[value]]" placeholder="[[placeholder]]" error-message="[[errorMessage]]" always-float-label="[[alwaysFloatLabel]]" no-label-float="[[noLabelFloat]]" label="[[label]]" input-role="button" input-aria-haspopup="listbox" autocomplete="off">
+        <!-- support hybrid mode: user might be using paper-input 1.x which distributes via <content> -->
+        <iron-icon icon="paper-dropdown-menu:arrow-drop-down" suffix slot="suffix"></iron-icon>
+      </paper-input>
+    </div>
+    <slot id="content" name="dropdown-content" slot="dropdown-content"></slot>
+  </paper-menu-button>
 `,
 
   is: "paper-dropdown-menu",
@@ -34530,25 +34527,25 @@ Material design:
 `<paper-listbox>` implements an accessible listbox control with Material Design
 styling. The focused item is highlighted, and the selected item has bolded text.
 
-    <paper-listbox>
-      <paper-item>Item 1</paper-item>
-      <paper-item>Item 2</paper-item>
-    </paper-listbox>
+  <paper-listbox>
+    <paper-item>Item 1</paper-item>
+    <paper-item>Item 2</paper-item>
+  </paper-listbox>
 
 An initial selection can be specified with the `selected` attribute.
 
-    <paper-listbox selected="0">
-      <paper-item>Item 1</paper-item>
-      <paper-item>Item 2</paper-item>
-    </paper-listbox>
+  <paper-listbox selected="0">
+    <paper-item>Item 1</paper-item>
+    <paper-item>Item 2</paper-item>
+  </paper-listbox>
 
 Make a multi-select listbox with the `multi` attribute. Items in a multi-select
 listbox can be deselected, and multiple item can be selected.
 
-    <paper-listbox multi>
-      <paper-item>Item 1</paper-item>
-      <paper-item>Item 2</paper-item>
-    </paper-listbox>
+  <paper-listbox multi>
+    <paper-item>Item 1</paper-item>
+    <paper-item>Item 2</paper-item>
+  </paper-listbox>
 
 ### Styling
 
@@ -34576,19 +34573,19 @@ will also focus it.
 */
 Polymer({
   _template: html$1`
-    <style>
-      :host {
-        display: block;
-        padding: 8px 0;
+  <style>
+    :host {
+      display: block;
+      padding: 8px 0;
 
-        background: var(--paper-listbox-background-color, var(--primary-background-color));
-        color: var(--paper-listbox-color, var(--primary-text-color));
+      background: var(--paper-listbox-background-color, var(--primary-background-color));
+      color: var(--paper-listbox-color, var(--primary-text-color));
 
-        @apply --paper-listbox;
-      }
-    </style>
+      @apply --paper-listbox;
+    }
+  </style>
 
-    <slot></slot>
+  <slot></slot>
 `,
 
   is: "paper-listbox",
@@ -34612,59 +34609,59 @@ const $_documentContainer$3 = document.createElement("template");
 $_documentContainer$3.setAttribute("style", "display: none;");
 
 $_documentContainer$3.innerHTML = `<dom-module id="paper-item-shared-styles">
-  <template>
-    <style>
-      :host, .paper-item {
-        display: block;
-        position: relative;
-        min-height: var(--paper-item-min-height, 48px);
-        padding: 0px 16px;
-      }
+<template>
+  <style>
+    :host, .paper-item {
+      display: block;
+      position: relative;
+      min-height: var(--paper-item-min-height, 48px);
+      padding: 0px 16px;
+    }
 
-      .paper-item {
-        @apply --paper-font-subhead;
-        border:none;
-        outline: none;
-        background: white;
-        width: 100%;
-        text-align: left;
-      }
+    .paper-item {
+      @apply --paper-font-subhead;
+      border:none;
+      outline: none;
+      background: white;
+      width: 100%;
+      text-align: left;
+    }
 
-      :host([hidden]), .paper-item[hidden] {
-        display: none !important;
-      }
+    :host([hidden]), .paper-item[hidden] {
+      display: none !important;
+    }
 
-      :host(.iron-selected), .paper-item.iron-selected {
-        font-weight: var(--paper-item-selected-weight, bold);
+    :host(.iron-selected), .paper-item.iron-selected {
+      font-weight: var(--paper-item-selected-weight, bold);
 
-        @apply --paper-item-selected;
-      }
+      @apply --paper-item-selected;
+    }
 
-      :host([disabled]), .paper-item[disabled] {
-        color: var(--paper-item-disabled-color, var(--disabled-text-color));
+    :host([disabled]), .paper-item[disabled] {
+      color: var(--paper-item-disabled-color, var(--disabled-text-color));
 
-        @apply --paper-item-disabled;
-      }
+      @apply --paper-item-disabled;
+    }
 
-      :host(:focus), .paper-item:focus {
-        position: relative;
-        outline: 0;
+    :host(:focus), .paper-item:focus {
+      position: relative;
+      outline: 0;
 
-        @apply --paper-item-focused;
-      }
+      @apply --paper-item-focused;
+    }
 
-      :host(:focus):before, .paper-item:focus:before {
-        @apply --layout-fit;
+    :host(:focus):before, .paper-item:focus:before {
+      @apply --layout-fit;
 
-        background: currentColor;
-        content: '';
-        opacity: var(--dark-divider-opacity);
-        pointer-events: none;
+      background: currentColor;
+      content: '';
+      opacity: var(--dark-divider-opacity);
+      pointer-events: none;
 
-        @apply --paper-item-focused-before;
-      }
-    </style>
-  </template>
+      @apply --paper-item-focused-before;
+    }
+  </style>
+</template>
 </dom-module>`;
 
 document.head.appendChild($_documentContainer$3.content);
@@ -34715,39 +34712,39 @@ Material design:
 `<paper-item>` is an interactive list item. By default, it is a horizontal
 flexbox.
 
-    <paper-item>Item</paper-item>
+  <paper-item>Item</paper-item>
 
 Use this element with `<paper-item-body>` to make Material Design styled
 two-line and three-line items.
 
-    <paper-item>
-      <paper-item-body two-line>
-        <div>Show your status</div>
-        <div secondary>Your status is visible to everyone</div>
-      </paper-item-body>
-      <iron-icon icon="warning"></iron-icon>
-    </paper-item>
+  <paper-item>
+    <paper-item-body two-line>
+      <div>Show your status</div>
+      <div secondary>Your status is visible to everyone</div>
+    </paper-item-body>
+    <iron-icon icon="warning"></iron-icon>
+  </paper-item>
 
 To use `paper-item` as a link, wrap it in an anchor tag. Since `paper-item` will
 already receive focus, you may want to prevent the anchor tag from receiving
 focus as well by setting its tabindex to -1.
 
-    <a href="https://www.polymer-project.org/" tabindex="-1">
-      <paper-item raised>Polymer Project</paper-item>
-    </a>
+  <a href="https://www.polymer-project.org/" tabindex="-1">
+    <paper-item raised>Polymer Project</paper-item>
+  </a>
 
 If you are concerned about performance and want to use `paper-item` in a
 `paper-listbox` with many items, you can just use a native `button` with the
 `paper-item` class applied (provided you have correctly included the shared
 styles):
 
-    <style is="custom-style" include="paper-item-shared-styles"></style>
+  <style is="custom-style" include="paper-item-shared-styles"></style>
 
-    <paper-listbox>
-      <button class="paper-item" role="option">Inbox</button>
-      <button class="paper-item" role="option">Starred</button>
-      <button class="paper-item" role="option">Sent mail</button>
-    </paper-listbox>
+  <paper-listbox>
+    <button class="paper-item" role="option">Inbox</button>
+    <button class="paper-item" role="option">Starred</button>
+    <button class="paper-item" role="option">Sent mail</button>
+  </paper-listbox>
 
 ### Styling
 
@@ -34770,12 +34767,12 @@ This element has `role="listitem"` by default. Depending on usage, it may be
 more appropriate to set `role="menuitem"`, `role="menuitemcheckbox"` or
 `role="menuitemradio"`.
 
-    <paper-item role="menuitemcheckbox">
-      <paper-item-body>
-        Show your status
-      </paper-item-body>
-      <paper-checkbox></paper-checkbox>
-    </paper-item>
+  <paper-item role="menuitemcheckbox">
+    <paper-item-body>
+      Show your status
+    </paper-item-body>
+    <paper-checkbox></paper-checkbox>
+  </paper-item>
 
 @group Paper Elements
 @element paper-item
@@ -34783,16 +34780,16 @@ more appropriate to set `role="menuitem"`, `role="menuitemcheckbox"` or
 */
 Polymer({
   _template: html$1`
-    <style include="paper-item-shared-styles">
-      :host {
-        @apply --layout-horizontal;
-        @apply --layout-center;
-        @apply --paper-font-subhead;
+  <style include="paper-item-shared-styles">
+    :host {
+      @apply --layout-horizontal;
+      @apply --layout-center;
+      @apply --paper-font-subhead;
 
-        @apply --paper-item;
-      }
-    </style>
-    <slot></slot>
+      @apply --paper-item;
+    }
+  </style>
+  <slot></slot>
 `,
 
   is: "paper-item",
@@ -34814,12 +34811,12 @@ found at http://polymer.github.io/PATENTS.txt
 Use `<paper-item-body>` in a `<paper-item>` or `<paper-icon-item>` to make two-
 or three- line items. It is a flex item that is a vertical flexbox.
 
-    <paper-item>
-      <paper-item-body two-line>
-        <div>Show your status</div>
-        <div secondary>Your status is visible to everyone</div>
-      </paper-item-body>
-    </paper-item>
+  <paper-item>
+    <paper-item-body two-line>
+      <div>Show your status</div>
+      <div secondary>Your status is visible to everyone</div>
+    </paper-item-body>
+  </paper-item>
 
 The child elements with the `secondary` attribute is given secondary text
 styling.
@@ -34838,38 +34835,38 @@ Custom property | Description | Default
 */
 Polymer({
   _template: html$1`
-    <style>
-      :host {
-        overflow: hidden; /* needed for text-overflow: ellipsis to work on ff */
-        @apply --layout-vertical;
-        @apply --layout-center-justified;
-        @apply --layout-flex;
-      }
+  <style>
+    :host {
+      overflow: hidden; /* needed for text-overflow: ellipsis to work on ff */
+      @apply --layout-vertical;
+      @apply --layout-center-justified;
+      @apply --layout-flex;
+    }
 
-      :host([two-line]) {
-        min-height: var(--paper-item-body-two-line-min-height, 72px);
-      }
+    :host([two-line]) {
+      min-height: var(--paper-item-body-two-line-min-height, 72px);
+    }
 
-      :host([three-line]) {
-        min-height: var(--paper-item-body-three-line-min-height, 88px);
-      }
+    :host([three-line]) {
+      min-height: var(--paper-item-body-three-line-min-height, 88px);
+    }
 
-      :host > ::slotted(*) {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
+    :host > ::slotted(*) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-      :host > ::slotted([secondary]) {
-        @apply --paper-font-body1;
+    :host > ::slotted([secondary]) {
+      @apply --paper-font-body1;
 
-        color: var(--paper-item-body-secondary-color, var(--secondary-text-color));
+      color: var(--paper-item-body-secondary-color, var(--secondary-text-color));
 
-        @apply --paper-item-body-secondary;
-      }
-    </style>
+      @apply --paper-item-body-secondary;
+    }
+  </style>
 
-    <slot></slot>
+  <slot></slot>
 `,
 
   is: "paper-item-body",
@@ -34893,14 +34890,14 @@ Design. This is useful if the icons are of varying widths, but you want the item
 bodies to line up. Use this like a `<paper-item>`. The child node with the slot
 name `item-icon` is placed in the icon area.
 
-    <paper-icon-item>
-      <iron-icon icon="favorite" slot="item-icon"></iron-icon>
-      Favorite
-    </paper-icon-item>
-    <paper-icon-item>
-      <div class="avatar" slot="item-icon"></div>
-      Avatar
-    </paper-icon-item>
+  <paper-icon-item>
+    <iron-icon icon="favorite" slot="item-icon"></iron-icon>
+    Favorite
+  </paper-icon-item>
+  <paper-icon-item>
+    <div class="avatar" slot="item-icon"></div>
+    Avatar
+  </paper-icon-item>
 
 ### Styling
 
@@ -34921,30 +34918,30 @@ Custom property | Description | Default
 */
 Polymer({
   _template: html$1`
-    <style include="paper-item-shared-styles"></style>
-    <style>
-      :host {
-        @apply --layout-horizontal;
-        @apply --layout-center;
-        @apply --paper-font-subhead;
+  <style include="paper-item-shared-styles"></style>
+  <style>
+    :host {
+      @apply --layout-horizontal;
+      @apply --layout-center;
+      @apply --paper-font-subhead;
 
-        @apply --paper-item;
-        @apply --paper-icon-item;
-      }
+      @apply --paper-item;
+      @apply --paper-icon-item;
+    }
 
-      .content-icon {
-        @apply --layout-horizontal;
-        @apply --layout-center;
+    .content-icon {
+      @apply --layout-horizontal;
+      @apply --layout-center;
 
-        width: var(--paper-item-icon-width, 56px);
-        @apply --paper-item-icon;
-      }
-    </style>
+      width: var(--paper-item-icon-width, 56px);
+      @apply --paper-item-icon;
+    }
+  </style>
 
-    <div id="contentIcon" class="content-icon">
-      <slot name="item-icon"></slot>
-    </div>
-    <slot></slot>
+  <div id="contentIcon" class="content-icon">
+    <slot name="item-icon"></slot>
+  </div>
+  <slot></slot>
 `,
 
   is: "paper-icon-item",
@@ -36507,7 +36504,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -36832,7 +36829,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -37824,7 +37821,7 @@ function createStore(reducer, preloadedState, enhancer) {
    * example, see the documentation for the `redux-thunk` package. Even the
    * middleware will eventually dispatch plain object actions using this method.
    *
-   * @param {Object} action A plain object representing “what changed”. It is
+   * @param {Object} action A plain object representing â€œwhat changedâ€. It is
    * a good idea to keep actions serializable so you can record and replay user
    * sessions, or use the time travelling `redux-devtools`. An action must have
    * a `type` property which may not be `undefined`. It is a good idea to use
@@ -40008,19 +40005,19 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 /**
-  This is a JavaScript mixin that you can use to connect a Custom Element base
-  class to a Redux store. The `stateChanged(state)` method will be called when
-  the state is updated.
+This is a JavaScript mixin that you can use to connect a Custom Element base
+class to a Redux store. The `stateChanged(state)` method will be called when
+the state is updated.
 
-  Example:
+Example:
 
-      import { connect } from 'pwa-helpers/connect-mixin.js';
+    import { connect } from 'pwa-helpers/connect-mixin.js';
 
-      class MyElement extends connect(store)(HTMLElement) {
-        stateChanged(state) {
-          this.textContent = state.data.count.toString();
-        }
+    class MyElement extends connect(store)(HTMLElement) {
+      stateChanged(state) {
+        this.textContent = state.data.count.toString();
       }
+    }
 */
 const connect = (store) => (baseElement) =>
   class extends baseElement {
@@ -40368,7 +40365,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -40478,7 +40475,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -42035,22 +42032,22 @@ const IS_SCENEVIEWER_CANDIDATE = IS_ANDROID && !IS_FIREFOX && !IS_OCULUS;
  */
 var CloseIcon = `
 <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="#000000">
-    <!-- NOTE(cdata): This SVG filter is a stop-gap until we can implement
-         support for dynamic re-coloring of UI components -->
-    <defs>
-      <filter id="drop-shadow" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
-        <feOffset dx="0" dy="0" result="offsetblur"/>
-        <feFlood flood-color="#000000"/>
-        <feComposite in2="offsetblur" operator="in"/>
-        <feMerge>
-          <feMergeNode/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-    <path filter="url(#drop-shadow)" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-    <path d="M0 0h24v24H0z" fill="none"/>
+  <!-- NOTE(cdata): This SVG filter is a stop-gap until we can implement
+       support for dynamic re-coloring of UI components -->
+  <defs>
+    <filter id="drop-shadow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+      <feOffset dx="0" dy="0" result="offsetblur"/>
+      <feFlood flood-color="#000000"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <path filter="url(#drop-shadow)" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+  <path d="M0 0h24v24H0z" fill="none"/>
 </svg>`;
 
 /* @license
@@ -42069,23 +42066,23 @@ var CloseIcon = `
  */
 var ControlsPrompt = `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="36">
-    <defs>
-        <path id="A" d="M.001.232h24.997V36H.001z" />
-    </defs>
-    <g transform="translate(-11 -4)" fill="none" fill-rule="evenodd">
-        <path fill-opacity="0" fill="#fff" d="M0 0h44v44H0z" />
-        <g transform="translate(11 3)">
-            <path d="M8.733 11.165c.04-1.108.766-2.027 1.743-2.307a2.54 2.54 0 0 1 .628-.089c.16 0 .314.017.463.044 1.088.2 1.9 1.092 1.9 2.16v8.88h1.26c2.943-1.39 5-4.45 5-8.025a9.01 9.01 0 0 0-1.9-5.56l-.43-.5c-.765-.838-1.683-1.522-2.712-2-1.057-.49-2.226-.77-3.46-.77s-2.4.278-3.46.77c-1.03.478-1.947 1.162-2.71 2l-.43.5a9.01 9.01 0 0 0-1.9 5.56 9.04 9.04 0 0 0 .094 1.305c.03.21.088.41.13.617l.136.624c.083.286.196.56.305.832l.124.333a8.78 8.78 0 0 0 .509.953l.065.122a8.69 8.69 0 0 0 3.521 3.191l1.11.537v-9.178z" fill-opacity=".5" fill="#e4e4e4" />
-            <path d="M22.94 26.218l-2.76 7.74c-.172.485-.676.8-1.253.8H12.24c-1.606 0-3.092-.68-3.98-1.82-1.592-2.048-3.647-3.822-6.11-5.27-.095-.055-.15-.137-.152-.23-.004-.1.046-.196.193-.297.56-.393 1.234-.6 1.926-.6a3.43 3.43 0 0 1 .691.069l4.922.994V10.972c0-.663.615-1.203 1.37-1.203s1.373.54 1.373 1.203v9.882h2.953c.273 0 .533.073.757.21l6.257 3.874c.027.017.045.042.07.06.41.296.586.77.426 1.22M4.1 16.614c-.024-.04-.042-.083-.065-.122a8.69 8.69 0 0 1-.509-.953c-.048-.107-.08-.223-.124-.333l-.305-.832c-.058-.202-.09-.416-.136-.624l-.13-.617a9.03 9.03 0 0 1-.094-1.305c0-2.107.714-4.04 1.9-5.56l.43-.5c.764-.84 1.682-1.523 2.71-2 1.058-.49 2.226-.77 3.46-.77s2.402.28 3.46.77c1.03.477 1.947 1.16 2.712 2l.428.5a9 9 0 0 1 1.901 5.559c0 3.577-2.056 6.636-5 8.026h-1.26v-8.882c0-1.067-.822-1.96-1.9-2.16-.15-.028-.304-.044-.463-.044-.22 0-.427.037-.628.09-.977.28-1.703 1.198-1.743 2.306v9.178l-1.11-.537C6.18 19.098 4.96 18 4.1 16.614M22.97 24.09l-6.256-3.874c-.102-.063-.218-.098-.33-.144 2.683-1.8 4.354-4.855 4.354-8.243 0-.486-.037-.964-.104-1.43a9.97 9.97 0 0 0-1.57-4.128l-.295-.408-.066-.092a10.05 10.05 0 0 0-.949-1.078c-.342-.334-.708-.643-1.094-.922-1.155-.834-2.492-1.412-3.94-1.65l-.732-.088-.748-.03a9.29 9.29 0 0 0-1.482.119c-1.447.238-2.786.816-3.94 1.65a9.33 9.33 0 0 0-.813.686 9.59 9.59 0 0 0-.845.877l-.385.437-.36.5-.288.468-.418.778-.04.09c-.593 1.28-.93 2.71-.93 4.222 0 3.832 2.182 7.342 5.56 8.938l1.437.68v4.946L5 25.64a4.44 4.44 0 0 0-.888-.086c-.017 0-.034.003-.05.003-.252.004-.503.033-.75.08a5.08 5.08 0 0 0-.237.056c-.193.046-.382.107-.568.18-.075.03-.15.057-.225.1-.25.114-.494.244-.723.405a1.31 1.31 0 0 0-.566 1.122 1.28 1.28 0 0 0 .645 1.051C4 29.925 5.96 31.614 7.473 33.563a5.06 5.06 0 0 0 .434.491c1.086 1.082 2.656 1.713 4.326 1.715h6.697c.748-.001 1.43-.333 1.858-.872.142-.18.256-.38.336-.602l2.757-7.74c.094-.26.13-.53.112-.794s-.088-.52-.203-.76a2.19 2.19 0 0 0-.821-.91" fill-opacity=".6" fill="#000" />
-            <path d="M22.444 24.94l-6.257-3.874a1.45 1.45 0 0 0-.757-.211h-2.953v-9.88c0-.663-.616-1.203-1.373-1.203s-1.37.54-1.37 1.203v16.643l-4.922-.994a3.44 3.44 0 0 0-.692-.069 3.35 3.35 0 0 0-1.925.598c-.147.102-.198.198-.194.298.004.094.058.176.153.23 2.462 1.448 4.517 3.22 6.11 5.27.887 1.14 2.373 1.82 3.98 1.82h6.686c.577 0 1.08-.326 1.253-.8l2.76-7.74c.16-.448-.017-.923-.426-1.22-.025-.02-.043-.043-.07-.06z" fill="#fff" />
-            <g transform="translate(0 .769)">
-                <mask id="B" fill="#fff">
-                    <use xlink:href="#A" />
-                </mask>
-                <path d="M23.993 24.992a1.96 1.96 0 0 1-.111.794l-2.758 7.74c-.08.22-.194.423-.336.602-.427.54-1.11.87-1.857.872h-6.698c-1.67-.002-3.24-.633-4.326-1.715-.154-.154-.3-.318-.434-.49C5.96 30.846 4 29.157 1.646 27.773c-.385-.225-.626-.618-.645-1.05a1.31 1.31 0 0 1 .566-1.122 4.56 4.56 0 0 1 .723-.405l.225-.1a4.3 4.3 0 0 1 .568-.18l.237-.056c.248-.046.5-.075.75-.08.018 0 .034-.003.05-.003.303-.001.597.027.89.086l3.722.752V20.68l-1.436-.68c-3.377-1.596-5.56-5.106-5.56-8.938 0-1.51.336-2.94.93-4.222.015-.03.025-.06.04-.09.127-.267.268-.525.418-.778.093-.16.186-.316.288-.468.063-.095.133-.186.2-.277L3.773 5c.118-.155.26-.29.385-.437.266-.3.544-.604.845-.877a9.33 9.33 0 0 1 .813-.686C6.97 2.167 8.31 1.59 9.757 1.35a9.27 9.27 0 0 1 1.481-.119 8.82 8.82 0 0 1 .748.031c.247.02.49.05.733.088 1.448.238 2.786.816 3.94 1.65.387.28.752.588 1.094.922a9.94 9.94 0 0 1 .949 1.078l.066.092c.102.133.203.268.295.408a9.97 9.97 0 0 1 1.571 4.128c.066.467.103.945.103 1.43 0 3.388-1.67 6.453-4.353 8.243.11.046.227.08.33.144l6.256 3.874c.37.23.645.55.82.9.115.24.185.498.203.76m.697-1.195c-.265-.55-.677-1.007-1.194-1.326l-5.323-3.297c2.255-2.037 3.564-4.97 3.564-8.114 0-2.19-.637-4.304-1.84-6.114-.126-.188-.26-.37-.4-.552-.645-.848-1.402-1.6-2.252-2.204C15.472.91 13.393.232 11.238.232A10.21 10.21 0 0 0 5.23 2.19c-.848.614-1.606 1.356-2.253 2.205-.136.18-.272.363-.398.55C1.374 6.756.737 8.87.737 11.06c0 4.218 2.407 8.08 6.133 9.842l.863.41v3.092l-2.525-.51c-.356-.07-.717-.106-1.076-.106a5.45 5.45 0 0 0-3.14.996c-.653.46-1.022 1.202-.99 1.983a2.28 2.28 0 0 0 1.138 1.872c2.24 1.318 4.106 2.923 5.543 4.772 1.26 1.62 3.333 2.59 5.55 2.592h6.698c1.42-.001 2.68-.86 3.134-2.138l2.76-7.74c.272-.757.224-1.584-.134-2.325" fill-opacity=".05" fill="#000" mask="url(#B)" />
-            </g>
-        </g>
-    </g>
+  <defs>
+      <path id="A" d="M.001.232h24.997V36H.001z" />
+  </defs>
+  <g transform="translate(-11 -4)" fill="none" fill-rule="evenodd">
+      <path fill-opacity="0" fill="#fff" d="M0 0h44v44H0z" />
+      <g transform="translate(11 3)">
+          <path d="M8.733 11.165c.04-1.108.766-2.027 1.743-2.307a2.54 2.54 0 0 1 .628-.089c.16 0 .314.017.463.044 1.088.2 1.9 1.092 1.9 2.16v8.88h1.26c2.943-1.39 5-4.45 5-8.025a9.01 9.01 0 0 0-1.9-5.56l-.43-.5c-.765-.838-1.683-1.522-2.712-2-1.057-.49-2.226-.77-3.46-.77s-2.4.278-3.46.77c-1.03.478-1.947 1.162-2.71 2l-.43.5a9.01 9.01 0 0 0-1.9 5.56 9.04 9.04 0 0 0 .094 1.305c.03.21.088.41.13.617l.136.624c.083.286.196.56.305.832l.124.333a8.78 8.78 0 0 0 .509.953l.065.122a8.69 8.69 0 0 0 3.521 3.191l1.11.537v-9.178z" fill-opacity=".5" fill="#e4e4e4" />
+          <path d="M22.94 26.218l-2.76 7.74c-.172.485-.676.8-1.253.8H12.24c-1.606 0-3.092-.68-3.98-1.82-1.592-2.048-3.647-3.822-6.11-5.27-.095-.055-.15-.137-.152-.23-.004-.1.046-.196.193-.297.56-.393 1.234-.6 1.926-.6a3.43 3.43 0 0 1 .691.069l4.922.994V10.972c0-.663.615-1.203 1.37-1.203s1.373.54 1.373 1.203v9.882h2.953c.273 0 .533.073.757.21l6.257 3.874c.027.017.045.042.07.06.41.296.586.77.426 1.22M4.1 16.614c-.024-.04-.042-.083-.065-.122a8.69 8.69 0 0 1-.509-.953c-.048-.107-.08-.223-.124-.333l-.305-.832c-.058-.202-.09-.416-.136-.624l-.13-.617a9.03 9.03 0 0 1-.094-1.305c0-2.107.714-4.04 1.9-5.56l.43-.5c.764-.84 1.682-1.523 2.71-2 1.058-.49 2.226-.77 3.46-.77s2.402.28 3.46.77c1.03.477 1.947 1.16 2.712 2l.428.5a9 9 0 0 1 1.901 5.559c0 3.577-2.056 6.636-5 8.026h-1.26v-8.882c0-1.067-.822-1.96-1.9-2.16-.15-.028-.304-.044-.463-.044-.22 0-.427.037-.628.09-.977.28-1.703 1.198-1.743 2.306v9.178l-1.11-.537C6.18 19.098 4.96 18 4.1 16.614M22.97 24.09l-6.256-3.874c-.102-.063-.218-.098-.33-.144 2.683-1.8 4.354-4.855 4.354-8.243 0-.486-.037-.964-.104-1.43a9.97 9.97 0 0 0-1.57-4.128l-.295-.408-.066-.092a10.05 10.05 0 0 0-.949-1.078c-.342-.334-.708-.643-1.094-.922-1.155-.834-2.492-1.412-3.94-1.65l-.732-.088-.748-.03a9.29 9.29 0 0 0-1.482.119c-1.447.238-2.786.816-3.94 1.65a9.33 9.33 0 0 0-.813.686 9.59 9.59 0 0 0-.845.877l-.385.437-.36.5-.288.468-.418.778-.04.09c-.593 1.28-.93 2.71-.93 4.222 0 3.832 2.182 7.342 5.56 8.938l1.437.68v4.946L5 25.64a4.44 4.44 0 0 0-.888-.086c-.017 0-.034.003-.05.003-.252.004-.503.033-.75.08a5.08 5.08 0 0 0-.237.056c-.193.046-.382.107-.568.18-.075.03-.15.057-.225.1-.25.114-.494.244-.723.405a1.31 1.31 0 0 0-.566 1.122 1.28 1.28 0 0 0 .645 1.051C4 29.925 5.96 31.614 7.473 33.563a5.06 5.06 0 0 0 .434.491c1.086 1.082 2.656 1.713 4.326 1.715h6.697c.748-.001 1.43-.333 1.858-.872.142-.18.256-.38.336-.602l2.757-7.74c.094-.26.13-.53.112-.794s-.088-.52-.203-.76a2.19 2.19 0 0 0-.821-.91" fill-opacity=".6" fill="#000" />
+          <path d="M22.444 24.94l-6.257-3.874a1.45 1.45 0 0 0-.757-.211h-2.953v-9.88c0-.663-.616-1.203-1.373-1.203s-1.37.54-1.37 1.203v16.643l-4.922-.994a3.44 3.44 0 0 0-.692-.069 3.35 3.35 0 0 0-1.925.598c-.147.102-.198.198-.194.298.004.094.058.176.153.23 2.462 1.448 4.517 3.22 6.11 5.27.887 1.14 2.373 1.82 3.98 1.82h6.686c.577 0 1.08-.326 1.253-.8l2.76-7.74c.16-.448-.017-.923-.426-1.22-.025-.02-.043-.043-.07-.06z" fill="#fff" />
+          <g transform="translate(0 .769)">
+              <mask id="B" fill="#fff">
+                  <use xlink:href="#A" />
+              </mask>
+              <path d="M23.993 24.992a1.96 1.96 0 0 1-.111.794l-2.758 7.74c-.08.22-.194.423-.336.602-.427.54-1.11.87-1.857.872h-6.698c-1.67-.002-3.24-.633-4.326-1.715-.154-.154-.3-.318-.434-.49C5.96 30.846 4 29.157 1.646 27.773c-.385-.225-.626-.618-.645-1.05a1.31 1.31 0 0 1 .566-1.122 4.56 4.56 0 0 1 .723-.405l.225-.1a4.3 4.3 0 0 1 .568-.18l.237-.056c.248-.046.5-.075.75-.08.018 0 .034-.003.05-.003.303-.001.597.027.89.086l3.722.752V20.68l-1.436-.68c-3.377-1.596-5.56-5.106-5.56-8.938 0-1.51.336-2.94.93-4.222.015-.03.025-.06.04-.09.127-.267.268-.525.418-.778.093-.16.186-.316.288-.468.063-.095.133-.186.2-.277L3.773 5c.118-.155.26-.29.385-.437.266-.3.544-.604.845-.877a9.33 9.33 0 0 1 .813-.686C6.97 2.167 8.31 1.59 9.757 1.35a9.27 9.27 0 0 1 1.481-.119 8.82 8.82 0 0 1 .748.031c.247.02.49.05.733.088 1.448.238 2.786.816 3.94 1.65.387.28.752.588 1.094.922a9.94 9.94 0 0 1 .949 1.078l.066.092c.102.133.203.268.295.408a9.97 9.97 0 0 1 1.571 4.128c.066.467.103.945.103 1.43 0 3.388-1.67 6.453-4.353 8.243.11.046.227.08.33.144l6.256 3.874c.37.23.645.55.82.9.115.24.185.498.203.76m.697-1.195c-.265-.55-.677-1.007-1.194-1.326l-5.323-3.297c2.255-2.037 3.564-4.97 3.564-8.114 0-2.19-.637-4.304-1.84-6.114-.126-.188-.26-.37-.4-.552-.645-.848-1.402-1.6-2.252-2.204C15.472.91 13.393.232 11.238.232A10.21 10.21 0 0 0 5.23 2.19c-.848.614-1.606 1.356-2.253 2.205-.136.18-.272.363-.398.55C1.374 6.756.737 8.87.737 11.06c0 4.218 2.407 8.08 6.133 9.842l.863.41v3.092l-2.525-.51c-.356-.07-.717-.106-1.076-.106a5.45 5.45 0 0 0-3.14.996c-.653.46-1.022 1.202-.99 1.983a2.28 2.28 0 0 0 1.138 1.872c2.24 1.318 4.106 2.923 5.543 4.772 1.26 1.62 3.333 2.59 5.55 2.592h6.698c1.42-.001 2.68-.86 3.134-2.138l2.76-7.74c.272-.757.224-1.584-.134-2.325" fill-opacity=".05" fill="#000" mask="url(#B)" />
+          </g>
+      </g>
+  </g>
 </svg>`;
 
 /* @license
@@ -42104,19 +42101,19 @@ var ControlsPrompt = `
  */
 var ARGlyph = `
 <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px"
-	 viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+ xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px"
+ viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
 <rect id="Bounding_Box" x="0" y="0" fill="none" width="24" height="24"/>
 <g id="Art_layer">
-	<path d="M3,4c0-0.55,0.45-1,1-1h2V1H4C2.35,1,1,2.35,1,4v2h2V4z"/>
-	<path d="M20,3c0.55,0,1,0.45,1,1v2h2V4c0-1.65-1.35-3-3-3h-2v2H20z"/>
-	<path d="M4,21c-0.55,0-1-0.45-1-1v-2H1v2c0,1.65,1.35,3,3,3h2v-2H4z"/>
-	<path d="M20,21c0.55,0,1-0.45,1-1v-2h2v2c0,1.65-1.35,3-3,3h-2v-2H20z"/>
-	<g>
-		<path d="M18.25,7.6l-5.5-3.18c-0.46-0.27-1.04-0.27-1.5,0L5.75,7.6C5.29,7.87,5,8.36,5,8.9v6.35c0,0.54,0.29,1.03,0.75,1.3
-			l5.5,3.18c0.46,0.27,1.04,0.27,1.5,0l5.5-3.18c0.46-0.27,0.75-0.76,0.75-1.3V8.9C19,8.36,18.71,7.87,18.25,7.6z M7,14.96v-4.62
-			l4,2.32v4.61L7,14.96z M12,10.93L8,8.61l4-2.31l4,2.31L12,10.93z M13,17.27v-4.61l4-2.32v4.62L13,17.27z"/>
-	</g>
+<path d="M3,4c0-0.55,0.45-1,1-1h2V1H4C2.35,1,1,2.35,1,4v2h2V4z"/>
+<path d="M20,3c0.55,0,1,0.45,1,1v2h2V4c0-1.65-1.35-3-3-3h-2v2H20z"/>
+<path d="M4,21c-0.55,0-1-0.45-1-1v-2H1v2c0,1.65,1.35,3,3,3h2v-2H4z"/>
+<path d="M20,21c0.55,0,1-0.45,1-1v-2h2v2c0,1.65-1.35,3-3,3h-2v-2H20z"/>
+<g>
+  <path d="M18.25,7.6l-5.5-3.18c-0.46-0.27-1.04-0.27-1.5,0L5.75,7.6C5.29,7.87,5,8.36,5,8.9v6.35c0,0.54,0.29,1.03,0.75,1.3
+    l5.5,3.18c0.46,0.27,1.04,0.27,1.5,0l5.5-3.18c0.46-0.27,0.75-0.76,0.75-1.3V8.9C19,8.36,18.71,7.87,18.25,7.6z M7,14.96v-4.62
+    l4,2.32v4.61L7,14.96z M12,10.93L8,8.61l4-2.31l4,2.31L12,10.93z M13,17.27v-4.61l4-2.32v4.62L13,17.27z"/>
+</g>
 </g>
 </svg>`;
 
@@ -42138,336 +42135,336 @@ const template$6 = document.createElement("template");
 template$6.innerHTML = `
 <style>
 :host {
-  display: block;
-  position: relative;
-  contain: strict;
-  width: 300px;
-  height: 150px;
+display: block;
+position: relative;
+contain: strict;
+width: 300px;
+height: 150px;
 }
 
 /* NOTE: This ruleset is our integration surface area with the
- * :focus-visible polyfill.
- *
- * @see https://github.com/WICG/focus-visible/pull/196 */
+* :focus-visible polyfill.
+*
+* @see https://github.com/WICG/focus-visible/pull/196 */
 :host([data-js-focus-visible]:focus:not(.focus-visible)),
 :host([data-js-focus-visible]) :focus:not(.focus-visible) {
-  outline: none;
+outline: none;
 }
 
 .container {
-  position: relative;
+position: relative;
 }
 
 .userInput {
-  width: 100%;
-  height: 100%;
-  display: block;
-  position: relative;
-  overflow: hidden;
+width: 100%;
+height: 100%;
+display: block;
+position: relative;
+overflow: hidden;
 }
 
 canvas {
-  position: absolute;
-  display: none;
-  pointer-events: none;
-  /* NOTE(cdata): Chrome 76 and below apparently have a bug
-   * that causes our canvas not to display pixels unless it is
-   * on its own render layer
-   * @see https://github.com/google/model-viewer/pull/755#issuecomment-536597893
-   */
-  transform: translateZ(0);
+position: absolute;
+display: none;
+pointer-events: none;
+/* NOTE(cdata): Chrome 76 and below apparently have a bug
+ * that causes our canvas not to display pixels unless it is
+ * on its own render layer
+ * @see https://github.com/google/model-viewer/pull/755#issuecomment-536597893
+ */
+transform: translateZ(0);
 }
 
 canvas.show {
-  display: block;
+display: block;
 }
 
 /* Adapted from HTML5 Boilerplate
- *
- * @see https://github.com/h5bp/html5-boilerplate/blob/ceb4620c78fc82e13534fc44202a3f168754873f/dist/css/main.css#L122-L133 */
+*
+* @see https://github.com/h5bp/html5-boilerplate/blob/ceb4620c78fc82e13534fc44202a3f168754873f/dist/css/main.css#L122-L133 */
 .screen-reader-only {
-  border: 0;
-  clip: rect(0, 0, 0, 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
+border: 0;
+clip: rect(0, 0, 0, 0);
+height: 1px;
+margin: -1px;
+overflow: hidden;
+padding: 0;
+position: absolute;
+white-space: nowrap;
+width: 1px;
 }
 
 .slot {
-  position: absolute;
-  pointer-events: none;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+position: absolute;
+pointer-events: none;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
 }
 
 .slot > * {
-  pointer-events: initial;
+pointer-events: initial;
 }
 
 .annotation-wrapper ::slotted(*) {
-  opacity: var(--max-hotspot-opacity, 1);
-  transition: opacity 0.3s;
+opacity: var(--max-hotspot-opacity, 1);
+transition: opacity 0.3s;
 }
 
 .pointer-tumbling .annotation-wrapper ::slotted(*) {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .annotation-wrapper ::slotted(*) {
-  pointer-events: initial;
+pointer-events: initial;
 }
 
 .annotation-wrapper.hide ::slotted(*) {
-  opacity: var(--min-hotspot-opacity, 0.25);
+opacity: var(--min-hotspot-opacity, 0.25);
 }
 
 .slot.poster {
-  opacity: 0;
-  transition: opacity 0.3s 0.3s;
-  background-color: inherit;
+opacity: 0;
+transition: opacity 0.3s 0.3s;
+background-color: inherit;
 }
 
 .slot.poster.show {
-  opacity: 1;
-  transition: none;
+opacity: 1;
+transition: none;
 }
 
 .slot.poster > * {
-  pointer-events: initial;
+pointer-events: initial;
 }
 
 .slot.poster:not(.show) > * {
-  pointer-events: none;
+pointer-events: none;
 }
 
 #default-poster {
-  width: 100%;
-  height: 100%;
-  /* The default poster is a <button> so we need to set display
-   * to prevent it from being affected by text-align: */
-  display: block;
-  position: absolute;
-  border: none;
-  padding: 0;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-color: var(--poster-color, #fff);
-  background-image: var(--poster-image, none);
+width: 100%;
+height: 100%;
+/* The default poster is a <button> so we need to set display
+ * to prevent it from being affected by text-align: */
+display: block;
+position: absolute;
+border: none;
+padding: 0;
+background-size: contain;
+background-repeat: no-repeat;
+background-position: center;
+background-color: var(--poster-color, #fff);
+background-image: var(--poster-image, none);
 }
 
 #default-progress-bar {
-  display: block;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
+display: block;
+position: relative;
+width: 100%;
+height: 100%;
+pointer-events: none;
+overflow: hidden;
 }
 
 #default-progress-bar > .mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--progress-mask, #fff);
-  transition: opacity 0.3s;
-  opacity: 0.2;
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: var(--progress-mask, #fff);
+transition: opacity 0.3s;
+opacity: 0.2;
 }
 
 #default-progress-bar > .bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: var(--progress-bar-height, 5px);
-  transition: transform 0.09s;
-  transform-origin: top left;
-  transform: scaleX(0);
-  overflow: hidden;
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: var(--progress-bar-height, 5px);
+transition: transform 0.09s;
+transform-origin: top left;
+transform: scaleX(0);
+overflow: hidden;
 }
 
 #default-progress-bar > .bar:before {
-  content: '';
-  display: block;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+content: '';
+display: block;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
 
-  background-color: var(--progress-bar-color, rgba(0, 0, 0, 0.4));
+background-color: var(--progress-bar-color, rgba(0, 0, 0, 0.4));
 
-  transition: none;
-  transform-origin: top left;
-  transform: translateY(0);
+transition: none;
+transform-origin: top left;
+transform: translateY(0);
 }
 
 #default-progress-bar > .bar.hide:before {
-  transition: transform 0.3s 1s;
-  transform: translateY(-100%);
+transition: transform 0.3s 1s;
+transform: translateY(-100%);
 }
 
 .slot.interaction-prompt {
-  display: var(--interaction-prompt-display, flex);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  align-items: center;
-  justify-content: center;
+display: var(--interaction-prompt-display, flex);
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+align-items: center;
+justify-content: center;
 
-  opacity: 0;
-  will-change: opacity;
-  overflow: hidden;
-  transition: opacity 0.3s;
+opacity: 0;
+will-change: opacity;
+overflow: hidden;
+transition: opacity 0.3s;
 }
 
 .slot.interaction-prompt.visible {
-  opacity: 1;
+opacity: 1;
 }
 
 .slot.interaction-prompt > .animated-container {
-  will-change: transform, opacity;
+will-change: transform, opacity;
 }
 
 .slot.interaction-prompt > * {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.ar-button {
-  -moz-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+-moz-user-select: none;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
 
-  display: var(--ar-button-display, block);
+display: var(--ar-button-display, block);
 }
 
 .slot.ar-button:not(.enabled) {
-  display: none;
+display: none;
 }
 
 .fab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  background-color: #fff;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
-  border-radius: 100px;
+display: flex;
+align-items: center;
+justify-content: center;
+box-sizing: border-box;
+width: 40px;
+height: 40px;
+cursor: pointer;
+background-color: #fff;
+box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+border-radius: 100px;
 }
 
 .fab > * {
-  opacity: 0.87;
+opacity: 0.87;
 }
 
 #default-ar-button {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  transform: scale(var(--ar-button-scale, 1));
-  transform-origin: bottom right;
+position: absolute;
+bottom: 16px;
+right: 16px;
+transform: scale(var(--ar-button-scale, 1));
+transform-origin: bottom right;
 }
 
 .slot.default {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.progress-bar {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.exit-webxr-ar-button {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.exit-webxr-ar-button:not(.enabled) {
-  display: none;
+display: none;
 }
 
 #default-exit-webxr-ar-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  width: 40px;
-  height: 40px;
-  box-sizing: border-box;
+display: flex;
+align-items: center;
+justify-content: center;
+position: absolute;
+top: 16px;
+left: 16px;
+width: 40px;
+height: 40px;
+box-sizing: border-box;
 }
 
 #default-exit-webxr-ar-button > svg {
-  fill: #fff;
+fill: #fff;
 }
 </style>
 <div class="container">
-  <div class="userInput" tabindex="0" role="img"
-      aria-label="A depiction of a 3D model"
-      aria-live="polite">
-    <canvas></canvas>
-  </div>
+<div class="userInput" tabindex="0" role="img"
+    aria-label="A depiction of a 3D model"
+    aria-live="polite">
+  <canvas></canvas>
+</div>
 
-  <!-- NOTE(cdata): We need to wrap slots because browsers without ShadowDOM
-        will have their <slot> elements removed by ShadyCSS -->
-  <div class="slot poster">
-    <slot name="poster">
-      <button type="button" id="default-poster" aria-hidden="true" aria-label="Activate to view in 3D!"></button>
+<!-- NOTE(cdata): We need to wrap slots because browsers without ShadowDOM
+      will have their <slot> elements removed by ShadyCSS -->
+<div class="slot poster">
+  <slot name="poster">
+    <button type="button" id="default-poster" aria-hidden="true" aria-label="Activate to view in 3D!"></button>
+  </slot>
+</div>
+
+<div class="slot ar-button">
+  <slot name="ar-button">
+    <a id="default-ar-button" class="fab"
+        tabindex="2"
+        aria-label="View this 3D model up close">
+      ${ARGlyph}
+    </a>
+  </slot>
+</div>
+
+<div class="slot interaction-prompt">
+  <div class="animated-container" part="interaction-prompt">
+    <slot name="interaction-prompt" aria-hidden="true">
+      ${ControlsPrompt}
     </slot>
   </div>
+</div>
 
-  <div class="slot ar-button">
-    <slot name="ar-button">
-      <a id="default-ar-button" class="fab"
-          tabindex="2"
-          aria-label="View this 3D model up close">
-        ${ARGlyph}
+<div class="slot default">
+  <slot></slot>
+
+  <div class="slot progress-bar">
+    <slot name="progress-bar">
+      <div id="default-progress-bar" aria-hidden="true">
+        <div class="mask"></div>
+        <div class="bar"></div>
+      </div>
+    </slot>
+  </div>
+  
+  <div class="slot exit-webxr-ar-button">
+    <slot name="exit-webxr-ar-button">
+      <a id="default-exit-webxr-ar-button"
+          tabindex="3"
+          aria-label="Exit AR"
+          aria-hidden="true">
+        ${CloseIcon}
       </a>
     </slot>
   </div>
-
-  <div class="slot interaction-prompt">
-    <div class="animated-container" part="interaction-prompt">
-      <slot name="interaction-prompt" aria-hidden="true">
-        ${ControlsPrompt}
-      </slot>
-    </div>
-  </div>
-
-  <div class="slot default">
-    <slot></slot>
-
-    <div class="slot progress-bar">
-      <slot name="progress-bar">
-        <div id="default-progress-bar" aria-hidden="true">
-          <div class="mask"></div>
-          <div class="bar"></div>
-        </div>
-      </slot>
-    </div>
-    
-    <div class="slot exit-webxr-ar-button">
-      <slot name="exit-webxr-ar-button">
-        <a id="default-exit-webxr-ar-button"
-            tabindex="3"
-            aria-label="Exit AR"
-            aria-hidden="true">
-          ${CloseIcon}
-        </a>
-      </slot>
-    </div>
-  </div>
+</div>
 </div>`;
 const makeTemplate = (tagName) => {
   const clone = document.createElement("template");
@@ -44494,9 +44491,9 @@ class Vector4 {
 }
 
 /*
- In options, we can specify:
- * Texture parameters for an auto-generated target texture
- * depthBuffer/stencilBuffer: Booleans to indicate if we should generate these buffers
+In options, we can specify:
+* Texture parameters for an auto-generated target texture
+* depthBuffer/stencilBuffer: Booleans to indicate if we should generate these buffers
 */
 function WebGLRenderTarget(width, height, options) {
   this.width = width;
@@ -52060,28 +52057,28 @@ BufferGeometry.prototype = Object.assign(
 
     clone: function () {
       /*
-		 // Handle primitives
+   // Handle primitives
 
-		 const parameters = this.parameters;
+   const parameters = this.parameters;
 
-		 if ( parameters !== undefined ) {
+   if ( parameters !== undefined ) {
 
-		 const values = [];
+   const values = [];
 
-		 for ( const key in parameters ) {
+   for ( const key in parameters ) {
 
-		 values.push( parameters[ key ] );
+   values.push( parameters[ key ] );
 
-		 }
+   }
 
-		 const geometry = Object.create( this.constructor.prototype );
-		 this.constructor.apply( geometry, values );
-		 return geometry;
+   const geometry = Object.create( this.constructor.prototype );
+   this.constructor.apply( geometry, values );
+   return geometry;
 
-		 }
+   }
 
-		 return new this.constructor().copy( this );
-		 */
+   return new this.constructor().copy( this );
+   */
 
       return new BufferGeometry().copy(this);
     },
@@ -53624,42 +53621,42 @@ WebGLCubeRenderTarget.prototype.fromEquirectangularTexture = function (
 
     vertexShader: /* glsl */ `
 
-			varying vec3 vWorldDirection;
+    varying vec3 vWorldDirection;
 
-			vec3 transformDirection( in vec3 dir, in mat4 matrix ) {
+    vec3 transformDirection( in vec3 dir, in mat4 matrix ) {
 
-				return normalize( ( matrix * vec4( dir, 0.0 ) ).xyz );
+      return normalize( ( matrix * vec4( dir, 0.0 ) ).xyz );
 
-			}
+    }
 
-			void main() {
+    void main() {
 
-				vWorldDirection = transformDirection( position, modelMatrix );
+      vWorldDirection = transformDirection( position, modelMatrix );
 
-				#include <begin_vertex>
-				#include <project_vertex>
+      #include <begin_vertex>
+      #include <project_vertex>
 
-			}
-		`,
+    }
+  `,
 
     fragmentShader: /* glsl */ `
 
-			uniform sampler2D tEquirect;
+    uniform sampler2D tEquirect;
 
-			varying vec3 vWorldDirection;
+    varying vec3 vWorldDirection;
 
-			#include <common>
+    #include <common>
 
-			void main() {
+    void main() {
 
-				vec3 direction = normalize( vWorldDirection );
+      vec3 direction = normalize( vWorldDirection );
 
-				vec2 sampleUV = equirectUv( direction );
+      vec2 sampleUV = equirectUv( direction );
 
-				gl_FragColor = texture2D( tEquirect, sampleUV );
+      gl_FragColor = texture2D( tEquirect, sampleUV );
 
-			}
-		`,
+    }
+  `,
   };
 
   const geometry = new BoxBufferGeometry(5, 5, 5);
@@ -55035,8 +55032,8 @@ const ShaderLib = {
     fragmentShader: ShaderChunk.background_frag,
   },
   /* -------------------------------------------------------------------------
-	//	Cube map shader
-	 ------------------------------------------------------------------------- */
+//	Cube map shader
+ ------------------------------------------------------------------------- */
 
   cube: {
     uniforms: mergeUniforms([
@@ -68239,28 +68236,28 @@ Geometry.prototype = Object.assign(Object.create(EventDispatcher.prototype), {
 
   clone: function () {
     /*
-		 // Handle primitives
+   // Handle primitives
 
-		 const parameters = this.parameters;
+   const parameters = this.parameters;
 
-		 if ( parameters !== undefined ) {
+   if ( parameters !== undefined ) {
 
-		 const values = [];
+   const values = [];
 
-		 for ( const key in parameters ) {
+   for ( const key in parameters ) {
 
-		 values.push( parameters[ key ] );
+   values.push( parameters[ key ] );
 
-		 }
+   }
 
-		 const geometry = Object.create( this.constructor.prototype );
-		 this.constructor.apply( geometry, values );
-		 return geometry;
+   const geometry = Object.create( this.constructor.prototype );
+   this.constructor.apply( geometry, values );
+   return geometry;
 
-		 }
+   }
 
-		 return new this.constructor().copy( this );
-		 */
+   return new this.constructor().copy( this );
+   */
 
     return new Geometry().copy(this);
   },
@@ -74278,8 +74275,8 @@ ArcCurve.prototype.isArcCurve = true;
 
 /*
 Based on an optimized c++ solution in
- - http://stackoverflow.com/questions/9489736/catmull-rom-curve-with-no-cusps-and-no-self-intersections/
- - http://ideone.com/NoEbVM
+- http://stackoverflow.com/questions/9489736/catmull-rom-curve-with-no-cusps-and-no-self-intersections/
+- http://ideone.com/NoEbVM
 
 This CubicPoly class could be used for reusing some variables and calculations,
 but for three.js curve use, it could be possible inlined and flatten into a single function call
@@ -74473,7 +74470,7 @@ CatmullRomCurve3.prototype.fromJSON = function (json) {
 
 /**
  * Bezier Curves formulas obtained from
- * http://en.wikipedia.org/wiki/Bézier_curve
+ * http://en.wikipedia.org/wiki/BÃ©zier_curve
  */
 
 function CatmullRom(t, p0, p1, p2, p3) {
@@ -76194,19 +76191,19 @@ class SphericalHarmonics3 {
     const coeff = this.coefficients;
 
     // band 0
-    target.copy(coeff[0]).multiplyScalar(0.886227); // π * 0.282095
+    target.copy(coeff[0]).multiplyScalar(0.886227); // Ï€ * 0.282095
 
     // band 1
-    target.addScaledVector(coeff[1], 2.0 * 0.511664 * y); // ( 2 * π / 3 ) * 0.488603
+    target.addScaledVector(coeff[1], 2.0 * 0.511664 * y); // ( 2 * Ï€ / 3 ) * 0.488603
     target.addScaledVector(coeff[2], 2.0 * 0.511664 * z);
     target.addScaledVector(coeff[3], 2.0 * 0.511664 * x);
 
     // band 2
-    target.addScaledVector(coeff[4], 2.0 * 0.429043 * x * y); // ( π / 4 ) * 1.092548
+    target.addScaledVector(coeff[4], 2.0 * 0.429043 * x * y); // ( Ï€ / 4 ) * 1.092548
     target.addScaledVector(coeff[5], 2.0 * 0.429043 * y * z);
-    target.addScaledVector(coeff[6], 0.743125 * z * z - 0.247708); // ( π / 4 ) * 0.315392 * 3
+    target.addScaledVector(coeff[6], 0.743125 * z * z - 0.247708); // ( Ï€ / 4 ) * 0.315392 * 3
     target.addScaledVector(coeff[7], 2.0 * 0.429043 * x * z);
-    target.addScaledVector(coeff[8], 0.429043 * (x * x - y * y)); // ( π / 4 ) * 0.546274
+    target.addScaledVector(coeff[8], 0.429043 * (x * x - y * y)); // ( Ï€ / 4 ) * 0.546274
 
     return target;
   }
@@ -81465,69 +81462,69 @@ function _getBlurShader(maxSamples) {
 
     fragmentShader: /* glsl */ `
 
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			varying vec3 vOutputDirection;
+    varying vec3 vOutputDirection;
 
-			uniform sampler2D envMap;
-			uniform int samples;
-			uniform float weights[ n ];
-			uniform bool latitudinal;
-			uniform float dTheta;
-			uniform float mipInt;
-			uniform vec3 poleAxis;
+    uniform sampler2D envMap;
+    uniform int samples;
+    uniform float weights[ n ];
+    uniform bool latitudinal;
+    uniform float dTheta;
+    uniform float mipInt;
+    uniform vec3 poleAxis;
 
-			${_getEncodings()}
+    ${_getEncodings()}
 
-			#define ENVMAP_TYPE_CUBE_UV
-			#include <cube_uv_reflection_fragment>
+    #define ENVMAP_TYPE_CUBE_UV
+    #include <cube_uv_reflection_fragment>
 
-			vec3 getSample( float theta, vec3 axis ) {
+    vec3 getSample( float theta, vec3 axis ) {
 
-				float cosTheta = cos( theta );
-				// Rodrigues' axis-angle rotation
-				vec3 sampleDirection = vOutputDirection * cosTheta
-					+ cross( axis, vOutputDirection ) * sin( theta )
-					+ axis * dot( axis, vOutputDirection ) * ( 1.0 - cosTheta );
+      float cosTheta = cos( theta );
+      // Rodrigues' axis-angle rotation
+      vec3 sampleDirection = vOutputDirection * cosTheta
+        + cross( axis, vOutputDirection ) * sin( theta )
+        + axis * dot( axis, vOutputDirection ) * ( 1.0 - cosTheta );
 
-				return bilinearCubeUV( envMap, sampleDirection, mipInt );
+      return bilinearCubeUV( envMap, sampleDirection, mipInt );
 
-			}
+    }
 
-			void main() {
+    void main() {
 
-				vec3 axis = latitudinal ? poleAxis : cross( poleAxis, vOutputDirection );
+      vec3 axis = latitudinal ? poleAxis : cross( poleAxis, vOutputDirection );
 
-				if ( all( equal( axis, vec3( 0.0 ) ) ) ) {
+      if ( all( equal( axis, vec3( 0.0 ) ) ) ) {
 
-					axis = vec3( vOutputDirection.z, 0.0, - vOutputDirection.x );
+        axis = vec3( vOutputDirection.z, 0.0, - vOutputDirection.x );
 
-				}
+      }
 
-				axis = normalize( axis );
+      axis = normalize( axis );
 
-				gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
-				gl_FragColor.rgb += weights[ 0 ] * getSample( 0.0, axis );
+      gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+      gl_FragColor.rgb += weights[ 0 ] * getSample( 0.0, axis );
 
-				for ( int i = 1; i < n; i++ ) {
+      for ( int i = 1; i < n; i++ ) {
 
-					if ( i >= samples ) {
+        if ( i >= samples ) {
 
-						break;
+          break;
 
-					}
+        }
 
-					float theta = dTheta * float( i );
-					gl_FragColor.rgb += weights[ i ] * getSample( -1.0 * theta, axis );
-					gl_FragColor.rgb += weights[ i ] * getSample( theta, axis );
+        float theta = dTheta * float( i );
+        gl_FragColor.rgb += weights[ i ] * getSample( -1.0 * theta, axis );
+        gl_FragColor.rgb += weights[ i ] * getSample( theta, axis );
 
-				}
+      }
 
-				gl_FragColor = linearToOutputTexel( gl_FragColor );
+      gl_FragColor = linearToOutputTexel( gl_FragColor );
 
-			}
-		`,
+    }
+  `,
 
     blending: NoBlending,
     depthTest: false,
@@ -81553,43 +81550,43 @@ function _getEquirectShader() {
 
     fragmentShader: /* glsl */ `
 
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			varying vec3 vOutputDirection;
+    varying vec3 vOutputDirection;
 
-			uniform sampler2D envMap;
-			uniform vec2 texelSize;
+    uniform sampler2D envMap;
+    uniform vec2 texelSize;
 
-			${_getEncodings()}
+    ${_getEncodings()}
 
-			#include <common>
+    #include <common>
 
-			void main() {
+    void main() {
 
-				gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+      gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
 
-				vec3 outputDirection = normalize( vOutputDirection );
-				vec2 uv = equirectUv( outputDirection );
+      vec3 outputDirection = normalize( vOutputDirection );
+      vec2 uv = equirectUv( outputDirection );
 
-				vec2 f = fract( uv / texelSize - 0.5 );
-				uv -= f * texelSize;
-				vec3 tl = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
-				uv.x += texelSize.x;
-				vec3 tr = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
-				uv.y += texelSize.y;
-				vec3 br = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
-				uv.x -= texelSize.x;
-				vec3 bl = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
+      vec2 f = fract( uv / texelSize - 0.5 );
+      uv -= f * texelSize;
+      vec3 tl = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
+      uv.x += texelSize.x;
+      vec3 tr = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
+      uv.y += texelSize.y;
+      vec3 br = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
+      uv.x -= texelSize.x;
+      vec3 bl = envMapTexelToLinear( texture2D ( envMap, uv ) ).rgb;
 
-				vec3 tm = mix( tl, tr, f.x );
-				vec3 bm = mix( bl, br, f.x );
-				gl_FragColor.rgb = mix( tm, bm, f.y );
+      vec3 tm = mix( tl, tr, f.x );
+      vec3 bm = mix( bl, br, f.x );
+      gl_FragColor.rgb = mix( tm, bm, f.y );
 
-				gl_FragColor = linearToOutputTexel( gl_FragColor );
+      gl_FragColor = linearToOutputTexel( gl_FragColor );
 
-			}
-		`,
+    }
+  `,
 
     blending: NoBlending,
     depthTest: false,
@@ -81613,23 +81610,23 @@ function _getCubemapShader() {
 
     fragmentShader: /* glsl */ `
 
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			varying vec3 vOutputDirection;
+    varying vec3 vOutputDirection;
 
-			uniform samplerCube envMap;
+    uniform samplerCube envMap;
 
-			${_getEncodings()}
+    ${_getEncodings()}
 
-			void main() {
+    void main() {
 
-				gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
-				gl_FragColor.rgb = envMapTexelToLinear( textureCube( envMap, vec3( - vOutputDirection.x, vOutputDirection.yz ) ) ).rgb;
-				gl_FragColor = linearToOutputTexel( gl_FragColor );
+      gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+      gl_FragColor.rgb = envMapTexelToLinear( textureCube( envMap, vec3( - vOutputDirection.x, vOutputDirection.yz ) ) ).rgb;
+      gl_FragColor = linearToOutputTexel( gl_FragColor );
 
-			}
-		`,
+    }
+  `,
 
     blending: NoBlending,
     depthTest: false,
@@ -81642,146 +81639,146 @@ function _getCubemapShader() {
 function _getCommonVertexShader() {
   return /* glsl */ `
 
-		precision mediump float;
-		precision mediump int;
+  precision mediump float;
+  precision mediump int;
 
-		attribute vec3 position;
-		attribute vec2 uv;
-		attribute float faceIndex;
+  attribute vec3 position;
+  attribute vec2 uv;
+  attribute float faceIndex;
 
-		varying vec3 vOutputDirection;
+  varying vec3 vOutputDirection;
 
-		// RH coordinate system; PMREM face-indexing convention
-		vec3 getDirection( vec2 uv, float face ) {
+  // RH coordinate system; PMREM face-indexing convention
+  vec3 getDirection( vec2 uv, float face ) {
 
-			uv = 2.0 * uv - 1.0;
+    uv = 2.0 * uv - 1.0;
 
-			vec3 direction = vec3( uv, 1.0 );
+    vec3 direction = vec3( uv, 1.0 );
 
-			if ( face == 0.0 ) {
+    if ( face == 0.0 ) {
 
-				direction = direction.zyx; // ( 1, v, u ) pos x
+      direction = direction.zyx; // ( 1, v, u ) pos x
 
-			} else if ( face == 1.0 ) {
+    } else if ( face == 1.0 ) {
 
-				direction = direction.xzy;
-				direction.xz *= -1.0; // ( -u, 1, -v ) pos y
+      direction = direction.xzy;
+      direction.xz *= -1.0; // ( -u, 1, -v ) pos y
 
-			} else if ( face == 2.0 ) {
+    } else if ( face == 2.0 ) {
 
-				direction.x *= -1.0; // ( -u, v, 1 ) pos z
+      direction.x *= -1.0; // ( -u, v, 1 ) pos z
 
-			} else if ( face == 3.0 ) {
+    } else if ( face == 3.0 ) {
 
-				direction = direction.zyx;
-				direction.xz *= -1.0; // ( -1, v, -u ) neg x
+      direction = direction.zyx;
+      direction.xz *= -1.0; // ( -1, v, -u ) neg x
 
-			} else if ( face == 4.0 ) {
+    } else if ( face == 4.0 ) {
 
-				direction = direction.xzy;
-				direction.xy *= -1.0; // ( -u, -1, v ) neg y
+      direction = direction.xzy;
+      direction.xy *= -1.0; // ( -u, -1, v ) neg y
 
-			} else if ( face == 5.0 ) {
+    } else if ( face == 5.0 ) {
 
-				direction.z *= -1.0; // ( u, v, -1 ) neg z
+      direction.z *= -1.0; // ( u, v, -1 ) neg z
 
-			}
+    }
 
-			return direction;
+    return direction;
 
-		}
+  }
 
-		void main() {
+  void main() {
 
-			vOutputDirection = getDirection( uv, faceIndex );
-			gl_Position = vec4( position, 1.0 );
+    vOutputDirection = getDirection( uv, faceIndex );
+    gl_Position = vec4( position, 1.0 );
 
-		}
-	`;
+  }
+`;
 }
 
 function _getEncodings() {
   return /* glsl */ `
 
-		uniform int inputEncoding;
-		uniform int outputEncoding;
+  uniform int inputEncoding;
+  uniform int outputEncoding;
 
-		#include <encodings_pars_fragment>
+  #include <encodings_pars_fragment>
 
-		vec4 inputTexelToLinear( vec4 value ) {
+  vec4 inputTexelToLinear( vec4 value ) {
 
-			if ( inputEncoding == 0 ) {
+    if ( inputEncoding == 0 ) {
 
-				return value;
+      return value;
 
-			} else if ( inputEncoding == 1 ) {
+    } else if ( inputEncoding == 1 ) {
 
-				return sRGBToLinear( value );
+      return sRGBToLinear( value );
 
-			} else if ( inputEncoding == 2 ) {
+    } else if ( inputEncoding == 2 ) {
 
-				return RGBEToLinear( value );
+      return RGBEToLinear( value );
 
-			} else if ( inputEncoding == 3 ) {
+    } else if ( inputEncoding == 3 ) {
 
-				return RGBMToLinear( value, 7.0 );
+      return RGBMToLinear( value, 7.0 );
 
-			} else if ( inputEncoding == 4 ) {
+    } else if ( inputEncoding == 4 ) {
 
-				return RGBMToLinear( value, 16.0 );
+      return RGBMToLinear( value, 16.0 );
 
-			} else if ( inputEncoding == 5 ) {
+    } else if ( inputEncoding == 5 ) {
 
-				return RGBDToLinear( value, 256.0 );
+      return RGBDToLinear( value, 256.0 );
 
-			} else {
+    } else {
 
-				return GammaToLinear( value, 2.2 );
+      return GammaToLinear( value, 2.2 );
 
-			}
+    }
 
-		}
+  }
 
-		vec4 linearToOutputTexel( vec4 value ) {
+  vec4 linearToOutputTexel( vec4 value ) {
 
-			if ( outputEncoding == 0 ) {
+    if ( outputEncoding == 0 ) {
 
-				return value;
+      return value;
 
-			} else if ( outputEncoding == 1 ) {
+    } else if ( outputEncoding == 1 ) {
 
-				return LinearTosRGB( value );
+      return LinearTosRGB( value );
 
-			} else if ( outputEncoding == 2 ) {
+    } else if ( outputEncoding == 2 ) {
 
-				return LinearToRGBE( value );
+      return LinearToRGBE( value );
 
-			} else if ( outputEncoding == 3 ) {
+    } else if ( outputEncoding == 3 ) {
 
-				return LinearToRGBM( value, 7.0 );
+      return LinearToRGBM( value, 7.0 );
 
-			} else if ( outputEncoding == 4 ) {
+    } else if ( outputEncoding == 4 ) {
 
-				return LinearToRGBM( value, 16.0 );
+      return LinearToRGBM( value, 16.0 );
 
-			} else if ( outputEncoding == 5 ) {
+    } else if ( outputEncoding == 5 ) {
 
-				return LinearToRGBD( value, 256.0 );
+      return LinearToRGBD( value, 256.0 );
 
-			} else {
+    } else {
 
-				return LinearToGamma( value, 2.2 );
+      return LinearToGamma( value, 2.2 );
 
-			}
+    }
 
-		}
+  }
 
-		vec4 envMapTexelToLinear( vec4 color ) {
+  vec4 envMapTexelToLinear( vec4 color ) {
 
-			return inputTexelToLinear( color );
+    return inputTexelToLinear( color );
 
-		}
-	`;
+  }
+`;
 }
 
 //
@@ -86025,7 +86022,7 @@ var GLTFLoader = (function () {
         .then(function (bufferView) {
           if (source.mimeType === "image/png") {
             // Inspect the PNG 'IHDR' chunk to determine whether the image could have an
-            // alpha channel. This check is conservative — the image could have an alpha
+            // alpha channel. This check is conservative â€” the image could have an alpha
             // channel with all values == 1, and the indexed type (colorType == 3) only
             // sometimes contains alpha.
             //
@@ -88672,9 +88669,6 @@ class Model extends Object3D {
     this.clear();
     this._currentGLTF = gltf;
     if (gltf != null) {
-      this._model = gltf.scene;
-      console.log(this._model);
-
       this.modelContainer.add(gltf.scene);
     }
     const { animations } = gltf;
@@ -89314,123 +89308,123 @@ function _getMipmapMaterial() {
     },
 
     vertexShader: /* glsl */ `
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			attribute vec3 position;
-			attribute vec2 uv;
+    attribute vec3 position;
+    attribute vec2 uv;
 
-			varying vec2 vUv;
+    varying vec2 vUv;
 
-			void main() {
+    void main() {
 
-				vUv = uv;
+      vUv = uv;
 
-				gl_Position = vec4( position, 1.0 );
+      gl_Position = vec4( position, 1.0 );
 
-			}
-		`,
+    }
+  `,
 
     fragmentShader: /* glsl */ `
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			varying vec2 vUv;
+    varying vec2 vUv;
 
-			uniform sampler2D roughnessMap;
-			uniform sampler2D normalMap;
-			uniform vec2 texelSize;
+    uniform sampler2D roughnessMap;
+    uniform sampler2D normalMap;
+    uniform vec2 texelSize;
 
-			#define ENVMAP_TYPE_CUBE_UV
+    #define ENVMAP_TYPE_CUBE_UV
 
-			vec4 envMapTexelToLinear( vec4 a ) { return a; }
+    vec4 envMapTexelToLinear( vec4 a ) { return a; }
 
-			#include <cube_uv_reflection_fragment>
+    #include <cube_uv_reflection_fragment>
 
-			float roughnessToVariance( float roughness ) {
+    float roughnessToVariance( float roughness ) {
 
-				float variance = 0.0;
+      float variance = 0.0;
 
-				if ( roughness >= r1 ) {
+      if ( roughness >= r1 ) {
 
-					variance = ( r0 - roughness ) * ( v1 - v0 ) / ( r0 - r1 ) + v0;
+        variance = ( r0 - roughness ) * ( v1 - v0 ) / ( r0 - r1 ) + v0;
 
-				} else if ( roughness >= r4 ) {
+      } else if ( roughness >= r4 ) {
 
-					variance = ( r1 - roughness ) * ( v4 - v1 ) / ( r1 - r4 ) + v1;
+        variance = ( r1 - roughness ) * ( v4 - v1 ) / ( r1 - r4 ) + v1;
 
-				} else if ( roughness >= r5 ) {
+      } else if ( roughness >= r5 ) {
 
-					variance = ( r4 - roughness ) * ( v5 - v4 ) / ( r4 - r5 ) + v4;
+        variance = ( r4 - roughness ) * ( v5 - v4 ) / ( r4 - r5 ) + v4;
 
-				} else {
+      } else {
 
-					float roughness2 = roughness * roughness;
+        float roughness2 = roughness * roughness;
 
-					variance = 1.79 * roughness2 * roughness2;
+        variance = 1.79 * roughness2 * roughness2;
 
-				}
+      }
 
-				return variance;
+      return variance;
 
-			}
+    }
 
-			float varianceToRoughness( float variance ) {
+    float varianceToRoughness( float variance ) {
 
-				float roughness = 0.0;
+      float roughness = 0.0;
 
-				if ( variance >= v1 ) {
+      if ( variance >= v1 ) {
 
-					roughness = ( v0 - variance ) * ( r1 - r0 ) / ( v0 - v1 ) + r0;
+        roughness = ( v0 - variance ) * ( r1 - r0 ) / ( v0 - v1 ) + r0;
 
-				} else if ( variance >= v4 ) {
+      } else if ( variance >= v4 ) {
 
-					roughness = ( v1 - variance ) * ( r4 - r1 ) / ( v1 - v4 ) + r1;
+        roughness = ( v1 - variance ) * ( r4 - r1 ) / ( v1 - v4 ) + r1;
 
-				} else if ( variance >= v5 ) {
+      } else if ( variance >= v5 ) {
 
-					roughness = ( v4 - variance ) * ( r5 - r4 ) / ( v4 - v5 ) + r4;
+        roughness = ( v4 - variance ) * ( r5 - r4 ) / ( v4 - v5 ) + r4;
 
-				} else {
+      } else {
 
-					roughness = pow( 0.559 * variance, 0.25 ); // 0.559 = 1.0 / 1.79
+        roughness = pow( 0.559 * variance, 0.25 ); // 0.559 = 1.0 / 1.79
 
-				}
+      }
 
-				return roughness;
+      return roughness;
 
-			}
+    }
 
-			void main() {
+    void main() {
 
-				gl_FragColor = texture2D( roughnessMap, vUv, - 1.0 );
+      gl_FragColor = texture2D( roughnessMap, vUv, - 1.0 );
 
-				if ( texelSize.x == 0.0 ) return;
+      if ( texelSize.x == 0.0 ) return;
 
-				float roughness = gl_FragColor.g;
+      float roughness = gl_FragColor.g;
 
-				float variance = roughnessToVariance( roughness );
+      float variance = roughnessToVariance( roughness );
 
-				vec3 avgNormal;
+      vec3 avgNormal;
 
-				for ( float x = - 1.0; x < 2.0; x += 2.0 ) {
+      for ( float x = - 1.0; x < 2.0; x += 2.0 ) {
 
-					for ( float y = - 1.0; y < 2.0; y += 2.0 ) {
+        for ( float y = - 1.0; y < 2.0; y += 2.0 ) {
 
-						vec2 uv = vUv + vec2( x, y ) * 0.25 * texelSize;
+          vec2 uv = vUv + vec2( x, y ) * 0.25 * texelSize;
 
-						avgNormal += normalize( texture2D( normalMap, uv, - 1.0 ).xyz - 0.5 );
+          avgNormal += normalize( texture2D( normalMap, uv, - 1.0 ).xyz - 0.5 );
 
-					}
+        }
 
-				}
+      }
 
-				variance += 1.0 - 0.25 * length( avgNormal );
+      variance += 1.0 - 0.25 * length( avgNormal );
 
-				gl_FragColor.g = varianceToRoughness( variance );
+      gl_FragColor.g = varianceToRoughness( variance );
 
-			}
-		`,
+    }
+  `,
 
     blending: NoBlending,
     depthTest: false,
@@ -91151,8 +91145,8 @@ class GLTFInstance {
 const alphaChunk = /* glsl */ `
 #ifdef ALPHATEST
 
-    if ( diffuseColor.a < ALPHATEST ) discard;
-    diffuseColor.a = 1.0;
+  if ( diffuseColor.a < ALPHATEST ) discard;
+  diffuseColor.a = 1.0;
 
 #endif
 `;
@@ -91374,10 +91368,13 @@ class ModelViewerGLTFInstance extends GLTFInstance {
     }
     const { scene } = prepared;
     const meshesToDuplicate = [];
+    var nodeRenderOrder = 1000;
     scene.traverse((node) => {
       // Set a high renderOrder while we're here to ensure the model
       // always renders on top of the skysphere
-      node.renderOrder = 1000;
+      nodeRenderOrder = nodeRenderOrder - 1;
+      node.renderOrder = nodeRenderOrder;
+
       // Three.js seems to cull some animated models incorrectly. Since we
       // expect to view our whole scene anyway, we turn off the frustum
       // culling optimization here.
@@ -91583,7 +91580,8 @@ class ModelViewerGLTFInstance extends GLTFInstance {
     // This improves transparent rendering and can be removed whenever
     // https://github.com/mrdoob/three.js/pull/18235 finally lands.
     if (clone.transparent) {
-      clone.depthWrite = false;
+      clone.depthWrite = true;
+      clone.depthTest = true;
     }
     // This little hack ignores alpha for opaque materials, in order to comply
     // with the glTF spec.
@@ -91678,11 +91676,11 @@ RGBELoader.prototype = Object.assign(
 
           if (-1 < i) {
             /*for (i=l-1; i>=0; i--) {
-						byteCode = m.charCodeAt(i);
-						if (byteCode > 0x7f && byteCode <= 0x7ff) byteLen++;
-						else if (byteCode > 0x7ff && byteCode <= 0xffff) byteLen += 2;
-						if (byteCode >= 0xDC00 && byteCode <= 0xDFFF) i--; //trail surrogate
-					}*/
+          byteCode = m.charCodeAt(i);
+          if (byteCode > 0x7f && byteCode <= 0x7ff) byteLen++;
+          else if (byteCode > 0x7ff && byteCode <= 0xffff) byteLen += 2;
+          if (byteCode >= 0xDC00 && byteCode <= 0xDFFF) i--; //trail surrogate
+        }*/
             if (false !== consume) buffer.pos += len + i + 1;
             return s + chunk.slice(0, i);
           }
@@ -95783,6 +95781,12 @@ const ControlsMixin = (ModelViewerElement) => {
       const { theta, phi, radius } = this[$lastSpherical];
       return { theta, phi, radius };
     }
+
+    getScene() {
+      const scene = this[$scene];
+      return scene;
+    }
+
     getCameraTarget() {
       return toVector3D(this[$scene].getTarget());
     }
@@ -95795,13 +95799,6 @@ const ControlsMixin = (ModelViewerElement) => {
     }
     getMaximumFieldOfView() {
       return this[$controls].options.maximumFieldOfView;
-    }
-    getScene() {
-      return this[$scene];
-    }
-
-    getModelStructure() {
-      return this[$scene]._model;
     }
     jumpCameraToGoal() {
       this[$jumpCamera] = true;
@@ -100566,49 +100563,49 @@ will take.
 
 Example:
 
-    <paper-progress value="10"></paper-progress>
+  <paper-progress value="10"></paper-progress>
 
 There is also a secondary progress which is useful for displaying intermediate
 progress, such as the buffer level during a streaming playback progress bar.
 
 Example:
 
-    <paper-progress value="10" secondary-progress="30"></paper-progress>
+  <paper-progress value="10" secondary-progress="30"></paper-progress>
 
 ### Styling progress bar:
 
 To change the active progress bar color:
 
-    paper-progress {
-       --paper-progress-active-color: #e91e63;
-    }
+  paper-progress {
+     --paper-progress-active-color: #e91e63;
+  }
 
 To change the secondary progress bar color:
 
-    paper-progress {
-      --paper-progress-secondary-color: #f8bbd0;
-    }
+  paper-progress {
+    --paper-progress-secondary-color: #f8bbd0;
+  }
 
 To change the progress bar background color:
 
-    paper-progress {
-      --paper-progress-container-color: #64ffda;
-    }
+  paper-progress {
+    --paper-progress-container-color: #64ffda;
+  }
 
 Add the class `transiting` to a paper-progress to animate the progress bar when
 the value changed. You can also customize the transition:
 
-    paper-progress {
-      --paper-progress-transition-duration: 0.08s;
-      --paper-progress-transition-timing-function: ease;
-      --paper-progress-transition-delay: 0s;
-    }
+  paper-progress {
+    --paper-progress-transition-duration: 0.08s;
+    --paper-progress-transition-timing-function: ease;
+    --paper-progress-transition-delay: 0s;
+  }
 
 To change the duration of the indeterminate cycle:
 
-    paper-progress {
-      --paper-progress-indeterminate-cycle-duration: 2s;
-    }
+  paper-progress {
+    --paper-progress-indeterminate-cycle-duration: 2s;
+  }
 
 The following mixins are available for styling:
 
@@ -100632,169 +100629,169 @@ Custom property | Description | Default
 */
 Polymer({
   _template: html$1`
-    <style>
-      :host {
-        display: block;
-        width: 200px;
-        position: relative;
-        overflow: hidden;
+  <style>
+    :host {
+      display: block;
+      width: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    :host([hidden]), [hidden] {
+      display: none !important;
+    }
+
+    #progressContainer {
+      @apply --paper-progress-container;
+      position: relative;
+    }
+
+    #progressContainer,
+    /* the stripe for the indeterminate animation*/
+    .indeterminate::after {
+      height: var(--paper-progress-height, 4px);
+    }
+
+    #primaryProgress,
+    #secondaryProgress,
+    .indeterminate::after {
+      @apply --layout-fit;
+    }
+
+    #progressContainer,
+    .indeterminate::after {
+      background: var(--paper-progress-container-color, var(--google-grey-300));
+    }
+
+    :host(.transiting) #primaryProgress,
+    :host(.transiting) #secondaryProgress {
+      -webkit-transition-property: -webkit-transform;
+      transition-property: transform;
+
+      /* Duration */
+      -webkit-transition-duration: var(--paper-progress-transition-duration, 0.08s);
+      transition-duration: var(--paper-progress-transition-duration, 0.08s);
+
+      /* Timing function */
+      -webkit-transition-timing-function: var(--paper-progress-transition-timing-function, ease);
+      transition-timing-function: var(--paper-progress-transition-timing-function, ease);
+
+      /* Delay */
+      -webkit-transition-delay: var(--paper-progress-transition-delay, 0s);
+      transition-delay: var(--paper-progress-transition-delay, 0s);
+    }
+
+    #primaryProgress,
+    #secondaryProgress {
+      @apply --layout-fit;
+      -webkit-transform-origin: left center;
+      transform-origin: left center;
+      -webkit-transform: scaleX(0);
+      transform: scaleX(0);
+      will-change: transform;
+    }
+
+    #primaryProgress {
+      background: var(--paper-progress-active-color, var(--google-green-500));
+    }
+
+    #secondaryProgress {
+      background: var(--paper-progress-secondary-color, var(--google-green-100));
+    }
+
+    :host([disabled]) #primaryProgress {
+      background: var(--paper-progress-disabled-active-color, var(--google-grey-500));
+    }
+
+    :host([disabled]) #secondaryProgress {
+      background: var(--paper-progress-disabled-secondary-color, var(--google-grey-300));
+    }
+
+    :host(:not([disabled])) #primaryProgress.indeterminate {
+      -webkit-transform-origin: right center;
+      transform-origin: right center;
+      -webkit-animation: indeterminate-bar var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
+      animation: indeterminate-bar var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
+    }
+
+    :host(:not([disabled])) #primaryProgress.indeterminate::after {
+      content: "";
+      -webkit-transform-origin: center center;
+      transform-origin: center center;
+
+      -webkit-animation: indeterminate-splitter var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
+      animation: indeterminate-splitter var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
+    }
+
+    @-webkit-keyframes indeterminate-bar {
+      0% {
+        -webkit-transform: scaleX(1) translateX(-100%);
       }
-
-      :host([hidden]), [hidden] {
-        display: none !important;
+      50% {
+        -webkit-transform: scaleX(1) translateX(0%);
       }
-
-      #progressContainer {
-        @apply --paper-progress-container;
-        position: relative;
+      75% {
+        -webkit-transform: scaleX(1) translateX(0%);
+        -webkit-animation-timing-function: cubic-bezier(.28,.62,.37,.91);
       }
-
-      #progressContainer,
-      /* the stripe for the indeterminate animation*/
-      .indeterminate::after {
-        height: var(--paper-progress-height, 4px);
+      100% {
+        -webkit-transform: scaleX(0) translateX(0%);
       }
+    }
 
-      #primaryProgress,
-      #secondaryProgress,
-      .indeterminate::after {
-        @apply --layout-fit;
+    @-webkit-keyframes indeterminate-splitter {
+      0% {
+        -webkit-transform: scaleX(.75) translateX(-125%);
       }
-
-      #progressContainer,
-      .indeterminate::after {
-        background: var(--paper-progress-container-color, var(--google-grey-300));
+      30% {
+        -webkit-transform: scaleX(.75) translateX(-125%);
+        -webkit-animation-timing-function: cubic-bezier(.42,0,.6,.8);
       }
-
-      :host(.transiting) #primaryProgress,
-      :host(.transiting) #secondaryProgress {
-        -webkit-transition-property: -webkit-transform;
-        transition-property: transform;
-
-        /* Duration */
-        -webkit-transition-duration: var(--paper-progress-transition-duration, 0.08s);
-        transition-duration: var(--paper-progress-transition-duration, 0.08s);
-
-        /* Timing function */
-        -webkit-transition-timing-function: var(--paper-progress-transition-timing-function, ease);
-        transition-timing-function: var(--paper-progress-transition-timing-function, ease);
-
-        /* Delay */
-        -webkit-transition-delay: var(--paper-progress-transition-delay, 0s);
-        transition-delay: var(--paper-progress-transition-delay, 0s);
+      90% {
+        -webkit-transform: scaleX(.75) translateX(125%);
       }
-
-      #primaryProgress,
-      #secondaryProgress {
-        @apply --layout-fit;
-        -webkit-transform-origin: left center;
-        transform-origin: left center;
-        -webkit-transform: scaleX(0);
-        transform: scaleX(0);
-        will-change: transform;
+      100% {
+        -webkit-transform: scaleX(.75) translateX(125%);
       }
+    }
 
-      #primaryProgress {
-        background: var(--paper-progress-active-color, var(--google-green-500));
+    @keyframes indeterminate-bar {
+      0% {
+        transform: scaleX(1) translateX(-100%);
       }
-
-      #secondaryProgress {
-        background: var(--paper-progress-secondary-color, var(--google-green-100));
+      50% {
+        transform: scaleX(1) translateX(0%);
       }
-
-      :host([disabled]) #primaryProgress {
-        background: var(--paper-progress-disabled-active-color, var(--google-grey-500));
+      75% {
+        transform: scaleX(1) translateX(0%);
+        animation-timing-function: cubic-bezier(.28,.62,.37,.91);
       }
-
-      :host([disabled]) #secondaryProgress {
-        background: var(--paper-progress-disabled-secondary-color, var(--google-grey-300));
+      100% {
+        transform: scaleX(0) translateX(0%);
       }
+    }
 
-      :host(:not([disabled])) #primaryProgress.indeterminate {
-        -webkit-transform-origin: right center;
-        transform-origin: right center;
-        -webkit-animation: indeterminate-bar var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
-        animation: indeterminate-bar var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
+    @keyframes indeterminate-splitter {
+      0% {
+        transform: scaleX(.75) translateX(-125%);
       }
-
-      :host(:not([disabled])) #primaryProgress.indeterminate::after {
-        content: "";
-        -webkit-transform-origin: center center;
-        transform-origin: center center;
-
-        -webkit-animation: indeterminate-splitter var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
-        animation: indeterminate-splitter var(--paper-progress-indeterminate-cycle-duration, 2s) linear infinite;
+      30% {
+        transform: scaleX(.75) translateX(-125%);
+        animation-timing-function: cubic-bezier(.42,0,.6,.8);
       }
-
-      @-webkit-keyframes indeterminate-bar {
-        0% {
-          -webkit-transform: scaleX(1) translateX(-100%);
-        }
-        50% {
-          -webkit-transform: scaleX(1) translateX(0%);
-        }
-        75% {
-          -webkit-transform: scaleX(1) translateX(0%);
-          -webkit-animation-timing-function: cubic-bezier(.28,.62,.37,.91);
-        }
-        100% {
-          -webkit-transform: scaleX(0) translateX(0%);
-        }
+      90% {
+        transform: scaleX(.75) translateX(125%);
       }
-
-      @-webkit-keyframes indeterminate-splitter {
-        0% {
-          -webkit-transform: scaleX(.75) translateX(-125%);
-        }
-        30% {
-          -webkit-transform: scaleX(.75) translateX(-125%);
-          -webkit-animation-timing-function: cubic-bezier(.42,0,.6,.8);
-        }
-        90% {
-          -webkit-transform: scaleX(.75) translateX(125%);
-        }
-        100% {
-          -webkit-transform: scaleX(.75) translateX(125%);
-        }
+      100% {
+        transform: scaleX(.75) translateX(125%);
       }
+    }
+  </style>
 
-      @keyframes indeterminate-bar {
-        0% {
-          transform: scaleX(1) translateX(-100%);
-        }
-        50% {
-          transform: scaleX(1) translateX(0%);
-        }
-        75% {
-          transform: scaleX(1) translateX(0%);
-          animation-timing-function: cubic-bezier(.28,.62,.37,.91);
-        }
-        100% {
-          transform: scaleX(0) translateX(0%);
-        }
-      }
-
-      @keyframes indeterminate-splitter {
-        0% {
-          transform: scaleX(.75) translateX(-125%);
-        }
-        30% {
-          transform: scaleX(.75) translateX(-125%);
-          animation-timing-function: cubic-bezier(.42,0,.6,.8);
-        }
-        90% {
-          transform: scaleX(.75) translateX(125%);
-        }
-        100% {
-          transform: scaleX(.75) translateX(125%);
-        }
-      }
-    </style>
-
-    <div id="progressContainer">
-      <div id="secondaryProgress" hidden\$="[[_hideSecondaryProgress(secondaryRatio)]]"></div>
-      <div id="primaryProgress"></div>
-    </div>
+  <div id="progressContainer">
+    <div id="secondaryProgress" hidden\$="[[_hideSecondaryProgress(secondaryRatio)]]"></div>
+    <div id="primaryProgress"></div>
+  </div>
 `,
 
   is: "paper-progress",
@@ -101070,294 +101067,294 @@ found at http://polymer.github.io/PATENTS.txt
 */
 
 const template$7 = html$1`
-  <style>
-    :host {
-      @apply --layout;
-      @apply --layout-justified;
-      @apply --layout-center;
-      width: 200px;
-      cursor: default;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-      --paper-progress-active-color: var(--paper-slider-active-color, var(--google-blue-700));
-      --paper-progress-secondary-color: var(--paper-slider-secondary-color, var(--google-blue-300));
-      --paper-progress-disabled-active-color: var(--paper-slider-disabled-active-color, var(--paper-grey-400));
-      --paper-progress-disabled-secondary-color: var(--paper-slider-disabled-secondary-color, var(--paper-grey-400));
-      --calculated-paper-slider-height: var(--paper-slider-height, 2px);
-    }
+<style>
+  :host {
+    @apply --layout;
+    @apply --layout-justified;
+    @apply --layout-center;
+    width: 200px;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    --paper-progress-active-color: var(--paper-slider-active-color, var(--google-blue-700));
+    --paper-progress-secondary-color: var(--paper-slider-secondary-color, var(--google-blue-300));
+    --paper-progress-disabled-active-color: var(--paper-slider-disabled-active-color, var(--paper-grey-400));
+    --paper-progress-disabled-secondary-color: var(--paper-slider-disabled-secondary-color, var(--paper-grey-400));
+    --calculated-paper-slider-height: var(--paper-slider-height, 2px);
+  }
 
-    /* focus shows the ripple */
-    :host(:focus) {
-      outline: none;
-    }
+  /* focus shows the ripple */
+  :host(:focus) {
+    outline: none;
+  }
 
-    /**
-      * NOTE(keanulee): Though :host-context is not universally supported, some pages
-      * still rely on paper-slider being flipped when dir="rtl" is set on body. For full
-      * compatibility, dir="rtl" must be explicitly set on paper-slider.
-      */
-    :dir(rtl) #sliderContainer {
-      -webkit-transform: scaleX(-1);
-      transform: scaleX(-1);
-    }
+  /**
+    * NOTE(keanulee): Though :host-context is not universally supported, some pages
+    * still rely on paper-slider being flipped when dir="rtl" is set on body. For full
+    * compatibility, dir="rtl" must be explicitly set on paper-slider.
+    */
+  :dir(rtl) #sliderContainer {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
 
-    /**
-      * NOTE(keanulee): This is separate from the rule above because :host-context may
-      * not be recognized.
-      */
-    :host([dir="rtl"]) #sliderContainer {
-      -webkit-transform: scaleX(-1);
-      transform: scaleX(-1);
-    }
+  /**
+    * NOTE(keanulee): This is separate from the rule above because :host-context may
+    * not be recognized.
+    */
+  :host([dir="rtl"]) #sliderContainer {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+  }
 
-    /**
-      * NOTE(keanulee): Needed to override the :host-context rule (where supported)
-      * to support LTR sliders in RTL pages.
-      */
-    :host([dir="ltr"]) #sliderContainer {
-      -webkit-transform: scaleX(1);
-      transform: scaleX(1);
-    }
+  /**
+    * NOTE(keanulee): Needed to override the :host-context rule (where supported)
+    * to support LTR sliders in RTL pages.
+    */
+  :host([dir="ltr"]) #sliderContainer {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+  }
 
-    #sliderContainer {
-      position: relative;
-      width: 100%;
-      height: calc(30px + var(--calculated-paper-slider-height));
-      margin-left: calc(15px + var(--calculated-paper-slider-height)/2);
-      margin-right: calc(15px + var(--calculated-paper-slider-height)/2);
-    }
+  #sliderContainer {
+    position: relative;
+    width: 100%;
+    height: calc(30px + var(--calculated-paper-slider-height));
+    margin-left: calc(15px + var(--calculated-paper-slider-height)/2);
+    margin-right: calc(15px + var(--calculated-paper-slider-height)/2);
+  }
 
-    #sliderContainer:focus {
-      outline: 0;
-    }
+  #sliderContainer:focus {
+    outline: 0;
+  }
 
-    #sliderContainer.editable {
-      margin-top: 12px;
-      margin-bottom: 12px;
-    }
+  #sliderContainer.editable {
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
 
-    .bar-container {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      overflow: hidden;
-    }
+  .bar-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+  }
 
-    .ring > .bar-container {
-      left: calc(5px + var(--calculated-paper-slider-height)/2);
-      transition: left 0.18s ease;
-    }
+  .ring > .bar-container {
+    left: calc(5px + var(--calculated-paper-slider-height)/2);
+    transition: left 0.18s ease;
+  }
 
-    .ring.expand.dragging > .bar-container {
-      transition: none;
-    }
+  .ring.expand.dragging > .bar-container {
+    transition: none;
+  }
 
-    .ring.expand:not(.pin) > .bar-container {
-      left: calc(8px + var(--calculated-paper-slider-height)/2);
-    }
+  .ring.expand:not(.pin) > .bar-container {
+    left: calc(8px + var(--calculated-paper-slider-height)/2);
+  }
 
-    #sliderBar {
-      padding: 15px 0;
-      width: 100%;
-      background-color: var(--paper-slider-bar-color, transparent);
-      --paper-progress-container-color: var(--paper-slider-container-color, var(--paper-grey-400));
-      --paper-progress-height: var(--calculated-paper-slider-height);
-    }
+  #sliderBar {
+    padding: 15px 0;
+    width: 100%;
+    background-color: var(--paper-slider-bar-color, transparent);
+    --paper-progress-container-color: var(--paper-slider-container-color, var(--paper-grey-400));
+    --paper-progress-height: var(--calculated-paper-slider-height);
+  }
 
-    .slider-markers {
-      position: absolute;
-      /* slider-knob is 30px + the slider-height so that the markers should start at a offset of 15px*/
-      top: 15px;
-      height: var(--calculated-paper-slider-height);
-      left: 0;
-      right: -1px;
-      box-sizing: border-box;
-      pointer-events: none;
-      @apply --layout-horizontal;
-    }
+  .slider-markers {
+    position: absolute;
+    /* slider-knob is 30px + the slider-height so that the markers should start at a offset of 15px*/
+    top: 15px;
+    height: var(--calculated-paper-slider-height);
+    left: 0;
+    right: -1px;
+    box-sizing: border-box;
+    pointer-events: none;
+    @apply --layout-horizontal;
+  }
 
-    .slider-marker {
-      @apply --layout-flex;
-    }
-    .slider-markers::after,
-    .slider-marker::after {
-      content: "";
-      display: block;
-      margin-left: -1px;
-      width: 2px;
-      height: var(--calculated-paper-slider-height);
-      border-radius: 50%;
-      background-color: var(--paper-slider-markers-color, #000);
-    }
+  .slider-marker {
+    @apply --layout-flex;
+  }
+  .slider-markers::after,
+  .slider-marker::after {
+    content: "";
+    display: block;
+    margin-left: -1px;
+    width: 2px;
+    height: var(--calculated-paper-slider-height);
+    border-radius: 50%;
+    background-color: var(--paper-slider-markers-color, #000);
+  }
 
-    .slider-knob {
-      position: absolute;
-      left: 0;
-      top: 0;
-      margin-left: calc(-15px - var(--calculated-paper-slider-height)/2);
-      width: calc(30px + var(--calculated-paper-slider-height));
-      height: calc(30px + var(--calculated-paper-slider-height));
-    }
+  .slider-knob {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin-left: calc(-15px - var(--calculated-paper-slider-height)/2);
+    width: calc(30px + var(--calculated-paper-slider-height));
+    height: calc(30px + var(--calculated-paper-slider-height));
+  }
 
-    .transiting > .slider-knob {
-      transition: left 0.08s ease;
-    }
+  .transiting > .slider-knob {
+    transition: left 0.08s ease;
+  }
 
-    .slider-knob:focus {
-      outline: none;
-    }
+  .slider-knob:focus {
+    outline: none;
+  }
 
-    .slider-knob.dragging {
-      transition: none;
-    }
+  .slider-knob.dragging {
+    transition: none;
+  }
 
-    .snaps > .slider-knob.dragging {
-      transition: -webkit-transform 0.08s ease;
-      transition: transform 0.08s ease;
-    }
+  .snaps > .slider-knob.dragging {
+    transition: -webkit-transform 0.08s ease;
+    transition: transform 0.08s ease;
+  }
 
-    .slider-knob-inner {
-      margin: 10px;
-      width: calc(100% - 20px);
-      height: calc(100% - 20px);
-      background-color: var(--paper-slider-knob-color, var(--google-blue-700));
-      border: 2px solid var(--paper-slider-knob-color, var(--google-blue-700));
-      border-radius: 50%;
+  .slider-knob-inner {
+    margin: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    background-color: var(--paper-slider-knob-color, var(--google-blue-700));
+    border: 2px solid var(--paper-slider-knob-color, var(--google-blue-700));
+    border-radius: 50%;
 
-      -moz-box-sizing: border-box;
-      box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 
-      transition-property: -webkit-transform, background-color, border;
-      transition-property: transform, background-color, border;
-      transition-duration: 0.18s;
-      transition-timing-function: ease;
-    }
+    transition-property: -webkit-transform, background-color, border;
+    transition-property: transform, background-color, border;
+    transition-duration: 0.18s;
+    transition-timing-function: ease;
+  }
 
-    .expand:not(.pin) > .slider-knob > .slider-knob-inner {
-      -webkit-transform: scale(1.5);
-      transform: scale(1.5);
-    }
+  .expand:not(.pin) > .slider-knob > .slider-knob-inner {
+    -webkit-transform: scale(1.5);
+    transform: scale(1.5);
+  }
 
-    .ring > .slider-knob > .slider-knob-inner {
-      background-color: var(--paper-slider-knob-start-color, transparent);
-      border: 2px solid var(--paper-slider-knob-start-border-color, var(--paper-grey-400));
-    }
+  .ring > .slider-knob > .slider-knob-inner {
+    background-color: var(--paper-slider-knob-start-color, transparent);
+    border: 2px solid var(--paper-slider-knob-start-border-color, var(--paper-grey-400));
+  }
 
-    .slider-knob-inner::before {
-      background-color: var(--paper-slider-pin-color, var(--google-blue-700));
-    }
+  .slider-knob-inner::before {
+    background-color: var(--paper-slider-pin-color, var(--google-blue-700));
+  }
 
-    .pin > .slider-knob > .slider-knob-inner::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 50%;
-      margin-left: -13px;
-      width: 26px;
-      height: 26px;
-      border-radius: 50% 50% 50% 0;
+  .pin > .slider-knob > .slider-knob-inner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -13px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50% 50% 50% 0;
 
-      -webkit-transform: rotate(-45deg) scale(0) translate(0);
-      transform: rotate(-45deg) scale(0) translate(0);
-    }
+    -webkit-transform: rotate(-45deg) scale(0) translate(0);
+    transform: rotate(-45deg) scale(0) translate(0);
+  }
 
-    .slider-knob-inner::before,
-    .slider-knob-inner::after {
-      transition: -webkit-transform .18s ease, background-color .18s ease;
-      transition: transform .18s ease, background-color .18s ease;
-    }
+  .slider-knob-inner::before,
+  .slider-knob-inner::after {
+    transition: -webkit-transform .18s ease, background-color .18s ease;
+    transition: transform .18s ease, background-color .18s ease;
+  }
 
-    .pin.ring > .slider-knob > .slider-knob-inner::before {
-      background-color: var(--paper-slider-pin-start-color, var(--paper-grey-400));
-    }
+  .pin.ring > .slider-knob > .slider-knob-inner::before {
+    background-color: var(--paper-slider-pin-start-color, var(--paper-grey-400));
+  }
 
-    .pin.expand > .slider-knob > .slider-knob-inner::before {
-      -webkit-transform: rotate(-45deg) scale(1) translate(17px, -17px);
-      transform: rotate(-45deg) scale(1) translate(17px, -17px);
-    }
+  .pin.expand > .slider-knob > .slider-knob-inner::before {
+    -webkit-transform: rotate(-45deg) scale(1) translate(17px, -17px);
+    transform: rotate(-45deg) scale(1) translate(17px, -17px);
+  }
 
-    .pin > .slider-knob > .slider-knob-inner::after {
-      content: attr(value);
-      position: absolute;
-      top: 0;
-      left: 50%;
-      margin-left: -16px;
-      width: 32px;
-      height: 26px;
+  .pin > .slider-knob > .slider-knob-inner::after {
+    content: attr(value);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -16px;
+    width: 32px;
+    height: 26px;
+    text-align: center;
+    color: var(--paper-slider-font-color, #fff);
+    font-size: 10px;
+
+    -webkit-transform: scale(0) translate(0);
+    transform: scale(0) translate(0);
+  }
+
+  .pin.expand > .slider-knob > .slider-knob-inner::after {
+    -webkit-transform: scale(1) translate(0, -17px);
+    transform: scale(1) translate(0, -17px);
+  }
+
+  /* paper-input */
+  .slider-input {
+    width: 50px;
+    overflow: hidden;
+    --paper-input-container-input: {
       text-align: center;
-      color: var(--paper-slider-font-color, #fff);
-      font-size: 10px;
+      @apply --paper-slider-input-container-input;
+    };
+    @apply --paper-slider-input;
+  }
 
-      -webkit-transform: scale(0) translate(0);
-      transform: scale(0) translate(0);
-    }
+  /* disabled state */
+  #sliderContainer.disabled {
+    pointer-events: none;
+  }
 
-    .pin.expand > .slider-knob > .slider-knob-inner::after {
-      -webkit-transform: scale(1) translate(0, -17px);
-      transform: scale(1) translate(0, -17px);
-    }
+  .disabled > .slider-knob > .slider-knob-inner {
+    background-color: var(--paper-slider-disabled-knob-color, var(--paper-grey-400));
+    border: 2px solid var(--paper-slider-disabled-knob-color, var(--paper-grey-400));
+    -webkit-transform: scale3d(0.75, 0.75, 1);
+    transform: scale3d(0.75, 0.75, 1);
+  }
 
-    /* paper-input */
-    .slider-input {
-      width: 50px;
-      overflow: hidden;
-      --paper-input-container-input: {
-        text-align: center;
-        @apply --paper-slider-input-container-input;
-      };
-      @apply --paper-slider-input;
-    }
+  .disabled.ring > .slider-knob > .slider-knob-inner {
+    background-color: var(--paper-slider-knob-start-color, transparent);
+    border: 2px solid var(--paper-slider-knob-start-border-color, var(--paper-grey-400));
+  }
 
-    /* disabled state */
-    #sliderContainer.disabled {
-      pointer-events: none;
-    }
+  paper-ripple {
+    color: var(--paper-slider-knob-color, var(--google-blue-700));
+  }
+</style>
 
-    .disabled > .slider-knob > .slider-knob-inner {
-      background-color: var(--paper-slider-disabled-knob-color, var(--paper-grey-400));
-      border: 2px solid var(--paper-slider-disabled-knob-color, var(--paper-grey-400));
-      -webkit-transform: scale3d(0.75, 0.75, 1);
-      transform: scale3d(0.75, 0.75, 1);
-    }
-
-    .disabled.ring > .slider-knob > .slider-knob-inner {
-      background-color: var(--paper-slider-knob-start-color, transparent);
-      border: 2px solid var(--paper-slider-knob-start-border-color, var(--paper-grey-400));
-    }
-
-    paper-ripple {
-      color: var(--paper-slider-knob-color, var(--google-blue-700));
-    }
-  </style>
-
-  <div id="sliderContainer" class\$="[[_getClassNames(disabled, pin, snaps, immediateValue, min, expand, dragging, transiting, editable)]]">
-    <div class="bar-container">
-      <paper-progress disabled\$="[[disabled]]" id="sliderBar" aria-hidden="true" min="[[min]]" max="[[max]]" step="[[step]]" value="[[immediateValue]]" secondary-progress="[[secondaryProgress]]" on-down="_bardown" on-up="_resetKnob" on-track="_bartrack" on-tap="_barclick">
-      </paper-progress>
-    </div>
-
-    <template is="dom-if" if="[[snaps]]">
-      <div class="slider-markers">
-        <template is="dom-repeat" items="[[markers]]">
-          <div class="slider-marker"></div>
-        </template>
-      </div>
-    </template>
-
-    <div id="sliderKnob" class="slider-knob" on-down="_knobdown" on-up="_resetKnob" on-track="_onTrack" on-transitionend="_knobTransitionEnd">
-        <div class="slider-knob-inner" value\$="[[immediateValue]]"></div>
-    </div>
+<div id="sliderContainer" class\$="[[_getClassNames(disabled, pin, snaps, immediateValue, min, expand, dragging, transiting, editable)]]">
+  <div class="bar-container">
+    <paper-progress disabled\$="[[disabled]]" id="sliderBar" aria-hidden="true" min="[[min]]" max="[[max]]" step="[[step]]" value="[[immediateValue]]" secondary-progress="[[secondaryProgress]]" on-down="_bardown" on-up="_resetKnob" on-track="_bartrack" on-tap="_barclick">
+    </paper-progress>
   </div>
 
-  <template is="dom-if" if="[[editable]]">
-    <paper-input id="input" type="number" step="[[step]]" min="[[min]]" max="[[max]]" class="slider-input" disabled\$="[[disabled]]" value="[[immediateValue]]" on-change="_changeValue" on-keydown="_inputKeyDown" no-label-float>
-    </paper-input>
+  <template is="dom-if" if="[[snaps]]">
+    <div class="slider-markers">
+      <template is="dom-repeat" items="[[markers]]">
+        <div class="slider-marker"></div>
+      </template>
+    </div>
   </template>
+
+  <div id="sliderKnob" class="slider-knob" on-down="_knobdown" on-up="_resetKnob" on-track="_onTrack" on-transitionend="_knobTransitionEnd">
+      <div class="slider-knob-inner" value\$="[[immediateValue]]"></div>
+  </div>
+</div>
+
+<template is="dom-if" if="[[editable]]">
+  <paper-input id="input" type="number" step="[[step]]" min="[[min]]" max="[[max]]" class="slider-input" disabled\$="[[disabled]]" value="[[immediateValue]]" on-change="_changeValue" on-keydown="_inputKeyDown" no-label-float>
+  </paper-input>
+</template>
 `;
 template$7.setAttribute("strip-whitespace", "");
 
@@ -101372,13 +101369,13 @@ brightness, or color saturation.
 
 Example:
 
-    <paper-slider></paper-slider>
+  <paper-slider></paper-slider>
 
 Use `min` and `max` to specify the slider range.  Default is 0 to 100.
 
 Example:
 
-    <paper-slider min="10" max="200" value="110"></paper-slider>
+  <paper-slider min="10" max="200" value="110"></paper-slider>
 
 ### Styling
 
@@ -102097,7 +102094,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -102285,7 +102282,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -103265,7 +103262,7 @@ var MDCTextFieldFoundation = /** @class */ (function (_super) {
    * @return True if the Text Field input fails in converting the user-supplied value.
    */
   MDCTextFieldFoundation.prototype.isBadInput_ = function () {
-    // The badInput property is not supported in IE 11 💩.
+    // The badInput property is not supported in IE 11 ðŸ’©.
     return this.getNativeInput_().validity.badInput || false;
   };
   /**
@@ -103379,8 +103376,8 @@ var MDCTextFieldFoundation = /** @class */ (function (_super) {
  *
  * In these cases if the DOM value changes, but the value set through lit-html
  * bindings hasn't, lit-html won't know to update the DOM value and will leave
- * it alone. If this is not what you want—if you want to overwrite the DOM
- * value with the bound value no matter what—use the `live()` directive:
+ * it alone. If this is not what you wantâ€”if you want to overwrite the DOM
+ * value with the bound value no matter whatâ€”use the `live()` directive:
  *
  *     html`<input .value=${live(x)}>`
  *
@@ -104157,7 +104154,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -105928,7 +105925,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -106757,9 +106754,9 @@ const styles$8 = css`
   }
 
   /**
- * Disable native up/down arrows on number inputs for browswers like Safari and
- * Chrome
- */
+* Disable native up/down arrows on number inputs for browswers like Safari and
+* Chrome
+*/
   .InlineInput::-webkit-inner-spin-button,
   .InlineInput::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -106775,9 +106772,9 @@ const styles$8 = css`
   }
 
   /**
- * This is needed to persist the cursor style throughout a dragging motion
- * starting from a draggable input field label.
- */
+* This is needed to persist the cursor style throughout a dragging motion
+* starting from a draggable input field label.
+*/
   .isDragging {
     cursor: col-resize;
   }
@@ -116350,10 +116347,10 @@ let MaterialPanel = class MaterialPanel extends ConnectedLitElement {
   renderMetallicRoughnessTab() {
     if (this.selectedMaterialId === undefined) {
       return `<me-expandable-tab tabName="Materials" .open=${true} .sticky=${true}>
-      <div slot="content">
-        <div style="color: var(--text-on-expandable-background);">No materials to edit. Load a model to edit the materials.</div>
-      </div>
-    </me-expandable-tab>`;
+    <div slot="content">
+      <div style="color: var(--text-on-expandable-background);">No materials to edit. Load a model to edit the materials.</div>
+    </div>
+  </me-expandable-tab>`;
     }
     const material = this.materials[this.selectedMaterialId];
     const currentTextureId = material.metallicRoughnessTextureId;
@@ -117202,14 +117199,14 @@ let ImportCard = class ImportCard extends LitElement {
       } else if (key in simpleMap) {
         this.selectedDefaultOption = simpleMap[key];
         snippet = `<model-viewer
-  src='https://modelviewer.dev/shared-assets/models/${fileName}'
-  shadow-intensity="1" camera-controls>
+src='https://modelviewer.dev/shared-assets/models/${fileName}'
+shadow-intensity="1" camera-controls>
 </model-viewer>`;
       } else if (key in advancedMap) {
         this.selectedDefaultOption = advancedMap[key];
         snippet = `<model-viewer
-  src='https://modelviewer.dev/shared-assets/models/glTF-Sample-Models/2.0/${key}/glTF-Binary/${fileName}'
-  shadow-intensity="1" camera-controls>
+src='https://modelviewer.dev/shared-assets/models/glTF-Sample-Models/2.0/${key}/glTF-Binary/${fileName}'
+shadow-intensity="1" camera-controls>
 </model-viewer>`;
       }
       reduxStore.dispatch(dispatchSetModelName(fileName));
@@ -117706,7 +117703,7 @@ let InspectorPanel = class InspectorPanel extends ConnectedLitElement {
       <div>
         <pre class="inspector-content">
 ${this.gltfJsonstring || "No model loaded"}
-          </pre
+        </pre
         >
         <div class="texture-images">
           ${this.safeTextureUrls.map(
@@ -118018,7 +118015,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -118171,7 +118168,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -118218,7 +118215,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -118768,7 +118765,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -119859,7 +119856,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -120597,7 +120594,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
