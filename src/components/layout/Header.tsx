@@ -2,135 +2,30 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Save, Download, ArrowLeft } from 'lucide-react';
-import { useParams, usePathname } from 'next/navigation';
-import { isValidClient } from '@/config/clientConfig';
 
 interface HeaderProps {
-  modelViewerRef?: React.RefObject<any>;
-  onExportGLB?: () => void;
-  onExportGLTF?: () => void;
-  onExportUSDZ?: () => void;
-  onSave?: () => void;
-  isSaving?: boolean;
-  title?: string; // Added title prop
+  title?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  modelViewerRef,
-  onExportGLB,
-  onExportGLTF,
-  onExportUSDZ,
-  onSave,
-  isSaving = false,
-  title,
-}) => {
-  const params = useParams();
-  const pathname = usePathname();
-  const clientName = params?.client as string;
-  const isClientView = isValidClient(clientName);
-  const isDemoView = pathname?.includes('/demo');
-  
-  // Determine if in editor or demo mode
-  const isEditorMode = isClientView && !isDemoView;
-  const isDemoMode = isClientView && isDemoView;
-
+const Header: React.FC<HeaderProps> = ({ title }) => {
   return (
-    <header className="h-12 bg-white text-[#111827] flex items-center justify-between px-6 border-b border-gray-200 shadow-sm w-full">
-      <div className="flex items-center">
+    <header className="h-12 bg-white text-[#111827] flex items-center justify-center px-6 border-b border-gray-200 shadow-sm w-full relative">
+      {/* Logo on the left */}
+      <div className="absolute left-6">
         <Image
           src="/logo.svg"
           alt="Charpstar Logo"
           width={100}
           height={28}
         />
-        
-        {title && (
-          <div className="ml-6 text-lg font-medium text-gray-700">
-            {title}
-          </div>
-        )}
       </div>
       
-      <div className="flex items-center space-x-4">
-        {/* Navigation between editor and demo */}
-        {isClientView && (
-          <div className="mr-4">
-            {isDemoMode ? (
-              <Link href={`/${clientName}`}>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                >
-                  <ArrowLeft size={14} className="mr-2" />
-                  Back to Editor
-                </Button>
-              </Link>
-            ) : (
-              <Link href={`/${clientName}/demo`}>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                >
-                  View Demo Catalog
-                </Button>
-              </Link>
-            )}
-          </div>
-        )}
-        
-        {/* Export/Save Buttons */}
-        <div className="flex space-x-3">
-          {isEditorMode ? (
-            // Show Save button for client editor view
-            <Button 
-              variant="default"
-              size="sm"
-              onClick={onSave}
-              disabled={isSaving}
-              className="text-xs h-7 px-3"
-            >
-              <Save size={14} className="mr-2" />
-              {isSaving ? "Saving..." : "Save Changes to Live"}
-            </Button>
-          ) : !isDemoMode && (
-            // Show Export buttons for regular view (not demo)
-            <>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onExportGLB}
-                className="text-xs h-9"
-              >
-                <Download size={14} className="mr-2" />
-                GLB
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onExportGLTF}
-                className="text-xs h-9"
-              >
-                <Download size={14} className="mr-2" />
-                GLTF
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onExportUSDZ}
-                className="text-xs h-9"
-              >
-                <Download size={14} className="mr-2" />
-                USDZ
-              </Button>
-            </>
-          )}
+      {/* Centered title */}
+      {title && (
+        <div className="text-lg font-bold text-gray-800">
+          {title}
         </div>
-      </div>
+      )}
     </header>
   );
 };
