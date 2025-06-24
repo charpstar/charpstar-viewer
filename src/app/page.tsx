@@ -86,19 +86,40 @@ export default function Home() {
   // Environment tester functions
   const handleEnvironmentChange = (env: "v5" | "v6") => {
     if (modelViewerRef.current) {
+      console.log(`Switching to ${env} environment`);
+
       if (env === "v5") {
-        modelViewerRef.current.environmentImage =
-          "https://cdn.charpstar.net/Demos/warm.hdr";
-        modelViewerRef.current.exposure = "1.3";
-        modelViewerRef.current.toneMapping = "commerce";
+        modelViewerRef.current.setAttribute(
+          "environment-image",
+          "https://cdn.charpstar.net/Demos/warm.hdr"
+        );
+        modelViewerRef.current.setAttribute("exposure", "1.3");
+        modelViewerRef.current.setAttribute("tone-mapping", "commerce");
+        console.log(
+          "Applied V5 settings: warm.hdr, exposure 1.3, commerce tone-mapping"
+        );
       } else {
-        modelViewerRef.current.environmentImage =
-          "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr";
-        modelViewerRef.current.exposure = "1.5";
-        modelViewerRef.current.toneMapping = "aces";
+        modelViewerRef.current.setAttribute(
+          "environment-image",
+          "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
+        );
+        modelViewerRef.current.setAttribute("exposure", "1.2");
+        modelViewerRef.current.setAttribute("tone-mapping", "aces");
+        console.log(
+          "Applied V6 settings: HDR_Furniture.hdr, exposure 1.2, aces tone-mapping"
+        );
+      }
+
+      // Force a re-render by calling requestRender if available
+      if (typeof modelViewerRef.current.requestRender === "function") {
+        modelViewerRef.current.requestRender();
       }
 
       setActiveEnvironment(env);
+    } else {
+      console.warn(
+        "Model viewer reference not available for environment change"
+      );
     }
   };
 
@@ -209,6 +230,7 @@ export default function Home() {
           visiblePanels={visiblePanels}
           onLayoutModelUpdate={handleLayoutModelUpdate}
           onTogglePanel={handleTogglePanel}
+          activeEnvironment={activeEnvironment}
         />
       </div>
     </div>

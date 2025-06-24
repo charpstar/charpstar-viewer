@@ -59,7 +59,6 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
     doubleSided: number;
   } => {
     if (!modelViewerRef?.current) {
-      console.log("No modelViewerRef found");
       return { triangles: 0, vertices: 0, doubleSided: 0 };
     }
 
@@ -68,17 +67,12 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
     let doubleSidedCount = 0;
 
     try {
-      console.log("ModelViewer element:", modelViewerRef.current);
-      console.log("Available properties:", Object.keys(modelViewerRef.current));
-
       // The model.traverse method doesn't work with model-viewer's model object
       // Use the UUID-based method directly since it's more reliable
-      console.log("Using UUID-based extraction method directly...");
       return extractGeometryFromUUIDs();
     } catch (error) {
       console.error("Error extracting geometry stats:", error);
       // Fallback to UUID-based extraction
-      console.log("Trying fallback method...");
       return extractGeometryFromUUIDs();
     }
   };
@@ -94,7 +88,6 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
       !modelViewerRef?.current ||
       typeof modelViewerRef.current.getObjectByUuid !== "function"
     ) {
-      console.log("UUID-based extraction not possible");
       return { triangles: 0, vertices: 0, doubleSided: 0 };
     }
 
@@ -105,25 +98,14 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
     const traverseStructure = (node: any) => {
       if (node.type === "Mesh" && node.uuid) {
         try {
-          console.log(`Trying to get object with UUID: ${node.uuid}`);
           const object = modelViewerRef.current.getObjectByUuid(node.uuid);
           if (object && object.geometry) {
-            console.log(
-              `Found geometry for ${node.name || "unnamed"}:`,
-              object.geometry
-            );
-
             const geometry = object.geometry;
 
             // Count vertices
             if (geometry.attributes && geometry.attributes.position) {
               const positionCount = geometry.attributes.position.count;
               totalVertices += positionCount;
-              console.log(
-                `UUID method - Mesh ${
-                  node.name || "unnamed"
-                }: ${positionCount} vertices`
-              );
             }
 
             // Count triangles
@@ -131,20 +113,10 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
               // Indexed geometry
               const triangleCount = geometry.index.count / 3;
               totalTriangles += triangleCount;
-              console.log(
-                `UUID method - Mesh ${
-                  node.name || "unnamed"
-                }: ${triangleCount} triangles (indexed)`
-              );
             } else if (geometry.attributes && geometry.attributes.position) {
               // Non-indexed geometry
               const triangleCount = geometry.attributes.position.count / 3;
               totalTriangles += triangleCount;
-              console.log(
-                `UUID method - Mesh ${
-                  node.name || "unnamed"
-                }: ${triangleCount} triangles (non-indexed)`
-              );
             }
 
             // Check if material is double-sided
@@ -171,12 +143,6 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
     };
 
     traverseStructure(modelStructure);
-
-    console.log(
-      `UUID method total: ${Math.floor(
-        totalTriangles
-      )} triangles, ${totalVertices} vertices`
-    );
 
     return {
       triangles: Math.floor(totalTriangles),
@@ -255,7 +221,7 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
             });
           }
         } catch (error) {
-          console.error(`Error analyzing textures for ${node.uuid}:`, error);
+          // Continue with other nodes
         }
       }
 
@@ -311,7 +277,7 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
             });
           }
         } catch (error) {
-          console.error(`Error analyzing AO for ${node.uuid}:`, error);
+          // Continue with other nodes
         }
       }
 
@@ -454,15 +420,6 @@ const ModelStatisticsCard: React.FC<ModelStatisticsCardProps> = ({
           };
           countMaterials(modelStructure);
         }
-
-        console.log("Updating stats:", {
-          triangles: geometryStats.triangles,
-          vertices: geometryStats.vertices,
-          meshes: meshCount,
-          materials: materialNames.size,
-          variants: variantsCount,
-          doubleSided: geometryStats.doubleSided,
-        });
 
         // Analyze additional properties
         const textureQuality = analyzeTextureQuality();

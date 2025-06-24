@@ -149,6 +149,7 @@ interface FlexLayoutProps {
   };
   onLayoutModelUpdate: (model: Model) => void;
   onTogglePanel: (panel: "scene" | "materials" | "variants") => void;
+  activeEnvironment: "v5" | "v6" | null;
 }
 
 // Simple hook to replace useLayoutPersistence
@@ -192,6 +193,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   visiblePanels,
   onLayoutModelUpdate,
   onTogglePanel,
+  activeEnvironment,
 }) => {
   const layoutRef = useRef<Layout>(null);
   const { model, resetLayout } = useLayout(initialJson);
