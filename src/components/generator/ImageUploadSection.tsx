@@ -10,10 +10,6 @@ interface ImageUploadSectionProps {
   uploadedImages: UploadedImages
   setUploadedImages: (images: UploadedImages) => void
   gradioUrl: string
-  connectionStatus: {
-    message: string
-    type: 'success' | 'error' | 'info'
-  } | null
   isGenerating: boolean
   setIsGenerating: (generating: boolean) => void
   setGenerationProgress: (progress: number) => void
@@ -46,7 +42,6 @@ export function ImageUploadSection({
   uploadedImages,
   setUploadedImages,
   gradioUrl,
-  connectionStatus,
   isGenerating,
   setIsGenerating,
   setGenerationProgress,

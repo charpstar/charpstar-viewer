@@ -20,10 +20,6 @@ export interface UploadedImages {
 
 export function GeneratorPage() {
   const [gradioUrl, setGradioUrl] = useState('')
-  const [connectionStatus, setConnectionStatus] = useState<{
-    message: string
-    type: 'success' | 'error' | 'info'
-  } | null>(null)
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({
     front: null,
     back: null,
@@ -65,8 +61,6 @@ export function GeneratorPage() {
             <GradioConfigSection
               gradioUrl={gradioUrl}
               setGradioUrl={setGradioUrl}
-              connectionStatus={connectionStatus}
-              setConnectionStatus={setConnectionStatus}
               isSingleImageMode={isSingleImageMode}
               setIsSingleImageMode={setIsSingleImageMode}
             />
@@ -79,7 +73,6 @@ export function GeneratorPage() {
               uploadedImages={uploadedImages}
               setUploadedImages={setUploadedImages}
               gradioUrl={gradioUrl}
-              connectionStatus={connectionStatus}
               isGenerating={isGenerating}
               setIsGenerating={setIsGenerating}
               setGenerationProgress={setGenerationProgress}
