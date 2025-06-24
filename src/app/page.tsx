@@ -41,6 +41,9 @@ export default function Home() {
       setActiveEnvironment("synsam");
     } else {
       setActiveEnvironment("v6");
+      // Set V6 defaults when initially loading
+      setExposure(1.2);
+      setToneMapping("aces");
     }
   }, [isSynsam]);
 
@@ -184,6 +187,15 @@ export default function Home() {
     // Set the active environment state (this will trigger the useEffect to apply settings)
     setActiveEnvironment(env);
 
+    // Update exposure and tone mapping to environment defaults
+    if (env === "v5") {
+      setExposure(1.3);
+      setToneMapping("commerce");
+    } else if (env === "v6") {
+      setExposure(1.2);
+      setToneMapping("aces");
+    }
+
     // Try to apply settings immediately if model-viewer exists
     const modelViewer = document.getElementById("model-viewer");
     if (modelViewer) {
@@ -192,15 +204,15 @@ export default function Home() {
           "environment-image",
           "https://cdn.charpstar.net/Demos/warm.hdr"
         );
-        modelViewer.setAttribute("exposure", exposure.toString());
-        modelViewer.setAttribute("tone-mapping", toneMapping);
+        modelViewer.setAttribute("exposure", "1.3");
+        modelViewer.setAttribute("tone-mapping", "commerce");
       } else {
         modelViewer.setAttribute(
           "environment-image",
           "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
         );
-        modelViewer.setAttribute("exposure", exposure.toString());
-        modelViewer.setAttribute("tone-mapping", toneMapping);
+        modelViewer.setAttribute("exposure", "1.2");
+        modelViewer.setAttribute("tone-mapping", "aces");
       }
       if (typeof (modelViewer as any).requestRender === "function") {
         (modelViewer as any).requestRender();
@@ -266,6 +278,16 @@ export default function Home() {
 
         modelViewer.addEventListener("load", fetchModelStructure);
 
+        // Add camera change listener for dimension management
+        const handleCameraChange = () => {
+          // Small delay to ensure the camera position is updated
+          setTimeout(() => {
+            manageDimensionVisibility();
+          }, 50);
+        };
+
+        modelViewer.addEventListener("camera-change", handleCameraChange);
+
         // Apply current environment settings if we have an active environment and not in Synsam mode
         if (
           !isSynsam &&
@@ -277,15 +299,15 @@ export default function Home() {
               "environment-image",
               "https://cdn.charpstar.net/Demos/warm.hdr"
             );
-            modelViewer.setAttribute("exposure", exposure.toString());
-            modelViewer.setAttribute("tone-mapping", toneMapping);
+            modelViewer.setAttribute("exposure", "1.3");
+            modelViewer.setAttribute("tone-mapping", "commerce");
           } else if (activeEnvironment === "v6") {
             modelViewer.setAttribute(
               "environment-image",
               "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
             );
-            modelViewer.setAttribute("exposure", exposure.toString());
-            modelViewer.setAttribute("tone-mapping", toneMapping);
+            modelViewer.setAttribute("exposure", "1.2");
+            modelViewer.setAttribute("tone-mapping", "aces");
           }
         }
 
@@ -299,6 +321,69 @@ export default function Home() {
           modelViewer.removeAttribute("tone-mapping");
           console.log("Synsam HDR applied to model-viewer");
         }
+      }
+    };
+
+    // Function to manage dimension visibility based on camera angle
+    const manageDimensionVisibility = () => {
+      const modelViewer = modelViewerRef.current;
+      if (!modelViewer) return;
+
+      try {
+        // Get all dimension elements (including hotspot annotations)
+        const dimensions = document.querySelectorAll(
+          '.cmv-dim, [class*="cmv-dim"], hotspot-annotation[data-surface], [data-hotspot]'
+        );
+
+        dimensions.forEach((dim: any) => {
+          // Simple approach: hide dimensions on surfaces marked as "back"
+          if (dim.dataset && dim.dataset.surface === "back") {
+            dim.classList.remove("cmv-show");
+            dim.classList.add("cmv-hide");
+            return;
+          }
+
+          // Try to get camera orbit for more sophisticated detection
+          try {
+            const camera = (modelViewer as any).getCameraOrbit();
+            if (camera) {
+              const cameraTheta = camera.theta;
+              const normalizedTheta =
+                ((cameraTheta % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+              // For sunglasses model: front is roughly 0 to π, back is π to 2π
+              // Adjust these values based on your specific model orientation
+              const isFrontFacing = normalizedTheta < Math.PI;
+
+              // Additional check for specific annotation positions
+              const annotation = dim.textContent || "";
+
+              // Hide dimensions that are on the back/side that shouldn't be visible
+              if (annotation.includes("15 cm") && !isFrontFacing) {
+                // This dimension should only show from the front
+                dim.classList.remove("cmv-show");
+                dim.classList.add("cmv-hide");
+              } else if (annotation.includes("6 cm") && !isFrontFacing) {
+                // This dimension should only show from the front
+                dim.classList.remove("cmv-show");
+                dim.classList.add("cmv-hide");
+              } else if (isFrontFacing) {
+                dim.classList.remove("cmv-hide");
+                dim.classList.add("cmv-show");
+              }
+            }
+          } catch (cameraError) {
+            // Fallback: simple visibility logic
+            const annotation = dim.textContent || "";
+            if (annotation.includes("cm")) {
+              // Show by default, but this is just a fallback
+              dim.classList.remove("cmv-hide");
+              dim.classList.add("cmv-show");
+            }
+          }
+        });
+      } catch (error) {
+        console.warn("Error managing dimension visibility:", error);
       }
     };
 
@@ -362,10 +447,6 @@ export default function Home() {
           activeEnvironment={activeEnvironment}
           visiblePanels={visiblePanels}
           onTogglePanel={handleTogglePanel}
-          exposure={exposure}
-          onExposureChange={handleExposureChange}
-          toneMapping={toneMapping}
-          onToneMappingChange={handleToneMappingChange}
         />
       </div>
 
@@ -382,6 +463,10 @@ export default function Home() {
           onLayoutModelUpdate={handleLayoutModelUpdate}
           onTogglePanel={handleTogglePanel}
           activeEnvironment={activeEnvironment}
+          exposure={exposure}
+          onExposureChange={handleExposureChange}
+          toneMapping={toneMapping}
+          onToneMappingChange={handleToneMappingChange}
         />
       </div>
     </div>

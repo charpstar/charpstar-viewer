@@ -18,6 +18,7 @@ import ModelStatisticsCard from "../scene/ModelStatisticsCard";
 import MaterialProperties from "../material/MaterialProperties";
 import MaterialVariants from "../variant/MaterialVariants";
 import ModelViewer from "../ModelViewer";
+import ViewerControls from "../ViewerControls";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 
@@ -150,6 +151,10 @@ interface FlexLayoutProps {
   onLayoutModelUpdate: (model: Model) => void;
   onTogglePanel: (panel: "scene" | "materials" | "variants") => void;
   activeEnvironment: "v5" | "v6" | "synsam" | null;
+  exposure: number;
+  onExposureChange: (value: number) => void;
+  toneMapping: string;
+  onToneMappingChange: (value: string) => void;
 }
 
 // Simple hook to replace useLayoutPersistence
@@ -194,6 +199,10 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   onLayoutModelUpdate,
   onTogglePanel,
   activeEnvironment,
+  exposure,
+  onExposureChange,
+  toneMapping,
+  onToneMappingChange,
 }) => {
   const layoutRef = useRef<Layout>(null);
   const { model, resetLayout } = useLayout(initialJson);
@@ -404,6 +413,13 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
             <ModelStatisticsCard
               modelViewerRef={modelViewerRef}
               modelStructure={modelStructure}
+            />
+            <ViewerControls
+              activeEnvironment={activeEnvironment}
+              exposure={exposure}
+              onExposureChange={onExposureChange}
+              toneMapping={toneMapping}
+              onToneMappingChange={onToneMappingChange}
             />
           </div>
         );
