@@ -12,7 +12,7 @@ const jost = Jost({
 
 export const metadata = {
   title: 'CharpstAR 3D Generator',
-  description: 'Transform your images into stunning 3D models with AI',
+  description: 'Images to 3D models with AI',
 };
 
 interface RootLayoutProps {
