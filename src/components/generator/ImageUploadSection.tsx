@@ -18,6 +18,7 @@ interface ImageUploadSectionProps {
   setIsGenerating: (generating: boolean) => void
   setGenerationProgress: (progress: number) => void
   setGeneratedModel: (model: string | null) => void
+  isSingleImageMode: boolean
 }
 
 type ViewType = 'front' | 'back' | 'left' | 'right'
@@ -49,7 +50,8 @@ export function ImageUploadSection({
   isGenerating,
   setIsGenerating,
   setGenerationProgress,
-  setGeneratedModel
+  setGeneratedModel,
+  isSingleImageMode
 }: ImageUploadSectionProps) {
 
   // Function to get proper headers for ngrok bypassing
@@ -167,21 +169,27 @@ export function ImageUploadSection({
       const imageCount = [uploadedImages.front, uploadedImages.back, uploadedImages.left, uploadedImages.right]
         .filter(Boolean).length
       
-      console.log(`Starting generation with ${imageCount} view(s)`)
+      console.log(`Starting generation with ${imageCount} view(s) in ${isSingleImageMode ? 'single' : 'multi'} image mode`)
 
       // Upload all images and create FileData objects
       console.log('Uploading images to server...')
       const frontImageData = uploadedImages.front ? await uploadFileToGradio(uploadedImages.front.file, serverUrl) : null
       setGenerationProgress(25)
       
-      const backImageData = uploadedImages.back ? await uploadFileToGradio(uploadedImages.back.file, serverUrl) : null
-      setGenerationProgress(30)
+      let backImageData = null
+      let leftImageData = null
+      let rightImageData = null
       
-      const leftImageData = uploadedImages.left ? await uploadFileToGradio(uploadedImages.left.file, serverUrl) : null
-      setGenerationProgress(32)
-      
-      const rightImageData = uploadedImages.right ? await uploadFileToGradio(uploadedImages.right.file, serverUrl) : null
-      setGenerationProgress(35)
+      if (!isSingleImageMode) {
+        backImageData = uploadedImages.back ? await uploadFileToGradio(uploadedImages.back.file, serverUrl) : null
+        setGenerationProgress(30)
+        
+        leftImageData = uploadedImages.left ? await uploadFileToGradio(uploadedImages.left.file, serverUrl) : null
+        setGenerationProgress(32)
+        
+        rightImageData = uploadedImages.right ? await uploadFileToGradio(uploadedImages.right.file, serverUrl) : null
+        setGenerationProgress(35)
+      }
 
       console.log('Starting 3D model generation...')
       setGenerationProgress(40)
@@ -190,22 +198,46 @@ export function ImageUploadSection({
       const apiName = withTexture ? 'generation_all' : 'shape_generation'
       const endpoint = `${serverUrl}/call/${apiName}`
       
-      const requestBody = {
-        data: [
-          null, // caption
-          null, // image (NOT USED in MV_MODE)
-          frontImageData, // mv_image_front (mandatory)
-          backImageData, // mv_image_back (optional)
-          leftImageData, // mv_image_left (optional)
-          rightImageData, // mv_image_right (optional)
-          5, // steps
-          5.0, // guidance_scale
-          Math.floor(Math.random() * 10000), // seed
-          256, // octree_resolution
-          true, // check_box_rembg
-          8000, // num_chunks
-          true // randomize_seed
-        ]
+      let requestBody
+      
+      if (isSingleImageMode) {
+        // Single image mode - must include all 13 expected parameters
+        requestBody = {
+          data: [
+            null,           // caption (textbox)
+            frontImageData, // single image
+            null,           // mv_image_front (not used in single mode)
+            null,           // mv_image_back (not used in single mode)
+            null,           // mv_image_left (not used in single mode)
+            null,           // mv_image_right (not used in single mode)
+            5,              // steps (slider)
+            5.0,            // guidance_scale (number)
+            Math.floor(Math.random() * 10000), // seed (slider)
+            256,            // octree_resolution (slider)
+            true,           // check_box_rembg (checkbox)
+            8000,           // num_chunks (slider)
+            true            // randomize_seed (checkbox)
+          ]
+        }
+      } else {
+        // Multi-view format
+        requestBody = {
+          data: [
+            null, // caption
+            null, // image (NOT USED in MV_MODE)
+            frontImageData, // mv_image_front (mandatory)
+            backImageData, // mv_image_back (optional)
+            leftImageData, // mv_image_left (optional)
+            rightImageData, // mv_image_right (optional)
+            5, // steps
+            5.0, // guidance_scale
+            Math.floor(Math.random() * 10000), // seed
+            256, // octree_resolution
+            true, // check_box_rembg
+            8000, // num_chunks
+            true // randomize_seed
+          ]
+        }
       }
 
       setGenerationProgress(45)
@@ -242,11 +274,10 @@ export function ImageUploadSection({
 
       setGenerationProgress(50)
 
-      // Try SSE first, but implement polling fallback for ngrok
+      // Use polling as primary method for ngrok compatibility
       const resultEndpoint = `${serverUrl}/call/${apiName}/${eventId}`
       
       let progressIncrement = 0
-      let hasReceivedData = false
       let pollInterval: NodeJS.Timeout | null = null
 
       // Start polling immediately as primary method for ngrok
@@ -255,7 +286,9 @@ export function ImageUploadSection({
         pollInterval = setInterval(async () => {
           try {
             progressIncrement += 1
-            setGenerationProgress(Math.min(50 + progressIncrement, 90))
+            const newProgress = Math.min(50 + progressIncrement, 90)
+            setGenerationProgress(newProgress)
+            console.log(`Polling attempt ${progressIncrement}, progress: ${newProgress}%`)
 
             const pollResponse = await fetch(resultEndpoint, {
               method: 'GET',
@@ -264,22 +297,38 @@ export function ImageUploadSection({
             
             if (pollResponse.ok) {
               const pollText = await pollResponse.text()
+              console.log(`Poll response (${newProgress}%):`, pollText.substring(0, 200) + (pollText.length > 200 ? '...' : ''))
               
               if (pollText && pollText !== 'null' && pollText !== 'undefined') {
                 try {
                   // Handle SSE format response (event: complete\ndata: [...])
                   let jsonData = pollText.trim()
                   
-                                     // Check if it's SSE format
-                   if (pollText.includes('event: complete')) {
-                     const dataMatch = pollText.match(/data: (\[.*\])/)
-                     if (dataMatch) {
-                       jsonData = dataMatch[1]
-                     }
-                   }
+                  // Check for error events first
+                  if (pollText.includes('event: error')) {
+                    const errorMatch = pollText.match(/data: (.+)/)
+                    if (errorMatch) {
+                      const errorMessage = errorMatch[1]
+                      console.error('Server error:', errorMessage)
+                      if (pollInterval) clearInterval(pollInterval)
+                      alert(`Server error: ${errorMessage}`)
+                      setIsGenerating(false)
+                      setGenerationProgress(0)
+                      return
+                    }
+                  }
+                  
+                  // Check if it's SSE format
+                  if (pollText.includes('event: complete')) {
+                    const dataMatch = pollText.match(/data: (\[.*\])/)
+                    if (dataMatch) {
+                      jsonData = dataMatch[1]
+                    }
+                  }
                   
                   const data = JSON.parse(jsonData)
                   if (Array.isArray(data) && data.length > 0) {
+                    console.log('Polling found result data:', data)
                     if (pollInterval) clearInterval(pollInterval)
                     processGenerationResult(data, withTexture, serverUrl)
                     return
@@ -306,69 +355,8 @@ export function ImageUploadSection({
          }, 600000)
       }
 
-      // Try SSE first with immediate fallback to polling
-      try {
-        const eventSource = new EventSource(resultEndpoint)
-        
-        // Set a quick timeout for SSE - if it doesn't work in 5 seconds, switch to polling
-        const sseTimeout = setTimeout(() => {
-          if (!hasReceivedData) {
-            console.log('SSE timeout, switching to polling fallback')
-            eventSource.close()
-            startPolling()
-          }
-        }, 5000)
-
-        eventSource.onmessage = function(event) {
-          try {
-            hasReceivedData = true
-            clearTimeout(sseTimeout)
-            
-            progressIncrement += 2
-            setGenerationProgress(Math.min(50 + progressIncrement, 90))
-
-            if (event.data === 'null' || event.data === 'undefined') {
-              return
-            }
-
-            const data = JSON.parse(event.data)
-            if (Array.isArray(data) && data.length > 0) {
-              eventSource.close()
-              processGenerationResult(data, withTexture, serverUrl)
-            }
-          } catch (parseError) {
-            console.error('Error parsing SSE data:', parseError)
-          }
-        }
-
-        eventSource.onerror = function(error) {
-          console.log('SSE failed, switching to polling fallback')
-          clearTimeout(sseTimeout)
-          eventSource.close()
-          if (!hasReceivedData) {
-            startPolling()
-          }
-        }
-
-        eventSource.addEventListener('complete', function(event) {
-          hasReceivedData = true
-          clearTimeout(sseTimeout)
-          eventSource.close()
-          
-          try {
-            const data = JSON.parse(event.data)
-            processGenerationResult(data, withTexture, serverUrl)
-          } catch (parseError) {
-            console.error('Error parsing complete event:', parseError)
-            alert(`Failed to parse result: ${(parseError as Error).message}`)
-            setIsGenerating(false)
-          }
-        })
-
-      } catch (sseError) {
-        console.log('SSE initialization failed, using polling fallback')
-        startPolling()
-      }
+      // Start polling immediately for ngrok compatibility
+      startPolling()
 
     } catch (error: any) {
       console.error('Generation failed:', error)
@@ -394,6 +382,7 @@ export function ImageUploadSection({
   // Helper function to process generation results
   function processGenerationResult(data: any, withTexture: boolean, serverUrl: string) {
     try {
+      console.log('processGenerationResult called with data:', data)
       setGenerationProgress(100)
 
       if (Array.isArray(data) && data.length > 0) {
@@ -417,7 +406,9 @@ export function ImageUploadSection({
             fileUrl = actualFileInfo.url
             
             // Fix various incorrect URL formats
-            if (fileUrl.includes('/call/shape/file=')) {
+            if (fileUrl.includes('/call/shape_generation/file=')) {
+              fileUrl = fileUrl.replace('/call/shape_generation/file=', '/file=')
+            } else if (fileUrl.includes('/call/shape/file=')) {
               fileUrl = fileUrl.replace('/call/shape/file=', '/file=')
             } else if (fileUrl.includes('/call/gen/file=')) {
               fileUrl = fileUrl.replace('/call/gen/file=', '/file=')
@@ -451,6 +442,7 @@ export function ImageUploadSection({
 
   async function downloadAndDisplayModel(fileUrl: string) {
     try {
+      console.log('downloadAndDisplayModel called with URL:', fileUrl)
       const fileResponse = await fetch(fileUrl, {
         headers: getNgrokHeaders()
       })
@@ -462,6 +454,7 @@ export function ImageUploadSection({
       const blob = new Blob([arrayBuffer], { type: 'model/gltf-binary' })
       const modelUrl = URL.createObjectURL(blob)
       
+      console.log('Setting generated model URL:', modelUrl)
       setGeneratedModel(modelUrl)
     } catch (error: any) {
       console.error('Failed to download/display model:', error)
@@ -480,60 +473,111 @@ export function ImageUploadSection({
           Upload Images
         </div>
         <p className="text-xs text-gray-500">
-          Front view required, others optional for better quality
+          {isSingleImageMode 
+            ? 'Upload a single image to generate a 3D model' 
+            : 'Front view required, others optional for better quality'
+          }
         </p>
 
-        {/* Multi-view Upload Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {viewConfigs.map((config) => {
-            const uploadedImage = uploadedImages[config.type]
-            return (
-              <div key={config.type} className="space-y-2">
-                <div className="flex items-center gap-1 text-xs font-medium text-gray-600">
-                  {config.icon}
-                  {config.label}
-                </div>
-                
-                {!uploadedImage ? (
-                  <div
-                    className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors min-h-[80px] flex flex-col items-center justify-center"
-                    onDrop={(e) => handleDrop(e, config.type)}
-                    onDragOver={handleDragOver}
-                    onClick={() => {
-                      const input = document.createElement('input')
-                      input.type = 'file'
-                      input.accept = 'image/*'
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0]
-                        if (file) handleFileSelect(file, config.type)
-                      }
-                      input.click()
-                    }}
-                  >
-                    <Upload className="h-4 w-4 text-gray-400 mb-1" />
-                    <p className="text-xs text-gray-500">Click or drop</p>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <img
-                      src={uploadedImage.preview}
-                      alt={`${config.type} view`}
-                      className="w-full h-[80px] object-cover rounded-md"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-1 right-1 h-5 w-5 p-0"
-                      onClick={() => handleFileRemove(config.type)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
+        {isSingleImageMode ? (
+          /* Single Image Upload */
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 text-xs font-medium text-gray-600">
+              <Star className="h-3 w-3 text-orange-500" />
+              Single Image
+            </div>
+            
+            {!uploadedImages.front ? (
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors min-h-[120px] flex flex-col items-center justify-center"
+                onDrop={(e) => handleDrop(e, 'front')}
+                onDragOver={handleDragOver}
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = 'image/*'
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0]
+                    if (file) handleFileSelect(file, 'front')
+                  }
+                  input.click()
+                }}
+              >
+                <Upload className="h-6 w-6 text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600 font-medium">Click or drag image here</p>
+                <p className="text-xs text-gray-500">Supports JPG, PNG, and other image formats</p>
               </div>
-            )
-          })}
-        </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={uploadedImages.front.preview}
+                  alt="Single image"
+                  className="w-full h-[120px] object-cover rounded-md"
+                />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 h-6 w-6 p-0"
+                  onClick={() => handleFileRemove('front')}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Multi-view Upload Grid */
+          <div className="grid grid-cols-2 gap-3">
+            {viewConfigs.map((config) => {
+              const uploadedImage = uploadedImages[config.type]
+              return (
+                <div key={config.type} className="space-y-2">
+                  <div className="flex items-center gap-1 text-xs font-medium text-gray-600">
+                    {config.icon}
+                    {config.label}
+                  </div>
+                  
+                  {!uploadedImage ? (
+                    <div
+                      className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors min-h-[80px] flex flex-col items-center justify-center"
+                      onDrop={(e) => handleDrop(e, config.type)}
+                      onDragOver={handleDragOver}
+                      onClick={() => {
+                        const input = document.createElement('input')
+                        input.type = 'file'
+                        input.accept = 'image/*'
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0]
+                          if (file) handleFileSelect(file, config.type)
+                        }
+                        input.click()
+                      }}
+                    >
+                      <Upload className="h-4 w-4 text-gray-400 mb-1" />
+                      <p className="text-xs text-gray-500">Click or drop</p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <img
+                        src={uploadedImage.preview}
+                        alt={`${config.type} view`}
+                        className="w-full h-[80px] object-cover rounded-md"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-5 w-5 p-0"
+                        onClick={() => handleFileRemove(config.type)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Progress indicator */}

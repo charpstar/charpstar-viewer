@@ -9,9 +9,9 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
   return (
-    <header className="h-12 bg-white text-[#111827] flex items-center justify-center px-6 border-b border-gray-200 shadow-sm w-full relative">
-      {/* Logo on the left */}
-      <div className="absolute left-6">
+    <header className="h-12 bg-white text-[#111827] flex items-center px-6 border-b border-gray-200 shadow-sm w-full">
+      {/* Logo only - clean and professional */}
+      <div className="flex items-center">
         <Image
           src="/logo.svg"
           alt="Charpstar Logo"
@@ -19,13 +19,6 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
           height={28}
         />
       </div>
-      
-      {/* Centered title */}
-      {title && (
-        <div className="text-lg font-bold text-gray-800">
-          {title}
-        </div>
-      )}
     </header>
   );
 };

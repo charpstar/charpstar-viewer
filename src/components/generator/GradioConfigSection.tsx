@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Settings, CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import { Settings, CheckCircle, XCircle, Loader2, ToggleLeft, ToggleRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
@@ -16,13 +16,17 @@ interface GradioConfigSectionProps {
     message: string
     type: 'success' | 'error' | 'info'
   } | null) => void
+  isSingleImageMode: boolean
+  setIsSingleImageMode: (mode: boolean) => void
 }
 
 export function GradioConfigSection({
   gradioUrl,
   setGradioUrl,
   connectionStatus,
-  setConnectionStatus
+  setConnectionStatus,
+  isSingleImageMode,
+  setIsSingleImageMode
 }: GradioConfigSectionProps) {
   const [isTesting, setIsTesting] = useState(false)
 
@@ -86,9 +90,17 @@ export function GradioConfigSection({
   // Set the default Gradio URL on mount
   useEffect(() => {
     if (!gradioUrl) {
-      setGradioUrl('https://9ad4-188-151-210-79.ngrok-free.app')
+      setGradioUrl('https://charpstar-multi.eu.ngrok.io')
     }
   }, [gradioUrl, setGradioUrl])
+
+  // Update URL when mode changes
+  useEffect(() => {
+    const newUrl = isSingleImageMode 
+      ? 'https://charpstar-single.eu.ngrok.io'
+      : 'https://charpstar-multi.eu.ngrok.io'
+    setGradioUrl(newUrl)
+  }, [isSingleImageMode, setGradioUrl])
 
   const getStatusIcon = () => {
     if (isTesting) return <Loader2 className="h-4 w-4 animate-spin" />
@@ -127,6 +139,41 @@ export function GradioConfigSection({
         <Settings className="h-4 w-4" />
         Server Configuration
       </div>
+      
+
+             
+        {/* Mode Selection */}
+        <div className="space-y-2">
+          <span className="text-xs font-medium text-gray-600">Generation Mode</span>
+          <div className="flex bg-gray-100 rounded-md p-1">
+            <button
+              onClick={() => setIsSingleImageMode(false)}
+              className={`flex-1 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                !isSingleImageMode 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Multi View
+            </button>
+            <button
+              onClick={() => setIsSingleImageMode(true)}
+              className={`flex-1 px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                isSingleImageMode 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Single Image
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">
+            {isSingleImageMode 
+              ? 'Generate 3D model from a single image' 
+              : 'Generate 3D model from multiple view angles'
+            }
+          </p>
+        </div>
       
       <div className="space-y-2">
         <Input

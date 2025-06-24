@@ -1,10 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Download, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Simple3DViewer } from './Simple3DViewer'
+import { ModelViewer } from './ModelViewer'
 
 interface ModelViewerSectionProps {
   generatedModel: string | null
@@ -29,6 +29,7 @@ export function ModelViewerSection({
   }
 
   const renderContent = () => {
+    // Show loading if actively generating
     if (isGenerating) {
       return (
         <div className="flex flex-col items-center justify-center h-full space-y-4">
@@ -59,21 +60,10 @@ export function ModelViewerSection({
       return (
         <div className="h-full flex flex-col">
           <div className="flex-1">
-            <Simple3DViewer 
+            <ModelViewer 
               modelUrl={generatedModel}
               className="w-full h-full"
             />
-          </div>
-          
-          <div className="p-4 border-t bg-gray-50 flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-gray-900">Model ready</h4>
-              <p className="text-sm text-gray-500">GLB format</p>
-            </div>
-            <Button onClick={handleDownload} size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
           </div>
         </div>
       )
@@ -96,7 +86,31 @@ export function ModelViewerSection({
 
   return (
     <div className="h-full flex flex-col">
-      {renderContent()}
+      {/* Main content area */}
+      <div className="flex-1">
+        {renderContent()}
+      </div>
+      
+      {/* Download section - always visible */}
+      <div className="p-4 border-t bg-gray-50 flex items-center justify-between">
+        <div>
+          <h4 className={`font-medium ${generatedModel ? 'text-gray-900' : 'text-gray-400'}`}>
+            {generatedModel ? 'Model ready' : 'No model generated'}
+          </h4>
+          <p className={`text-sm ${generatedModel ? 'text-gray-500' : 'text-gray-400'}`}>
+            GLB format
+          </p>
+        </div>
+        <Button 
+          onClick={handleDownload} 
+          size="sm"
+          disabled={!generatedModel}
+          className={!generatedModel ? 'opacity-50 cursor-not-allowed' : ''}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Download
+        </Button>
+      </div>
     </div>
   )
 }
