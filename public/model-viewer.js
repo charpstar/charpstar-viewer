@@ -61273,7 +61273,25 @@ class ModelViewerElementBase extends u$1 {
 		  }
 								  </style>
 		  
-							  
+							  <button slot="hotspot-dot+X-Y+Z" class="cmv-dot" data-position="1 -1 1" data-normal="1 0 0"></button>
+							  <button slot="hotspot-dim+X-Y" class="cmv-dim" data-position="1 -1 0" data-normal="1 0 0"></button>
+							  <button slot="hotspot-dot+X-Y-Z" class="cmv-dot" data-position="1 -1 -1" data-normal="1 0 0"></button>
+							  <button slot="hotspot-dim+X-Z" class="cmv-dim" data-position="1 0 -1" data-normal="1 0 0"></button>
+							  <button slot="hotspot-dot+X+Y-Z" class="cmv-dot cmv-show" data-position="1 1 -1" data-normal="0 1 0"></button>
+							  <button slot="hotspot-dim+Y-Z" class="cmv-dim cmv-show" data-position="0 -1 -1" data-normal="0 1 0"></button>
+							  <button slot="hotspot-dot-X+Y-Z" class="cmv-dot cmv-show" data-position="-1 1 -1" data-normal="0 1 0"></button>
+							  <button slot="hotspot-dim-X-Z" class="cmv-dim" data-position="-1 0 -1" data-normal="-1 0 0"></button>
+							  <button slot="hotspot-dot-X-Y-Z" class="cmv-dot" data-position="-1 -1 -1" data-normal="-1 0 0"></button>
+							  <button slot="hotspot-dim-X-Y" class="cmv-dim" data-position="-1 -1 0" data-normal="-1 0 0"></button>
+							  <button slot="hotspot-dot-X-Y+Z" class="cmv-dot" data-position="-1 -1 1" data-normal="-1 0 0"></button>
+							  <svg id="lines" xmlns="http://www.w3.org/2000/svg" class="cmv-dimensionLineContainer">
+								  <line class="cmv-dimensionLine"></line>
+								  <line class="cmv-dimensionLine"></line>
+								  <line class="cmv-dimensionLine"></line>
+								  <line class="cmv-dimensionLine"></line>
+								  <line class="cmv-dimensionLine"></line>
+							  </svg>
+						   
 		  
 							 <div class = "cmv-tr-button-container">
 								<div class = "charpstar-button-darkmode tooltip" id = "cmv-darkModeButton"><span class="tooltiptext">Toggle Dark Mode</span>
@@ -61284,7 +61302,10 @@ class ModelViewerElementBase extends u$1 {
 								  <button style="display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
 								   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4.069 13h-4.069v-2h4.069c-.041.328-.069.661-.069 1s.028.672.069 1zm3.034-7.312l-2.881-2.881-1.414 1.414 2.881 2.881c.411-.529.885-1.003 1.414-1.414zm11.209 1.414l2.881-2.881-1.414-1.414-2.881 2.881c.528.411 1.002.886 1.414 1.414zm-6.312-3.102c.339 0 .672.028 1 .069v-4.069h-2v4.069c.328-.041.661-.069 1-.069zm0 16c-.339 0-.672-.028-1-.069v4.069h2v-4.069c-.328.041-.661.069-1 .069zm7.931-9c.041.328.069.661.069 1s-.028.672-.069 1h4.069v-2h-4.069zm-3.033 7.312l2.88 2.88 1.415-1.414-2.88-2.88c-.412.528-.886 1.002-1.415 1.414zm-11.21-1.415l-2.88 2.88 1.414 1.414 2.88-2.88c-.528-.411-1.003-.885-1.414-1.414zm6.312-10.897c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-6z"/></svg></button>
 							   </div> 
-							
+							  <div class = "charpstar-button-dimension tooltip" id = "cmv-dimensionButton" ><span class="tooltiptext">Toggle Dimension Lines</span>
+								  <button data-tech="charpstar-ar" style=" display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
+								  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 18.344l5.656 5.656 18.344-18.344-5.657-5.656-18.343 18.344zm21.171-12.687l-15.514 15.515-2.829-2.829 1.04-1.009 2.122 2.122.707-.707-2.122-2.122 1.414-1.414 1.414 1.414.708-.707-1.414-1.414 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.414 2.122 2.121.707-.707-2.121-2.121 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.415 2.121 2.122.707-.707-2.121-2.122 1.039-1.071 2.829 2.828zm-16.241 4.929l-4.93-4.93 5.656-5.656 4.93 4.93-2.844 2.843-.707-.708 1.414-1.414-1.076-1.076-1.398 1.399-.707-.707 1.398-1.398-1.009-1.04-2.829 2.828 3.516 3.515-1.414 1.414zm11.297 5.672l.707.707 1.414-1.414 1.046 1.046-1.415 1.413.707.707 1.415-1.413 1.071 1.039-2.829 2.828-3.515-3.515-1.414 1.414 4.93 4.93 5.656-5.657-4.93-4.929-2.843 2.844z"/></svg> </button>
+							   </div> 
 		  
 							  <div class = "charpstar-button-uvcheck tooltip" id = "cmv-uvCheckButton" >
 									  <span class="tooltiptext">Toggle UV Check Material</span>
@@ -61315,10 +61336,10 @@ class ModelViewerElementBase extends u$1 {
           this.insertAdjacentHTML("beforeend", htmlContent);
           const button = this.querySelector("#cmv-dimensionButton");
 
-          //   button.addEventListener("click", () => {
-          //     this.dimensionLineToggle();
-          //     this.dimensionLineElementActivation();
-          //   });
+          button.addEventListener("click", () => {
+            this.dimensionLineToggle();
+            this.dimensionLineElementActivation();
+          });
 
           const DMbutton = this.querySelector("#cmv-darkModeButton");
 
@@ -61342,10 +61363,10 @@ class ModelViewerElementBase extends u$1 {
             }
           });
         }
-        // this.dimensionLineToggle();
-        // this.dimensionLineToggle();
-        // this.dimensionLineElementActivation();
-        // this.dimensionLineElementActivation();
+        this.dimensionLineToggle();
+        this.dimensionLineToggle();
+        this.dimensionLineElementActivation();
+        this.dimensionLineElementActivation();
 
         this.firstTime = false;
       }
