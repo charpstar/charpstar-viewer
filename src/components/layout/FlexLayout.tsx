@@ -143,13 +143,6 @@ interface FlexLayoutProps {
   onNodeSelect: (node: any) => void;
   onModelLoaded: () => void;
   onVariantChange: () => void;
-  visiblePanels: {
-    scene: boolean;
-    materials: boolean;
-    variants: boolean;
-  };
-  onLayoutModelUpdate: (model: Model) => void;
-  onTogglePanel: (panel: "scene" | "materials" | "variants") => void;
   activeEnvironment: "v5" | "v6" | "synsam" | null;
   exposure: number;
   onExposureChange: (value: number) => void;
@@ -195,9 +188,6 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   onNodeSelect,
   onModelLoaded,
   onVariantChange,
-  visiblePanels,
-  onLayoutModelUpdate,
-  onTogglePanel,
   activeEnvironment,
   exposure,
   onExposureChange,
@@ -210,120 +200,6 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const [variantChangeCounter, setVariantChangeCounter] = useState(0); // Add this state
 
-  // Function to show a specific panel
-  const showPanel = useCallback(
-    (panelType: "scene" | "materials" | "variants") => {
-      if (!model) return;
-
-      const { tabsetId, tabId, component, name, dockLocation, targetId } =
-        PANEL_CONFIG[panelType];
-
-      try {
-        // Check if panel already exists
-        const existingPanel = model.getNodeById(tabsetId);
-        if (existingPanel) {
-          // Panel already exists, no need to recreate
-          return;
-        }
-
-        // Create a new panel using the proper configuration
-        const tabsetJson = {
-          type: "tabset",
-          id: tabsetId,
-          weight: 15,
-          children: [
-            {
-              type: "tab",
-              name: name,
-              component: component,
-              id: tabId,
-              enableClose: false, // Disable close button
-              enablePopout: true,
-            },
-          ],
-        };
-
-        // Add the panel using FlexLayout's built-in action
-        model.doAction(Actions.addNode(tabsetJson, targetId, dockLocation, -1));
-      } catch (error) {
-        console.error(`Error creating panel ${tabsetId}:`, error);
-      }
-    },
-    [model]
-  );
-
-  // Improved function to hide a specific panel
-  const hidePanel = useCallback(
-    (panelType: "scene" | "materials" | "variants") => {
-      if (!model) return;
-
-      const { tabsetId } = PANEL_CONFIG[panelType];
-
-      try {
-        // Get the node by ID
-        const panelNode = model.getNodeById(tabsetId);
-        if (panelNode) {
-          // Check if it's a TabSetNode with children
-          const tabsetNode = panelNode;
-          if (
-            tabsetNode.getType() === "tabset" &&
-            tabsetNode.getChildren().length > 0
-          ) {
-            // Instead of deleting the tabset, we'll find its parent
-            const parentNode = tabsetNode.getParent();
-            if (parentNode) {
-              // Remove the tabset from its parent
-              model.doAction(Actions.deleteTabset(tabsetId));
-            }
-          }
-        }
-      } catch (error) {
-        console.error(`Error hiding panel ${tabsetId}:`, error);
-      }
-    },
-    [model]
-  );
-
-  // Update panel visibility based on props
-  useEffect(() => {
-    if (!model || !isInitialized) return;
-
-    Object.entries(visiblePanels).forEach(([panel, isVisible]) => {
-      const panelType = panel as "scene" | "materials" | "variants";
-      const { tabsetId } = PANEL_CONFIG[panelType];
-      const panelExists = model.getNodeById(tabsetId) !== undefined;
-
-      if (isVisible && !panelExists) {
-        showPanel(panelType);
-      } else if (!isVisible && panelExists) {
-        hidePanel(panelType);
-      }
-    });
-  }, [visiblePanels, model, showPanel, hidePanel, isInitialized]);
-
-  // Initialize panels after model is loaded
-  useEffect(() => {
-    if (model && !isInitialized) {
-      setIsInitialized(true);
-
-      // Initial setup for panel visibility
-      Object.entries(visiblePanels).forEach(([panel, isVisible]) => {
-        const panelType = panel as "scene" | "materials" | "variants";
-        const { tabsetId } = PANEL_CONFIG[panelType];
-        const panelExists = model.getNodeById(tabsetId) !== undefined;
-
-        // If a panel should be visible but doesn't exist, create it
-        if (isVisible && !panelExists) {
-          showPanel(panelType);
-        }
-        // If a panel should not be visible but exists, hide it
-        else if (!isVisible && panelExists) {
-          hidePanel(panelType);
-        }
-      });
-    }
-  }, [model, isInitialized, visiblePanels, showPanel, hidePanel]);
-
   const handleVariantChange = () => {
     console.log("Variant changed, updating material panel");
     // Increment the counter to force MaterialProperties to re-render
@@ -335,49 +211,18 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   };
 
   // Simplified model change handler
-  const handleModelChange = useCallback(
-    (newModel: Model, action: Action) => {
-      // Simply update the parent component with the new model
-      onLayoutModelUpdate(newModel);
-
-      // Check for tab deletion actions
-      if (action.type === "FlexLayout_DeleteTab") {
-        const { tabId } = action.data;
-
-        // Find which panel this tab belongs to
-        Object.entries(PANEL_CONFIG).forEach(([panelType, config]) => {
-          if (config.tabId === tabId) {
-            // Update the visibility state in the parent component
-            onTogglePanel(panelType as "scene" | "materials" | "variants");
-          }
-        });
-      }
-
-      // Also check for tabset deletion actions (this is needed for proper tracking)
-      if (action.type === "FlexLayout_DeleteTabset") {
-        const { tabsetId } = action.data;
-
-        // Find which panel this tabset belongs to
-        Object.entries(PANEL_CONFIG).forEach(([panelType, config]) => {
-          if (config.tabsetId === tabsetId) {
-            // Update the visibility state in the parent component
-            onTogglePanel(panelType as "scene" | "materials" | "variants");
-          }
-        });
-      }
-
-      // Log other actions but don't try to fix them
-      if (
-        action.type === "FlexLayout_MoveNode" ||
-        action.type === "FlexLayout_AddNode" ||
-        action.type === "FlexLayout_PopoutTab" ||
-        action.type === "FlexLayout_PopoutTabset"
-      ) {
-        console.log(`Layout action: ${action.type}`);
-      }
-    },
-    [onLayoutModelUpdate, onTogglePanel]
-  );
+  const handleModelChange = useCallback((newModel: Model, action: Action) => {
+    // Simply update the parent component with the new model
+    // Log other actions but don't try to fix them
+    if (
+      action.type === "FlexLayout_MoveNode" ||
+      action.type === "FlexLayout_AddNode" ||
+      action.type === "FlexLayout_PopoutTab" ||
+      action.type === "FlexLayout_PopoutTabset"
+    ) {
+      console.log(`Layout action: ${action.type}`);
+    }
+  }, []);
 
   // Define the components that will be used in the layout
   const factory = (node: TabNode) => {

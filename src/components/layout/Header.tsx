@@ -23,12 +23,6 @@ interface HeaderProps {
   onExportUSDZ: () => void;
   onEnvironmentChange: (type: "v5" | "v6" | "synsam") => void;
   activeEnvironment: "v5" | "v6" | "synsam" | null;
-  visiblePanels: {
-    scene: boolean;
-    materials: boolean;
-    variants: boolean;
-  };
-  onTogglePanel: (panel: "scene" | "materials" | "variants") => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -39,15 +33,7 @@ const Header: React.FC<HeaderProps> = ({
   onExportUSDZ,
   onEnvironmentChange,
   activeEnvironment,
-  visiblePanels,
-  onTogglePanel,
 }) => {
-  // Handle panel toggle with immediate UI feedback
-  const handlePanelToggle = (panel: "scene" | "materials" | "variants") => {
-    // Call the toggle function from props
-    onTogglePanel(panel);
-  };
-
   return (
     <header className="h-14 bg-[#FAFAFA] text-[#111827] flex items-center justify-between px-4 border-b border-gray-200 shadow-sm w-full">
       <div className="flex items-center">
@@ -55,39 +41,6 @@ const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center space-x-4">
-        {/* Panel Toggle Dropdown Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs h-8">
-              <PanelLeft size={14} className="mr-1" />
-              Panels
-              <ChevronsUpDown size={14} className="ml-1" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Toggle Panels</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={visiblePanels.scene}
-              onCheckedChange={() => handlePanelToggle("scene")}
-            >
-              Scene Hierarchy
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={visiblePanels.materials}
-              onCheckedChange={() => handlePanelToggle("materials")}
-            >
-              Material Properties
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={visiblePanels.variants}
-              onCheckedChange={() => handlePanelToggle("variants")}
-            >
-              Material Variants
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
         {/* Environment Toggles */}
         <div className="flex space-x-2 border-x px-4">
           <Button

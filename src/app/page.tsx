@@ -445,8 +445,6 @@ export default function Home() {
           onExportUSDZ={handleExportUSDZ}
           onEnvironmentChange={handleEnvironmentChange}
           activeEnvironment={activeEnvironment}
-          visiblePanels={visiblePanels}
-          onTogglePanel={handleTogglePanel}
         />
       </div>
 
@@ -459,9 +457,6 @@ export default function Home() {
           onNodeSelect={handleNodeSelect}
           onModelLoaded={fetchModelStructure}
           onVariantChange={handleVariantChange}
-          visiblePanels={visiblePanels}
-          onLayoutModelUpdate={handleLayoutModelUpdate}
-          onTogglePanel={handleTogglePanel}
           activeEnvironment={activeEnvironment}
           exposure={exposure}
           onExposureChange={handleExposureChange}
