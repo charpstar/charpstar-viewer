@@ -38947,8 +38947,90 @@ canvas {
 #default-exit-webxr-ar-button > svg {
   fill: #fff;
 }
+
+
+
+.cmv-dot {
+  display: none;
+  border: none;
+  box-sizing: border-box;
+  background: #111;
+  pointer-events: none;
+  --min-hotspot-opacity: 0;
+z-index : 99;
+}
+
+.cmv-dim {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: bold;
+  background-color: #eee;
+  border-radius: 2px;
+  border: none;
+z-index : 100;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, .8);
+  display: block;
+  overflow-wrap: break-word;
+  position: absolute;
+  width: max-content;
+  height: max-content;
+  transform: translate3d(-55%, -55%, 0);
+  pointer-events: none;
+  --min-hotspot-opacity: 0;
+}
+
+.cmv-dimensionLineContainer {
+  pointer-events: none;
+  position: fixed;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cmv-dimensionLine {
+  stroke: #bbb;
+  stroke-width: 2;
+  stroke-dasharray: 2;
+}
+
+.cmv-show {
+  --min-hotspot-opacity: 1;
+}
+
+.cmv-hide {
+  display: none;
+}
+
+.cmv-dimension-liness {
+pointer-events: none;
+}
+
 </style>
 <div class="container">
+
+<div id = "cmv-mainDimension-container">
+<button slot="hotspot-dot+X-Y+Z" class="cmv-dot" data-position="1 -1 1" data-normal="1 0 0"></button>
+<button slot="hotspot-dim+X-Y" class="cmv-dim" data-position="1 -1 0" data-normal="1 0 0"></button>
+<button slot="hotspot-dot+X-Y-Z" class="cmv-dot" data-position="1 -1 -1" data-normal="1 0 0"></button>
+<button slot="hotspot-dim+X-Z" class="cmv-dim" data-position="1 0 -1" data-normal="1 0 0"></button>
+<button slot="hotspot-dot+X+Y-Z" class="cmv-dot cmv-show" data-position="1 1 -1" data-normal="0 1 0"></button>
+<button slot="hotspot-dim+Y-Z" class="cmv-dim cmv-show" data-position="0 -1 -1" data-normal="0 1 0"></button>
+<button slot="hotspot-dot-X+Y-Z" class="cmv-dot cmv-show" data-position="-1 1 -1" data-normal="0 1 0"></button>
+<button slot="hotspot-dim-X-Z" class="cmv-dim" data-position="-1 0 -1" data-normal="-1 0 0"></button>
+<button slot="hotspot-dot-X-Y-Z" class="cmv-dot" data-position="-1 -1 -1" data-normal="-1 0 0"></button>
+<button slot="hotspot-dim-X-Y" class="cmv-dim" data-position="-1 -1 0" data-normal="-1 0 0"></button>
+<button slot="hotspot-dot-X-Y+Z" class="cmv-dot" data-position="-1 -1 1" data-normal="-1 0 0"></button>
+<svg id="lines" xmlns="http://www.w3.org/2000/svg" class="cmv-dimensionLineContainer">
+	<line class="cmv-dimensionLine"></line>
+	<line class="cmv-dimensionLine"></line>
+	<line class="cmv-dimensionLine"></line>
+	<line class="cmv-dimensionLine"></line>
+	<line class="cmv-dimensionLine"></line>
+</svg>
+</div>
+
+
   <div class="userInput" tabindex="0" role="img"
       aria-label="3D model">
       <div class="slot canvas">
@@ -51017,180 +51099,172 @@ const ControlsMixin = (ModelViewerElement) => {
       return this[$controls].options.maximumFieldOfView;
     }
     dimensionLineToggle() {
+      var mainDim = this.shadowRoot.querySelector("#cmv-mainDimension-container");
       if (this.dimensionLineVisible == true) {
-        this.setVisibility(this.querySelector("#lines"), false);
-        this.querySelectorAll("button").forEach((hotspot) => {
-          if (
-            hotspot.id != "cmv-dimensionButton" ||
-            hotspot.id != "cmv-selectColorButton" ||
-            hotspot.id != "cmv-fullScreenButton"
-          ) {
-            this.setVisibility(hotspot, false);
-          }
-        });
+          mainDim.style.visibility = "hidden";
+          this.dimensionLineVisible = false;
       } else {
-        this.setVisibility(this.querySelector("#lines"), true);
-        this.querySelectorAll("button").forEach((hotspot) => {
-          if (
-            hotspot.id != "cmv-dimensionButton" ||
-            hotspot.id != "cmv-selectColorButton" ||
-            hotspot.id != "cmv-fullScreenButton"
-          ) {
-            this.setVisibility(hotspot, true);
-          }
-        });
+          mainDim.style.visibility = "visible";
+          this.dimensionLineVisible = true;
       }
-    }
+  }
 
-    setVisibility(element, cond) {
-      if (cond == true) {
-        element.classList.remove("cmv-hide");
-        this.dimensionLineVisible = true;
-        // this.setAttribute("field-of-view", "35deg")
-        // this.cameraOrbit = '30deg 75deg 200%';
-      } else {
-        element.classList.add("cmv-hide");
-        this.dimensionLineVisible = false;
-        // this.setAttribute("field-of-view", "20deg")
-        // this.cameraOrbit = '0deg 75deg 200%';
-      }
+setVisibility(element, cond) {
+    if (cond == true) {
+        element.classList.remove('cmv-hide');
+    
+    } else {
+        element.classList.add('cmv-hide');
     }
-
-    dimensionLineElementActivation() {
-      if (this.querySelector('button[slot="hotspot-dim+X-Y"]')) {
-        const updateDimension = (name, position, text) => {
-          this.updateHotspot({
-            name,
-            position,
-          });
-          this.querySelector(`button[slot="${name}"]`).textContent = text;
-        };
+}
+dimensionLineElementActivation() {
 
         const center = this.getBoundingBoxCenter();
         const size = this.getDimensions();
-        const x2 = size.x / 20 + size.x / 2;
-        const y2 = size.y / 20 + size.y / 2;
-        const z2 = size.z / 20 + size.z / 2;
+        const x2 = size.x / 40 + size.x / 2;
+        const y2 = size.y / 40 + size.y / 2;
+        const z2 = size.z / 40 + size.z / 2;
+
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dot+X-Y+Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dim+X-Y"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dot+X-Y-Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dim+X-Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dot+X+Y-Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dim+Y-Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dot-X+Y-Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dim-X-Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dot-X-Y-Z"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dim-X-Y"]`));
+        this[$addHotspot](this.shadowRoot.querySelector(`button[slot="hotspot-dot-X-Y+Z"]`));
+    
+        
 
         this.updateHotspot({
-          name: "hotspot-dot+X-Y+Z",
-          position: `${center.x + x2} ${center.y - y2} ${center.z + z2}`,
+            name: 'hotspot-dot+X-Y+Z',
+            position: `${center.x + x2} ${center.y - y2} ${center.z + z2}`
         });
 
         this.updateHotspot({
-          name: "hotspot-dim+X-Y",
-          position: `${center.x + x2 + size.x / 40} ${center.y - y2} ${
-            center.z
-          }`,
+            name: 'hotspot-dim+X-Y',
+            position: `${center.x + x2  + size.x/40} ${center.y - y2} ${center.z}`
         });
-        this.querySelector('button[slot="hotspot-dim+X-Y"]').textContent = `${(
-          size.z * 100
-        ).toFixed(0)} cm`;
+        this.shadowRoot.querySelector('button[slot="hotspot-dim+X-Y"]').textContent =
+            `${(size.z * 100).toFixed(0)} cm`;
 
         this.updateHotspot({
-          name: "hotspot-dot+X-Y-Z",
-          position: `${center.x + x2} ${center.y - y2} ${center.z - z2}`,
+            name: 'hotspot-dot+X-Y-Z',
+            position: `${center.x + x2} ${center.y - y2} ${center.z - z2}`
         });
 
         this.updateHotspot({
-          name: "hotspot-dim+X-Z",
-          position: `${center.x + x2 + size.x / 40} ${center.y} ${
-            center.z - z2
-          }`,
+            name: 'hotspot-dim+X-Z',
+            position: `${center.x + x2  + size.x/40} ${center.y} ${center.z - z2}`
         });
-        this.querySelector('button[slot="hotspot-dim+X-Z"]').textContent = `${(
-          size.y * 100
-        ).toFixed(0)} cm`;
+        this.shadowRoot.querySelector('button[slot="hotspot-dim+X-Z"]').textContent =
+            `${(size.y * 100).toFixed(0)} cm`;
 
         this.updateHotspot({
-          name: "hotspot-dot+X+Y-Z",
-          position: `${center.x + x2} ${center.y + y2} ${center.z - z2}`,
+            name: 'hotspot-dot+X+Y-Z',
+            position: `${center.x + x2} ${center.y + y2} ${center.z - z2}`
         });
 
         this.updateHotspot({
-          name: "hotspot-dim+Y-Z",
-          position: `${center.x} ${center.y + y2 + size.y / 40} ${
-            center.z - z2
-          }`,
+            name: 'hotspot-dim+Y-Z',
+            position: `${center.x } ${center.y + y2 + size.y/40} ${center.z - z2}`
         });
-        this.querySelector('button[slot="hotspot-dim+Y-Z"]').textContent = `${(
-          size.x * 100
-        ).toFixed(0)} cm`;
+        this.shadowRoot.querySelector('button[slot="hotspot-dim+Y-Z"]').textContent =
+            `${(size.x * 100).toFixed(0)} cm`;
 
         this.updateHotspot({
-          name: "hotspot-dot-X+Y-Z",
-          position: `${center.x - x2} ${center.y + y2} ${center.z - z2}`,
+            name: 'hotspot-dot-X+Y-Z',
+            position: `${center.x - x2} ${center.y + y2} ${center.z - z2}`
         });
 
         this.updateHotspot({
-          name: "hotspot-dim-X-Z",
-          position: `${center.x - x2 - size.x / 40} ${center.y} ${
-            center.z - z2
-          }`,
+            name: 'hotspot-dim-X-Z',
+            position: `${center.x - x2 - size.x/40} ${center.y} ${center.z - z2}`
         });
-        this.querySelector('button[slot="hotspot-dim-X-Z"]').textContent = `${(
-          size.y * 100
-        ).toFixed(0)} cm`;
+        this.shadowRoot.querySelector('button[slot="hotspot-dim-X-Z"]').textContent =
+            `${(size.y * 100).toFixed(0)} cm`;
 
         this.updateHotspot({
-          name: "hotspot-dot-X-Y-Z",
-          position: `${center.x - x2} ${center.y - y2} ${center.z - z2}`,
+            name: 'hotspot-dot-X-Y-Z',
+            position: `${center.x - x2} ${center.y - y2} ${center.z - z2}`
         });
 
         this.updateHotspot({
-          name: "hotspot-dim-X-Y",
-          position: `${center.x - x2 - size.x / 40} ${center.y - y2} ${
-            center.z
-          }`,
+            name: 'hotspot-dim-X-Y',
+            position: `${center.x - x2 - size.x/40} ${center.y - y2} ${center.z}`
         });
-        this.querySelector('button[slot="hotspot-dim-X-Y"]').textContent = `${(
-          size.z * 100
-        ).toFixed(0)} cm`;
+        this.shadowRoot.querySelector('button[slot="hotspot-dim-X-Y"]').textContent =
+            `${(size.z * 100).toFixed(0)} cm`;
 
         this.updateHotspot({
-          name: "hotspot-dot-X-Y+Z",
-          position: `${center.x - x2} ${center.y - y2} ${center.z + z2}`,
+            name: 'hotspot-dot-X-Y+Z',
+            position: `${center.x - x2} ${center.y - y2} ${center.z + z2}`
         });
         this.startSVGRenderLoop(this);
-      }
-    }
-    // update svg
-    drawLine(svgLine, dotHotspot1, dotHotspot2, dimensionHotspot) {
-      if (dotHotspot1 && dotHotspot2) {
-        svgLine.setAttribute("x1", dotHotspot1.canvasPosition.x);
-        svgLine.setAttribute("y1", dotHotspot1.canvasPosition.y);
-        svgLine.setAttribute("x2", dotHotspot2.canvasPosition.x);
-        svgLine.setAttribute("y2", dotHotspot2.canvasPosition.y);
 
-        // use provided optional hotspot to tie visibility of this svg line to
-        if (dimensionHotspot && !dimensionHotspot.facingCamera) {
-          svgLine.classList.add("cmv-hide");
-        } else {
-          svgLine.classList.remove("cmv-hide");
-        }
-      }
-    }
-    startSVGRenderLoop(viewerElement) {
-      const lines = viewerElement.querySelectorAll("line");
-      const draw = (lineIndex, hotspot1, hotspot2, dimensionHotspot) => {
-        viewerElement.drawLine(
-          lines[lineIndex],
-          viewerElement.queryHotspot(hotspot1),
-          viewerElement.queryHotspot(hotspot2),
-          viewerElement.queryHotspot(dimensionHotspot)
-        );
-      };
+}
 
-      draw(0, "hotspot-dot+X-Y+Z", "hotspot-dot+X-Y-Z", "hotspot-dim+X-Y");
-      draw(1, "hotspot-dot+X-Y-Z", "hotspot-dot+X+Y-Z", "hotspot-dim+X-Z");
-      draw(2, "hotspot-dot+X+Y-Z", "hotspot-dot-X+Y-Z"); // always visible
-      draw(3, "hotspot-dot-X+Y-Z", "hotspot-dot-X-Y-Z", "hotspot-dim-X-Z");
-      draw(4, "hotspot-dot-X-Y-Z", "hotspot-dot-X-Y+Z", "hotspot-dim-X-Y");
 
-      requestAnimationFrame(() =>
-        viewerElement.startSVGRenderLoop(viewerElement)
-      );
-    }
+// update svg
+drawLine(svgLine, dotHotspot1, dotHotspot2, dimensionHotspot) {
+
+
+if (dotHotspot1 && dotHotspot2) {
+svgLine.setAttribute('x1', dotHotspot1.canvasPosition.x);
+svgLine.setAttribute('y1', dotHotspot1.canvasPosition.y);
+svgLine.setAttribute('x2', dotHotspot2.canvasPosition.x);
+svgLine.setAttribute('y2', dotHotspot2.canvasPosition.y);
+
+
+// use provided optional hotspot to tie visibility of this svg line to
+if (dimensionHotspot && !dimensionHotspot.facingCamera) {
+svgLine.classList.add('cmv-hide');
+} else {
+svgLine.classList.remove('cmv-hide');
+}
+}
+}
+
+startSVGRenderLoop(viewerElement) {
+const lines = viewerElement.shadowRoot.querySelectorAll('line');
+
+const updateTextPosition = (hotspotName, canvasPosition) => {
+const button = viewerElement.shadowRoot.querySelector(`button[slot="${hotspotName}"]`);
+if (button) {
+button.style.left = `${canvasPosition.x}px`;
+button.style.top = `${canvasPosition.y}px`;
+}
+};
+
+const draw = (lineIndex, hotspot1, hotspot2, dimensionHotspot) => {
+const dimensionHotspotData = viewerElement.queryHotspot(dimensionHotspot);
+viewerElement.drawLine(
+lines[lineIndex],
+viewerElement.queryHotspot(hotspot1),
+viewerElement.queryHotspot(hotspot2),
+viewerElement.queryHotspot(dimensionHotspot)
+);
+
+if (dimensionHotspotData) {
+updateTextPosition(dimensionHotspot, dimensionHotspotData.canvasPosition);
+if (dimensionHotspot != 'hotspot-dim+Y-Z') {
+  viewerElement.setVisibility(viewerElement.shadowRoot.querySelector(`button[slot="${dimensionHotspot}"]`), dimensionHotspotData.facingCamera);
+}
+ 
+}
+};
+
+draw(0, 'hotspot-dot+X-Y+Z', 'hotspot-dot+X-Y-Z', 'hotspot-dim+X-Y');
+draw(1, 'hotspot-dot+X-Y-Z', 'hotspot-dot+X+Y-Z', 'hotspot-dim+X-Z');
+draw(2, 'hotspot-dot+X+Y-Z', 'hotspot-dot-X+Y-Z', 'hotspot-dim+Y-Z');
+draw(3, 'hotspot-dot-X+Y-Z', 'hotspot-dot-X-Y-Z', 'hotspot-dim-X-Z');
+draw(4, 'hotspot-dot-X-Y-Z', 'hotspot-dot-X-Y+Z', 'hotspot-dim-X-Y');
+
+requestAnimationFrame(() => viewerElement.startSVGRenderLoop(viewerElement));
+}
     getIdealAspect() {
       return this[$scene].idealAspect;
     }
@@ -61144,7 +61218,7 @@ class ModelViewerElementBase extends u$1 {
             this.querySelector(".charpstar-selector").remove();
           }
         }
-        this.cameraOrbit = "0deg 80deg 150%";
+        this.cameraOrbit = "20deg 70deg 100%";
         if (this.firstTime) {
           const htmlContent = `
 								  <style>
@@ -61272,26 +61346,7 @@ class ModelViewerElementBase extends u$1 {
 			visibility: visible;
 		  }
 								  </style>
-		  
-							  <button slot="hotspot-dot+X-Y+Z" class="cmv-dot" data-position="1 -1 1" data-normal="1 0 0"></button>
-							  <button slot="hotspot-dim+X-Y" class="cmv-dim" data-position="1 -1 0" data-normal="1 0 0"></button>
-							  <button slot="hotspot-dot+X-Y-Z" class="cmv-dot" data-position="1 -1 -1" data-normal="1 0 0"></button>
-							  <button slot="hotspot-dim+X-Z" class="cmv-dim" data-position="1 0 -1" data-normal="1 0 0"></button>
-							  <button slot="hotspot-dot+X+Y-Z" class="cmv-dot cmv-show" data-position="1 1 -1" data-normal="0 1 0"></button>
-							  <button slot="hotspot-dim+Y-Z" class="cmv-dim cmv-show" data-position="0 -1 -1" data-normal="0 1 0"></button>
-							  <button slot="hotspot-dot-X+Y-Z" class="cmv-dot cmv-show" data-position="-1 1 -1" data-normal="0 1 0"></button>
-							  <button slot="hotspot-dim-X-Z" class="cmv-dim" data-position="-1 0 -1" data-normal="-1 0 0"></button>
-							  <button slot="hotspot-dot-X-Y-Z" class="cmv-dot" data-position="-1 -1 -1" data-normal="-1 0 0"></button>
-							  <button slot="hotspot-dim-X-Y" class="cmv-dim" data-position="-1 -1 0" data-normal="-1 0 0"></button>
-							  <button slot="hotspot-dot-X-Y+Z" class="cmv-dot" data-position="-1 -1 1" data-normal="-1 0 0"></button>
-							  <svg id="lines" xmlns="http://www.w3.org/2000/svg" class="cmv-dimensionLineContainer">
-								  <line class="cmv-dimensionLine"></line>
-								  <line class="cmv-dimensionLine"></line>
-								  <line class="cmv-dimensionLine"></line>
-								  <line class="cmv-dimensionLine"></line>
-								  <line class="cmv-dimensionLine"></line>
-							  </svg>
-						   
+ 
 		  
 							 <div class = "cmv-tr-button-container">
 								<div class = "charpstar-button-darkmode tooltip" id = "cmv-darkModeButton"><span class="tooltiptext">Toggle Dark Mode</span>
