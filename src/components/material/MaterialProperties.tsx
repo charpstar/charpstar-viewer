@@ -1,10 +1,11 @@
 // components/material/MaterialProperties.tsx
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { ChevronDown, ChevronUp, Link, Link2Off } from 'lucide-react';
-import TextureMapInput from './TextureMapInput';
-import { SliderWithInput } from '@/components/ui/slider-with-input';
+import { useState, useEffect, useRef } from "react";
+import { ChevronDown, ChevronUp, Link, Link2Off } from "lucide-react";
+import TextureMapInput from "./TextureMapInput";
+import { SliderWithInput } from "@/components/ui/slider-with-input";
+import ColorPicker from "./ColorPicker";
 
 // Define types for material properties
 interface Material {
@@ -37,10 +38,10 @@ interface MaterialPropertiesProps {
   variantChangeCounter?: number; // Add this prop to force re-rendering
 }
 
-const MaterialProperties: React.FC<MaterialPropertiesProps> = ({ 
+const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   selectedNode,
   modelViewerRef,
-  variantChangeCounter = 0 // Default to 0
+  variantChangeCounter = 0, // Default to 0
 }) => {
   const [material, setMaterial] = useState<Material | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -53,7 +54,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   const rgbToHex = (color: { r: number; g: number; b: number }) => {
     const toHex = (value: number) => {
       const hex = Math.round(value * 255).toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
+      return hex.length === 1 ? "0" + hex : hex;
     };
     return `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`;
   };
@@ -67,10 +68,12 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   };
 
   // Function to get the material color in hex format
-  const getColorHex = (colorProp: string | { r: number; g: number; b: number } | undefined) => {
-    if (!colorProp) return '#000000';
-    
-    if (typeof colorProp === 'string') {
+  const getColorHex = (
+    colorProp: string | { r: number; g: number; b: number } | undefined
+  ) => {
+    if (!colorProp) return "#000000";
+
+    if (typeof colorProp === "string") {
       return colorProp;
     } else {
       return rgbToHex(colorProp);
@@ -78,30 +81,41 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   };
 
   // Handle color change
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>, property: string = 'color') => {
+  const handleColorChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    property: string = "color"
+  ) => {
     const newColorHex = e.target.value;
     const newColorRgb = hexToRgb(newColorHex);
-    
+
     if (!modelViewerRef?.current || !selectedNode) return;
 
     try {
       const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
       if (object && object.material) {
-        if (property === 'sheenColor') {
-          object.material.sheenColor.setRGB(newColorRgb.r, newColorRgb.g, newColorRgb.b);
+        if (property === "sheenColor") {
+          object.material.sheenColor.setRGB(
+            newColorRgb.r,
+            newColorRgb.g,
+            newColorRgb.b
+          );
         } else {
-          object.material[property].setRGB(newColorRgb.r, newColorRgb.g, newColorRgb.b);
+          object.material[property].setRGB(
+            newColorRgb.r,
+            newColorRgb.g,
+            newColorRgb.b
+          );
         }
         object.material.needsUpdate = true;
 
         // Update local state
-        setMaterial(prev => {
+        setMaterial((prev) => {
           if (!prev) return null;
           return { ...prev, [property]: newColorRgb };
         });
 
         // Request a render update
-        if (typeof modelViewerRef.current.requestRender === 'function') {
+        if (typeof modelViewerRef.current.requestRender === "function") {
           modelViewerRef.current.requestRender();
         }
       }
@@ -110,38 +124,43 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     }
   };
 
-
-  const handleSharedTilingChange = (axis: 'x' | 'y', value: number) => {
+  const handleSharedTilingChange = (axis: "x" | "y", value: number) => {
     if (!modelViewerRef?.current || !selectedNode) return;
 
     try {
       const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
       if (object && object.material) {
         // Update repeat value for each map that exists
-        const mapTypes = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap'];
-        
-        mapTypes.forEach(mapType => {
+        const mapTypes = [
+          "map",
+          "normalMap",
+          "roughnessMap",
+          "metalnessMap",
+          "alphaMap",
+        ];
+
+        mapTypes.forEach((mapType) => {
           if (object.material[mapType]) {
             object.material[mapType].repeat[axis] = value;
           }
         });
-        
+
         object.material.needsUpdate = true;
 
         // Update local state with non-optional values
-        setMaterial(prev => {
+        setMaterial((prev) => {
           if (!prev) return null;
           return {
             ...prev,
             textureRepeat: {
-              x: axis === 'x' ? value : (prev.textureRepeat?.x || 1),
-              y: axis === 'y' ? value : (prev.textureRepeat?.y || 1)
-            }
+              x: axis === "x" ? value : prev.textureRepeat?.x || 1,
+              y: axis === "y" ? value : prev.textureRepeat?.y || 1,
+            },
           };
         });
 
         // Request a render update
-        if (typeof modelViewerRef.current.requestRender === 'function') {
+        if (typeof modelViewerRef.current.requestRender === "function") {
           modelViewerRef.current.requestRender();
         }
       }
@@ -152,12 +171,12 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
 
   // Handle uniform tiling change
   const handleUniformTilingChange = (value: number) => {
-    handleSharedTilingChange('x', value);
-    handleSharedTilingChange('y', value);
+    handleSharedTilingChange("x", value);
+    handleSharedTilingChange("y", value);
   };
 
   // Handle scale change for sheen texture map (separate from other maps)
-  const handleSheenTilingChange = (axis: 'x' | 'y', value: number) => {
+  const handleSheenTilingChange = (axis: "x" | "y", value: number) => {
     if (!modelViewerRef?.current || !selectedNode) return;
 
     try {
@@ -168,19 +187,19 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         object.material.needsUpdate = true;
 
         // Update local state
-        setMaterial(prev => {
+        setMaterial((prev) => {
           if (!prev) return null;
           return {
             ...prev,
             sheenColorMapRepeat: {
               ...(prev.sheenColorMapRepeat || { x: 1, y: 1 }),
-              [axis]: value
-            }
+              [axis]: value,
+            },
           };
         });
 
         // Request a render update
-        if (typeof modelViewerRef.current.requestRender === 'function') {
+        if (typeof modelViewerRef.current.requestRender === "function") {
           modelViewerRef.current.requestRender();
         }
       }
@@ -191,8 +210,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
 
   // Handle uniform sheen tiling change
   const handleUniformSheenTilingChange = (value: number) => {
-    handleSheenTilingChange('x', value);
-    handleSheenTilingChange('y', value);
+    handleSheenTilingChange("x", value);
+    handleSheenTilingChange("y", value);
   };
 
   // Handle numeric property change
@@ -206,13 +225,13 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         object.material.needsUpdate = true;
 
         // Update local state
-        setMaterial(prev => {
+        setMaterial((prev) => {
           if (!prev) return null;
           return { ...prev, [property]: value };
         });
 
         // Request a render update
-        if (typeof modelViewerRef.current.requestRender === 'function') {
+        if (typeof modelViewerRef.current.requestRender === "function") {
           modelViewerRef.current.requestRender();
         }
       }
@@ -232,44 +251,51 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         object.material.needsUpdate = true;
 
         // Update local state
-        setMaterial(prev => {
+        setMaterial((prev) => {
           if (!prev) return null;
           return { ...prev, sheenColorMap_channel: channel };
         });
 
         // Request a render update
-        if (typeof modelViewerRef.current.requestRender === 'function') {
+        if (typeof modelViewerRef.current.requestRender === "function") {
           modelViewerRef.current.requestRender();
         }
       }
     } catch (error) {
-      console.error('Error updating sheen UV set:', error);
+      console.error("Error updating sheen UV set:", error);
     }
   };
 
   // Handle texture upload
-  const handleTextureUpload = (event: React.ChangeEvent<HTMLInputElement>, textureType: string) => {
+  const handleTextureUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    textureType: string
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const textureUrl = URL.createObjectURL(file);
-    
+
     try {
       if (modelViewerRef?.current && selectedNode) {
         console.log(`Applying ${textureType} texture from file:`, file.name);
-        
-        if (typeof modelViewerRef.current.applyTexture === 'function') {
-          modelViewerRef.current.applyTexture(selectedNode.uuid, textureType, textureUrl);
-          
-          setMaterial(prev => {
+
+        if (typeof modelViewerRef.current.applyTexture === "function") {
+          modelViewerRef.current.applyTexture(
+            selectedNode.uuid,
+            textureType,
+            textureUrl
+          );
+
+          setMaterial((prev) => {
             if (!prev) return null;
             return { ...prev, [textureType]: { loaded: true } };
           });
         } else {
-          console.error('applyTexture method not found in model-viewer.');
+          console.error("applyTexture method not found in model-viewer.");
         }
       } else {
-        console.error('Model viewer reference or selected node not available');
+        console.error("Model viewer reference or selected node not available");
       }
     } catch (error) {
       console.error(`Error applying ${textureType} texture:`, error);
@@ -279,14 +305,14 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   // Function to clear a texture
   const clearTexture = (textureType: string) => {
     if (!modelViewerRef?.current || !selectedNode) return;
-    
+
     try {
       const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
       if (object && object.material) {
         object.material[textureType] = null;
         object.material.needsUpdate = true;
-        
-        setMaterial(prev => {
+
+        setMaterial((prev) => {
           if (!prev) return null;
           return { ...prev, [textureType]: null };
         });
@@ -300,81 +326,125 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   const getSharedTextureRepeat = (object: any): { x: number; y: number } => {
     // Try to get repeat values from any applied map, prioritizing the base color map
     if (object.material.map?.repeat) {
-      return { x: object.material.map.repeat.x, y: object.material.map.repeat.y };
+      return {
+        x: object.material.map.repeat.x,
+        y: object.material.map.repeat.y,
+      };
     } else if (object.material.normalMap?.repeat) {
-      return { x: object.material.normalMap.repeat.x, y: object.material.normalMap.repeat.y };
+      return {
+        x: object.material.normalMap.repeat.x,
+        y: object.material.normalMap.repeat.y,
+      };
     } else if (object.material.roughnessMap?.repeat) {
-      return { x: object.material.roughnessMap.repeat.x, y: object.material.roughnessMap.repeat.y };
+      return {
+        x: object.material.roughnessMap.repeat.x,
+        y: object.material.roughnessMap.repeat.y,
+      };
     } else if (object.material.metalnessMap?.repeat) {
-      return { x: object.material.metalnessMap.repeat.x, y: object.material.metalnessMap.repeat.y };
+      return {
+        x: object.material.metalnessMap.repeat.x,
+        y: object.material.metalnessMap.repeat.y,
+      };
     }
-    
+
     // Default values if no maps are applied
     return { x: 1, y: 1 };
   };
 
   // Get material data for the selected node
   useEffect(() => {
-    if (!selectedNode || selectedNode.type !== 'Mesh' || !modelViewerRef?.current) {
+    if (
+      !selectedNode ||
+      selectedNode.type !== "Mesh" ||
+      !modelViewerRef?.current
+    ) {
       setMaterial(null);
       setIsMeshPhysicalMaterial(false);
       return;
     }
-    
+
     try {
-      const object = modelViewerRef.current.getObjectByUuid?.(selectedNode.uuid);
-      
+      const object = modelViewerRef.current.getObjectByUuid?.(
+        selectedNode.uuid
+      );
+
       if (object && object.material) {
-        console.log('Found material for mesh:', object.material, 'Refresh counter:', variantChangeCounter);
-        
+        console.log(
+          "Found material for mesh:",
+          object.material,
+          "Refresh counter:",
+          variantChangeCounter
+        );
+
         // Check if the material is MeshPhysicalMaterial
-        setIsMeshPhysicalMaterial(object.material.type === 'MeshPhysicalMaterial');
+        setIsMeshPhysicalMaterial(
+          object.material.type === "MeshPhysicalMaterial"
+        );
 
         // Get the shared texture repeat values
         const sharedRepeat = getSharedTextureRepeat(object);
-        
+
         const materialData: Material = {
           // Material properties populated as before
-          name: object.material.name || 'Material',
-          type: object.material.type || 'Material',
-          color: object.material.color ? { 
-            r: object.material.color.r, 
-            g: object.material.color.g, 
-            b: object.material.color.b 
-          } : '#ffffff',
-          roughness: object.material.roughness !== undefined ? object.material.roughness : 0.5,
-          metalness: object.material.metalness !== undefined ? object.material.metalness : 0,
-          opacity: object.material.opacity !== undefined ? object.material.opacity : 1,
+          name: object.material.name || "Material",
+          type: object.material.type || "Material",
+          color: object.material.color
+            ? {
+                r: object.material.color.r,
+                g: object.material.color.g,
+                b: object.material.color.b,
+              }
+            : "#ffffff",
+          roughness:
+            object.material.roughness !== undefined
+              ? object.material.roughness
+              : 0.5,
+          metalness:
+            object.material.metalness !== undefined
+              ? object.material.metalness
+              : 0,
+          opacity:
+            object.material.opacity !== undefined ? object.material.opacity : 1,
           map: object.material.map || null,
-          textureRepeat: { 
+          textureRepeat: {
             x: sharedRepeat.x || 1,
-            y: sharedRepeat.y || 1
+            y: sharedRepeat.y || 1,
           },
           normalMap: object.material.normalMap || null,
-          normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0,
+          normalMapIntensity: object.material.normalScale
+            ? object.material.normalScale.x
+            : 1.0,
           roughnessMap: object.material.roughnessMap || null,
           metalnessMap: object.material.metalnessMap || null,
           alphaMap: object.material.alphaMap || null,
           aoMap: object.material.aoMap || null,
-          aoMapIntensity: object.material.aoMapIntensity !== undefined ? object.material.aoMapIntensity : 1.0,
-          sheenRoughness: object.material.sheenRoughness !== undefined ? object.material.sheenRoughness : 0,
-          sheenColor: object.material.sheenColor ? {
-            r: object.material.sheenColor.r,
-            g: object.material.sheenColor.g,
-            b: object.material.sheenColor.b
-          } : '#ffffff',
+          aoMapIntensity:
+            object.material.aoMapIntensity !== undefined
+              ? object.material.aoMapIntensity
+              : 1.0,
+          sheenRoughness:
+            object.material.sheenRoughness !== undefined
+              ? object.material.sheenRoughness
+              : 0,
+          sheenColor: object.material.sheenColor
+            ? {
+                r: object.material.sheenColor.r,
+                g: object.material.sheenColor.g,
+                b: object.material.sheenColor.b,
+              }
+            : "#ffffff",
           sheenColorMap: object.material.sheenColorMap || null,
-          sheenColorMap_channel: object.material.sheenColorMap?.channel || 0
+          sheenColorMap_channel: object.material.sheenColorMap?.channel || 0,
         };
-        
+
         setMaterial(materialData);
       } else {
-        console.log('No material found for mesh');
+        console.log("No material found for mesh");
         setMaterial(null);
         setIsMeshPhysicalMaterial(false);
       }
     } catch (error) {
-      console.error('Error accessing material:', error);
+      console.error("Error accessing material:", error);
       setMaterial(null);
       setIsMeshPhysicalMaterial(false);
     }
@@ -383,89 +453,116 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
   const getSheenTextureRepeat = (object: any): { x: number; y: number } => {
     // Check specifically for sheenColorMap repeat values
     if (object.material.sheenColorMap?.repeat) {
-      return { 
-        x: object.material.sheenColorMap.repeat.x, 
-        y: object.material.sheenColorMap.repeat.y 
+      return {
+        x: object.material.sheenColorMap.repeat.x,
+        y: object.material.sheenColorMap.repeat.y,
       };
     }
-    
+
     // Default values if no sheen map is applied
     return { x: 1, y: 1 };
   };
-  
+
   // Then in the useEffect that fetches material data, modify it like this:
   useEffect(() => {
-    if (!selectedNode || selectedNode.type !== 'Mesh' || !modelViewerRef?.current) {
+    if (
+      !selectedNode ||
+      selectedNode.type !== "Mesh" ||
+      !modelViewerRef?.current
+    ) {
       setMaterial(null);
       setIsMeshPhysicalMaterial(false);
       return;
     }
-    
+
     try {
-      const object = modelViewerRef.current.getObjectByUuid?.(selectedNode.uuid);
-      
+      const object = modelViewerRef.current.getObjectByUuid?.(
+        selectedNode.uuid
+      );
+
       if (object && object.material) {
-        console.log('Found material for mesh:', object.material);
-        
+        console.log("Found material for mesh:", object.material);
+
         // Check if the material is MeshPhysicalMaterial
-        setIsMeshPhysicalMaterial(object.material.type === 'MeshPhysicalMaterial');
-  
+        setIsMeshPhysicalMaterial(
+          object.material.type === "MeshPhysicalMaterial"
+        );
+
         // Get the shared texture repeat values
         const sharedRepeat = getSharedTextureRepeat(object);
-        
+
         // Get sheen-specific repeat values if they exist
         const sheenRepeat = getSheenTextureRepeat(object);
-        
+
         // Log the values to debug
-        console.log('Sheen repeat values:', sheenRepeat);
-        
+        console.log("Sheen repeat values:", sheenRepeat);
+
         const materialData: Material = {
           // Other material properties remain the same
-          name: object.material.name || 'Material',
-          type: object.material.type || 'Material',
-          color: object.material.color ? { 
-            r: object.material.color.r, 
-            g: object.material.color.g, 
-            b: object.material.color.b 
-          } : '#ffffff',
-          roughness: object.material.roughness !== undefined ? object.material.roughness : 0.5,
-          metalness: object.material.metalness !== undefined ? object.material.metalness : 0,
-          opacity: object.material.opacity !== undefined ? object.material.opacity : 1,
+          name: object.material.name || "Material",
+          type: object.material.type || "Material",
+          color: object.material.color
+            ? {
+                r: object.material.color.r,
+                g: object.material.color.g,
+                b: object.material.color.b,
+              }
+            : "#ffffff",
+          roughness:
+            object.material.roughness !== undefined
+              ? object.material.roughness
+              : 0.5,
+          metalness:
+            object.material.metalness !== undefined
+              ? object.material.metalness
+              : 0,
+          opacity:
+            object.material.opacity !== undefined ? object.material.opacity : 1,
           map: object.material.map || null,
-          textureRepeat: { 
+          textureRepeat: {
             x: sharedRepeat.x || 1,
-            y: sharedRepeat.y || 1
+            y: sharedRepeat.y || 1,
           },
           normalMap: object.material.normalMap || null,
-          normalMapIntensity: object.material.normalScale ? object.material.normalScale.x : 1.0,
+          normalMapIntensity: object.material.normalScale
+            ? object.material.normalScale.x
+            : 1.0,
           roughnessMap: object.material.roughnessMap || null,
           metalnessMap: object.material.metalnessMap || null,
           alphaMap: object.material.alphaMap || null,
           aoMap: object.material.aoMap || null,
-          aoMapIntensity: object.material.aoMapIntensity !== undefined ? object.material.aoMapIntensity : 1.0,
-          sheenRoughness: object.material.sheenRoughness !== undefined ? object.material.sheenRoughness : 0,
-          sheenColor: object.material.sheenColor ? {
-            r: object.material.sheenColor.r,
-            g: object.material.sheenColor.g,
-            b: object.material.sheenColor.b
-          } : '#ffffff',
+          aoMapIntensity:
+            object.material.aoMapIntensity !== undefined
+              ? object.material.aoMapIntensity
+              : 1.0,
+          sheenRoughness:
+            object.material.sheenRoughness !== undefined
+              ? object.material.sheenRoughness
+              : 0,
+          sheenColor: object.material.sheenColor
+            ? {
+                r: object.material.sheenColor.r,
+                g: object.material.sheenColor.g,
+                b: object.material.sheenColor.b,
+              }
+            : "#ffffff",
           sheenColorMap: object.material.sheenColorMap || null,
           // Update this to use the new sheenRepeat values
-          sheenColorMapRepeat: { 
+          sheenColorMapRepeat: {
             x: sheenRepeat.x || 1,
-            y: sheenRepeat.y || 1
+            y: sheenRepeat.y || 1,
           },
-          sheenColorMap_channel: object.material.sheenColorMap?.channel || 0
+          sheenColorMap_channel: object.material.sheenColorMap?.channel || 0,
         };
-        
+
         setMaterial(materialData);
       } else {
-        console.log('No material found for mesh');
+        console.log("No material found for mesh");
         setMaterial(null);
         setIsMeshPhysicalMaterial(false);
       }
     } catch (error) {
-      console.error('Error accessing material:', error);
+      console.error("Error accessing material:", error);
       setMaterial(null);
       setIsMeshPhysicalMaterial(false);
     }
@@ -485,43 +582,43 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         } else {
           object.material.normalScale = { x: value, y: value };
         }
-        
+
         object.material.needsUpdate = true;
 
         // Update local state
-        setMaterial(prev => {
+        setMaterial((prev) => {
           if (!prev) return null;
           return { ...prev, normalMapIntensity: value };
         });
 
         // Request a render update
-        if (typeof modelViewerRef.current.requestRender === 'function') {
+        if (typeof modelViewerRef.current.requestRender === "function") {
           modelViewerRef.current.requestRender();
         }
       }
     } catch (error) {
-      console.error('Error updating normal map intensity:', error);
+      console.error("Error updating normal map intensity:", error);
     }
   };
 
-  if (!selectedNode || selectedNode.type !== 'Mesh' || !material) {
+  if (!selectedNode || selectedNode.type !== "Mesh" || !material) {
     return (
       <div className="space-y-2">
         <div className="text-gray-600 text-xs">
-          {!selectedNode 
-            ? 'Select a mesh to view its material properties.' 
-            : selectedNode.type !== 'Mesh' 
-              ? `${selectedNode.type} objects don't have materials.` 
-              : 'No material found for this mesh.'}
+          {!selectedNode
+            ? "Select a mesh to view its material properties."
+            : selectedNode.type !== "Mesh"
+            ? `${selectedNode.type} objects don't have materials.`
+            : "No material found for this mesh."}
         </div>
-        
+
         {selectedNode && (
           <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
             Debug: Selected {selectedNode.name} ({selectedNode.type})
             <br />
             UUID: {selectedNode.uuid}
             <br />
-            Material data: {material ? 'Available' : 'Not available'}
+            Material data: {material ? "Available" : "Not available"}
           </div>
         )}
       </div>
@@ -530,38 +627,37 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
 
   const parsePercentage = (input: string): number => {
     // Remove any '%' character
-    const cleaned = input.replace('%', '').trim();
+    const cleaned = input.replace("%", "").trim();
     // Parse as float and convert to 0-1 range
     return parseFloat(cleaned) / 100;
   };
-  
 
   return (
     <div className="text-sm">
       {/* Material header with color swatch */}
       <div className="flex items-center mb-4 pb-2 border-b border-gray-200">
-        <div 
-          className="w-6 h-6 rounded-full mr-2" 
+        <div
+          className="w-6 h-6 rounded-full mr-2"
           style={{ backgroundColor: getColorHex(material.color) }}
         ></div>
-        <span className="font-medium">{material.name || 'Material'}</span>
+        <span className="font-medium">{material.name || "Material"}</span>
       </div>
-      
+
       {/* Base Properties */}
       <div className="space-y-3">
         {/* Base Color */}
         <div className="flex items-center justify-between">
           <label className="text-sm">Base Color</label>
           <div className="flex items-center">
-            <input 
-              type="color" 
+            <ColorPicker
               value={getColorHex(material.color)}
-              onChange={(e) => handleColorChange(e, 'color')}
-              className="w-6 h-6 p-0 border-0"
+              onChange={(color) =>
+                handleColorChange({ target: { value: color } } as any, "color")
+              }
             />
           </div>
         </div>
-        
+
         {/* Base Color Map/Texture */}
         <TextureMapInput
           label="Base Color Map"
@@ -580,7 +676,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
               max={1}
               step={0.01}
               value={material.roughness || 0}
-              onChange={(value) => handlePropertyChange('roughness', value)}
+              onChange={(value) => handlePropertyChange("roughness", value)}
               displayFormat={(value) => `${Math.round(value * 100)}%`}
               parseInput={parsePercentage}
               sliderWidth="w-28"
@@ -588,7 +684,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
             />
           </div>
         </div>
-        
+
         {/* Roughness Map */}
         <TextureMapInput
           label="Roughness Map"
@@ -597,7 +693,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           onTextureUpload={handleTextureUpload}
           onTextureClear={clearTexture}
         />
-        
+
         {/* Metalness */}
         <div className="flex items-center justify-between">
           <label className="text-sm">Metalness</label>
@@ -607,7 +703,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
               max={1}
               step={0.01}
               value={material.metalness || 0}
-              onChange={(value) => handlePropertyChange('metalness', value)}
+              onChange={(value) => handlePropertyChange("metalness", value)}
               displayFormat={(value) => `${Math.round(value * 100)}%`}
               parseInput={parsePercentage}
               sliderWidth="w-28"
@@ -615,7 +711,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
             />
           </div>
         </div>
-                
+
         {/* Metalness Map */}
         <TextureMapInput
           label="Metalness Map"
@@ -624,7 +720,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           onTextureUpload={handleTextureUpload}
           onTextureClear={clearTexture}
         />
-        
+
         {/* Normal Map */}
         <TextureMapInput
           label="Normal Map"
@@ -643,7 +739,11 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                 min={0}
                 max={5}
                 step={0.1}
-                value={material.normalMapIntensity !== undefined ? material.normalMapIntensity : 1}
+                value={
+                  material.normalMapIntensity !== undefined
+                    ? material.normalMapIntensity
+                    : 1
+                }
                 onChange={(value) => handleNormalMapIntensityChange(value)}
                 displayFormat={(value) => value.toFixed(1)}
                 sliderWidth="w-28"
@@ -654,19 +754,29 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         )}
 
         {/* Shared texture tiling controls (for all base maps) */}
-        {(material.map || material.normalMap || material.roughnessMap || material.metalnessMap || material.alphaMap) && (
+        {(material.map ||
+          material.normalMap ||
+          material.roughnessMap ||
+          material.metalnessMap ||
+          material.alphaMap) && (
           <div className="mt-4 space-y-2 p-2 rounded border border-gray-200">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-xs font-medium text-gray-700">Texture Tiling</div>
-              <button 
+              <div className="text-xs font-medium text-gray-700">
+                Texture Tiling
+              </div>
+              <button
                 onClick={() => setUniformTiling(!uniformTiling)}
                 className="flex items-center text-xs text-gray-600 p-1 rounded hover:bg-gray-100"
-                title={uniformTiling ? "Using uniform tiling (X=Y)" : "Using separate X and Y tiling"}
+                title={
+                  uniformTiling
+                    ? "Using uniform tiling (X=Y)"
+                    : "Using separate X and Y tiling"
+                }
               >
                 {uniformTiling ? <Link size={16} /> : <Link2Off size={16} />}
               </button>
             </div>
-            
+
             {uniformTiling ? (
               <div className="flex items-center justify-between">
                 <label className="text-xs text-gray-600">Uniform Tiling</label>
@@ -675,7 +785,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                   min="0.1"
                   step="0.1"
                   value={material.textureRepeat?.x || 1}
-                  onChange={(e) => handleUniformTilingChange(parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    handleUniformTilingChange(parseFloat(e.target.value))
+                  }
                   className="w-20 text-xs p-1 border rounded"
                 />
               </div>
@@ -688,7 +800,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                     min="0.1"
                     step="0.1"
                     value={material.textureRepeat?.x || 1}
-                    onChange={(e) => handleSharedTilingChange('x', parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleSharedTilingChange("x", parseFloat(e.target.value))
+                    }
                     className="w-20 text-xs p-1 border rounded"
                   />
                 </div>
@@ -699,7 +813,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                     min="0.1"
                     step="0.1"
                     value={material.textureRepeat?.y || 1}
-                    onChange={(e) => handleSharedTilingChange('y', parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleSharedTilingChange("y", parseFloat(e.target.value))
+                    }
                     className="w-20 text-xs p-1 border rounded"
                   />
                 </div>
@@ -707,7 +823,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
             )}
           </div>
         )}
-        
+
         {/* AO Map */}
         <TextureMapInput
           label="Ambient Occlusion"
@@ -716,7 +832,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           onTextureUpload={handleTextureUpload}
           onTextureClear={clearTexture}
         />
-        
+
         {/* AO Map Intensity (only show if AO map exists) */}
         {material.aoMap && (
           <div className="flex items-center justify-between">
@@ -726,8 +842,14 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                 min={0}
                 max={1}
                 step={0.01}
-                value={material.aoMapIntensity !== undefined ? material.aoMapIntensity : 1}
-                onChange={(value) => handlePropertyChange('aoMapIntensity', value)}
+                value={
+                  material.aoMapIntensity !== undefined
+                    ? material.aoMapIntensity
+                    : 1
+                }
+                onChange={(value) =>
+                  handlePropertyChange("aoMapIntensity", value)
+                }
                 displayFormat={(value) => `${Math.round(value * 100)}%`}
                 parseInput={parsePercentage}
                 sliderWidth="w-28"
@@ -737,17 +859,17 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           </div>
         )}
       </div>
-      
+
       {/* Advanced options */}
       <div className="mt-4 border-t border-gray-200 pt-2">
-        <button 
+        <button
           className="flex items-center text-sm font-medium w-full justify-between py-1"
           onClick={() => setAdvancedOpen(!advancedOpen)}
         >
           Advanced options
           {advancedOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
-        
+
         {advancedOpen && (
           <div className="mt-4 space-y-4">
             {/* Opacity */}
@@ -759,7 +881,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                   max={1}
                   step={0.01}
                   value={material.opacity !== undefined ? material.opacity : 1}
-                  onChange={(value) => handlePropertyChange('opacity', value)}
+                  onChange={(value) => handlePropertyChange("opacity", value)}
                   displayFormat={(value) => `${Math.round(value * 100)}%`}
                   parseInput={parsePercentage}
                   sliderWidth="w-28"
@@ -767,7 +889,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                 />
               </div>
             </div>
-            
+
             {/* Alpha Map (Opacity Map) */}
             <TextureMapInput
               label="Opacity Map"
@@ -780,33 +902,38 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
             {isMeshPhysicalMaterial ? (
               <div className="space-y-3">
                 <h3 className="text-sm font-medium">Sheen Properties</h3>
-                
+
                 {/* Sheen Roughness */}
                 <div className="flex items-center justify-between">
-                <label className="text-sm">Sheen Roughness</label>
-                <div className="flex items-center">
-                  <SliderWithInput
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={material.sheenRoughness || 0}
-                    onChange={(value) => handlePropertyChange('sheenRoughness', value)}
-                    displayFormat={(value) => `${Math.round(value * 100)}%`}
-                    parseInput={parsePercentage}
-                    sliderWidth="w-28"
-                    inputWidth="w-12"
-                  />
+                  <label className="text-sm">Sheen Roughness</label>
+                  <div className="flex items-center">
+                    <SliderWithInput
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={material.sheenRoughness || 0}
+                      onChange={(value) =>
+                        handlePropertyChange("sheenRoughness", value)
+                      }
+                      displayFormat={(value) => `${Math.round(value * 100)}%`}
+                      parseInput={parsePercentage}
+                      sliderWidth="w-28"
+                      inputWidth="w-12"
+                    />
+                  </div>
                 </div>
-              </div>
                 {/* Sheen Color */}
                 <div className="flex items-center justify-between">
                   <label className="text-sm">Sheen Color</label>
                   <div className="flex items-center">
-                    <input 
-                      type="color" 
+                    <ColorPicker
                       value={getColorHex(material.sheenColor)}
-                      onChange={(e) => handleColorChange(e, 'sheenColor')}
-                      className="w-6 h-6 p-0 border-0"
+                      onChange={(color) =>
+                        handleColorChange(
+                          { target: { value: color } } as any,
+                          "sheenColor"
+                        )
+                      }
                     />
                   </div>
                 </div>
@@ -824,49 +951,81 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                 {material.sheenColorMap && (
                   <div className="space-y-2 p-2 rounded border border-gray-200">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs font-medium text-gray-700">Sheen Tiling</div>
-                      <button 
-                        onClick={() => setUniformSheenTiling(!uniformSheenTiling)}
+                      <div className="text-xs font-medium text-gray-700">
+                        Sheen Tiling
+                      </div>
+                      <button
+                        onClick={() =>
+                          setUniformSheenTiling(!uniformSheenTiling)
+                        }
                         className="flex items-center text-xs text-gray-600 p-1 rounded hover:bg-gray-100"
-                        title={uniformSheenTiling ? "Using uniform tiling (X=Y)" : "Using separate X and Y tiling"}
+                        title={
+                          uniformSheenTiling
+                            ? "Using uniform tiling (X=Y)"
+                            : "Using separate X and Y tiling"
+                        }
                       >
-                        {uniformSheenTiling ? <Link size={16} /> : <Link2Off size={16} />}
+                        {uniformSheenTiling ? (
+                          <Link size={16} />
+                        ) : (
+                          <Link2Off size={16} />
+                        )}
                       </button>
                     </div>
-                    
+
                     {uniformSheenTiling ? (
                       <div className="flex items-center justify-between">
-                        <label className="text-xs text-gray-600">Uniform Tiling</label>
+                        <label className="text-xs text-gray-600">
+                          Uniform Tiling
+                        </label>
                         <input
                           type="number"
                           min="0.1"
                           step="0.1"
-                          value={(material.sheenColorMapRepeat?.x || 1)}
-                          onChange={(e) => handleUniformSheenTilingChange(parseFloat(e.target.value))}
+                          value={material.sheenColorMapRepeat?.x || 1}
+                          onChange={(e) =>
+                            handleUniformSheenTilingChange(
+                              parseFloat(e.target.value)
+                            )
+                          }
                           className="w-20 text-xs p-1 border rounded"
                         />
                       </div>
                     ) : (
                       <>
                         <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-600">Tiling X</label>
+                          <label className="text-xs text-gray-600">
+                            Tiling X
+                          </label>
                           <input
                             type="number"
                             min="0.1"
                             step="0.1"
                             value={material.sheenColorMapRepeat?.x || 1}
-                            onChange={(e) => handleSheenTilingChange('x', parseFloat(e.target.value))}
+                            onChange={(e) =>
+                              handleSheenTilingChange(
+                                "x",
+                                parseFloat(e.target.value)
+                              )
+                            }
                             className="w-20 text-xs p-1 border rounded"
                           />
                         </div>
                         <div className="flex items-center justify-between">
-                          <label className="text-xs text-gray-600">Tiling Y</label>
+                          <label className="text-xs text-gray-600">
+                            Tiling Y
+                          </label>
                           <input
                             type="number"
                             min="0.1"
                             step="0.1"
                             value={material.sheenColorMapRepeat?.y || 1}
-                            onChange={(e) => handleSheenTilingChange('y', parseFloat(e.target.value))}
+                            onChange={(e) =>
+                              handleSheenTilingChange(
+                                "y",
+                                parseFloat(e.target.value)
+                              )
+                            }
                             className="w-20 text-xs p-1 border rounded"
                           />
                         </div>
@@ -881,9 +1040,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                   <div className="flex space-x-2">
                     <button
                       className={`px-2 py-1 text-xs rounded ${
-                        material.sheenColorMap_channel === 0 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-gray-200 hover:bg-gray-300'
+                        material.sheenColorMap_channel === 0
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 hover:bg-gray-300"
                       }`}
                       onClick={() => handleUVSetChange(0)}
                     >
@@ -891,9 +1050,9 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
                     </button>
                     <button
                       className={`px-2 py-1 text-xs rounded ${
-                        material.sheenColorMap_channel === 1 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-gray-200 hover:bg-gray-300'
+                        material.sheenColorMap_channel === 1
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 hover:bg-gray-300"
                       }`}
                       onClick={() => handleUVSetChange(1)}
                     >

@@ -231,19 +231,23 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
     switch (component) {
       case "scene":
         return (
-          <div className="h-full p-4 bg-[#FAFAFA] overflow-auto">
-            <h3 className="text-sm font-medium mb-4">Scene Hierarchy</h3>
-            {modelStructure ? (
-              <StructureTree
-                node={modelStructure}
-                onNodeSelect={onNodeSelect}
-                selectedNode={selectedNode}
-              />
-            ) : (
-              <p className="text-gray-600 text-xs px-4">
-                No model loaded or structure data not available.
-              </p>
-            )}
+          <div className="h-full flex flex-col bg-[#FAFAFA]">
+            <div className="flex-shrink-0 p-4 pb-2">
+              <h3 className="text-sm font-medium">Scene Hierarchy</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pb-4">
+              {modelStructure ? (
+                <StructureTree
+                  node={modelStructure}
+                  onNodeSelect={onNodeSelect}
+                  selectedNode={selectedNode}
+                />
+              ) : (
+                <p className="text-gray-600 text-xs">
+                  No model loaded or structure data not available.
+                </p>
+              )}
+            </div>
           </div>
         );
 
@@ -271,36 +275,44 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
 
       case "materials":
         return (
-          <div className="h-full p-4 bg-[#FAFAFA] overflow-auto">
-            <h3 className="text-sm font-medium mb-4">Material Properties</h3>
-            {selectedNode ? (
-              <>
-                <div className="mb-2 text-xs text-gray-600">
+          <div className="h-full flex flex-col bg-[#FAFAFA]">
+            <div className="flex-shrink-0 p-4 pb-2">
+              <h3 className="text-sm font-medium mb-2">Material Properties</h3>
+              {selectedNode && (
+                <div className="text-xs text-gray-600">
                   Selected: {selectedNode.name} ({selectedNode.type})
                 </div>
+              )}
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pb-4">
+              {selectedNode ? (
                 <MaterialProperties
                   selectedNode={selectedNode}
                   modelViewerRef={modelViewerRef}
                   variantChangeCounter={variantChangeCounter} // Pass the counter
                 />
-              </>
-            ) : (
-              <div className="text-gray-600 text-xs">
-                Select a mesh to view its material properties.
-              </div>
-            )}
+              ) : (
+                <div className="text-gray-600 text-xs">
+                  Select a mesh to view its material properties.
+                </div>
+              )}
+            </div>
           </div>
         );
 
       case "variants":
         return (
-          <div className="h-full p-4 bg-[#FAFAFA] overflow-auto">
-            <h3 className="text-sm font-medium mb-4">Variants</h3>
-            <MaterialVariants
-              modelViewerRef={modelViewerRef}
-              onVariantChange={handleVariantChange} // Use local handler
-              selectedNode={selectedNode} // Pass selectedNode
-            />
+          <div className="h-full flex flex-col bg-[#FAFAFA]">
+            <div className="flex-shrink-0 p-4 pb-2">
+              <h3 className="text-sm font-medium">Variants</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pb-4">
+              <MaterialVariants
+                modelViewerRef={modelViewerRef}
+                onVariantChange={handleVariantChange} // Use local handler
+                selectedNode={selectedNode} // Pass selectedNode
+              />
+            </div>
           </div>
         );
 

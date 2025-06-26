@@ -61230,26 +61230,26 @@ class ModelViewerElementBase extends u$1 {
     } finally {
       {
         const variantNames = this.availableVariants;
-        if (variantNames.length != 0) {
-          const select = document.createElement("select");
-          select.style.position = "absolute";
-          select.className = "charpstar-selector";
-          for (const variantName of variantNames) {
-            const option = document.createElement("option");
-            option.value = variantName;
-            option.text = variantName;
-            select.appendChild(option);
-          }
-          this.appendChild(select);
-          this.variantName = this.availableVariants[0];
-          select.addEventListener("input", (event) => {
-            this.variantName = event.target.value;
-          });
-        } else {
-          if (this.querySelector(".charpstar-selector")) {
-            this.querySelector(".charpstar-selector").remove();
-          }
-        }
+        // if (variantNames.length != 0) {
+        //   const select = document.createElement("select");
+        //   select.style.position = "absolute";
+        //   select.className = "charpstar-selector";
+        //   for (const variantName of variantNames) {
+        //     const option = document.createElement("option");
+        //     option.value = variantName;
+        //     option.text = variantName;
+        //     select.appendChild(option);
+        //   }
+        //   this.appendChild(select);
+        //   this.variantName = this.availableVariants[0];
+        //   select.addEventListener("input", (event) => {
+        //     this.variantName = event.target.value;
+        //   });
+        // } else {
+        //   if (this.querySelector(".charpstar-selector")) {
+        //     this.querySelector(".charpstar-selector").remove();
+        //   }
+        // }
         this.cameraOrbit = "20deg 70deg 100%";
         if (this.firstTime) {
           const htmlContent = `
