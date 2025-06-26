@@ -90,7 +90,6 @@ const ModelViewer = ({ onModelLoaded }) => {
             src={modelSrc}
             alt="A 3D model"
             id="model-viewer"
-            disable-pan
             shadow-intensity="0.5"
             environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
             exposure="1.2"

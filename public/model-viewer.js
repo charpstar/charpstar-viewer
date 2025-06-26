@@ -61329,8 +61329,8 @@ class ModelViewerElementBase extends u$1 {
 														 display: flex;
 												  z-index: 200;
 												  position: absolute;
-												  bottom: 15px;
-												  right: 2px;
+												  bottom: 20px;
+												  right: 30px;
 												  flex-direction: column;
 											  }
 		  

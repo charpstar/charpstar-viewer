@@ -299,15 +299,17 @@ export default function Home() {
               "environment-image",
               "https://cdn.charpstar.net/Demos/warm.hdr"
             );
-            modelViewer.setAttribute("exposure", "1.3");
-            modelViewer.setAttribute("tone-mapping", "commerce");
+            // Apply current state values instead of hardcoded defaults
+            modelViewer.setAttribute("exposure", exposure.toString());
+            modelViewer.setAttribute("tone-mapping", toneMapping);
           } else if (activeEnvironment === "v6") {
             modelViewer.setAttribute(
               "environment-image",
               "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
             );
-            modelViewer.setAttribute("exposure", "1.2");
-            modelViewer.setAttribute("tone-mapping", "aces");
+            // Apply current state values instead of hardcoded defaults
+            modelViewer.setAttribute("exposure", exposure.toString());
+            modelViewer.setAttribute("tone-mapping", toneMapping);
           }
         }
 
@@ -421,7 +423,25 @@ export default function Home() {
         modelViewerRef.current.removeEventListener("load", fetchModelStructure);
       }
     };
-  }, [activeEnvironment, isSynsam, exposure, toneMapping]); // Add exposure and toneMapping to dependencies
+  }, [activeEnvironment, isSynsam, exposure, toneMapping]); // Include all dependencies for React compliance
+
+  // Separate effect to apply user control changes to model-viewer
+  useEffect(() => {
+    const modelViewer = document.getElementById("model-viewer");
+    if (
+      modelViewer &&
+      !isSynsam &&
+      (activeEnvironment === "v5" || activeEnvironment === "v6")
+    ) {
+      // Apply current exposure and toneMapping values
+      modelViewer.setAttribute("exposure", exposure.toString());
+      modelViewer.setAttribute("tone-mapping", toneMapping);
+
+      if (typeof (modelViewer as any).requestRender === "function") {
+        (modelViewer as any).requestRender();
+      }
+    }
+  }, [exposure, toneMapping, isSynsam, activeEnvironment]);
 
   // Handler for variant change
   const handleVariantChange = () => {
