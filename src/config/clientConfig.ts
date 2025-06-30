@@ -15,6 +15,10 @@ export interface ClientConfig {
   // Security
   livePassword: string;
   
+  // Model viewer display settings
+  exposure: number;
+  toneMapping: string;
+  
   // BunnyCDN specific paths
   bunnyCdn: {
     basePath: string;          
@@ -32,6 +36,8 @@ const DEFAULT_CONFIG: ClientConfig = {
   scriptPath: "/model-viewer.js",
   resourcesPath: "",
   livePassword: "",
+  exposure: 1.0,
+  toneMapping: "neutral",
   bunnyCdn: {
     basePath: "Client-Editor/Default",
     resourcesFolder: "resources",
@@ -49,6 +55,8 @@ export const clients: Record<string, ClientConfig> = {
     scriptPath: "/sweef-viewer-13.js",
     resourcesPath: "SweefV2",
     livePassword: "sweef2024",
+    exposure: 1.4,
+    toneMapping: "auto",
     bunnyCdn: {
       basePath: "Client-Editor/SweefV2",
       resourcesFolder: "resources",
@@ -59,10 +67,12 @@ export const clients: Record<string, ClientConfig> = {
     name: "Artwood",
     description: "Artwood Editor",
     modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/7844-4401-2.gltf",
-    hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
+    hdrPath: "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr",
     scriptPath: "/model-viewer.js",
     resourcesPath: "Artwood",
     livePassword: "artwood2024",
+    exposure: 1.5,
+    toneMapping: "aces",
     bunnyCdn: {
       basePath: "Client-Editor/Artwood",
       resourcesFolder: "resources",

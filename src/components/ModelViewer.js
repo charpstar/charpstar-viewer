@@ -15,8 +15,11 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
   const modelLoadedRef = useRef(false);
   const modelViewerElementRef = useRef(null);
 
-  // Get the appropriate environment image based on client
-  const environmentImage = getClientConfig(clientName).hdrPath;
+  // Get the client configuration
+  const clientConfig = getClientConfig(clientName);
+  const environmentImage = clientConfig.hdrPath;
+  const exposure = clientConfig.exposure || 1.0;
+  const toneMapping = clientConfig.toneMapping || 'neutral';
 
   useEffect(() => {
     setIsClient(true);
@@ -117,8 +120,8 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
             interaction-prompt = "none"
             shadow-intensity="0"
             environment-image={environmentImage}
-            exposure="1"
-            tone-mapping="auto"
+            exposure={exposure}
+            tone-mapping={toneMapping}
             camera-orbit="0deg 75deg auto"
             style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
             camera-controls
