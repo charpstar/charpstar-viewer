@@ -9,11 +9,54 @@ const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
 const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
 const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || ''; 
 
+// Development fallback data for when BunnyCDN is not configured
+const DEVELOPMENT_FALLBACK_MODELS: Record<string, string[]> = {
+  Artwood: [
+    'ARW-1001-1.gltf',
+    'ARW-1001-2.gltf', 
+    'ARW-1002-1.gltf',
+    'ARW-1002-2.gltf',
+    'ARW-1003-1.gltf',
+    'ARW-2001-1.gltf',
+    'ARW-2001-2.gltf',
+    'ARW-2002-1.gltf',
+    'ARW-3001-1.gltf',
+    'ARW-3001-2.gltf',
+    'TABLE-101.gltf',
+    'TABLE-102.gltf',
+    'TABLE-103.gltf',
+    'CHAIR-201.gltf',
+    'CHAIR-202.gltf',
+    'CHAIR-203.gltf',
+    'CABINET-301.gltf',
+    'CABINET-302.gltf',
+    'DESK-401.gltf',
+    'DESK-402.gltf'
+  ],
+  SweefV2: [
+    'TIG-1.gltf',
+    'TIG-2.gltf',
+    'TIG-3.gltf',
+    'TIG-4.gltf',
+    'TIG-5.gltf',
+    'SWEEF-101.gltf',
+    'SWEEF-102.gltf',
+    'SWEEF-103.gltf',
+    'SWEEF-201.gltf',
+    'SWEEF-202.gltf'
+  ]
+};
+
 // Helper to extract the zone name from the environment variable
 const getStorageZoneDetails = () => {
   const parts = STORAGE_ZONE_PATH.split('/');
   const zoneName = parts[0];
   return { zoneName };
+};
+
+// Check if BunnyCDN is properly configured
+const isBunnyCDNConfigured = (): boolean => {
+  return !!(STORAGE_ZONE_PATH && ACCESS_KEY);
 };
 
 // Helper to filter valid model filenames
@@ -133,8 +176,16 @@ const fetchFilesFromBunnyCDN = async (path: string): Promise<string[]> => {
   });
 };
 
-// Get client models from BunnyCDN
+// Get client models from BunnyCDN or development fallback
 const getClientModels = async (clientName: string): Promise<string[]> => {
+  // Check if BunnyCDN is configured
+  if (!isBunnyCDNConfigured()) {
+    console.log(`BunnyCDN not configured, using development fallback for client: ${clientName}`);
+    const fallbackModels = DEVELOPMENT_FALLBACK_MODELS[clientName] || [];
+    console.log(`Returning ${fallbackModels.length} fallback models:`, fallbackModels);
+    return fallbackModels;
+  }
+
   try {
     const clientConfig = getClientConfig(clientName);
     const basePath = clientConfig.bunnyCdn.basePath;
@@ -150,8 +201,9 @@ const getClientModels = async (clientName: string): Promise<string[]> => {
     return models;
   } catch (error) {
     console.error('Error fetching models from BunnyCDN:', error);
-    // Return empty array instead of using fallback
-    return [];
+    console.log(`Falling back to development data for client: ${clientName}`);
+    const fallbackModels = DEVELOPMENT_FALLBACK_MODELS[clientName] || [];
+    return fallbackModels;
   }
 };
 

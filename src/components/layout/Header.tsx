@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Save, Download, ArrowLeft } from 'lucide-react';
 import { useParams, usePathname } from 'next/navigation';
 import { isValidClient } from '@/config/clientConfig';
+import ModelSelector from '@/components/ModelSelector';
 
 interface HeaderProps {
   modelViewerRef?: React.RefObject<any>;
@@ -16,6 +17,9 @@ interface HeaderProps {
   onSave?: () => void;
   isSaving?: boolean;
   title?: string; // Added title prop
+  onModelChange?: (modelUrl: string, modelName: string) => void;
+  currentModel?: string;
+  cacheTimestamp?: number | null;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -26,6 +30,9 @@ const Header: React.FC<HeaderProps> = ({
   onSave,
   isSaving = false,
   title,
+  onModelChange,
+  currentModel,
+  cacheTimestamp,
 }) => {
   const params = useParams();
   const pathname = usePathname();
@@ -50,6 +57,17 @@ const Header: React.FC<HeaderProps> = ({
         {title && (
           <div className="ml-6 text-lg font-medium text-gray-700">
             {title}
+          </div>
+        )}
+        
+        {/* Model Selector for Editor Mode */}
+        {isEditorMode && onModelChange && (
+          <div className="ml-8">
+            <ModelSelector 
+              onModelChange={onModelChange}
+              currentModel={currentModel}
+              cacheTimestamp={cacheTimestamp}
+            />
           </div>
         )}
       </div>

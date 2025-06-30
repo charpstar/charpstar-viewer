@@ -54998,24 +54998,60 @@ async downloadMaterialsJson() {
     return null;
   }
 }
-	async saveGLTF() {
-	  try {
-	    // Get updated materials
-	    const updatedMaterials = await this.downloadMaterialsJson();
-	    if (!updatedMaterials) {
-	      throw new Error('Failed to get updated materials');
-	    }
-	    console.log('saveGLTF output:', {
-	      materialCount: updatedMaterials?.length || 0,
-	    });
-	    return {
-	      materials: updatedMaterials,
-	    };
-	  } catch (error) {
-	    console.error('Error getting resource JSON:', error);
-	    throw error;
+async saveGLTF() {
+	try {
+	  const modelViewer = this;
+	  const src = modelViewer.src;
+	  const baseUrl = src.substring(0, src.lastIndexOf('/') + 1);
+	  const resourcesUrl = baseUrl + 'resources/';
+	  
+	  // Get updated materials
+	  const updatedMaterials = await this.downloadMaterialsJson();
+	  if (!updatedMaterials) {
+		throw new Error('Failed to get updated materials');
 	  }
+	  
+	  // Load original GLTF file
+	  const gltfResponse = await fetch(src);
+	  if (!gltfResponse.ok) {
+		throw new Error(`Failed to fetch GLTF: ${gltfResponse.status} ${gltfResponse.statusText}`);
+	  }
+	  const gltfJson = await gltfResponse.json();
+	  
+	  // Load and merge textures.json
+	  const texturesResponse = await fetch(resourcesUrl + 'textures.json');
+	  if (!texturesResponse.ok) {
+		throw new Error(`Failed to load textures.json: ${texturesResponse.status}`);
+	  }
+	  const texturesData = await texturesResponse.json();
+	  gltfJson.textures = texturesData;
+	  
+	  // Load and merge images.json
+	  const imagesResponse = await fetch(resourcesUrl + 'images.json');
+	  if (!imagesResponse.ok) {
+		throw new Error(`Failed to load images.json: ${imagesResponse.status}`);
+	  }
+	  const imagesData = await imagesResponse.json();
+	  
+	  // Merge images - keep existing embedded images, add external ones
+	  const existingImages = Array.isArray(gltfJson.images) ? gltfJson.images : [];
+	  gltfJson.images = [...existingImages, ...imagesData];
+	  
+	  // Apply updated materials and remove external references
+	  gltfJson.materials = updatedMaterials;
+	  if (gltfJson.externalImagesUri) {
+		delete gltfJson.externalImagesUri;
+	  }
+	  
+	  return {
+		materials: updatedMaterials,
+		gltf: JSON.stringify(gltfJson, null, 2)
+	  };
+	} catch (error) {
+	  console.error('Error in saveGLTF:', error);
+	  throw error;
 	}
+  }
 
 	async setupExternalResources() {
 	  var modelViewer = this;

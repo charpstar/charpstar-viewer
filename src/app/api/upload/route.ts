@@ -1,7 +1,6 @@
 // src/app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import https from 'https';
-import fetch from 'node-fetch';
 import { getDefaultClientName, getClientConfig } from '@/config/clientConfig';
 
 const REGION = process.env.BUNNY_REGION || '';
@@ -44,27 +43,45 @@ export async function POST(request: NextRequest) {
     // Extract the data and filename
     const resourceData = requestBody.data;
     const filename = requestBody.filename;
+    const customTargetFolder = requestBody.targetFolder; // Optional: specify target folder
     
     // Log what we're trying to process
     console.log(`Processing upload for ${filename} with data of type ${typeof resourceData}`);
     
     // Validate the filename is one of our expected types
     const validFilenames = ['materials.json', 'textures.json', 'images.json'];
-    if (!validFilenames.includes(filename)) {
+    const isGltfFile = filename.endsWith('.gltf');
+    
+    if (!validFilenames.includes(filename) && !isGltfFile) {
       console.error(`Invalid filename: ${filename}`);
-      return NextResponse.json({ error: 'Invalid filename. Must be one of: ' + validFilenames.join(', ') }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid filename. Must be one of: ' + validFilenames.join(', ') + ' or a .gltf file' }, { status: 400 });
     }
 
-    let jsonString;
+    let dataString;
+    let contentType;
+    
     try {
-      jsonString = JSON.stringify(resourceData, null, 2);
-      console.log(`Successfully stringified ${filename} data, length: ${jsonString.length}`);
+      if (isGltfFile) {
+        // For GLTF files, data should already be a string
+        if (typeof resourceData === 'string') {
+          dataString = resourceData;
+        } else {
+          dataString = JSON.stringify(resourceData, null, 2);
+        }
+        contentType = 'model/gltf+json';
+        console.log(`Processing GLTF file ${filename}, length: ${dataString.length}`);
+      } else {
+        // For JSON files, stringify the data
+        dataString = JSON.stringify(resourceData, null, 2);
+        contentType = 'application/json';
+        console.log(`Successfully stringified ${filename} data, length: ${dataString.length}`);
+      }
     } catch (stringifyError) {
-      console.error(`Error stringifying ${filename} data:`, stringifyError);
-      return NextResponse.json({ error: 'Failed to stringify JSON data' }, { status: 500 });
+      console.error(`Error processing ${filename} data:`, stringifyError);
+      return NextResponse.json({ error: 'Failed to process file data' }, { status: 500 });
     }
     
-    const buffer = Buffer.from(jsonString);
+    const buffer = Buffer.from(dataString);
     
     // Get storage zone details
     const { zoneName, basePath } = getStorageZoneDetails();
@@ -76,8 +93,15 @@ export async function POST(request: NextRequest) {
     // Get client-specific BunnyCDN configuration
     const clientConfig = getClientConfig(clientName);
     
-    // Determine the appropriate folder based on file type
-    let targetFolder = clientConfig.bunnyCdn.resourcesFolder;
+    // Determine the appropriate folder based on file type and custom target
+    let targetFolder;
+    if (customTargetFolder) {
+      targetFolder = customTargetFolder;
+    } else if (isGltfFile) {
+      targetFolder = 'Uploads'; // GLTF files go to Uploads folder by default
+    } else {
+      targetFolder = clientConfig.bunnyCdn.resourcesFolder; // JSON files go to resources
+    }
     
     // Construct the path for the file in BunnyCDN using client-specific paths
     const filePath = `${clientConfig.bunnyCdn.basePath}/${targetFolder}/${filename}`;
@@ -91,7 +115,7 @@ export async function POST(request: NextRequest) {
         path: `/${zoneName}/${filePath}`,
         headers: {
           AccessKey: ACCESS_KEY,
-          'Content-Type': 'application/json',
+          'Content-Type': contentType,
           'Content-Length': buffer.length,
         },
       };

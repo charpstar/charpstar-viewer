@@ -55,16 +55,16 @@ export const clients: Record<string, ClientConfig> = {
       imagesFolder: "images"
     }
   },
-  ArtwoodTest: {
-    name: "ArtwoodTest",
+  Artwood: {
+    name: "Artwood",
     description: "Artwood Editor",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/ArtwoodTest/VAL-3.gltf",
+    modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/7844-4401-2.gltf",
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
-    scriptPath: "/sweef-viewer-13.js",
+    scriptPath: "/model-viewer.js",
     resourcesPath: "Artwood",
     livePassword: "artwood2024",
     bunnyCdn: {
-      basePath: "Client-Editor/ArtwoodTest",
+      basePath: "Client-Editor/Artwood",
       resourcesFolder: "resources",
       imagesFolder: "images"
     }
