@@ -2780,9 +2780,9 @@ class Vector4 {
 }
 
 /*
- In options, we can specify:
- * Texture parameters for an auto-generated target texture
- * depthBuffer/stencilBuffer: Booleans to indicate if we should generate these buffers
+In options, we can specify:
+* Texture parameters for an auto-generated target texture
+* depthBuffer/stencilBuffer: Booleans to indicate if we should generate these buffers
 */
 class RenderTarget extends EventDispatcher {
   constructor(width = 1, height = 1, options = {}) {
@@ -11782,42 +11782,42 @@ class WebGLCubeRenderTarget extends WebGLRenderTarget {
 
       vertexShader: /* glsl */ `
 
-				varying vec3 vWorldDirection;
+      varying vec3 vWorldDirection;
 
-				vec3 transformDirection( in vec3 dir, in mat4 matrix ) {
+      vec3 transformDirection( in vec3 dir, in mat4 matrix ) {
 
-					return normalize( ( matrix * vec4( dir, 0.0 ) ).xyz );
+        return normalize( ( matrix * vec4( dir, 0.0 ) ).xyz );
 
-				}
+      }
 
-				void main() {
+      void main() {
 
-					vWorldDirection = transformDirection( position, modelMatrix );
+        vWorldDirection = transformDirection( position, modelMatrix );
 
-					#include <begin_vertex>
-					#include <project_vertex>
+        #include <begin_vertex>
+        #include <project_vertex>
 
-				}
-			`,
+      }
+    `,
 
       fragmentShader: /* glsl */ `
 
-				uniform sampler2D tEquirect;
+      uniform sampler2D tEquirect;
 
-				varying vec3 vWorldDirection;
+      varying vec3 vWorldDirection;
 
-				#include <common>
+      #include <common>
 
-				void main() {
+      void main() {
 
-					vec3 direction = normalize( vWorldDirection );
+        vec3 direction = normalize( vWorldDirection );
 
-					vec2 sampleUV = equirectUv( direction );
+        vec2 sampleUV = equirectUv( direction );
 
-					gl_FragColor = texture2D( tEquirect, sampleUV );
+        gl_FragColor = texture2D( tEquirect, sampleUV );
 
-				}
-			`,
+      }
+    `,
     };
 
     const geometry = new BoxGeometry(5, 5, 5);
@@ -15523,65 +15523,65 @@ function _getBlurShader(lodMax, width, height) {
 
     fragmentShader: /* glsl */ `
 
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			varying vec3 vOutputDirection;
+    varying vec3 vOutputDirection;
 
-			uniform sampler2D envMap;
-			uniform int samples;
-			uniform float weights[ n ];
-			uniform bool latitudinal;
-			uniform float dTheta;
-			uniform float mipInt;
-			uniform vec3 poleAxis;
+    uniform sampler2D envMap;
+    uniform int samples;
+    uniform float weights[ n ];
+    uniform bool latitudinal;
+    uniform float dTheta;
+    uniform float mipInt;
+    uniform vec3 poleAxis;
 
-			#define ENVMAP_TYPE_CUBE_UV
-			#include <cube_uv_reflection_fragment>
+    #define ENVMAP_TYPE_CUBE_UV
+    #include <cube_uv_reflection_fragment>
 
-			vec3 getSample( float theta, vec3 axis ) {
+    vec3 getSample( float theta, vec3 axis ) {
 
-				float cosTheta = cos( theta );
-				// Rodrigues' axis-angle rotation
-				vec3 sampleDirection = vOutputDirection * cosTheta
-					+ cross( axis, vOutputDirection ) * sin( theta )
-					+ axis * dot( axis, vOutputDirection ) * ( 1.0 - cosTheta );
+      float cosTheta = cos( theta );
+      // Rodrigues' axis-angle rotation
+      vec3 sampleDirection = vOutputDirection * cosTheta
+        + cross( axis, vOutputDirection ) * sin( theta )
+        + axis * dot( axis, vOutputDirection ) * ( 1.0 - cosTheta );
 
-				return bilinearCubeUV( envMap, sampleDirection, mipInt );
+      return bilinearCubeUV( envMap, sampleDirection, mipInt );
 
-			}
+    }
 
-			void main() {
+    void main() {
 
-				vec3 axis = latitudinal ? poleAxis : cross( poleAxis, vOutputDirection );
+      vec3 axis = latitudinal ? poleAxis : cross( poleAxis, vOutputDirection );
 
-				if ( all( equal( axis, vec3( 0.0 ) ) ) ) {
+      if ( all( equal( axis, vec3( 0.0 ) ) ) ) {
 
-					axis = vec3( vOutputDirection.z, 0.0, - vOutputDirection.x );
+        axis = vec3( vOutputDirection.z, 0.0, - vOutputDirection.x );
 
-				}
+      }
 
-				axis = normalize( axis );
+      axis = normalize( axis );
 
-				gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
-				gl_FragColor.rgb += weights[ 0 ] * getSample( 0.0, axis );
+      gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+      gl_FragColor.rgb += weights[ 0 ] * getSample( 0.0, axis );
 
-				for ( int i = 1; i < n; i++ ) {
+      for ( int i = 1; i < n; i++ ) {
 
-					if ( i >= samples ) {
+        if ( i >= samples ) {
 
-						break;
+          break;
 
-					}
+        }
 
-					float theta = dTheta * float( i );
-					gl_FragColor.rgb += weights[ i ] * getSample( -1.0 * theta, axis );
-					gl_FragColor.rgb += weights[ i ] * getSample( theta, axis );
+        float theta = dTheta * float( i );
+        gl_FragColor.rgb += weights[ i ] * getSample( -1.0 * theta, axis );
+        gl_FragColor.rgb += weights[ i ] * getSample( theta, axis );
 
-				}
+      }
 
-			}
-		`,
+    }
+  `,
 
     blending: NoBlending,
     depthTest: false,
@@ -15603,24 +15603,24 @@ function _getEquirectMaterial() {
 
     fragmentShader: /* glsl */ `
 
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			varying vec3 vOutputDirection;
+    varying vec3 vOutputDirection;
 
-			uniform sampler2D envMap;
+    uniform sampler2D envMap;
 
-			#include <common>
+    #include <common>
 
-			void main() {
+    void main() {
 
-				vec3 outputDirection = normalize( vOutputDirection );
-				vec2 uv = equirectUv( outputDirection );
+      vec3 outputDirection = normalize( vOutputDirection );
+      vec2 uv = equirectUv( outputDirection );
 
-				gl_FragColor = vec4( texture2D ( envMap, uv ).rgb, 1.0 );
+      gl_FragColor = vec4( texture2D ( envMap, uv ).rgb, 1.0 );
 
-			}
-		`,
+    }
+  `,
 
     blending: NoBlending,
     depthTest: false,
@@ -15641,21 +15641,21 @@ function _getCubemapMaterial() {
 
     fragmentShader: /* glsl */ `
 
-			precision mediump float;
-			precision mediump int;
+    precision mediump float;
+    precision mediump int;
 
-			uniform float flipEnvMap;
+    uniform float flipEnvMap;
 
-			varying vec3 vOutputDirection;
+    varying vec3 vOutputDirection;
 
-			uniform samplerCube envMap;
+    uniform samplerCube envMap;
 
-			void main() {
+    void main() {
 
-				gl_FragColor = textureCube( envMap, vec3( flipEnvMap * vOutputDirection.x, vOutputDirection.yz ) );
+      gl_FragColor = textureCube( envMap, vec3( flipEnvMap * vOutputDirection.x, vOutputDirection.yz ) );
 
-			}
-		`,
+    }
+  `,
 
     blending: NoBlending,
     depthTest: false,
@@ -15666,60 +15666,60 @@ function _getCubemapMaterial() {
 function _getCommonVertexShader() {
   return /* glsl */ `
 
-		precision mediump float;
-		precision mediump int;
+  precision mediump float;
+  precision mediump int;
 
-		attribute float faceIndex;
+  attribute float faceIndex;
 
-		varying vec3 vOutputDirection;
+  varying vec3 vOutputDirection;
 
-		// RH coordinate system; PMREM face-indexing convention
-		vec3 getDirection( vec2 uv, float face ) {
+  // RH coordinate system; PMREM face-indexing convention
+  vec3 getDirection( vec2 uv, float face ) {
 
-			uv = 2.0 * uv - 1.0;
+    uv = 2.0 * uv - 1.0;
 
-			vec3 direction = vec3( uv, 1.0 );
+    vec3 direction = vec3( uv, 1.0 );
 
-			if ( face == 0.0 ) {
+    if ( face == 0.0 ) {
 
-				direction = direction.zyx; // ( 1, v, u ) pos x
+      direction = direction.zyx; // ( 1, v, u ) pos x
 
-			} else if ( face == 1.0 ) {
+    } else if ( face == 1.0 ) {
 
-				direction = direction.xzy;
-				direction.xz *= -1.0; // ( -u, 1, -v ) pos y
+      direction = direction.xzy;
+      direction.xz *= -1.0; // ( -u, 1, -v ) pos y
 
-			} else if ( face == 2.0 ) {
+    } else if ( face == 2.0 ) {
 
-				direction.x *= -1.0; // ( -u, v, 1 ) pos z
+      direction.x *= -1.0; // ( -u, v, 1 ) pos z
 
-			} else if ( face == 3.0 ) {
+    } else if ( face == 3.0 ) {
 
-				direction = direction.zyx;
-				direction.xz *= -1.0; // ( -1, v, -u ) neg x
+      direction = direction.zyx;
+      direction.xz *= -1.0; // ( -1, v, -u ) neg x
 
-			} else if ( face == 4.0 ) {
+    } else if ( face == 4.0 ) {
 
-				direction = direction.xzy;
-				direction.xy *= -1.0; // ( -u, -1, v ) neg y
+      direction = direction.xzy;
+      direction.xy *= -1.0; // ( -u, -1, v ) neg y
 
-			} else if ( face == 5.0 ) {
+    } else if ( face == 5.0 ) {
 
-				direction.z *= -1.0; // ( u, v, -1 ) neg z
+      direction.z *= -1.0; // ( u, v, -1 ) neg z
 
-			}
+    }
 
-			return direction;
+    return direction;
 
-		}
+  }
 
-		void main() {
+  void main() {
 
-			vOutputDirection = getDirection( uv, faceIndex );
-			gl_Position = vec4( position, 1.0 );
+    vOutputDirection = getDirection( uv, faceIndex );
+    gl_Position = vec4( position, 1.0 );
 
-		}
-	`;
+  }
+`;
 }
 
 function WebGLCubeUVMaps(renderer) {
@@ -17780,23 +17780,23 @@ function loopReplacer(match, start, end, snippet) {
 
 function generatePrecision(parameters) {
   let precisionstring = `precision ${parameters.precision} float;
-	precision ${parameters.precision} int;
-	precision ${parameters.precision} sampler2D;
-	precision ${parameters.precision} samplerCube;
-	precision ${parameters.precision} sampler3D;
-	precision ${parameters.precision} sampler2DArray;
-	precision ${parameters.precision} sampler2DShadow;
-	precision ${parameters.precision} samplerCubeShadow;
-	precision ${parameters.precision} sampler2DArrayShadow;
-	precision ${parameters.precision} isampler2D;
-	precision ${parameters.precision} isampler3D;
-	precision ${parameters.precision} isamplerCube;
-	precision ${parameters.precision} isampler2DArray;
-	precision ${parameters.precision} usampler2D;
-	precision ${parameters.precision} usampler3D;
-	precision ${parameters.precision} usamplerCube;
-	precision ${parameters.precision} usampler2DArray;
-	`;
+precision ${parameters.precision} int;
+precision ${parameters.precision} sampler2D;
+precision ${parameters.precision} samplerCube;
+precision ${parameters.precision} sampler3D;
+precision ${parameters.precision} sampler2DArray;
+precision ${parameters.precision} sampler2DShadow;
+precision ${parameters.precision} samplerCubeShadow;
+precision ${parameters.precision} sampler2DArrayShadow;
+precision ${parameters.precision} isampler2D;
+precision ${parameters.precision} isampler3D;
+precision ${parameters.precision} isamplerCube;
+precision ${parameters.precision} isampler2DArray;
+precision ${parameters.precision} usampler2D;
+precision ${parameters.precision} usampler3D;
+precision ${parameters.precision} usamplerCube;
+precision ${parameters.precision} usampler2DArray;
+`;
 
   if (parameters.precision === "highp") {
     precisionstring += "\n#define HIGH_PRECISION";
@@ -25032,7 +25032,7 @@ class WebXRController {
 const _occlusion_vertex = `
 void main() {
 
-	gl_Position = vec4( position, 1.0 );
+gl_Position = vec4( position, 1.0 );
 
 }`;
 
@@ -25043,17 +25043,17 @@ uniform float depthHeight;
 
 void main() {
 
-	vec2 coord = vec2( gl_FragCoord.x / depthWidth, gl_FragCoord.y / depthHeight );
+vec2 coord = vec2( gl_FragCoord.x / depthWidth, gl_FragCoord.y / depthHeight );
 
-	if ( coord.x >= 1.0 ) {
+if ( coord.x >= 1.0 ) {
 
-		gl_FragDepth = texture( depthColor, vec3( coord.x - 1.0, coord.y, 1 ) ).r;
+  gl_FragDepth = texture( depthColor, vec3( coord.x - 1.0, coord.y, 1 ) ).r;
 
-	} else {
+} else {
 
-		gl_FragDepth = texture( depthColor, vec3( coord.x, coord.y, 0 ) ).r;
+  gl_FragDepth = texture( depthColor, vec3( coord.x, coord.y, 0 ) ).r;
 
-	}
+}
 
 }`;
 
@@ -27971,12 +27971,12 @@ class WebGLRenderer {
         // debug
 
         /*
-				const geometry = new PlaneGeometry();
-				const material = new MeshBasicMaterial( { map: _transmissionRenderTarget.texture } );
+      const geometry = new PlaneGeometry();
+      const material = new MeshBasicMaterial( { map: _transmissionRenderTarget.texture } );
 
-				const mesh = new Mesh( geometry, material );
-				scene.add( mesh );
-				*/
+      const mesh = new Mesh( geometry, material );
+      scene.add( mesh );
+      */
       }
 
       const transmissionRenderTarget =
@@ -38576,22 +38576,22 @@ const EnvironmentMixin = (ModelViewerElement) => {
  */
 var CloseIcon = x$1`
 <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="#000000">
-    <!-- NOTE(cdata): This SVG filter is a stop-gap until we can implement
-         support for dynamic re-coloring of UI components -->
-    <defs>
-      <filter id="drop-shadow" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
-        <feOffset dx="0" dy="0" result="offsetblur"/>
-        <feFlood flood-color="#000000"/>
-        <feComposite in2="offsetblur" operator="in"/>
-        <feMerge>
-          <feMergeNode/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-    <path filter="url(#drop-shadow)" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-    <path d="M0 0h24v24H0z" fill="none"/>
+  <!-- NOTE(cdata): This SVG filter is a stop-gap until we can implement
+       support for dynamic re-coloring of UI components -->
+  <defs>
+    <filter id="drop-shadow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+      <feOffset dx="0" dy="0" result="offsetblur"/>
+      <feFlood flood-color="#000000"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <path filter="url(#drop-shadow)" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+  <path d="M0 0h24v24H0z" fill="none"/>
 </svg>`;
 
 /* @license
@@ -38610,23 +38610,23 @@ var CloseIcon = x$1`
  */
 var ControlsPrompt = x$1`
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="36">
-    <defs>
-        <path id="A" d="M.001.232h24.997V36H.001z" />
-    </defs>
-    <g transform="translate(-11 -4)" fill="none" fill-rule="evenodd">
-        <path fill-opacity="0" fill="#fff" d="M0 0h44v44H0z" />
-        <g transform="translate(11 3)">
-            <path d="M8.733 11.165c.04-1.108.766-2.027 1.743-2.307a2.54 2.54 0 0 1 .628-.089c.16 0 .314.017.463.044 1.088.2 1.9 1.092 1.9 2.16v8.88h1.26c2.943-1.39 5-4.45 5-8.025a9.01 9.01 0 0 0-1.9-5.56l-.43-.5c-.765-.838-1.683-1.522-2.712-2-1.057-.49-2.226-.77-3.46-.77s-2.4.278-3.46.77c-1.03.478-1.947 1.162-2.71 2l-.43.5a9.01 9.01 0 0 0-1.9 5.56 9.04 9.04 0 0 0 .094 1.305c.03.21.088.41.13.617l.136.624c.083.286.196.56.305.832l.124.333a8.78 8.78 0 0 0 .509.953l.065.122a8.69 8.69 0 0 0 3.521 3.191l1.11.537v-9.178z" fill-opacity=".5" fill="#e4e4e4" />
-            <path d="M22.94 26.218l-2.76 7.74c-.172.485-.676.8-1.253.8H12.24c-1.606 0-3.092-.68-3.98-1.82-1.592-2.048-3.647-3.822-6.11-5.27-.095-.055-.15-.137-.152-.23-.004-.1.046-.196.193-.297.56-.393 1.234-.6 1.926-.6a3.43 3.43 0 0 1 .691.069l4.922.994V10.972c0-.663.615-1.203 1.37-1.203s1.373.54 1.373 1.203v9.882h2.953c.273 0 .533.073.757.21l6.257 3.874c.027.017.045.042.07.06.41.296.586.77.426 1.22M4.1 16.614c-.024-.04-.042-.083-.065-.122a8.69 8.69 0 0 1-.509-.953c-.048-.107-.08-.223-.124-.333l-.305-.832c-.058-.202-.09-.416-.136-.624l-.13-.617a9.03 9.03 0 0 1-.094-1.305c0-2.107.714-4.04 1.9-5.56l.43-.5c.764-.84 1.682-1.523 2.71-2 1.058-.49 2.226-.77 3.46-.77s2.402.28 3.46.77c1.03.477 1.947 1.16 2.712 2l.428.5a9 9 0 0 1 1.901 5.559c0 3.577-2.056 6.636-5 8.026h-1.26v-8.882c0-1.067-.822-1.96-1.9-2.16-.15-.028-.304-.044-.463-.044-.22 0-.427.037-.628.09-.977.28-1.703 1.198-1.743 2.306v9.178l-1.11-.537C6.18 19.098 4.96 18 4.1 16.614M22.97 24.09l-6.256-3.874c-.102-.063-.218-.098-.33-.144 2.683-1.8 4.354-4.855 4.354-8.243 0-.486-.037-.964-.104-1.43a9.97 9.97 0 0 0-1.57-4.128l-.295-.408-.066-.092a10.05 10.05 0 0 0-.949-1.078c-.342-.334-.708-.643-1.094-.922-1.155-.834-2.492-1.412-3.94-1.65l-.732-.088-.748-.03a9.29 9.29 0 0 0-1.482.119c-1.447.238-2.786.816-3.94 1.65a9.33 9.33 0 0 0-.813.686 9.59 9.59 0 0 0-.845.877l-.385.437-.36.5-.288.468-.418.778-.04.09c-.593 1.28-.93 2.71-.93 4.222 0 3.832 2.182 7.342 5.56 8.938l1.437.68v4.946L5 25.64a4.44 4.44 0 0 0-.888-.086c-.017 0-.034.003-.05.003-.252.004-.503.033-.75.08a5.08 5.08 0 0 0-.237.056c-.193.046-.382.107-.568.18-.075.03-.15.057-.225.1-.25.114-.494.244-.723.405a1.31 1.31 0 0 0-.566 1.122 1.28 1.28 0 0 0 .645 1.051C4 29.925 5.96 31.614 7.473 33.563a5.06 5.06 0 0 0 .434.491c1.086 1.082 2.656 1.713 4.326 1.715h6.697c.748-.001 1.43-.333 1.858-.872.142-.18.256-.38.336-.602l2.757-7.74c.094-.26.13-.53.112-.794s-.088-.52-.203-.76a2.19 2.19 0 0 0-.821-.91" fill-opacity=".6" fill="#000" />
-            <path d="M22.444 24.94l-6.257-3.874a1.45 1.45 0 0 0-.757-.211h-2.953v-9.88c0-.663-.616-1.203-1.373-1.203s-1.37.54-1.37 1.203v16.643l-4.922-.994a3.44 3.44 0 0 0-.692-.069 3.35 3.35 0 0 0-1.925.598c-.147.102-.198.198-.194.298.004.094.058.176.153.23 2.462 1.448 4.517 3.22 6.11 5.27.887 1.14 2.373 1.82 3.98 1.82h6.686c.577 0 1.08-.326 1.253-.8l2.76-7.74c.16-.448-.017-.923-.426-1.22-.025-.02-.043-.043-.07-.06z" fill="#fff" />
-            <g transform="translate(0 .769)">
-                <mask id="B" fill="#fff">
-                    <use xlink:href="#A" />
-                </mask>
-                <path d="M23.993 24.992a1.96 1.96 0 0 1-.111.794l-2.758 7.74c-.08.22-.194.423-.336.602-.427.54-1.11.87-1.857.872h-6.698c-1.67-.002-3.24-.633-4.326-1.715-.154-.154-.3-.318-.434-.49C5.96 30.846 4 29.157 1.646 27.773c-.385-.225-.626-.618-.645-1.05a1.31 1.31 0 0 1 .566-1.122 4.56 4.56 0 0 1 .723-.405l.225-.1a4.3 4.3 0 0 1 .568-.18l.237-.056c.248-.046.5-.075.75-.08.018 0 .034-.003.05-.003.303-.001.597.027.89.086l3.722.752V20.68l-1.436-.68c-3.377-1.596-5.56-5.106-5.56-8.938 0-1.51.336-2.94.93-4.222.015-.03.025-.06.04-.09.127-.267.268-.525.418-.778.093-.16.186-.316.288-.468.063-.095.133-.186.2-.277L3.773 5c.118-.155.26-.29.385-.437.266-.3.544-.604.845-.877a9.33 9.33 0 0 1 .813-.686C6.97 2.167 8.31 1.59 9.757 1.35a9.27 9.27 0 0 1 1.481-.119 8.82 8.82 0 0 1 .748.031c.247.02.49.05.733.088 1.448.238 2.786.816 3.94 1.65.387.28.752.588 1.094.922a9.94 9.94 0 0 1 .949 1.078l.066.092c.102.133.203.268.295.408a9.97 9.97 0 0 1 1.571 4.128c.066.467.103.945.103 1.43 0 3.388-1.67 6.453-4.353 8.243.11.046.227.08.33.144l6.256 3.874c.37.23.645.55.82.9.115.24.185.498.203.76m.697-1.195c-.265-.55-.677-1.007-1.194-1.326l-5.323-3.297c2.255-2.037 3.564-4.97 3.564-8.114 0-2.19-.637-4.304-1.84-6.114-.126-.188-.26-.37-.4-.552-.645-.848-1.402-1.6-2.252-2.204C15.472.91 13.393.232 11.238.232A10.21 10.21 0 0 0 5.23 2.19c-.848.614-1.606 1.356-2.253 2.205-.136.18-.272.363-.398.55C1.374 6.756.737 8.87.737 11.06c0 4.218 2.407 8.08 6.133 9.842l.863.41v3.092l-2.525-.51c-.356-.07-.717-.106-1.076-.106a5.45 5.45 0 0 0-3.14.996c-.653.46-1.022 1.202-.99 1.983a2.28 2.28 0 0 0 1.138 1.872c2.24 1.318 4.106 2.923 5.543 4.772 1.26 1.62 3.333 2.59 5.55 2.592h6.698c1.42-.001 2.68-.86 3.134-2.138l2.76-7.74c.272-.757.224-1.584-.134-2.325" fill-opacity=".05" fill="#000" mask="url(#B)" />
-            </g>
-        </g>
-    </g>
+  <defs>
+      <path id="A" d="M.001.232h24.997V36H.001z" />
+  </defs>
+  <g transform="translate(-11 -4)" fill="none" fill-rule="evenodd">
+      <path fill-opacity="0" fill="#fff" d="M0 0h44v44H0z" />
+      <g transform="translate(11 3)">
+          <path d="M8.733 11.165c.04-1.108.766-2.027 1.743-2.307a2.54 2.54 0 0 1 .628-.089c.16 0 .314.017.463.044 1.088.2 1.9 1.092 1.9 2.16v8.88h1.26c2.943-1.39 5-4.45 5-8.025a9.01 9.01 0 0 0-1.9-5.56l-.43-.5c-.765-.838-1.683-1.522-2.712-2-1.057-.49-2.226-.77-3.46-.77s-2.4.278-3.46.77c-1.03.478-1.947 1.162-2.71 2l-.43.5a9.01 9.01 0 0 0-1.9 5.56 9.04 9.04 0 0 0 .094 1.305c.03.21.088.41.13.617l.136.624c.083.286.196.56.305.832l.124.333a8.78 8.78 0 0 0 .509.953l.065.122a8.69 8.69 0 0 0 3.521 3.191l1.11.537v-9.178z" fill-opacity=".5" fill="#e4e4e4" />
+          <path d="M22.94 26.218l-2.76 7.74c-.172.485-.676.8-1.253.8H12.24c-1.606 0-3.092-.68-3.98-1.82-1.592-2.048-3.647-3.822-6.11-5.27-.095-.055-.15-.137-.152-.23-.004-.1.046-.196.193-.297.56-.393 1.234-.6 1.926-.6a3.43 3.43 0 0 1 .691.069l4.922.994V10.972c0-.663.615-1.203 1.37-1.203s1.373.54 1.373 1.203v9.882h2.953c.273 0 .533.073.757.21l6.257 3.874c.027.017.045.042.07.06.41.296.586.77.426 1.22M4.1 16.614c-.024-.04-.042-.083-.065-.122a8.69 8.69 0 0 1-.509-.953c-.048-.107-.08-.223-.124-.333l-.305-.832c-.058-.202-.09-.416-.136-.624l-.13-.617a9.03 9.03 0 0 1-.094-1.305c0-2.107.714-4.04 1.9-5.56l.43-.5c.764-.84 1.682-1.523 2.71-2 1.058-.49 2.226-.77 3.46-.77s2.402.28 3.46.77c1.03.477 1.947 1.16 2.712 2l.428.5a9 9 0 0 1 1.901 5.559c0 3.577-2.056 6.636-5 8.026h-1.26v-8.882c0-1.067-.822-1.96-1.9-2.16-.15-.028-.304-.044-.463-.044-.22 0-.427.037-.628.09-.977.28-1.703 1.198-1.743 2.306v9.178l-1.11-.537C6.18 19.098 4.96 18 4.1 16.614M22.97 24.09l-6.256-3.874c-.102-.063-.218-.098-.33-.144 2.683-1.8 4.354-4.855 4.354-8.243 0-.486-.037-.964-.104-1.43a9.97 9.97 0 0 0-1.57-4.128l-.295-.408-.066-.092a10.05 10.05 0 0 0-.949-1.078c-.342-.334-.708-.643-1.094-.922-1.155-.834-2.492-1.412-3.94-1.65l-.732-.088-.748-.03a9.29 9.29 0 0 0-1.482.119c-1.447.238-2.786.816-3.94 1.65a9.33 9.33 0 0 0-.813.686 9.59 9.59 0 0 0-.845.877l-.385.437-.36.5-.288.468-.418.778-.04.09c-.593 1.28-.93 2.71-.93 4.222 0 3.832 2.182 7.342 5.56 8.938l1.437.68v4.946L5 25.64a4.44 4.44 0 0 0-.888-.086c-.017 0-.034.003-.05.003-.252.004-.503.033-.75.08a5.08 5.08 0 0 0-.237.056c-.193.046-.382.107-.568.18-.075.03-.15.057-.225.1-.25.114-.494.244-.723.405a1.31 1.31 0 0 0-.566 1.122 1.28 1.28 0 0 0 .645 1.051C4 29.925 5.96 31.614 7.473 33.563a5.06 5.06 0 0 0 .434.491c1.086 1.082 2.656 1.713 4.326 1.715h6.697c.748-.001 1.43-.333 1.858-.872.142-.18.256-.38.336-.602l2.757-7.74c.094-.26.13-.53.112-.794s-.088-.52-.203-.76a2.19 2.19 0 0 0-.821-.91" fill-opacity=".6" fill="#000" />
+          <path d="M22.444 24.94l-6.257-3.874a1.45 1.45 0 0 0-.757-.211h-2.953v-9.88c0-.663-.616-1.203-1.373-1.203s-1.37.54-1.37 1.203v16.643l-4.922-.994a3.44 3.44 0 0 0-.692-.069 3.35 3.35 0 0 0-1.925.598c-.147.102-.198.198-.194.298.004.094.058.176.153.23 2.462 1.448 4.517 3.22 6.11 5.27.887 1.14 2.373 1.82 3.98 1.82h6.686c.577 0 1.08-.326 1.253-.8l2.76-7.74c.16-.448-.017-.923-.426-1.22-.025-.02-.043-.043-.07-.06z" fill="#fff" />
+          <g transform="translate(0 .769)">
+              <mask id="B" fill="#fff">
+                  <use xlink:href="#A" />
+              </mask>
+              <path d="M23.993 24.992a1.96 1.96 0 0 1-.111.794l-2.758 7.74c-.08.22-.194.423-.336.602-.427.54-1.11.87-1.857.872h-6.698c-1.67-.002-3.24-.633-4.326-1.715-.154-.154-.3-.318-.434-.49C5.96 30.846 4 29.157 1.646 27.773c-.385-.225-.626-.618-.645-1.05a1.31 1.31 0 0 1 .566-1.122 4.56 4.56 0 0 1 .723-.405l.225-.1a4.3 4.3 0 0 1 .568-.18l.237-.056c.248-.046.5-.075.75-.08.018 0 .034-.003.05-.003.303-.001.597.027.89.086l3.722.752V20.68l-1.436-.68c-3.377-1.596-5.56-5.106-5.56-8.938 0-1.51.336-2.94.93-4.222.015-.03.025-.06.04-.09.127-.267.268-.525.418-.778.093-.16.186-.316.288-.468.063-.095.133-.186.2-.277L3.773 5c.118-.155.26-.29.385-.437.266-.3.544-.604.845-.877a9.33 9.33 0 0 1 .813-.686C6.97 2.167 8.31 1.59 9.757 1.35a9.27 9.27 0 0 1 1.481-.119 8.82 8.82 0 0 1 .748.031c.247.02.49.05.733.088 1.448.238 2.786.816 3.94 1.65.387.28.752.588 1.094.922a9.94 9.94 0 0 1 .949 1.078l.066.092c.102.133.203.268.295.408a9.97 9.97 0 0 1 1.571 4.128c.066.467.103.945.103 1.43 0 3.388-1.67 6.453-4.353 8.243.11.046.227.08.33.144l6.256 3.874c.37.23.645.55.82.9.115.24.185.498.203.76m.697-1.195c-.265-.55-.677-1.007-1.194-1.326l-5.323-3.297c2.255-2.037 3.564-4.97 3.564-8.114 0-2.19-.637-4.304-1.84-6.114-.126-.188-.26-.37-.4-.552-.645-.848-1.402-1.6-2.252-2.204C15.472.91 13.393.232 11.238.232A10.21 10.21 0 0 0 5.23 2.19c-.848.614-1.606 1.356-2.253 2.205-.136.18-.272.363-.398.55C1.374 6.756.737 8.87.737 11.06c0 4.218 2.407 8.08 6.133 9.842l.863.41v3.092l-2.525-.51c-.356-.07-.717-.106-1.076-.106a5.45 5.45 0 0 0-3.14.996c-.653.46-1.022 1.202-.99 1.983a2.28 2.28 0 0 0 1.138 1.872c2.24 1.318 4.106 2.923 5.543 4.772 1.26 1.62 3.333 2.59 5.55 2.592h6.698c1.42-.001 2.68-.86 3.134-2.138l2.76-7.74c.272-.757.224-1.584-.134-2.325" fill-opacity=".05" fill="#000" mask="url(#B)" />
+          </g>
+      </g>
+  </g>
 </svg>`;
 
 /* @license
@@ -38645,19 +38645,19 @@ var ControlsPrompt = x$1`
  */
 var ARGlyph = x$1`
 <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px"
-	 viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+ xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px"
+ viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
 <rect id="Bounding_Box" x="0" y="0" fill="none" width="24" height="24"/>
 <g id="Art_layer">
-	<path d="M3,4c0-0.55,0.45-1,1-1h2V1H4C2.35,1,1,2.35,1,4v2h2V4z"/>
-	<path d="M20,3c0.55,0,1,0.45,1,1v2h2V4c0-1.65-1.35-3-3-3h-2v2H20z"/>
-	<path d="M4,21c-0.55,0-1-0.45-1-1v-2H1v2c0,1.65,1.35,3,3,3h2v-2H4z"/>
-	<path d="M20,21c0.55,0,1-0.45,1-1v-2h2v2c0,1.65-1.35,3-3,3h-2v-2H20z"/>
-	<g>
-		<path d="M18.25,7.6l-5.5-3.18c-0.46-0.27-1.04-0.27-1.5,0L5.75,7.6C5.29,7.87,5,8.36,5,8.9v6.35c0,0.54,0.29,1.03,0.75,1.3
-			l5.5,3.18c0.46,0.27,1.04,0.27,1.5,0l5.5-3.18c0.46-0.27,0.75-0.76,0.75-1.3V8.9C19,8.36,18.71,7.87,18.25,7.6z M7,14.96v-4.62
-			l4,2.32v4.61L7,14.96z M12,10.93L8,8.61l4-2.31l4,2.31L12,10.93z M13,17.27v-4.61l4-2.32v4.62L13,17.27z"/>
-	</g>
+<path d="M3,4c0-0.55,0.45-1,1-1h2V1H4C2.35,1,1,2.35,1,4v2h2V4z"/>
+<path d="M20,3c0.55,0,1,0.45,1,1v2h2V4c0-1.65-1.35-3-3-3h-2v2H20z"/>
+<path d="M4,21c-0.55,0-1-0.45-1-1v-2H1v2c0,1.65,1.35,3,3,3h2v-2H4z"/>
+<path d="M20,21c0.55,0,1-0.45,1-1v-2h2v2c0,1.65-1.35,3-3,3h-2v-2H20z"/>
+<g>
+  <path d="M18.25,7.6l-5.5-3.18c-0.46-0.27-1.04-0.27-1.5,0L5.75,7.6C5.29,7.87,5,8.36,5,8.9v6.35c0,0.54,0.29,1.03,0.75,1.3
+    l5.5,3.18c0.46,0.27,1.04,0.27,1.5,0l5.5-3.18c0.46-0.27,0.75-0.76,0.75-1.3V8.9C19,8.36,18.71,7.87,18.25,7.6z M7,14.96v-4.62
+    l4,2.32v4.61L7,14.96z M12,10.93L8,8.61l4-2.31l4,2.31L12,10.93z M13,17.27v-4.61l4-2.32v4.62L13,17.27z"/>
+</g>
 </g>
 </svg>`;
 
@@ -38678,328 +38678,328 @@ var ARGlyph = x$1`
 const templateResult = x$1`
 <style>
 :host {
-  display: block;
-  position: relative;
-  contain: strict;
-  width: 300px;
-  height: 150px;
+display: block;
+position: relative;
+contain: strict;
+width: 300px;
+height: 150px;
 }
 
 .container {
-  position: relative;
-  overflow: hidden;
+position: relative;
+overflow: hidden;
 }
 
 .userInput {
-  width: 100%;
-  height: 100%;
-  display: none;
-  position: relative;
-  outline-offset: -1px;
-  outline-width: 1px;
+width: 100%;
+height: 100%;
+display: none;
+position: relative;
+outline-offset: -1px;
+outline-width: 1px;
 }
 
 canvas {
-  position: absolute;
-  display: none;
-  pointer-events: none;
-  /* NOTE(cdata): Chrome 76 and below apparently have a bug
-   * that causes our canvas not to display pixels unless it is
-   * on its own render layer
-   * @see https://github.com/google/model-viewer/pull/755#issuecomment-536597893
-   */
-  transform: translateZ(0);
+position: absolute;
+display: none;
+pointer-events: none;
+/* NOTE(cdata): Chrome 76 and below apparently have a bug
+ * that causes our canvas not to display pixels unless it is
+ * on its own render layer
+ * @see https://github.com/google/model-viewer/pull/755#issuecomment-536597893
+ */
+transform: translateZ(0);
 }
 
 .show {
-  display: block;
+display: block;
 }
 
 /* Adapted from HTML5 Boilerplate
- *
- * @see https://github.com/h5bp/html5-boilerplate/blob/ceb4620c78fc82e13534fc44202a3f168754873f/dist/css/main.css#L122-L133 */
+*
+* @see https://github.com/h5bp/html5-boilerplate/blob/ceb4620c78fc82e13534fc44202a3f168754873f/dist/css/main.css#L122-L133 */
 .screen-reader-only {
-  border: 0;
-  left: 0;
-  top: 0;
-  clip: rect(0, 0, 0, 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
-  pointer-events: none;
+border: 0;
+left: 0;
+top: 0;
+clip: rect(0, 0, 0, 0);
+height: 1px;
+margin: -1px;
+overflow: hidden;
+padding: 0;
+position: absolute;
+white-space: nowrap;
+width: 1px;
+pointer-events: none;
 }
 
 .slot {
-  position: absolute;
-  pointer-events: none;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+position: absolute;
+pointer-events: none;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
 }
 
 .slot > * {
-  pointer-events: initial;
+pointer-events: initial;
 }
 
 .annotation-wrapper ::slotted(*) {
-  opacity: var(--max-hotspot-opacity, 1);
-  transition: opacity 0.3s;
+opacity: var(--max-hotspot-opacity, 1);
+transition: opacity 0.3s;
 }
 
 .pointer-tumbling .annotation-wrapper ::slotted(*) {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .annotation-wrapper ::slotted(*) {
-  pointer-events: initial;
+pointer-events: initial;
 }
 
 .annotation-wrapper.hide ::slotted(*) {
-  opacity: var(--min-hotspot-opacity, 0.25);
+opacity: var(--min-hotspot-opacity, 0.25);
 }
 
 .slot.poster {
-  display: none;
-  background-color: inherit;
+display: none;
+background-color: inherit;
 }
 
 .slot.poster.show {
-  display: inherit;
+display: inherit;
 }
 
 .slot.poster > * {
-  pointer-events: initial;
+pointer-events: initial;
 }
 
 .slot.poster:not(.show) > * {
-  pointer-events: none;
+pointer-events: none;
 }
 
 #default-poster {
-  width: 100%;
-  height: 100%;
-  /* The default poster is a <button> so we need to set display
-   * to prevent it from being affected by text-align: */
-  display: block;
-  position: absolute;
-  border: none;
-  padding: 0;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-color: #fff0;
+width: 100%;
+height: 100%;
+/* The default poster is a <button> so we need to set display
+ * to prevent it from being affected by text-align: */
+display: block;
+position: absolute;
+border: none;
+padding: 0;
+background-size: contain;
+background-repeat: no-repeat;
+background-position: center;
+background-color: #fff0;
 }
 
 #default-progress-bar {
-  display: block;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
+display: block;
+position: relative;
+width: 100%;
+height: 100%;
+pointer-events: none;
+overflow: hidden;
 }
 
 #default-progress-bar > .bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: var(--progress-bar-height, 5px);
-  background-color: var(--progress-bar-color, rgba(0, 0, 0, 0.4));
-  transition: transform 0.09s;
-  transform-origin: top left;
-  transform: scaleX(0);
-  overflow: hidden;
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: var(--progress-bar-height, 5px);
+background-color: var(--progress-bar-color, rgba(0, 0, 0, 0.4));
+transition: transform 0.09s;
+transform-origin: top left;
+transform: scaleX(0);
+overflow: hidden;
 }
 
 #default-progress-bar > .bar.hide {
-  transition: opacity 0.3s 1s;
-  opacity: 0;
+transition: opacity 0.3s 1s;
+opacity: 0;
 }
 
 .centered {
-  align-items: center;
-  justify-content: center;
+align-items: center;
+justify-content: center;
 }
 
 .cover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
 }
 
 .slot.interaction-prompt {
-  display: var(--interaction-prompt-display, flex);
-  overflow: hidden;
-  opacity: 0;
-  will-change: opacity;
-  transition: opacity 0.3s;
+display: var(--interaction-prompt-display, flex);
+overflow: hidden;
+opacity: 0;
+will-change: opacity;
+transition: opacity 0.3s;
 }
 
 .slot.interaction-prompt.visible {
-  opacity: 1;
+opacity: 1;
 }
 
 .animated-container {
-  will-change: transform, opacity;
-  opacity: 0;
-  transition: opacity 0.3s;
+will-change: transform, opacity;
+opacity: 0;
+transition: opacity 0.3s;
 }
 
 .slot.interaction-prompt > * {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.ar-button {
-  -moz-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+-moz-user-select: none;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
 
-  display: var(--ar-button-display, block);
+display: var(--ar-button-display, block);
 }
 
 .slot.ar-button:not(.enabled) {
-  display: none;
+display: none;
 }
 
 .fab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  background-color: #fff;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
-  border-radius: 100px;
+display: flex;
+align-items: center;
+justify-content: center;
+box-sizing: border-box;
+width: 40px;
+height: 40px;
+cursor: pointer;
+background-color: #fff;
+box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+border-radius: 100px;
 }
 
 .fab > * {
-  opacity: 0.87;
+opacity: 0.87;
 }
 
 #default-ar-button {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  transform: scale(var(--ar-button-scale, 1));
-  transform-origin: bottom right;
+position: absolute;
+bottom: 16px;
+right: 16px;
+transform: scale(var(--ar-button-scale, 1));
+transform-origin: bottom right;
 }
 
 .slot.pan-target {
-  display: block;
-  position: absolute;
-  width: 0;
-  height: 0;
-  left: 50%;
-  top: 50%;
-  transform: translate3d(-50%, -50%, 0);
-  background-color: transparent;
-  opacity: 0;
-  transition: opacity 0.3s;
+display: block;
+position: absolute;
+width: 0;
+height: 0;
+left: 50%;
+top: 50%;
+transform: translate3d(-50%, -50%, 0);
+background-color: transparent;
+opacity: 0;
+transition: opacity 0.3s;
 }
 
 #default-pan-target {
-  width: 6px;
-  height: 6px;
-  border-radius: 6px;
-  border: 1px solid white;
-  box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.8);
+width: 6px;
+height: 6px;
+border-radius: 6px;
+border: 1px solid white;
+box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.8);
 }
 
 .slot.default {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.progress-bar {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.exit-webxr-ar-button {
-  pointer-events: none;
+pointer-events: none;
 }
 
 .slot.exit-webxr-ar-button:not(.enabled) {
-  display: none;
+display: none;
 }
 
 #default-exit-webxr-ar-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: env(safe-area-inset-top, 16px);
-  right: 16px;
-  width: 40px;
-  height: 40px;
-  box-sizing: border-box;
+display: flex;
+align-items: center;
+justify-content: center;
+position: absolute;
+top: env(safe-area-inset-top, 16px);
+right: 16px;
+width: 40px;
+height: 40px;
+box-sizing: border-box;
 }
 
 #default-exit-webxr-ar-button > svg {
-  fill: #fff;
+fill: #fff;
 }
 
 
 
 .cmv-dot {
-  display: none;
-  border: none;
-  box-sizing: border-box;
-  background: #111;
-  pointer-events: none;
-  --min-hotspot-opacity: 0;
+display: none;
+border: none;
+box-sizing: border-box;
+background: #111;
+pointer-events: none;
+--min-hotspot-opacity: 0;
 z-index : 99;
 }
 
 .cmv-dim {
-  font-size: 11px;
-  line-height: 16px;
-  font-weight: bold;
-  background-color: #eee;
-  border-radius: 2px;
-  border: none;
+font-size: 11px;
+line-height: 16px;
+font-weight: bold;
+background-color: #eee;
+border-radius: 2px;
+border: none;
 z-index : 100;
-  box-sizing: border-box;
-  color: rgba(0, 0, 0, .8);
-  display: block;
-  overflow-wrap: break-word;
-  position: absolute;
-  width: max-content;
-  height: max-content;
-  transform: translate3d(-55%, -55%, 0);
-  pointer-events: none;
-  --min-hotspot-opacity: 0;
+box-sizing: border-box;
+color: rgba(0, 0, 0, .8);
+display: block;
+overflow-wrap: break-word;
+position: absolute;
+width: max-content;
+height: max-content;
+transform: translate3d(-55%, -55%, 0);
+pointer-events: none;
+--min-hotspot-opacity: 0;
 }
 
 .cmv-dimensionLineContainer {
-  pointer-events: none;
-  position: fixed;
-  display: block;
-  width: 100%;
-  height: 100%;
+pointer-events: none;
+position: fixed;
+display: block;
+width: 100%;
+height: 100%;
 }
 
 .cmv-dimensionLine {
-  stroke: #bbb;
-  stroke-width: 2;
-  stroke-dasharray: 2;
+stroke: #bbb;
+stroke-width: 2;
+stroke-dasharray: 2;
 }
 
 .cmv-show {
-  --min-hotspot-opacity: 1;
+--min-hotspot-opacity: 1;
 }
 
 .cmv-hide {
-  display: none;
+display: none;
 }
 
 .cmv-dimension-liness {
@@ -39022,94 +39022,94 @@ pointer-events: none;
 <button slot="hotspot-dim-X-Y" class="cmv-dim" data-position="-1 -1 0" data-normal="-1 0 0"></button>
 <button slot="hotspot-dot-X-Y+Z" class="cmv-dot" data-position="-1 -1 1" data-normal="-1 0 0"></button>
 <svg id="lines" xmlns="http://www.w3.org/2000/svg" class="cmv-dimensionLineContainer">
-	<line class="cmv-dimensionLine"></line>
-	<line class="cmv-dimensionLine"></line>
-	<line class="cmv-dimensionLine"></line>
-	<line class="cmv-dimensionLine"></line>
-	<line class="cmv-dimensionLine"></line>
+<line class="cmv-dimensionLine"></line>
+<line class="cmv-dimensionLine"></line>
+<line class="cmv-dimensionLine"></line>
+<line class="cmv-dimensionLine"></line>
+<line class="cmv-dimensionLine"></line>
 </svg>
 </div>
 
 
-  <div class="userInput" tabindex="0" role="img"
-      aria-label="3D model">
-      <div class="slot canvas">
-        <slot name="canvas">
-          <canvas></canvas>
-        </slot>
-      </div>
+<div class="userInput" tabindex="0" role="img"
+    aria-label="3D model">
+    <div class="slot canvas">
+      <slot name="canvas">
+        <canvas></canvas>
+      </slot>
+    </div>
 
+</div>
+
+<!-- NOTE(cdata): We need to wrap slots because browsers without ShadowDOM
+      will have their <slot> elements removed by ShadyCSS -->
+<div class="slot poster">
+  <slot name="poster">
+    <button type="button" id="default-poster" aria-hidden="true" aria-label="Loading 3D model"></button>
+  </slot>
+</div>
+
+<div class="slot ar-button">
+  <slot name="ar-button">
+    <a id="default-ar-button" part="default-ar-button" class="fab"
+        tabindex="2"
+        role="button"
+        href="javascript:void(0);"
+        aria-label="View in your space">
+      ${ARGlyph}
+    </a>
+  </slot>
+</div>
+
+<div class="slot pan-target">
+  <slot name="pan-target">
+    <div id="default-pan-target">
+    </div>
+  </slot>
+</div>
+
+<div class="slot interaction-prompt cover centered">
+  <div id="prompt" class="animated-container">
+    <slot name="interaction-prompt" aria-hidden="true">
+      ${ControlsPrompt}
+    </slot>
   </div>
+</div>
 
-  <!-- NOTE(cdata): We need to wrap slots because browsers without ShadowDOM
-        will have their <slot> elements removed by ShadyCSS -->
-  <div class="slot poster">
-    <slot name="poster">
-      <button type="button" id="default-poster" aria-hidden="true" aria-label="Loading 3D model"></button>
+<div id="finger0" class="animated-container cover">
+  <slot name="finger0" aria-hidden="true">
+  </slot>
+</div>
+<div id="finger1" class="animated-container cover">
+  <slot name="finger1" aria-hidden="true">
+  </slot>
+</div>
+
+<div class="slot default">
+  <slot></slot>
+
+  <div class="slot progress-bar">
+    <slot name="progress-bar">
+      <div id="default-progress-bar" aria-hidden="true">
+        <div class="bar" part="default-progress-bar"></div>
+      </div>
     </slot>
   </div>
 
-  <div class="slot ar-button">
-    <slot name="ar-button">
-      <a id="default-ar-button" part="default-ar-button" class="fab"
-          tabindex="2"
-          role="button"
-          href="javascript:void(0);"
-          aria-label="View in your space">
-        ${ARGlyph}
+  <div class="slot exit-webxr-ar-button">
+    <slot name="exit-webxr-ar-button">
+      <a id="default-exit-webxr-ar-button" part="default-exit-webxr-ar-button"
+          tabindex="3"
+          aria-label="Exit AR"
+          aria-hidden="true">
+        ${CloseIcon}
       </a>
     </slot>
   </div>
-
-  <div class="slot pan-target">
-    <slot name="pan-target">
-      <div id="default-pan-target">
-      </div>
-    </slot>
-  </div>
-
-  <div class="slot interaction-prompt cover centered">
-    <div id="prompt" class="animated-container">
-      <slot name="interaction-prompt" aria-hidden="true">
-        ${ControlsPrompt}
-      </slot>
-    </div>
-  </div>
-
-  <div id="finger0" class="animated-container cover">
-    <slot name="finger0" aria-hidden="true">
-    </slot>
-  </div>
-  <div id="finger1" class="animated-container cover">
-    <slot name="finger1" aria-hidden="true">
-    </slot>
-  </div>
-
-  <div class="slot default">
-    <slot></slot>
-
-    <div class="slot progress-bar">
-      <slot name="progress-bar">
-        <div id="default-progress-bar" aria-hidden="true">
-          <div class="bar" part="default-progress-bar"></div>
-        </div>
-      </slot>
-    </div>
-
-    <div class="slot exit-webxr-ar-button">
-      <slot name="exit-webxr-ar-button">
-        <a id="default-exit-webxr-ar-button" part="default-exit-webxr-ar-button"
-            tabindex="3"
-            aria-label="Exit AR"
-            aria-hidden="true">
-          ${CloseIcon}
-        </a>
-      </slot>
-    </div>
-  </div>
+</div>
 </div>
 <div class="screen-reader-only" role="region" aria-label="Live announcements">
-  <span id="status" role="status"></span>
+<span id="status" role="status"></span>
 </div>`;
 const makeTemplate = (shadowRoot) => {
   D(templateResult, shadowRoot);
@@ -45786,24 +45786,24 @@ function decompress(texture, maxTextureSize = Infinity, renderer = null) {
     fullscreenQuadMaterial = new ShaderMaterial({
       uniforms: { blitTexture: new Uniform(texture) },
       vertexShader: `
-			varying vec2 vUv;
-			void main(){
-				vUv = uv;
-				gl_Position = vec4(position.xy * 1.0,0.,.999999);
-			}`,
+    varying vec2 vUv;
+    void main(){
+      vUv = uv;
+      gl_Position = vec4(position.xy * 1.0,0.,.999999);
+    }`,
       fragmentShader: `
-			uniform sampler2D blitTexture; 
-			varying vec2 vUv;
+    uniform sampler2D blitTexture; 
+    varying vec2 vUv;
 
-			void main(){ 
-				gl_FragColor = vec4(vUv.xy, 0, 1);
-				
-				#ifdef IS_SRGB
-				gl_FragColor = sRGBTransferOETF( texture2D( blitTexture, vUv) );
-				#else
-				gl_FragColor = texture2D( blitTexture, vUv);
-				#endif
-			}`,
+    void main(){ 
+      gl_FragColor = vec4(vUv.xy, 0, 1);
+      
+      #ifdef IS_SRGB
+      gl_FragColor = sRGBTransferOETF( texture2D( blitTexture, vUv) );
+      #else
+      gl_FragColor = texture2D( blitTexture, vUv);
+      #endif
+    }`,
     });
 
   fullscreenQuadMaterial.uniforms.blitTexture.value = texture;
@@ -48934,6 +48934,7 @@ class GLTFExporterMaterialsVariantsExtension {
   beforeParse(objects) {
     // Find all variant names and store them to the table
     const variantNameSet = new Set();
+    const variantNamesWithOriginalOrder = new Map(); // Preserve original order
 
     for (const object of objects) {
       object.traverse((o) => {
@@ -48952,14 +48953,28 @@ class GLTFExporterMaterialsVariantsExtension {
               compatibleMaterial(variantMaterial.material)
             ) {
               variantNameSet.add(variantName);
+              // Store original order based on variant data index
+              if (!variantNamesWithOriginalOrder.has(variantName)) {
+                variantNamesWithOriginalOrder.set(
+                  variantName,
+                  variantData.index
+                );
+              }
             }
           }
         }
       });
     }
 
-    // We may want to sort?
-    variantNameSet.forEach((name) => this.variantNames.push(name));
+    // Sort variant names by their original indices to preserve order
+    const sortedVariantNames = Array.from(variantNameSet).sort((a, b) => {
+      const indexA = variantNamesWithOriginalOrder.get(a) || 0;
+      const indexB = variantNamesWithOriginalOrder.get(b) || 0;
+      return indexA - indexB;
+    });
+
+    // Use sorted names instead of Set iteration
+    this.variantNames = sortedVariantNames;
   }
 
   writeMesh(mesh, meshDef) {
@@ -51047,6 +51062,45 @@ const ControlsMixin = (ModelViewerElement) => {
 
       return null;
     }
+    setPlaneGrid(size1 = 0.2, size2 = 0.2, distance = 15) {
+      // Remove any existing grid
+      if (this.gridHelper) {
+        if (this.gridHelper.parent) {
+          this.gridHelper.parent.remove(this.gridHelper);
+        }
+        this.gridHelper.dispose();
+        this.gridHelper = null;
+      }
+
+      // Create a new grid with the specified parameters
+      const gridHelper = new InfiniteGridHelper(
+        size1,
+        size2,
+        new Color("grey"),
+        distance
+      );
+      //this[$scene].shadow.remove(this[$scene].shadow.floor);
+      // Add to scene model
+      this[$scene].model.parent.add(gridHelper);
+
+      // Store reference
+      this.gridHelper = gridHelper;
+
+      // Set up render loop
+      if (!this._gridRenderInterval) {
+        this._gridRenderInterval = setInterval(() => {
+          if (this.gridHelper && typeof this.requestRender === "function") {
+            this.requestRender();
+          } else if (!this.gridHelper) {
+            clearInterval(this._gridRenderInterval);
+            this._gridRenderInterval = null;
+          }
+        }, 100);
+      }
+
+      // Return the grid helper for inspection
+      return gridHelper;
+    }
 
     // Method to apply a texture to a material from an image URL
     applyTexture(uuid, textureType, textureUrl) {
@@ -51971,6 +52025,186 @@ const ChangeSource = {
   NONE: "none",
   AUTOMATIC: "automatic",
 };
+
+// Keep the InfiniteGridHelper class from Approach 3 (without the debug plane)
+class InfiniteGridHelper extends Group {
+  constructor(size1, size2, color, distance, axes = "xzy") {
+    super();
+
+    this.name = "InfiniteGridHelper";
+
+    // Use the provided parameters instead of overriding them
+    size1 = size1 !== undefined ? size1 : 1;
+    size2 = size2 !== undefined ? size2 : 10;
+    color = color || new Color("white");
+    distance = distance || 100;
+
+    // Create the shader-based infinite grid
+    const shaderGrid = new Mesh(
+      new PlaneGeometry(2, 2, 1, 1),
+      new ShaderMaterial({
+        side: DoubleSide,
+        uniforms: {
+          uSize1: { value: size1 },
+          uSize2: { value: size2 },
+          uColor: { value: color },
+          uDistance: { value: distance },
+        },
+        transparent: true,
+        vertexShader: `
+          varying vec3 worldPosition;
+          uniform float uDistance;
+          
+          void main() {
+            vec3 pos = position.${axes} * uDistance;
+            pos.${axes.substr(0, 2)} += cameraPosition.${axes.substr(0, 2)};
+            
+            worldPosition = pos;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec3 worldPosition;
+          
+          uniform float uSize1;
+          uniform float uSize2;
+          uniform vec3 uColor;
+          uniform float uDistance;
+          
+          float getGrid(float size) {
+            vec2 r = worldPosition.${axes.substr(0, 2)} / size;
+            vec2 grid = abs(fract(r - 0.5) - 0.5) / fwidth(r);
+            float line = min(grid.x, grid.y);
+            return 1.0 - min(line, 1.0);
+          }
+          
+          void main() {
+            float d = 1.0 - min(distance(cameraPosition.${axes.substr(
+              0,
+              2
+            )}, worldPosition.${axes.substr(0, 2)}) / uDistance, 1.0);
+            
+            float g1 = getGrid(uSize1);
+            float g2 = getGrid(uSize2);
+            
+            gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
+            gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+            
+            if (gl_FragColor.a <= 0.0) discard;
+          }
+        `,
+        extensions: {
+          derivatives: true,
+        },
+      })
+    );
+
+    shaderGrid.frustumCulled = false;
+    this.add(shaderGrid);
+    this.shaderGrid = shaderGrid;
+  }
+
+  setInfiniteGridVisible(visible) {
+    if (this.shaderGrid) this.shaderGrid.visible = visible;
+    if (this.fallbackGrid) this.fallbackGrid.visible = !visible;
+  }
+
+  dispose() {
+    if (this.shaderGrid) {
+      if (this.shaderGrid.geometry) this.shaderGrid.geometry.dispose();
+      if (this.shaderGrid.material) this.shaderGrid.material.dispose();
+    }
+
+    if (this.fallbackGrid) {
+      if (this.fallbackGrid.geometry) this.fallbackGrid.geometry.dispose();
+      if (this.fallbackGrid.material) this.fallbackGrid.material.dispose();
+    }
+  }
+}
+class PolarGridHelper extends LineSegments {
+  constructor(
+    radius = 10,
+    sectors = 16,
+    rings = 8,
+    divisions = 64,
+    color1 = 0x444444,
+    color2 = 0x888888
+  ) {
+    color1 = new Color(color1);
+    color2 = new Color(color2);
+
+    const vertices = [];
+    const colors = [];
+
+    // create the sectors
+
+    if (sectors > 1) {
+      for (let i = 0; i < sectors; i++) {
+        const v = (i / sectors) * (Math.PI * 2);
+
+        const x = Math.sin(v) * radius;
+        const z = Math.cos(v) * radius;
+
+        vertices.push(0, 0, 0);
+        vertices.push(x, 0, z);
+
+        const color = i & 1 ? color1 : color2;
+
+        colors.push(color.r, color.g, color.b);
+        colors.push(color.r, color.g, color.b);
+      }
+    }
+
+    // create the rings
+
+    for (let i = 0; i < rings; i++) {
+      const color = i & 1 ? color1 : color2;
+
+      const r = radius - (radius / rings) * i;
+
+      for (let j = 0; j < divisions; j++) {
+        // first vertex
+
+        let v = (j / divisions) * (Math.PI * 2);
+
+        let x = Math.sin(v) * r;
+        let z = Math.cos(v) * r;
+
+        vertices.push(x, 0, z);
+        colors.push(color.r, color.g, color.b);
+
+        // second vertex
+
+        v = ((j + 1) / divisions) * (Math.PI * 2);
+
+        x = Math.sin(v) * r;
+        z = Math.cos(v) * r;
+
+        vertices.push(x, 0, z);
+        colors.push(color.r, color.g, color.b);
+      }
+    }
+
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+
+    const material = new LineBasicMaterial({
+      vertexColors: true,
+      toneMapped: false,
+    });
+
+    super(geometry, material);
+
+    this.type = "PolarGridHelper";
+  }
+
+  dispose() {
+    this.geometry.dispose();
+    this.material.dispose();
+  }
+}
+
 /**
  * SmoothControls is a Three.js helper for adding delightful pointer and
  * keyboard-based input to a staged Three.js scene. Its API is very similar to
@@ -54626,8 +54860,8 @@ const vertexShader = /* glsl */ `
 varying vec2 vUv;
 
 void main() {
-  vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+vUv = uv;
+gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
 `;
 const fragmentShader = /* glsl */ `
@@ -54648,13 +54882,13 @@ uniform float weightFactor;
 varying vec2 vUv;
 
 void main() {
-  vec3 rgb = texture2D( sdr, vUv ).rgb;
-  vec3 recovery = texture2D( gainMap, vUv ).rgb;
-  vec3 logRecovery = pow( recovery, gamma );
-  vec3 logBoost = gainMapMin * ( 1.0 - logRecovery ) + gainMapMax * logRecovery;
-  vec3 hdrColor = (rgb + offsetSdr) * exp2( logBoost * weightFactor ) - offsetHdr;
-  vec3 clampedHdrColor = max( HALF_FLOAT_MIN, min( HALF_FLOAT_MAX, hdrColor ));
-  gl_FragColor = vec4( clampedHdrColor , 1.0 );
+vec3 rgb = texture2D( sdr, vUv ).rgb;
+vec3 recovery = texture2D( gainMap, vUv ).rgb;
+vec3 logRecovery = pow( recovery, gamma );
+vec3 logBoost = gainMapMin * ( 1.0 - logRecovery ) + gainMapMax * logRecovery;
+vec3 hdrColor = (rgb + offsetSdr) * exp2( logBoost * weightFactor ) - offsetHdr;
+vec3 clampedHdrColor = max( HALF_FLOAT_MIN, min( HALF_FLOAT_MAX, hdrColor ));
+gl_FragColor = vec4( clampedHdrColor , 1.0 );
 }
 `;
 /**
@@ -55385,8 +55619,8 @@ class HDRJPGLoader extends LoaderBase {
       url,
       async (jpeg) => {
         /* istanbul ignore if
-             this condition exists only because of three.js types + strict mode
-            */
+           this condition exists only because of three.js types + strict mode
+          */
         if (typeof jpeg === "string")
           throw new Error(
             "Invalid buffer, received [string], was expecting [ArrayBuffer]"
@@ -55522,11 +55756,11 @@ class RGBELoader extends DataTextureLoader {
 
         if (-1 < i) {
           /*for (i=l-1; i>=0; i--) {
-						byteCode = m.charCodeAt(i);
-						if (byteCode > 0x7f && byteCode <= 0x7ff) byteLen++;
-						else if (byteCode > 0x7ff && byteCode <= 0xffff) byteLen += 2;
-						if (byteCode >= 0xDC00 && byteCode <= 0xDFFF) i--; //trail surrogate
-					}*/
+          byteCode = m.charCodeAt(i);
+          if (byteCode > 0x7f && byteCode <= 0x7ff) byteLen++;
+          else if (byteCode > 0x7ff && byteCode <= 0xffff) byteLen += 2;
+          if (byteCode >= 0xDC00 && byteCode <= 0xDFFF) i--; //trail surrogate
+        }*/
           if (false !== consume) buffer.pos += len + i + 1;
           return s + chunk.slice(0, i);
         }
@@ -56370,68 +56604,68 @@ class TextureUtils {
         poleAxis: { value: poleAxis },
       },
       vertexShader: /* glsl */ `
-      
+    
+    varying vec3 vOutputDirection;
+
+    void main() {
+
+      vOutputDirection = vec3( position );
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+    }
+  `,
+      fragmentShader: /* glsl */ `
       varying vec3 vOutputDirection;
-  
+
+      uniform samplerCube envMap;
+      uniform int samples;
+      uniform float weights[ n ];
+      uniform bool latitudinal;
+      uniform float dTheta;
+      uniform vec3 poleAxis;
+
+      vec3 getSample( float theta, vec3 axis ) {
+
+        float cosTheta = cos( theta );
+        // Rodrigues' axis-angle rotation
+        vec3 sampleDirection = vOutputDirection * cosTheta
+          + cross( axis, vOutputDirection ) * sin( theta )
+          + axis * dot( axis, vOutputDirection ) * ( 1.0 - cosTheta );
+
+        return vec3( textureCube( envMap, sampleDirection ) );
+
+      }
+
       void main() {
-  
-        vOutputDirection = vec3( position );
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-  
+
+        vec3 axis = latitudinal ? poleAxis : cross( poleAxis, vOutputDirection );
+
+        if ( all( equal( axis, vec3( 0.0 ) ) ) ) {
+
+          axis = vec3( vOutputDirection.z, 0.0, - vOutputDirection.x );
+
+        }
+
+        axis = normalize( axis );
+
+        gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+        gl_FragColor.rgb += weights[ 0 ] * getSample( 0.0, axis );
+
+        for ( int i = 1; i < n; i++ ) {
+
+          if ( i >= samples ) {
+
+            break;
+
+          }
+
+          float theta = dTheta * float( i );
+          gl_FragColor.rgb += weights[ i ] * getSample( -1.0 * theta, axis );
+          gl_FragColor.rgb += weights[ i ] * getSample( theta, axis );
+
+        }
       }
     `,
-      fragmentShader: /* glsl */ `
-        varying vec3 vOutputDirection;
-  
-        uniform samplerCube envMap;
-        uniform int samples;
-        uniform float weights[ n ];
-        uniform bool latitudinal;
-        uniform float dTheta;
-        uniform vec3 poleAxis;
-  
-        vec3 getSample( float theta, vec3 axis ) {
-  
-          float cosTheta = cos( theta );
-          // Rodrigues' axis-angle rotation
-          vec3 sampleDirection = vOutputDirection * cosTheta
-            + cross( axis, vOutputDirection ) * sin( theta )
-            + axis * dot( axis, vOutputDirection ) * ( 1.0 - cosTheta );
-  
-          return vec3( textureCube( envMap, sampleDirection ) );
-  
-        }
-  
-        void main() {
-  
-          vec3 axis = latitudinal ? poleAxis : cross( poleAxis, vOutputDirection );
-  
-          if ( all( equal( axis, vec3( 0.0 ) ) ) ) {
-  
-            axis = vec3( vOutputDirection.z, 0.0, - vOutputDirection.x );
-  
-          }
-  
-          axis = normalize( axis );
-  
-          gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
-          gl_FragColor.rgb += weights[ 0 ] * getSample( 0.0, axis );
-  
-          for ( int i = 1; i < n; i++ ) {
-  
-            if ( i >= samples ) {
-  
-              break;
-  
-            }
-  
-            float theta = dTheta * float( i );
-            gl_FragColor.rgb += weights[ i ] * getSample( -1.0 * theta, axis );
-            gl_FragColor.rgb += weights[ i ] * getSample( theta, axis );
-  
-          }
-        }
-      `,
       blending: NoBlending,
       depthTest: false,
       depthWrite: false,
@@ -57758,7 +57992,7 @@ class Material extends ThreeDOMElement {
       return;
     }
     throw new Error(`Material "${this.name}" has not been loaded, call 'await
-    myMaterial.ensureLoaded()' before using an unloaded material.`);
+  myMaterial.ensureLoaded()' before using an unloaded material.`);
   }
   async ensureLoaded() {
     await this[$getLoadedMaterial]();
@@ -58605,7 +58839,7 @@ class Model {
     const material = this.materials[index];
     if (!material.isLoaded) {
       console.error(`Cloning an unloaded material,
-           call 'material.ensureLoaded() before cloning the material.`);
+         call 'material.ensureLoaded() before cloning the material.`);
     }
     const threeMaterialSet = material[$correlatedObjects];
     const clonedSet = new Set();
@@ -59230,39 +59464,39 @@ const HorizontalBlurShader = {
 
   vertexShader: /* glsl */ `
 
-		varying vec2 vUv;
+  varying vec2 vUv;
 
-		void main() {
+  void main() {
 
-			vUv = uv;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
-		}`,
+  }`,
 
   fragmentShader: /* glsl */ `
 
-		uniform sampler2D tDiffuse;
-		uniform float h;
+  uniform sampler2D tDiffuse;
+  uniform float h;
 
-		varying vec2 vUv;
+  varying vec2 vUv;
 
-		void main() {
+  void main() {
 
-			vec4 sum = vec4( 0.0 );
+    vec4 sum = vec4( 0.0 );
 
-			sum += texture2D( tDiffuse, vec2( vUv.x - 4.0 * h, vUv.y ) ) * 0.051;
-			sum += texture2D( tDiffuse, vec2( vUv.x - 3.0 * h, vUv.y ) ) * 0.0918;
-			sum += texture2D( tDiffuse, vec2( vUv.x - 2.0 * h, vUv.y ) ) * 0.12245;
-			sum += texture2D( tDiffuse, vec2( vUv.x - 1.0 * h, vUv.y ) ) * 0.1531;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y ) ) * 0.1633;
-			sum += texture2D( tDiffuse, vec2( vUv.x + 1.0 * h, vUv.y ) ) * 0.1531;
-			sum += texture2D( tDiffuse, vec2( vUv.x + 2.0 * h, vUv.y ) ) * 0.12245;
-			sum += texture2D( tDiffuse, vec2( vUv.x + 3.0 * h, vUv.y ) ) * 0.0918;
-			sum += texture2D( tDiffuse, vec2( vUv.x + 4.0 * h, vUv.y ) ) * 0.051;
+    sum += texture2D( tDiffuse, vec2( vUv.x - 4.0 * h, vUv.y ) ) * 0.051;
+    sum += texture2D( tDiffuse, vec2( vUv.x - 3.0 * h, vUv.y ) ) * 0.0918;
+    sum += texture2D( tDiffuse, vec2( vUv.x - 2.0 * h, vUv.y ) ) * 0.12245;
+    sum += texture2D( tDiffuse, vec2( vUv.x - 1.0 * h, vUv.y ) ) * 0.1531;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y ) ) * 0.1633;
+    sum += texture2D( tDiffuse, vec2( vUv.x + 1.0 * h, vUv.y ) ) * 0.1531;
+    sum += texture2D( tDiffuse, vec2( vUv.x + 2.0 * h, vUv.y ) ) * 0.12245;
+    sum += texture2D( tDiffuse, vec2( vUv.x + 3.0 * h, vUv.y ) ) * 0.0918;
+    sum += texture2D( tDiffuse, vec2( vUv.x + 4.0 * h, vUv.y ) ) * 0.051;
 
-			gl_FragColor = sum;
+    gl_FragColor = sum;
 
-		}`,
+  }`,
 };
 
 /**
@@ -59284,39 +59518,39 @@ const VerticalBlurShader = {
 
   vertexShader: /* glsl */ `
 
-		varying vec2 vUv;
+  varying vec2 vUv;
 
-		void main() {
+  void main() {
 
-			vUv = uv;
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
-		}`,
+  }`,
 
   fragmentShader: /* glsl */ `
 
-		uniform sampler2D tDiffuse;
-		uniform float v;
+  uniform sampler2D tDiffuse;
+  uniform float v;
 
-		varying vec2 vUv;
+  varying vec2 vUv;
 
-		void main() {
+  void main() {
 
-			vec4 sum = vec4( 0.0 );
+    vec4 sum = vec4( 0.0 );
 
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 4.0 * v ) ) * 0.051;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 3.0 * v ) ) * 0.0918;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 2.0 * v ) ) * 0.12245;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 1.0 * v ) ) * 0.1531;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y ) ) * 0.1633;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 1.0 * v ) ) * 0.1531;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 2.0 * v ) ) * 0.12245;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 3.0 * v ) ) * 0.0918;
-			sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 4.0 * v ) ) * 0.051;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 4.0 * v ) ) * 0.051;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 3.0 * v ) ) * 0.0918;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 2.0 * v ) ) * 0.12245;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y - 1.0 * v ) ) * 0.1531;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y ) ) * 0.1633;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 1.0 * v ) ) * 0.1531;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 2.0 * v ) ) * 0.12245;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 3.0 * v ) ) * 0.0918;
+    sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y + 4.0 * v ) ) * 0.051;
 
-			gl_FragColor = sum;
+    gl_FragColor = sum;
 
-		}`,
+  }`,
 };
 
 // https://en.wikipedia.org/wiki/Linear_interpolation
@@ -61253,173 +61487,173 @@ class ModelViewerElementBase extends u$1 {
         this.cameraOrbit = "20deg 70deg 100%";
         if (this.firstTime) {
           const htmlContent = `
-								  <style>
-										  .charpstar-selector {
-										  bottom: 22px;
-										  left: 4px;
-										  width: 10rem;
-										  height: 2rem;
-										  font-weight: bold;
-										  font-size: 15px;
-										  border: 1px solid black;
-										  text-align: center;
-			-webkit-appearance: none;
-			-moz-appearance: none;
-			text-indent: 1px;
-			text-overflow: '';
-										  }
-		  
-										  .cmv-dot {
-											  display: none;
-											  border: none;
-											  box-sizing: border-box;
-											  background: #EEEEEE;
-											  pointer-events: none;
-											  --min-hotspot-opacity: 0;
-										  }
-		  
-										  .cmv-dim {
-											  font-size: 11px;
-											  line-height: 16px;
-											  font-weight: bold;
-											  background-color: #EEEEEE;
-											  border-radius: 2px;
-											  border: 1px solid #aabbaa;
-											  box-sizing: border-box;
-											  color: #333;
-											  display: block;
-											  overflow-wrap: break-word;
-											  position: absolute;
-											  width: max-content;
-											  height: max-content;
-											  transform: translate3d(-55%, -55%, 0);
-											  pointer-events: none;
-											  --min-hotspot-opacity: 0;
-										  }
-		  
-										  .cmv-dimensionLineContainer {
-											  pointer-events: none;
-											  position: fixed;
-											  display: block;
-											  width: 100%;
-											  height: 100%;
-										  }
-		  
-										  .cmv-dimensionLine {
-											  stroke: #999;
-											  stroke-width: 2;
-											  stroke-dasharray: 2;
-										  }
-		  
-										  .cmv-show {
-											  --min-hotspot-opacity: 1;
-										  }
-		  
-										  .cmv-hide {
-											  display: none;
-										  }
-		  
-										   .cmv-active {
-											box-shadow: 0 8px 8px -5px grey;
-											
-											  }   
-			
-		  
-											  .cmv-tr-button-container {
-														 display: flex;
-												  z-index: 200;
-												  position: absolute;
-												  bottom: 20px;
-												  right: 30px;
-												  flex-direction: column;
-											  }
-		  
-											  .cmv-tr-button-container img {
-														 margin-right:10px;
-											  }
-		  
-											  .cmv-tr-button-container div {
-												 box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
-												margin-bottom : 10px;
-											  }
-		  
-								.tooltip {
-			position: relative;
-			display: inline-block;
-			border-bottom: 1px dotted black;
-		  }
-		  
-		  .tooltip .tooltiptext {
-			visibility: hidden;
-			width: 120px;
-		  font-size : 12px;
-			background-color: black;
-			color: #fff;
-			text-align: center;
-			border-radius: 6px;
-			padding: 7px 2px;
-			position: absolute;
-			z-index: 1;
-			top: -5px;
-			right: 110%;
-		  }
-		  
-		  .tooltip .tooltiptext::after {
-			content: "";
-			position: absolute;
-			top: 50%;
-			left: 100%;
-			margin-top: -5px;
-			border-width: 5px;
-			border-style: solid;
-			border-color: transparent transparent transparent black;
-		  }
-		  .tooltip:hover .tooltiptext {
-			visibility: visible;
-		  }
-								  </style>
- 
-		  
-							 <div class = "cmv-tr-button-container">
-								<div class = "charpstar-button-darkmode tooltip" id = "cmv-darkModeButton"><span class="tooltiptext">Toggle Dark Mode</span>
-								  <button style="display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
-									  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 12c0 6.627 5.373 12 12 12s12-5.373 12-12-5.373-12-12-12-12 5.373-12 12zm2 0c0-5.514 4.486-10 10-10v20c-5.514 0-10-4.486-10-10z"/></svg></button>
-							   </div> 
-							  <div class = "charpstar-button-shadow tooltip" id = "cmv-shadowToggleButton"><span class="tooltiptext">Toggle Shadows</span>
-								  <button style="display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
-								   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4.069 13h-4.069v-2h4.069c-.041.328-.069.661-.069 1s.028.672.069 1zm3.034-7.312l-2.881-2.881-1.414 1.414 2.881 2.881c.411-.529.885-1.003 1.414-1.414zm11.209 1.414l2.881-2.881-1.414-1.414-2.881 2.881c.528.411 1.002.886 1.414 1.414zm-6.312-3.102c.339 0 .672.028 1 .069v-4.069h-2v4.069c.328-.041.661-.069 1-.069zm0 16c-.339 0-.672-.028-1-.069v4.069h2v-4.069c-.328.041-.661.069-1 .069zm7.931-9c.041.328.069.661.069 1s-.028.672-.069 1h4.069v-2h-4.069zm-3.033 7.312l2.88 2.88 1.415-1.414-2.88-2.88c-.412.528-.886 1.002-1.415 1.414zm-11.21-1.415l-2.88 2.88 1.414 1.414 2.88-2.88c-.528-.411-1.003-.885-1.414-1.414zm6.312-10.897c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-6z"/></svg></button>
-							   </div> 
-							  <div class = "charpstar-button-dimension tooltip" id = "cmv-dimensionButton" ><span class="tooltiptext">Toggle Dimension Lines</span>
-								  <button data-tech="charpstar-ar" style=" display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
-								  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 18.344l5.656 5.656 18.344-18.344-5.657-5.656-18.343 18.344zm21.171-12.687l-15.514 15.515-2.829-2.829 1.04-1.009 2.122 2.122.707-.707-2.122-2.122 1.414-1.414 1.414 1.414.708-.707-1.414-1.414 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.414 2.122 2.121.707-.707-2.121-2.121 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.415 2.121 2.122.707-.707-2.121-2.122 1.039-1.071 2.829 2.828zm-16.241 4.929l-4.93-4.93 5.656-5.656 4.93 4.93-2.844 2.843-.707-.708 1.414-1.414-1.076-1.076-1.398 1.399-.707-.707 1.398-1.398-1.009-1.04-2.829 2.828 3.516 3.515-1.414 1.414zm11.297 5.672l.707.707 1.414-1.414 1.046 1.046-1.415 1.413.707.707 1.415-1.413 1.071 1.039-2.829 2.828-3.515-3.515-1.414 1.414 4.93 4.93 5.656-5.657-4.93-4.929-2.843 2.844z"/></svg> </button>
-							   </div> 
-		  
-							  <div class = "charpstar-button-uvcheck tooltip" id = "cmv-uvCheckButton" >
-									  <span class="tooltiptext">Toggle UV Check Material</span>
-												<button style="display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer;"> 
-												 <svg width="24" height="24" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-			   viewBox="0 0 32 32" xml:space="preserve">
-		  <style type="text/css">
-			  .st0{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
-			  .st1{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-			  .st2{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6,6;}
-			  .st3{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4,4;}
-			  .st4{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;}
-			  .st5{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-dasharray:3.1081,3.1081;}
-			  
-				  .st6{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:4,3;}
-		  </style>
-		  <rect x="4" y="4" class="st0" width="24" height="24"/>
-		  <rect x="4" y="4" class="st0" width="12" height="8"/>
-		  <rect x="10" y="12" class="st0" width="12" height="8"/>
-		  <rect x="4" y="20" class="st0" width="12" height="8"/>
-		  <rect x="16" y="4" class="st0" width="12" height="8"/>
-		  <rect x="16" y="20" class="st0" width="12" height="8"/>
-		  </svg>
-												</button>
-										  </div>
-							  </div>
-							  `;
+                <style>
+                    .charpstar-selector {
+                    bottom: 22px;
+                    left: 4px;
+                    width: 10rem;
+                    height: 2rem;
+                    font-weight: bold;
+                    font-size: 15px;
+                    border: 1px solid black;
+                    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+                    }
+    
+                    .cmv-dot {
+                      display: none;
+                      border: none;
+                      box-sizing: border-box;
+                      background: #EEEEEE;
+                      pointer-events: none;
+                      --min-hotspot-opacity: 0;
+                    }
+    
+                    .cmv-dim {
+                      font-size: 11px;
+                      line-height: 16px;
+                      font-weight: bold;
+                      background-color: #EEEEEE;
+                      border-radius: 2px;
+                      border: 1px solid #aabbaa;
+                      box-sizing: border-box;
+                      color: #333;
+                      display: block;
+                      overflow-wrap: break-word;
+                      position: absolute;
+                      width: max-content;
+                      height: max-content;
+                      transform: translate3d(-55%, -55%, 0);
+                      pointer-events: none;
+                      --min-hotspot-opacity: 0;
+                    }
+    
+                    .cmv-dimensionLineContainer {
+                      pointer-events: none;
+                      position: fixed;
+                      display: block;
+                      width: 100%;
+                      height: 100%;
+                    }
+    
+                    .cmv-dimensionLine {
+                      stroke: #999;
+                      stroke-width: 2;
+                      stroke-dasharray: 2;
+                    }
+    
+                    .cmv-show {
+                      --min-hotspot-opacity: 1;
+                    }
+    
+                    .cmv-hide {
+                      display: none;
+                    }
+    
+                     .cmv-active {
+                    box-shadow: 0 8px 8px -5px grey;
+                    
+                      }   
+    
+    
+                      .cmv-tr-button-container {
+                           display: flex;
+                        z-index: 200;
+                        position: absolute;
+                        bottom: 20px;
+                        right: 30px;
+                        flex-direction: column;
+                      }
+    
+                      .cmv-tr-button-container img {
+                           margin-right:10px;
+                      }
+    
+                      .cmv-tr-button-container div {
+                       box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
+                      margin-bottom : 10px;
+                      }
+    
+              .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    }
+    
+    .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    font-size : 12px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 7px 2px;
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    right: 110%;
+    }
+    
+    .tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent transparent black;
+    }
+    .tooltip:hover .tooltiptext {
+    visibility: visible;
+    }
+                </style>
+
+    
+             <div class = "cmv-tr-button-container">
+              <div class = "charpstar-button-darkmode tooltip" id = "cmv-darkModeButton"><span class="tooltiptext">Toggle Dark Mode</span>
+                <button style="display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 12c0 6.627 5.373 12 12 12s12-5.373 12-12-5.373-12-12-12-12 5.373-12 12zm2 0c0-5.514 4.486-10 10-10v20c-5.514 0-10-4.486-10-10z"/></svg></button>
+               </div> 
+              <div class = "charpstar-button-shadow tooltip" id = "cmv-shadowToggleButton"><span class="tooltiptext">Toggle Shadows</span>
+                <button style="display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4.069 13h-4.069v-2h4.069c-.041.328-.069.661-.069 1s.028.672.069 1zm3.034-7.312l-2.881-2.881-1.414 1.414 2.881 2.881c.411-.529.885-1.003 1.414-1.414zm11.209 1.414l2.881-2.881-1.414-1.414-2.881 2.881c.528.411 1.002.886 1.414 1.414zm-6.312-3.102c.339 0 .672.028 1 .069v-4.069h-2v4.069c.328-.041.661-.069 1-.069zm0 16c-.339 0-.672-.028-1-.069v4.069h2v-4.069c-.328.041-.661.069-1 .069zm7.931-9c.041.328.069.661.069 1s-.028.672-.069 1h4.069v-2h-4.069zm-3.033 7.312l2.88 2.88 1.415-1.414-2.88-2.88c-.412.528-.886 1.002-1.415 1.414zm-11.21-1.415l-2.88 2.88 1.414 1.414 2.88-2.88c-.528-.411-1.003-.885-1.414-1.414zm6.312-10.897c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-6z"/></svg></button>
+               </div> 
+              <div class = "charpstar-button-dimension tooltip" id = "cmv-dimensionButton" ><span class="tooltiptext">Toggle Dimension Lines</span>
+                <button data-tech="charpstar-ar" style=" display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer; "> 
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 18.344l5.656 5.656 18.344-18.344-5.657-5.656-18.343 18.344zm21.171-12.687l-15.514 15.515-2.829-2.829 1.04-1.009 2.122 2.122.707-.707-2.122-2.122 1.414-1.414 1.414 1.414.708-.707-1.414-1.414 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.414 2.122 2.121.707-.707-2.121-2.121 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.414 1.414 1.414.707-.707-1.414-1.414 1.414-1.415 2.121 2.122.707-.707-2.121-2.122 1.039-1.071 2.829 2.828zm-16.241 4.929l-4.93-4.93 5.656-5.656 4.93 4.93-2.844 2.843-.707-.708 1.414-1.414-1.076-1.076-1.398 1.399-.707-.707 1.398-1.398-1.009-1.04-2.829 2.828 3.516 3.515-1.414 1.414zm11.297 5.672l.707.707 1.414-1.414 1.046 1.046-1.415 1.413.707.707 1.415-1.413 1.071 1.039-2.829 2.828-3.515-3.515-1.414 1.414 4.93 4.93 5.656-5.657-4.93-4.929-2.843 2.844z"/></svg> </button>
+               </div> 
+    
+              <div class = "charpstar-button-uvcheck tooltip" id = "cmv-uvCheckButton" >
+                  <span class="tooltiptext">Toggle UV Check Material</span>
+                      <button style="display: flex; align-items: center; justify-content: space-evenly; background-color: rgba(255, 255, 255, 0.9); padding: 10px 15px; border: none; cursor: pointer;"> 
+                       <svg width="24" height="24" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+       viewBox="0 0 32 32" xml:space="preserve">
+    <style type="text/css">
+      .st0{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+      .st1{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+      .st2{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6,6;}
+      .st3{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4,4;}
+      .st4{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;}
+      .st5{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-dasharray:3.1081,3.1081;}
+      
+        .st6{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:4,3;}
+    </style>
+    <rect x="4" y="4" class="st0" width="24" height="24"/>
+    <rect x="4" y="4" class="st0" width="12" height="8"/>
+    <rect x="10" y="12" class="st0" width="12" height="8"/>
+    <rect x="4" y="20" class="st0" width="12" height="8"/>
+    <rect x="16" y="4" class="st0" width="12" height="8"/>
+    <rect x="16" y="20" class="st0" width="12" height="8"/>
+    </svg>
+                      </button>
+                    </div>
+              </div>
+              `;
           this.insertAdjacentHTML("beforeend", htmlContent);
           const button = this.querySelector("#cmv-dimensionButton");
 
@@ -61569,6 +61803,7 @@ class ModelViewerElementBase extends u$1 {
       }
 
       updateSourceProgress(1.0);
+      this.setPlaneGrid();
       // Call setup when component is initialized
       setupUVCheckButton.call(this);
       this.uvCheckActive = false;
@@ -62952,12 +63187,12 @@ const PRECISION = 7;
 function buildHeader() {
   return `#usda 1.0
 (
-	customLayerData = {
-		string creator = "Three.js USDZExporter"
-	}
-	defaultPrim = "Root"
-	metersPerUnit = 1
-	upAxis = "Y"
+customLayerData = {
+  string creator = "Three.js USDZExporter"
+}
+defaultPrim = "Root"
+metersPerUnit = 1
+upAxis = "Y"
 )
 
 `;
@@ -62967,31 +63202,31 @@ function buildSceneStart(options) {
   const alignment =
     options.includeAnchoringProperties === true
       ? `
-		token preliminary:anchoring:type = "${options.ar.anchoring.type}"
-		token preliminary:planeAnchoring:alignment = "${options.ar.planeAnchoring.alignment}"
-	`
+  token preliminary:anchoring:type = "${options.ar.anchoring.type}"
+  token preliminary:planeAnchoring:alignment = "${options.ar.planeAnchoring.alignment}"
+`
       : "";
   return `def Xform "Root"
 {
-	def Scope "Scenes" (
-		kind = "sceneLibrary"
-	)
-	{
-		def Xform "Scene" (
-			customData = {
-				bool preliminary_collidesWithEnvironment = 0
-				string sceneName = "Scene"
-			}
-			sceneName = "Scene"
-		)
-		{${alignment}
+def Scope "Scenes" (
+  kind = "sceneLibrary"
+)
+{
+  def Xform "Scene" (
+    customData = {
+      bool preliminary_collidesWithEnvironment = 0
+      string sceneName = "Scene"
+    }
+    sceneName = "Scene"
+  )
+  {${alignment}
 `;
 }
 
 function buildSceneEnd() {
   return `
-		}
-	}
+  }
+}
 }
 
 `;
@@ -63017,14 +63252,14 @@ function buildXform(object, geometry, material) {
   }
 
   return `def Xform "${name}" (
-	prepend references = @./geometries/Geometry_${geometry.id}.usda@</Geometry>
-	prepend apiSchemas = ["MaterialBindingAPI"]
+prepend references = @./geometries/Geometry_${geometry.id}.usda@</Geometry>
+prepend apiSchemas = ["MaterialBindingAPI"]
 )
 {
-	matrix4d xformOp:transform = ${transform}
-	uniform token[] xformOpOrder = ["xformOp:transform"]
+matrix4d xformOp:transform = ${transform}
+uniform token[] xformOpOrder = ["xformOp:transform"]
 
-	rel material:binding = </Materials/Material_${material.id}>
+rel material:binding = </Materials/Material_${material.id}>
 }
 
 `;
@@ -63063,17 +63298,17 @@ function buildMesh(geometry) {
   const count = attributes.position.count;
 
   return `
-	def Mesh "${name}"
-	{
-		int[] faceVertexCounts = [${buildMeshVertexCount(geometry)}]
-		int[] faceVertexIndices = [${buildMeshVertexIndices(geometry)}]
-		normal3f[] normals = [${buildVector3Array(attributes.normal, count)}] (
-			interpolation = "vertex"
-		)
-		point3f[] points = [${buildVector3Array(attributes.position, count)}]
+def Mesh "${name}"
+{
+  int[] faceVertexCounts = [${buildMeshVertexCount(geometry)}]
+  int[] faceVertexIndices = [${buildMeshVertexIndices(geometry)}]
+  normal3f[] normals = [${buildVector3Array(attributes.normal, count)}] (
+    interpolation = "vertex"
+  )
+  point3f[] points = [${buildVector3Array(attributes.position, count)}]
 ${buildPrimvars(attributes)}
-		uniform token subdivisionScheme = "none"
-	}
+  uniform token subdivisionScheme = "none"
+}
 `;
 }
 
@@ -63154,9 +63389,9 @@ function buildPrimvars(attributes) {
 
     if (attribute !== undefined) {
       string += `
-		texCoord2f[] primvars:st${id} = [${buildVector2Array(attribute)}] (
-			interpolation = "vertex"
-		)`;
+  texCoord2f[] primvars:st${id} = [${buildVector2Array(attribute)}] (
+    interpolation = "vertex"
+  )`;
     }
   }
 
@@ -63168,12 +63403,12 @@ function buildPrimvars(attributes) {
     const count = colorAttribute.count;
 
     string += `
-	color3f[] primvars:displayColor = [${buildVector3Array(
-    colorAttribute,
-    count
-  )}] (
-		interpolation = "vertex"
-		)`;
+color3f[] primvars:displayColor = [${buildVector3Array(
+      colorAttribute,
+      count
+    )}] (
+  interpolation = "vertex"
+  )`;
   }
 
   return string;
@@ -63247,45 +63482,45 @@ function buildMaterial(material, textures, quickLookCompatible = false) {
     }
 
     return `
-		def Shader "PrimvarReader_${mapType}"
-		{
-			uniform token info:id = "UsdPrimvarReader_float2"
-			float2 inputs:fallback = (0.0, 0.0)
-			token inputs:varname = "${uv}"
-			float2 outputs:result
-		}
+  def Shader "PrimvarReader_${mapType}"
+  {
+    uniform token info:id = "UsdPrimvarReader_float2"
+    float2 inputs:fallback = (0.0, 0.0)
+    token inputs:varname = "${uv}"
+    float2 outputs:result
+  }
 
-		def Shader "Transform2d_${mapType}"
-		{
-			uniform token info:id = "UsdTransform2d"
-			token inputs:in.connect = </Materials/Material_${
-        material.id
-      }/PrimvarReader_${mapType}.outputs:result>
-			float inputs:rotation = ${(rotation * (180 / Math.PI)).toFixed(PRECISION)}
-			float2 inputs:scale = ${buildVector2(repeat)}
-			float2 inputs:translation = ${buildVector2(offset)}
-			float2 outputs:result
-		}
+  def Shader "Transform2d_${mapType}"
+  {
+    uniform token info:id = "UsdTransform2d"
+    token inputs:in.connect = </Materials/Material_${
+      material.id
+    }/PrimvarReader_${mapType}.outputs:result>
+    float inputs:rotation = ${(rotation * (180 / Math.PI)).toFixed(PRECISION)}
+    float2 inputs:scale = ${buildVector2(repeat)}
+    float2 inputs:translation = ${buildVector2(offset)}
+    float2 outputs:result
+  }
 
-		def Shader "Texture_${texture.id}_${mapType}"
-		{
-			uniform token info:id = "UsdUVTexture"
-			asset inputs:file = @textures/Texture_${id}.png@
-			float2 inputs:st.connect = </Materials/Material_${
-        material.id
-      }/Transform2d_${mapType}.outputs:result>
-			${color !== undefined ? "float4 inputs:scale = " + buildColor4(color) : ""}
-			token inputs:sourceColorSpace = "${
-        texture.colorSpace === NoColorSpace ? "raw" : "sRGB"
-      }"
-			token inputs:wrapS = "${WRAPPINGS[texture.wrapS]}"
-			token inputs:wrapT = "${WRAPPINGS[texture.wrapT]}"
-			float outputs:r
-			float outputs:g
-			float outputs:b
-			float3 outputs:rgb
-			${material.transparent || material.alphaTest > 0.0 ? "float outputs:a" : ""}
-		}`;
+  def Shader "Texture_${texture.id}_${mapType}"
+  {
+    uniform token info:id = "UsdUVTexture"
+    asset inputs:file = @textures/Texture_${id}.png@
+    float2 inputs:st.connect = </Materials/Material_${
+      material.id
+    }/Transform2d_${mapType}.outputs:result>
+    ${color !== undefined ? "float4 inputs:scale = " + buildColor4(color) : ""}
+    token inputs:sourceColorSpace = "${
+      texture.colorSpace === NoColorSpace ? "raw" : "sRGB"
+    }"
+    token inputs:wrapS = "${WRAPPINGS[texture.wrapS]}"
+    token inputs:wrapT = "${WRAPPINGS[texture.wrapT]}"
+    float outputs:r
+    float outputs:g
+    float outputs:b
+    float3 outputs:rgb
+    ${material.transparent || material.alphaTest > 0.0 ? "float outputs:a" : ""}
+  }`;
   }
 
   if (material.side === DoubleSide) {
@@ -63452,23 +63687,23 @@ function buildMaterial(material, textures, quickLookCompatible = false) {
   }
 
   return `
-	def Material "Material_${material.id}"
-	{
-		def Shader "PreviewSurface"
-		{
-			uniform token info:id = "UsdPreviewSurface"
+def Material "Material_${material.id}"
+{
+  def Shader "PreviewSurface"
+  {
+    uniform token info:id = "UsdPreviewSurface"
 ${inputs.join("\n")}
-			int inputs:useSpecularWorkflow = 0
-			token outputs:surface
-		}
+    int inputs:useSpecularWorkflow = 0
+    token outputs:surface
+  }
 
-		token outputs:surface.connect = </Materials/Material_${
-      material.id
-    }/PreviewSurface.outputs:surface>
+  token outputs:surface.connect = </Materials/Material_${
+    material.id
+  }/PreviewSurface.outputs:surface>
 
 ${samplers.join("\n")}
 
-	}
+}
 `;
 }
 
@@ -63498,42 +63733,42 @@ function buildCamera(camera) {
 
   if (camera.isOrthographicCamera) {
     return `def Camera "${name}"
-		{
-			matrix4d xformOp:transform = ${transform}
-			uniform token[] xformOpOrder = ["xformOp:transform"]
+  {
+    matrix4d xformOp:transform = ${transform}
+    uniform token[] xformOpOrder = ["xformOp:transform"]
 
-			float2 clippingRange = (${camera.near.toPrecision(
-        PRECISION
-      )}, ${camera.far.toPrecision(PRECISION)})
-			float horizontalAperture = ${(
-        (Math.abs(camera.left) + Math.abs(camera.right)) *
-        10
-      ).toPrecision(PRECISION)}
-			float verticalAperture = ${(
-        (Math.abs(camera.top) + Math.abs(camera.bottom)) *
-        10
-      ).toPrecision(PRECISION)}
-			token projection = "orthographic"
-		}
-	
-	`;
+    float2 clippingRange = (${camera.near.toPrecision(
+      PRECISION
+    )}, ${camera.far.toPrecision(PRECISION)})
+    float horizontalAperture = ${(
+      (Math.abs(camera.left) + Math.abs(camera.right)) *
+      10
+    ).toPrecision(PRECISION)}
+    float verticalAperture = ${(
+      (Math.abs(camera.top) + Math.abs(camera.bottom)) *
+      10
+    ).toPrecision(PRECISION)}
+    token projection = "orthographic"
+  }
+
+`;
   } else {
     return `def Camera "${name}"
-		{
-			matrix4d xformOp:transform = ${transform}
-			uniform token[] xformOpOrder = ["xformOp:transform"]
+  {
+    matrix4d xformOp:transform = ${transform}
+    uniform token[] xformOpOrder = ["xformOp:transform"]
 
-			float2 clippingRange = (${camera.near.toPrecision(
-        PRECISION
-      )}, ${camera.far.toPrecision(PRECISION)})
-			float focalLength = ${camera.getFocalLength().toPrecision(PRECISION)}
-			float focusDistance = ${camera.focus.toPrecision(PRECISION)}
-			float horizontalAperture = ${camera.getFilmWidth().toPrecision(PRECISION)}
-			token projection = "perspective"
-			float verticalAperture = ${camera.getFilmHeight().toPrecision(PRECISION)}
-		}
-	
-	`;
+    float2 clippingRange = (${camera.near.toPrecision(
+      PRECISION
+    )}, ${camera.far.toPrecision(PRECISION)})
+    float focalLength = ${camera.getFocalLength().toPrecision(PRECISION)}
+    float focusDistance = ${camera.focus.toPrecision(PRECISION)}
+    float horizontalAperture = ${camera.getFilmWidth().toPrecision(PRECISION)}
+    token projection = "perspective"
+    float verticalAperture = ${camera.getFilmHeight().toPrecision(PRECISION)}
+  }
+
+`;
   }
 }
 

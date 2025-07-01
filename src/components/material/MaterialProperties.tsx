@@ -93,20 +93,26 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     try {
       const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
       if (object && object.material) {
-        if (property === "sheenColor") {
-          object.material.sheenColor.setRGB(
+        const materialToUpdate = Array.isArray(object.material)
+          ? object.material[0]
+          : object.material;
+
+        // Apply color change directly to material
+        if (property === "color") {
+          materialToUpdate.color.setRGB(
             newColorRgb.r,
             newColorRgb.g,
             newColorRgb.b
           );
-        } else {
-          object.material[property].setRGB(
+        } else if (property === "sheenColor" && materialToUpdate.sheenColor) {
+          materialToUpdate.sheenColor.setRGB(
             newColorRgb.r,
             newColorRgb.g,
             newColorRgb.b
           );
         }
-        object.material.needsUpdate = true;
+
+        materialToUpdate.needsUpdate = true;
 
         // Update local state
         setMaterial((prev) => {
@@ -221,8 +227,13 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
     try {
       const object = modelViewerRef.current.getObjectByUuid(selectedNode.uuid);
       if (object && object.material) {
-        object.material[property] = value;
-        object.material.needsUpdate = true;
+        const materialToUpdate = Array.isArray(object.material)
+          ? object.material[0]
+          : object.material;
+
+        // Apply property change directly to material
+        materialToUpdate[property] = value;
+        materialToUpdate.needsUpdate = true;
 
         // Update local state
         setMaterial((prev) => {
@@ -376,9 +387,16 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           variantChangeCounter
         );
 
+        // Preserve original material state when first selected
+        const materialToProcess = Array.isArray(object.material)
+          ? object.material[0]
+          : object.material;
+
+        // Note: Material state preservation removed
+
         // Check if the material is MeshPhysicalMaterial
         setIsMeshPhysicalMaterial(
-          object.material.type === "MeshPhysicalMaterial"
+          materialToProcess.type === "MeshPhysicalMaterial"
         );
 
         // Get the shared texture repeat values
