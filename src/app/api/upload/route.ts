@@ -163,6 +163,20 @@ export async function POST(request: NextRequest) {
     const filePath = `${clientConfig.bunnyCdn.basePath}/${targetFolder}/${filename}`;
     console.log(`Full file path for upload: ${filePath}`);
 
+    // Debug the full request details
+    console.log(`BunnyCDN Upload Request Details:`, {
+      zoneName,
+      basePath,
+      clientBasePath: clientConfig.bunnyCdn.basePath,
+      targetFolder,
+      filename,
+      fullFilePath: filePath,
+      hostname: HOSTNAME,
+      fullUrl: `https://${HOSTNAME}/${zoneName}/${filePath}`,
+      contentType,
+      bufferSize: buffer.length,
+    });
+
     // Upload to BunnyCDN
     const uploadPromise = new Promise((resolve, reject) => {
       const options = {
@@ -187,11 +201,25 @@ export async function POST(request: NextRequest) {
 
         res.on("end", () => {
           console.log(`Upload response status: ${res.statusCode}`);
+          console.log(`Upload response headers:`, res.headers);
           console.log(`Upload response data: ${data}`);
 
           if (res.statusCode === 200 || res.statusCode === 201) {
             resolve({ success: true });
           } else {
+            // Log the full error details for debugging
+            console.error(`BunnyCDN Upload failed:`, {
+              status: res.statusCode,
+              statusMessage: res.statusMessage,
+              headers: res.headers,
+              responseData: data,
+              requestOptions: {
+                method: options.method,
+                host: options.host,
+                path: options.path,
+                contentLength: options.headers["Content-Length"],
+              },
+            });
             reject(
               new Error(`Upload failed with status ${res.statusCode}: ${data}`)
             );
