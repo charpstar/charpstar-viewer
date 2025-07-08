@@ -323,13 +323,20 @@ export default function ClientPage() {
           setSaveProgress(40);
           setSaveMessage("Materials uploaded successfully...");
         } else {
-          const errorData = await materialsResponse.json();
-          console.error(
-            `Failed to upload materials: ${
-              errorData.error || materialsResponse.statusText
-            }`
-          );
-          setSaveMessage("Error saving materials. Please try again.");
+          // Try to get error details, but handle non-JSON responses
+          let errorMessage = materialsResponse.statusText;
+          try {
+            const errorData = await materialsResponse.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (jsonError) {
+            // Response wasn't JSON, use status text
+            console.error(
+              "Non-JSON error response:",
+              await materialsResponse.text()
+            );
+          }
+          console.error(`Failed to upload materials: ${errorMessage}`);
+          setSaveMessage(`Error saving materials: ${errorMessage}`);
         }
       } else {
         console.warn("No materials data available to upload");
@@ -359,9 +366,8 @@ export default function ClientPage() {
                 "Failed to parse list-uploads response as JSON:",
                 responseText
               );
-              throw new Error(
-                "Invalid response from server when listing uploads"
-              );
+              // Use fallback empty array instead of throwing
+              listData = { files: [] };
             }
             const existingFiles = listData.files || [];
 
@@ -429,13 +435,22 @@ export default function ClientPage() {
           setSaveProgress(65);
           setSaveMessage("Complete model uploaded successfully...");
         } else {
-          const errorData = await gltfResponse.json();
-          console.error(
-            `Failed to upload GLTF: ${
-              errorData.error || gltfResponse.statusText
-            }`
+          // Try to get error details, but handle non-JSON responses
+          let errorMessage = gltfResponse.statusText;
+          try {
+            const errorData = await gltfResponse.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (jsonError) {
+            // Response wasn't JSON, use status text
+            console.error(
+              "Non-JSON error response:",
+              await gltfResponse.text()
+            );
+          }
+          console.error(`Failed to upload GLTF: ${errorMessage}`);
+          setSaveMessage(
+            `Warning: Failed to save complete model file: ${errorMessage}`
           );
-          setSaveMessage("Warning: Failed to save complete model file.");
         }
       } else {
         console.warn("No GLTF data available to upload");
