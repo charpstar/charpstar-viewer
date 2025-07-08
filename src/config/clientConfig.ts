@@ -83,11 +83,11 @@ export const clients: Record<string, ClientConfig> = {
   GS: {
     name: "GeorgeSmith",
     description: "GeorgeSmith Editor",
-    modelUrl: "https://cdn.charpstar.net/GeorgeSmith/Editor/C001M.gltf",
+    modelUrl: "https://cdn.charpstar.net/Client-Editor/GeorgeSmith/C001M.gltf",
     hdrPath: "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr",
     scriptPath: "/model-viewer.js",
     resourcesPath: "GSmith",
-    livePassword: "GSmith2024",
+    livePassword: "2024",
     exposure: 1.2,
     toneMapping: "aces",
     bunnyCdn: {

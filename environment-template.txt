@@ -1,0 +1,34 @@
+# BunnyCDN Configuration Template
+# ================================
+# Copy this file to .env.local and fill in your actual values
+
+# BunnyCDN Region (optional) - e.g., 'ny', 'la', 'sg', etc.
+# Leave empty for default region
+BUNNY_REGION=
+
+# BunnyCDN Storage Zone Name and Path
+# Format: zone-name/optional-path
+# Example: charpstar-storage/Client-Editor
+BUNNY_STORAGE_ZONE_NAME=your-zone-name/your-path
+
+# BunnyCDN Storage API Access Key
+# Get this from your BunnyCDN storage zone settings
+BUNNY_ACCESS_KEY=your-storage-access-key
+
+# BunnyCDN API Key for cache purging
+# Get this from your BunnyCDN account settings
+BUNNY_API_KEY=your-api-key
+
+# BunnyCDN Pull Zone URL (CDN URL)
+# This is your CDN domain for serving files
+# Example: cdn.charpstar.net
+BUNNY_PULL_ZONE_URL=cdn.charpstar.net
+
+# Development Configuration
+# =========================
+
+# Next.js Development Port (optional)
+# PORT=3000
+
+# Node Environment
+NODE_ENV=development 
