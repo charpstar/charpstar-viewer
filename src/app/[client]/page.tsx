@@ -419,18 +419,19 @@ export default function ClientPage() {
 
         console.log("Generated filename:", savedGltfFilename);
 
-        const gltfResponse = await fetch("/api/upload", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            data: gltfData,
-            filename: savedGltfFilename,
-            client: clientName,
-            targetFolder: "Uploads", // Specify uploads folder
-          }),
-        });
+        // For large GLTF files, use streaming upload to avoid payload limits
+        const gltfResponse = await fetch(
+          `/api/upload?filename=${encodeURIComponent(
+            savedGltfFilename
+          )}&client=${encodeURIComponent(clientName)}&targetFolder=Uploads`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: gltfData, // Send the GLTF data directly as the body
+          }
+        );
 
         if (gltfResponse.ok) {
           const result = await gltfResponse.json();

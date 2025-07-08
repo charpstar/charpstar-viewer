@@ -322,3 +322,202 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// New endpoint for direct streaming uploads (handles large files)
+export async function PUT(request: NextRequest) {
+  try {
+    // Log environment variables (without showing sensitive values)
+    console.log("Environment check:", {
+      hasRegion: !!REGION,
+      hasStorageZonePath: !!STORAGE_ZONE_PATH,
+      hasAccessKey: !!ACCESS_KEY,
+      hasBunnyApiKey: !!BUNNY_API_KEY,
+      hostname: HOSTNAME,
+      pullZoneUrl: BUNNY_PULL_ZONE_URL,
+    });
+
+    // Validate required environment variables
+    if (!STORAGE_ZONE_PATH) {
+      console.error("Missing BUNNY_STORAGE_ZONE_NAME environment variable");
+      return NextResponse.json(
+        {
+          error:
+            "Server configuration error: Missing storage zone configuration",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!ACCESS_KEY) {
+      console.error("Missing BUNNY_ACCESS_KEY environment variable");
+      return NextResponse.json(
+        {
+          error: "Server configuration error: Missing access key configuration",
+        },
+        { status: 500 }
+      );
+    }
+
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const filename = searchParams.get("filename");
+    const client = searchParams.get("client") || DEFAULT_CLIENT;
+    const targetFolder = searchParams.get("targetFolder") || "Uploads";
+
+    if (!filename) {
+      return NextResponse.json(
+        { error: "Missing filename parameter" },
+        { status: 400 }
+      );
+    }
+
+    console.log(
+      `Streaming upload for ${filename}, client: ${client}, folder: ${targetFolder}`
+    );
+
+    // Get client-specific BunnyCDN configuration
+    const clientConfig = getClientConfig(client);
+    const { zoneName, basePath } = getStorageZoneDetails();
+
+    // Construct the path for the file in BunnyCDN
+    const filePath = `${clientConfig.bunnyCdn.basePath}/${targetFolder}/${filename}`;
+    console.log(`Full file path for upload: ${filePath}`);
+
+    // Stream the request body directly to BunnyCDN
+    const uploadPromise = new Promise((resolve, reject) => {
+      const options = {
+        method: "PUT",
+        host: HOSTNAME,
+        path: `/${zoneName}/${filePath}`,
+        headers: {
+          AccessKey: ACCESS_KEY,
+          "Content-Type": "application/json",
+        },
+      };
+
+      console.log(`Streaming upload to: ${options.host}${options.path}`);
+
+      const req = https.request(options, (res) => {
+        let data = "";
+
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+
+        res.on("end", () => {
+          console.log(`Stream upload response status: ${res.statusCode}`);
+          console.log(`Stream upload response data: ${data}`);
+
+          if (res.statusCode === 200 || res.statusCode === 201) {
+            resolve({ success: true });
+          } else {
+            console.error(`BunnyCDN Stream Upload failed:`, {
+              status: res.statusCode,
+              statusMessage: res.statusMessage,
+              responseData: data,
+            });
+            reject(
+              new Error(`Upload failed with status ${res.statusCode}: ${data}`)
+            );
+          }
+        });
+      });
+
+      req.on("error", (error) => {
+        console.error(`Request error during stream upload: ${error.message}`);
+        reject(error);
+      });
+
+      // Pipe the request body directly to BunnyCDN
+      request.body
+        ?.pipeTo(
+          new WritableStream({
+            write(chunk) {
+              req.write(chunk);
+            },
+            close() {
+              req.end();
+            },
+          })
+        )
+        .catch(reject);
+    });
+
+    try {
+      await uploadPromise;
+      console.log("Stream upload completed successfully");
+
+      // Construct the CDN URL for the uploaded file
+      const fileUrl = `https://${BUNNY_PULL_ZONE_URL}/${filePath}`;
+
+      // Purge the cache for this file
+      console.log(`Purging cache for: ${fileUrl}`);
+      try {
+        const purgeResponse = await fetch(
+          "https://api.bunny.net/purge?async=false",
+          {
+            method: "POST",
+            headers: {
+              AccessKey: BUNNY_API_KEY,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ urls: [fileUrl] }),
+          }
+        );
+
+        if (!purgeResponse.ok) {
+          const errorText = await purgeResponse.text();
+          console.warn(
+            `Cache purge warning: ${purgeResponse.status} - ${errorText}`
+          );
+        } else {
+          console.log("Cache purge successful");
+        }
+      } catch (purgeError) {
+        console.error("Error purging cache:", purgeError);
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `File ${filename} uploaded and cache purged`,
+        fileUrl: fileUrl,
+      });
+    } catch (uploadError: unknown) {
+      console.error("Error during stream upload:", uploadError);
+
+      let errorMessage = "Unknown error";
+      if (uploadError instanceof Error) {
+        errorMessage = uploadError.message;
+      } else if (typeof uploadError === "string") {
+        errorMessage = uploadError;
+      } else if (
+        uploadError &&
+        typeof uploadError === "object" &&
+        "message" in uploadError
+      ) {
+        errorMessage = String(uploadError.message);
+      }
+
+      return NextResponse.json(
+        { error: "Failed to upload file: " + errorMessage },
+        { status: 500 }
+      );
+    }
+  } catch (error: unknown) {
+    console.error("Uncaught error in stream upload route:", error);
+
+    let errorMessage = "Unknown error";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === "string") {
+      errorMessage = error;
+    } else if (error && typeof error === "object" && "message" in error) {
+      errorMessage = String(error.message);
+    }
+
+    return NextResponse.json(
+      { error: "Failed to upload file: " + errorMessage },
+      { status: 500 }
+    );
+  }
+}
