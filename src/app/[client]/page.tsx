@@ -326,14 +326,18 @@ export default function ClientPage() {
           // Try to get error details, but handle non-JSON responses
           let errorMessage = materialsResponse.statusText;
           try {
-            const errorData = await materialsResponse.json();
-            errorMessage = errorData.error || errorMessage;
-          } catch (jsonError) {
-            // Response wasn't JSON, use status text
-            console.error(
-              "Non-JSON error response:",
-              await materialsResponse.text()
-            );
+            // Read response as text first, then try to parse as JSON
+            const responseText = await materialsResponse.text();
+            try {
+              const errorData = JSON.parse(responseText);
+              errorMessage = errorData.error || errorMessage;
+            } catch (jsonParseError) {
+              // Response wasn't JSON, log the raw text and use status
+              console.error("Non-JSON error response:", responseText);
+              errorMessage = responseText || errorMessage;
+            }
+          } catch (textReadError) {
+            console.error("Failed to read error response:", textReadError);
           }
           console.error(`Failed to upload materials: ${errorMessage}`);
           setSaveMessage(`Error saving materials: ${errorMessage}`);
@@ -438,14 +442,18 @@ export default function ClientPage() {
           // Try to get error details, but handle non-JSON responses
           let errorMessage = gltfResponse.statusText;
           try {
-            const errorData = await gltfResponse.json();
-            errorMessage = errorData.error || errorMessage;
-          } catch (jsonError) {
-            // Response wasn't JSON, use status text
-            console.error(
-              "Non-JSON error response:",
-              await gltfResponse.text()
-            );
+            // Read response as text first, then try to parse as JSON
+            const responseText = await gltfResponse.text();
+            try {
+              const errorData = JSON.parse(responseText);
+              errorMessage = errorData.error || errorMessage;
+            } catch (jsonParseError) {
+              // Response wasn't JSON, log the raw text and use status
+              console.error("Non-JSON error response:", responseText);
+              errorMessage = responseText || errorMessage;
+            }
+          } catch (textReadError) {
+            console.error("Failed to read error response:", textReadError);
           }
           console.error(`Failed to upload GLTF: ${errorMessage}`);
           setSaveMessage(
