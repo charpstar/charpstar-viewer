@@ -75,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center space-x-4">
         {/* Navigation between editor and demo */}
         {isClientView && (
-          <div className="mr-4">
+          <div className="mr-4 flex items-center space-x-3">
             {isDemoMode ? (
               <Link href={`/${clientName}`}>
                 <Button 
@@ -88,15 +88,29 @@ const Header: React.FC<HeaderProps> = ({
                 </Button>
               </Link>
             ) : (
-              <Link href={`/${clientName}/demo`}>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                >
-                  View Demo Catalog
-                </Button>
-              </Link>
+              <>
+                <Link href={`/${clientName}/demo`}>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-xs h-7"
+                  >
+                    View Demo Catalog
+                  </Button>
+                </Link>
+                {/* Manage Models Link for Editor Mode */}
+                {isEditorMode && (
+                  <Link href={`/${clientName}/manage`}>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs h-7"
+                    >
+                      Manage Models
+                    </Button>
+                  </Link>
+                )}
+              </>
             )}
           </div>
         )}

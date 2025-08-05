@@ -44,44 +44,56 @@ export async function POST(request: NextRequest) {
     const resourceData = requestBody.data;
     const filename = requestBody.filename;
     const customTargetFolder = requestBody.targetFolder; // Optional: specify target folder
+    const isGlbFile = requestBody.isGlbFile || false; // Flag to indicate if it's a GLB file
     
     // Log what we're trying to process
-    console.log(`Processing upload for ${filename} with data of type ${typeof resourceData}`);
+    console.log(`Processing upload for ${filename} with data of type ${typeof resourceData}, isGlbFile: ${isGlbFile}`);
     
     // Validate the filename is one of our expected types
     const validFilenames = ['materials.json', 'textures.json', 'images.json'];
     const isGltfFile = filename.endsWith('.gltf');
+    const isGlbBinaryFile = filename.endsWith('.glb');
     
-    if (!validFilenames.includes(filename) && !isGltfFile) {
+    if (!validFilenames.includes(filename) && !isGltfFile && !isGlbBinaryFile) {
       console.error(`Invalid filename: ${filename}`);
-      return NextResponse.json({ error: 'Invalid filename. Must be one of: ' + validFilenames.join(', ') + ' or a .gltf file' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid filename. Must be one of: ' + validFilenames.join(', ') + ', a .gltf file, or a .glb file' }, { status: 400 });
     }
 
-    let dataString;
-    let contentType;
+    let buffer: Buffer;
+    let contentType: string;
     
     try {
-      if (isGltfFile) {
+      if (isGlbBinaryFile) {
+        // For GLB files, data is base64 encoded binary
+        if (typeof resourceData === 'string') {
+          buffer = Buffer.from(resourceData, 'base64');
+        } else {
+          throw new Error('GLB file data must be base64 encoded string');
+        }
+        contentType = 'model/gltf-binary';
+        console.log(`Processing GLB file ${filename}, size: ${buffer.length} bytes`);
+      } else if (isGltfFile) {
         // For GLTF files, data should already be a string
+        let dataString: string;
         if (typeof resourceData === 'string') {
           dataString = resourceData;
         } else {
           dataString = JSON.stringify(resourceData, null, 2);
         }
+        buffer = Buffer.from(dataString);
         contentType = 'model/gltf+json';
         console.log(`Processing GLTF file ${filename}, length: ${dataString.length}`);
       } else {
         // For JSON files, stringify the data
-        dataString = JSON.stringify(resourceData, null, 2);
+        const dataString = JSON.stringify(resourceData, null, 2);
+        buffer = Buffer.from(dataString);
         contentType = 'application/json';
         console.log(`Successfully stringified ${filename} data, length: ${dataString.length}`);
       }
-    } catch (stringifyError) {
-      console.error(`Error processing ${filename} data:`, stringifyError);
+    } catch (processingError) {
+      console.error(`Error processing ${filename} data:`, processingError);
       return NextResponse.json({ error: 'Failed to process file data' }, { status: 500 });
     }
-    
-    const buffer = Buffer.from(dataString);
     
     // Get storage zone details
     const { zoneName, basePath } = getStorageZoneDetails();
@@ -97,14 +109,16 @@ export async function POST(request: NextRequest) {
     let targetFolder;
     if (customTargetFolder) {
       targetFolder = customTargetFolder;
-    } else if (isGltfFile) {
-      targetFolder = 'Uploads'; // GLTF files go to Uploads folder by default
+    } else if (isGltfFile || isGlbBinaryFile) {
+      targetFolder = ''; // GLTF and GLB files go to base folder (root of client folder)
     } else {
       targetFolder = clientConfig.bunnyCdn.resourcesFolder; // JSON files go to resources
     }
     
     // Construct the path for the file in BunnyCDN using client-specific paths
-    const filePath = `${clientConfig.bunnyCdn.basePath}/${targetFolder}/${filename}`;
+    const filePath = targetFolder 
+      ? `${clientConfig.bunnyCdn.basePath}/${targetFolder}/${filename}`
+      : `${clientConfig.bunnyCdn.basePath}/${filename}`;
     console.log(`Full file path for upload: ${filePath}`);
     
     // Upload to BunnyCDN
