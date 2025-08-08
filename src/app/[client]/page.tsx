@@ -86,20 +86,26 @@ export default function ClientPage() {
         const retryAttempts = 5;
         let currentAttempt = 0;
         
-        const retryInterval = setInterval(() => {
-          currentAttempt++;
-          console.log(`Retry attempt ${currentAttempt} of ${retryAttempts}`);
+        // Use model-viewer events instead of polling for retries
+        if (window.modelViewerElement) {
+          const modelViewer = window.modelViewerElement;
           
-          if (fetchModelStructure() || currentAttempt >= retryAttempts) {
-            clearInterval(retryInterval);
-            
-            if (currentAttempt >= retryAttempts && !modelStructure) {
-              console.error('Failed to fetch model structure after multiple attempts');
+          const handleModelLoad = () => {
+            console.log('Model loaded - attempting to fetch structure...');
+            if (fetchModelStructure()) {
+              modelViewer.removeEventListener('load', handleModelLoad);
+              modelViewer.removeEventListener('model-visibility', handleModelLoad);
             }
-          }
-        }, 500); // Try every 500ms
-        
-        return () => clearInterval(retryInterval);
+          };
+          
+          modelViewer.addEventListener('load', handleModelLoad);
+          modelViewer.addEventListener('model-visibility', handleModelLoad);
+          
+          return () => {
+            modelViewer.removeEventListener('load', handleModelLoad);
+            modelViewer.removeEventListener('model-visibility', handleModelLoad);
+          };
+        }
       }
     }
   }, [modelLoaded, modelStructure]);

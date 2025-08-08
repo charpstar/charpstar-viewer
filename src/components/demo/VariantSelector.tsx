@@ -1,7 +1,5 @@
-// src/components/demo/VariantSelector.tsx
-import React, { useState, useEffect, useRef } from 'react';
-import { Check, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import React, { useState, useEffect } from 'react';
+import { Check, Search, X } from 'lucide-react';
 
 interface VariantSelectorProps {
   modelViewerRef: React.RefObject<any>;
@@ -16,39 +14,29 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  // Track if we're on the initial page load
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Load variants whenever the model changes
+  // Variant fetching with proper modelViewerRef waiting
   useEffect(() => {
     const fetchVariants = () => {
       if (!modelViewerRef.current) return false;
       
       try {
-        // Get available variants
-        const availableVariants = modelViewerRef.current.availableVariants || [];
+        // Check if model is loaded using the loaded property
+        if (!modelViewerRef.current.loaded) return false;
         
+
+        
+        const availableVariants = modelViewerRef.current.availableVariants || [];
         if (Array.isArray(availableVariants) && availableVariants.length > 0) {
           setVariants(availableVariants);
-          
-          // If it's the initial page load, don't select a variant
-          // Otherwise, get the current variant from model-viewer
-          if (isInitialLoad) {
-            setCurrentVariant(null);
-          } else {
-            const currentVariantName = modelViewerRef.current.variantName;
-            setCurrentVariant(currentVariantName);
-          }
-          
-          setLoading(false);
-          return true;
+          const currentVariantName = modelViewerRef.current.variantName || null;
+          setCurrentVariant(currentVariantName);
         } else {
           setVariants([]);
           setCurrentVariant(null);
-          setLoading(false);
-          return false;
         }
+        setLoading(false);
+        return true;
       } catch (error) {
         console.error('Error fetching variants:', error);
         setVariants([]);
@@ -58,71 +46,91 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
       }
     };
     
-    // Reset loading state when model changes
+    // Reset when model changes
     setLoading(true);
+    setVariants([]);
+    setCurrentVariant(null);
     
-    // Try immediately
-    const foundVariants = fetchVariants();
+    let pollForRefInterval: NodeJS.Timeout | null = null;
+    let eventListenersAttached = false;
     
-    // If no variants found immediately, set up polling for a short time
-    // This helps because model-viewer might not have fully loaded
-    if (!foundVariants) {
-      let attempts = 0;
-      const maxAttempts = 10;
+    const setupEventListeners = () => {
+      if (!modelViewerRef.current || eventListenersAttached) return;
       
-      intervalRef.current = setInterval(() => {
-        attempts++;
-        
-        if (fetchVariants() || attempts >= maxAttempts) {
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-          setLoading(false);
-        }
-      }, 300);
+
+      eventListenersAttached = true;
       
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+      const modelViewer = modelViewerRef.current;
+      
+      const handleModelLoad = () => {
+        setTimeout(() => {
+          fetchVariants();
+        }, 1000);
+      };
+      
+      const handleVariantChange = () => {
+        if (modelViewerRef.current?.loaded) {
+          const currentVariantName = modelViewerRef.current.variantName || null;
+          setCurrentVariant(currentVariantName);
         }
       };
-    }
-  }, [modelViewerRef, modelName, isInitialLoad]);
-  
-  // Set isInitialLoad to false after component mounts
-  useEffect(() => {
-    if (isInitialLoad) {
-      setIsInitialLoad(false);
-    }
-  }, [isInitialLoad]);
-  
-  // Listen for variant changes in model-viewer
-  useEffect(() => {
-    const handleVariantChange = () => {
-      if (!modelViewerRef.current) return;
       
-      try {
-        const currentVariantName = modelViewerRef.current.variantName;
-        setCurrentVariant(currentVariantName);
-      } catch (error) {
-        console.error('Error getting current variant:', error);
+      // Add event listeners
+      modelViewer.addEventListener('load', handleModelLoad);
+      modelViewer.addEventListener('variant-applied', handleVariantChange);
+      
+      // Try immediately if model is already loaded
+      if (modelViewer.loaded) {
+        setTimeout(() => {
+          fetchVariants();
+        }, 500);
       }
+      
+      // Return cleanup function
+      return () => {
+        modelViewer.removeEventListener('load', handleModelLoad);
+        modelViewer.removeEventListener('variant-applied', handleVariantChange);
+      };
     };
     
-    // Set up a mutation observer to detect variant changes
-    if (modelViewerRef.current) {
-      // Check for variant changes every 300ms (a simple approach)
-      const intervalId = setInterval(handleVariantChange, 300);
+    // Wait for modelViewerRef to be populated
+    const waitForModelViewerRef = () => {
+      if (modelViewerRef.current) {
+        if (pollForRefInterval) clearInterval(pollForRefInterval);
+        const cleanup = setupEventListeners();
+        return cleanup;
+      }
       
-      return () => {
-        clearInterval(intervalId);
-      };
-    }
-  }, [modelViewerRef]);
+      return null;
+    };
+    
+    // Try immediately
+    const cleanup = waitForModelViewerRef();
+    if (cleanup) return cleanup;
+    
+    // If not found, poll every 100ms for up to 5 seconds
+    let pollCount = 0;
+    pollForRefInterval = setInterval(() => {
+      pollCount++;
+      
+      const cleanup = waitForModelViewerRef();
+      if (cleanup) {
+        return; // setupEventListeners will clear the interval
+      }
+      
+      if (pollCount >= 50) {
+        if (pollForRefInterval) clearInterval(pollForRefInterval);
+        setLoading(false);
+      }
+    }, 100);
+    
+    // Cleanup function
+    return () => {
+      if (pollForRefInterval) clearInterval(pollForRefInterval);
+    };
+  }, [modelName]);
   
-  // Select a variant
+  // SIMPLE variant selection
   const handleSelectVariant = (variantName: string) => {
     if (!modelViewerRef.current) return;
     
@@ -134,98 +142,94 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
     }
   };
 
-  // Filter variants based on search query
+  // SIMPLE filtering - no complex patterns
   const filteredVariants = searchQuery
     ? variants.filter(variant => 
         variant.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : variants;
-
-  // Handle search input change
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  // Clear search
-  const clearSearch = () => {
-    setSearchQuery('');
-  };
   
-  // If loading or no variants available
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-32">
-        <div className="animate-pulse text-gray-400">Loading variants...</div>
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-pulse text-gray-400 text-sm">Loading variants...</div>
       </div>
     );
   }
   
   if (variants.length === 0) {
     return (
-      <div className="text-center p-4 text-gray-500">
-        No material variants available for this model
+      <div className="flex items-center justify-center h-full text-center text-gray-500">
+        <div>
+          <div className="text-sm mb-1">No material variants found</div>
+          <div className="text-xs text-gray-400">
+            This model doesn't have material variants configured
+          </div>
+        </div>
       </div>
     );
   }
-  
+
   return (
-    <div className="space-y-2 pb-4">
-      {/* Search box */}
-      <div className="relative mb-3">
-        <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-          <Search size={16} className="text-gray-400" />
+    <div className="h-full flex flex-col space-y-3">
+      {/* Search input - only show if there are enough variants */}
+      {variants.length > 5 && (
+        <div className="relative flex-shrink-0">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search variants..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-8 py-1 h-8 text-sm bg-gray-50 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
         </div>
-        <Input
-          type="text"
-          placeholder="Search variants..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="pl-8 pr-8 py-1 h-8 text-sm bg-gray-50 border-gray-200 focus:ring-blue-500 focus:border-blue-500"
-        />
-        {searchQuery && (
-          <button
-            onClick={clearSearch}
-            className="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 hover:text-gray-600"
-          >
-            <span className="text-xs">✕</span>
-          </button>
-        )}
-      </div>
-      
+      )}
+
       {/* Variants count */}
-      <div className="text-xs text-gray-500 mb-2">
+      <div className="text-xs text-gray-500 flex-shrink-0">
         {filteredVariants.length === variants.length 
           ? `${variants.length} variants available` 
           : `Showing ${filteredVariants.length} of ${variants.length} variants`
         }
       </div>
-      
-      {/* Variants list */}
-      <div className="grid grid-cols-1 gap-2 max-h-96 overflow">
-        {filteredVariants.length === 0 ? (
-          <div className="text-gray-500 text-xs italic p-2 text-center">
-            No variants match your search
-          </div>
-        ) : (
-          filteredVariants.map((variant, index) => (
-            <div 
-              key={index}
-              className={`p-2 cursor-pointer border rounded-sm ${
-                currentVariant === variant 
-                  ? 'bg-blue-50 border-blue-200' 
-                  : 'bg-white border-gray-200 hover:bg-gray-50'
-              }`}
-              onClick={() => handleSelectVariant(variant)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="text-sm truncate">{variant}</div>
-                {currentVariant === variant && (
-                  <div className="text-xs text-blue-600 ml-1">✓</div>
-                )}
-              </div>
+
+      {/* Variant List - FULL HEIGHT with proper overflow */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="space-y-2">
+          {filteredVariants.length === 0 ? (
+            <div className="text-gray-500 text-xs italic p-2 text-center">
+              No variants match "{searchQuery}"
             </div>
-          ))
-        )}
+          ) : (
+            filteredVariants.map((variant) => (
+              <div 
+                key={variant}
+                className={`p-2 cursor-pointer border rounded transition-colors ${
+                  currentVariant === variant 
+                    ? 'bg-blue-50 border-blue-200' 
+                    : 'bg-white border-gray-200 hover:bg-gray-50'
+                }`}
+                onClick={() => handleSelectVariant(variant)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-sm truncate font-medium">{variant}</div>
+                  {currentVariant === variant && (
+                    <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Save, Download, ArrowLeft } from 'lucide-react';
+import { Save, Download, RefreshCw, Upload } from 'lucide-react';
 import { useParams, usePathname } from 'next/navigation';
 import { isValidClient } from '@/config/clientConfig';
 import ModelSelector from '@/components/ModelSelector';
@@ -20,6 +20,8 @@ interface HeaderProps {
   onModelChange?: (modelUrl: string, modelName: string) => void;
   currentModel?: string;
   cacheTimestamp?: number | null;
+  onRefreshModels?: () => void; // For manage page
+  onUploadModels?: () => void; // For manage page upload dialog
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -33,16 +35,17 @@ const Header: React.FC<HeaderProps> = ({
   onModelChange,
   currentModel,
   cacheTimestamp,
+  onRefreshModels,
+  onUploadModels,
 }) => {
   const params = useParams();
   const pathname = usePathname();
   const clientName = params?.client as string;
   const isClientView = isValidClient(clientName);
-  const isDemoView = pathname?.includes('/demo');
+  const isManageView = pathname?.includes('/manage');
   
-  // Determine if in editor or demo mode
-  const isEditorMode = isClientView && !isDemoView;
-  const isDemoMode = isClientView && isDemoView;
+  // Determine current page (only Editor and Manage now)
+  const currentPage = isManageView ? 'manage' : 'editor';
 
   return (
     <header className="h-12 bg-white text-[#111827] flex items-center justify-between px-6 border-b border-gray-200 shadow-sm w-full">
@@ -54,14 +57,38 @@ const Header: React.FC<HeaderProps> = ({
           height={28}
         />
         
-        {title && (
-          <div className="ml-6 text-lg font-medium text-gray-700">
-            {title}
-          </div>
+        {/* Unified Navigation */}
+        {isClientView && (
+          <nav className="ml-8">
+            <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <Link href={`/${clientName}`}>
+                <button
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
+                    currentPage === 'editor'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  }`}
+                >
+                  Editor
+                </button>
+              </Link>
+              <Link href={`/${clientName}/manage`}>
+                <button
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
+                    currentPage === 'manage'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  }`}
+                >
+                  Manage
+                </button>
+              </Link>
+            </div>
+          </nav>
         )}
         
         {/* Model Selector for Editor Mode */}
-        {isEditorMode && onModelChange && (
+        {currentPage === 'editor' && onModelChange && (
           <div className="ml-8">
             <ModelSelector 
               onModelChange={onModelChange}
@@ -72,96 +99,80 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </div>
       
-      <div className="flex items-center space-x-4">
-        {/* Navigation between editor and demo */}
-        {isClientView && (
-          <div className="mr-4 flex items-center space-x-3">
-            {isDemoMode ? (
-              <Link href={`/${clientName}`}>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                >
-                  <ArrowLeft size={14} className="mr-2" />
-                  Back to Editor
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href={`/${clientName}/demo`}>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="text-xs h-7"
-                  >
-                    View Demo Catalog
-                  </Button>
-                </Link>
-                {/* Manage Models Link for Editor Mode */}
-                {isEditorMode && (
-                  <Link href={`/${clientName}/manage`}>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="text-xs h-7"
-                    >
-                      Manage Models
-                    </Button>
-                  </Link>
-                )}
-              </>
-            )}
-          </div>
+      <div className="flex items-center space-x-3">
+        {/* Dynamic Action Buttons */}
+        {currentPage === 'editor' && onSave && (
+          <Button 
+            variant="default"
+            size="sm"
+            onClick={onSave}
+            disabled={isSaving}
+            className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200 disabled:cursor-not-allowed disabled:hover:scale-100"
+          >
+            <Save size={14} className="mr-2" />
+            {isSaving ? "Saving..." : "Save to Live"}
+          </Button>
         )}
         
-        {/* Export/Save Buttons */}
-        <div className="flex space-x-3">
-          {isEditorMode ? (
-            // Show Save button for client editor view
+        {currentPage === 'manage' && (
+          <>
+            {onUploadModels && (
+              <Button 
+                variant="default"
+                size="sm"
+                onClick={onUploadModels}
+                className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200"
+              >
+                <Upload size={14} className="mr-2" />
+                Upload Models
+              </Button>
+            )}
+            {onRefreshModels && (
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={onRefreshModels}
+                className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200"
+              >
+                <RefreshCw size={14} className="mr-2" />
+                Refresh
+              </Button>
+            )}
+          </>
+        )}
+        
+        {/* Export buttons only shown for non-client views */}
+        {!isClientView && (
+          <>
             <Button 
-              variant="default"
-              size="sm"
-              onClick={onSave}
-              disabled={isSaving}
-              className="text-xs h-7 px-3"
+              variant="outline" 
+              size="sm" 
+              onClick={onExportGLB}
+              className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
             >
-              <Save size={14} className="mr-2" />
-              {isSaving ? "Saving..." : "Save Changes to Live"}
+              <Download size={14} className="mr-2" />
+              GLB
             </Button>
-          ) : !isDemoMode && (
-            // Show Export buttons for regular view (not demo)
-            <>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onExportGLB}
-                className="text-xs h-9"
-              >
-                <Download size={14} className="mr-2" />
-                GLB
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onExportGLTF}
-                className="text-xs h-9"
-              >
-                <Download size={14} className="mr-2" />
-                GLTF
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onExportUSDZ}
-                className="text-xs h-9"
-              >
-                <Download size={14} className="mr-2" />
-                USDZ
-              </Button>
-            </>
-          )}
-        </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onExportGLTF}
+              className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
+            >
+              <Download size={14} className="mr-2" />
+              GLTF
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onExportUSDZ}
+              className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
+            >
+              <Download size={14} className="mr-2" />
+              USDZ
+            </Button>
+          </>
+        )}
       </div>
     </header>
   );

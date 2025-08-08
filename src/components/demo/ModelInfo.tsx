@@ -81,18 +81,26 @@ const ModelInfo: React.FC<ModelInfoProps> = ({ model, modelViewerRef }) => {
     // Try immediately
     fetchVariants();
     
-    // Set up an interval to poll until we get variants (model might still be loading)
-    const intervalId = setInterval(() => {
-      if (variants.length > 0) {
-        clearInterval(intervalId);
-      } else {
+    // Use model-viewer events instead of polling
+    if (modelViewerRef.current) {
+      const modelViewer = modelViewerRef.current;
+      
+      const handleModelLoad = () => {
+        console.log('Model loaded - fetching variants in ModelInfo...');
         fetchVariants();
-      }
-    }, 500);
+      };
+      
+      modelViewer.addEventListener('load', handleModelLoad);
+      modelViewer.addEventListener('model-visibility', handleModelLoad);
+    }
     
-    // Clean up
+    // Clean up event listeners
     return () => {
-      clearInterval(intervalId);
+      if (modelViewerRef.current) {
+        const modelViewer = modelViewerRef.current;
+        modelViewer.removeEventListener('load', handleModelLoad);
+        modelViewer.removeEventListener('model-visibility', handleModelLoad);
+      }
     };
   }, [model, modelViewerRef, variants.length]);
   

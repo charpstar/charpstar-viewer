@@ -1,8 +1,8 @@
 // src/components/variant/MaterialVariants.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { ChevronRight, ChevronDown, Folder, Box, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface MaterialVariantsProps {
@@ -20,140 +20,118 @@ const MaterialVariants: React.FC<MaterialVariantsProps> = ({
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const hasMountedRef = useRef(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // More robust variant fetching with polling
-  const fetchVariants = () => {
-    if (!modelViewerRef.current) {
-      setLoading(true);
-      return false;
-    }
-
-    try {
-      // Get available variants from the model-viewer
-      const availableVariants = modelViewerRef.current.availableVariants || [];
-      const variantsList = Array.isArray(availableVariants) ? availableVariants : [];
-      
-      // Get the currently selected variant if any
-      const currentVariantName = modelViewerRef.current.variantName;
-      
-      // Only update if there's a change
-      if (
-        JSON.stringify(variantsList) !== JSON.stringify(variants) || 
-        currentVariantName !== currentVariant
-      ) {
-        setVariants(variantsList);
-        setCurrentVariant(currentVariantName || null);
-      }
-      
-      setLoading(false);
-      
-      // Return true if variants are found
-      return variantsList.length > 0;
-    } catch (error) {
-      console.error('Error fetching material variants:', error);
-      setVariants([]);
-      setCurrentVariant(null);
-      setLoading(false);
-      return false;
-    }
-  };
-
-  const startTimeRef = useRef(Date.now());
-  // Add a reset function that's triggered when a new model is loaded
+  // Variant fetching with proper modelViewerRef waiting (same pattern as VariantSelector)
   useEffect(() => {
-    // Reset polling on component mount or when modelViewerRef changes
-    const resetPolling = () => {
-      console.log('Resetting variant polling');
-      setVariants([]);
-      setCurrentVariant(null);
-      setLoading(true);
-      hasMountedRef.current = false;
+    const fetchVariants = () => {
+      if (!modelViewerRef.current) return false;
       
-      // Clear existing interval
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      
-      // Reset polling with a new interval
-      intervalRef.current = setInterval(() => {
-        const hasVariants = fetchVariants();
+      try {
+        // Check if model is loaded using the loaded property
+        if (!modelViewerRef.current.loaded) return false;
         
-        // Stop polling after finding variants or after a timeout (like 10 seconds)
-        if (intervalRef.current) {
-          if (hasVariants || (Date.now() - startTimeRef.current > 10000)) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
+        const availableVariants = modelViewerRef.current.availableVariants || [];
+        if (Array.isArray(availableVariants) && availableVariants.length > 0) {
+          setVariants(availableVariants);
+          const currentVariantName = modelViewerRef.current.variantName || null;
+          setCurrentVariant(currentVariantName);
+        } else {
+          setVariants([]);
+          setCurrentVariant(null);
         }
-      }, 500);
+        setLoading(false);
+        return true;
+      } catch (error) {
+        console.error('Error fetching variants:', error);
+        setVariants([]);
+        setCurrentVariant(null);
+        setLoading(false);
+        return false;
+      }
     };
     
-    // Reset polling when the component mounts
-    resetPolling();
+    // Reset when model changes
+    setLoading(true);
+    setVariants([]);
+    setCurrentVariant(null);
     
-    // Monitor modelViewerRef for changes
-    const modelViewer = modelViewerRef.current;
-    if (modelViewer) {
-      // Listen for model load events to reset polling
-      modelViewer.addEventListener('load', resetPolling);
+    let pollForRefInterval: NodeJS.Timeout | null = null;
+    let eventListenersAttached = false;
+    
+    const setupEventListeners = () => {
+      if (!modelViewerRef.current || eventListenersAttached) return;
       
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-        modelViewer.removeEventListener('load', resetPolling);
+      eventListenersAttached = true;
+      
+      const modelViewer = modelViewerRef.current;
+      
+      const handleModelLoad = () => {
+        setTimeout(() => {
+          fetchVariants();
+        }, 1000);
       };
-    }
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [modelViewerRef]);
-
-  // Set up polling for variants
-  useEffect(() => {
-    // Fetch immediately on mount
-    if (!hasMountedRef.current) {
-      fetchVariants();
-      hasMountedRef.current = true;
-    }
-    
-    // Set up polling interval (check every 500ms)
-    intervalRef.current = setInterval(() => {
-      const hasVariants = fetchVariants();
       
-      // Once we've found variants, we can stop polling
-      if (intervalRef.current) {
-        if (hasVariants) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+      const handleVariantChange = () => {
+        if (modelViewerRef.current?.loaded) {
+          const currentVariantName = modelViewerRef.current.variantName || null;
+          setCurrentVariant(currentVariantName);
         }
-      }
-    }, 500);
-    
-    // Add a load event listener as a backup
-    const modelViewer = modelViewerRef.current;
-    if (modelViewer) {
-      modelViewer.addEventListener('load', fetchVariants);
-    }
-    
-    return () => {
-      // Clean up interval and event listener
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      };
+      
+      // Add event listeners
+      modelViewer.addEventListener('load', handleModelLoad);
+      modelViewer.addEventListener('variant-applied', handleVariantChange);
+      
+      // Try immediately if model is already loaded
+      if (modelViewer.loaded) {
+        setTimeout(() => {
+          fetchVariants();
+        }, 500);
       }
       
-      if (modelViewer) {
-        modelViewer.removeEventListener('load', fetchVariants);
-      }
-      
-      hasMountedRef.current = false;
+      // Return cleanup function
+      return () => {
+        modelViewer.removeEventListener('load', handleModelLoad);
+        modelViewer.removeEventListener('variant-applied', handleVariantChange);
+      };
     };
-  }, [modelViewerRef]);
+    
+    // Wait for modelViewerRef to be populated
+    const waitForModelViewerRef = () => {
+      if (modelViewerRef.current) {
+        if (pollForRefInterval) clearInterval(pollForRefInterval);
+        const cleanup = setupEventListeners();
+        return cleanup;
+      }
+      
+      return null;
+    };
+    
+    // Try immediately
+    const cleanup = waitForModelViewerRef();
+    if (cleanup) return cleanup;
+    
+    // If not found, poll every 100ms for up to 5 seconds
+    let pollCount = 0;
+    pollForRefInterval = setInterval(() => {
+      pollCount++;
+      
+      const cleanup = waitForModelViewerRef();
+      if (cleanup) {
+        return; // setupEventListeners will clear the interval
+      }
+      
+      if (pollCount >= 50) {
+        if (pollForRefInterval) clearInterval(pollForRefInterval);
+        setLoading(false);
+      }
+    }, 100);
+    
+    // Cleanup function
+    return () => {
+      if (pollForRefInterval) clearInterval(pollForRefInterval);
+    };
+  }, []);
 
   // Function to select a variant
   const selectVariant = (variantName: string) => {

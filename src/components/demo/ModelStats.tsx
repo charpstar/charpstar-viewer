@@ -244,23 +244,24 @@ const CompactModelStats: React.FC<CompactModelStatsProps> = ({
     };
   }, [modelViewerRef, modelName]);
   
-  // Add an additional effect to keep polling for stats changes when the model is selected but stats might change
-  // (e.g., variants switching might affect double-sided material count)
+  // React to variant changes via model-viewer events instead of polling
   useEffect(() => {
-    let isMounted = true;
+    if (!modelViewerRef?.current) return;
     
-    // Periodically check stats even after loading, but at a much lower frequency
-    const intervalId = setInterval(() => {
-      if (isMounted && !stats.isLoading) {
-        fetchStats();
-      }
-    }, 2000); // Every 2 seconds
+    const modelViewer = modelViewerRef.current;
+    
+    const handleVariantChange = () => {
+      console.log('Variant changed - refreshing stats...');
+      fetchStats();
+    };
+    
+    // Listen for variant changes to update stats
+    modelViewer.addEventListener('variant-applied', handleVariantChange);
     
     return () => {
-      isMounted = false;
-      clearInterval(intervalId);
+      modelViewer.removeEventListener('variant-applied', handleVariantChange);
     };
-  }, [stats.isLoading]);
+  }, [modelViewerRef]);
   
   const toggleDoubleSidedDetails = () => {
     setShowDoubleSidedDetails(!showDoubleSidedDetails);

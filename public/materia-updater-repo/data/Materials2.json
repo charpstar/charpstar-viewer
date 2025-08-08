@@ -1,0 +1,5574 @@
+{
+  "materials": [
+    {
+      "name": "ANA-16",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-18",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-19",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-2",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-21",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-22",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-3",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-4",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-7",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-8",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ANA-9",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "ASQ-24",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "ASQ-27",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "ASQ-31",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "ASQ-51",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "ASQ-54",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "ASQ-99",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-08",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-110",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-124",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-13",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-24",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-27",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-28",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-31",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-33",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-62",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-70",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-84",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-90",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-97",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "AST-99",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2071",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2073",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2074",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2075",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2078",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2080",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2082",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2083",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2084",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2086",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2087",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "BAL-2089",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-06",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-10",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-105",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-13",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-16",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-18",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-19",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-200",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-22",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-26",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-27",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-29",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "CAN-33",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "COC-001",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "COC-005",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "COC-007",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "COC-015",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "COC-023",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "COC-025",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "COC-033",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "DJU-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "DJU-03",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "DJU-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "DJU-05",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "DJU-06",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "DJU-07",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-0020",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-107",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-1424",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-1700",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-206",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-2491",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-2919",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-3237",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-351",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-4832",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-5233",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-5604",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-5667",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-5726",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-6609",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-6714",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-702",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-705",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-7307",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FIO-9606",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FKO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "FKO-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "FKO-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "FKO-03",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "FKO-04",
+      "tags": [
+        "Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "FKO-28",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-03",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-06",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-08",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-10",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-11",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-12",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-14",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLI-18",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-0036",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1274-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1274-11",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-08",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-110",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-36",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-37",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-38",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-44",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLO-1503-49",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLP-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "FLP-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MISSING",
+      "tags": [
+        "Fabrics",
+        "General Fabrics",
+        "Bedsofa Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-100",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-303",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-400",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-403",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-405",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-500",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-601",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-602",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-700",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-701",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-704",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-801",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-802",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-900",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MOO-901",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-ANT-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-ANT-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-BD-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-BD-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-BS-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-BS-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-CH-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-CH-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-CO-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-CO-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-DB-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-DB-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-DE-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-DE-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-HE-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-HE-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-MU-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "MYA-MU-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-111",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-400",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-401",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-603",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-606",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-704",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-800",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-804",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-806",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUT-900",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-111",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-400",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-401",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-501",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-603",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-606",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-704",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-800",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-804",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-806",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "NUV-900",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-08",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-09",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-10",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-11",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-12",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-23",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-28",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-36",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-44",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "OYS-48",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PAG-05",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-112",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-113",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-114",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-16",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-31",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-34",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-39",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-48",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-53",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-56",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-60",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "PUR-64",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "RAW-GOG",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-1",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-10",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-11",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-12",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-13",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-14",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-15",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-17",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-18",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-19",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-2",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-3",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-4",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-5",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-6",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-7",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-8",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SAL-9",
+      "tags": [
+        "Fabrics",
+        "Bedsofa Fabrics",
+        "PAN Fabrics"
+      ]
+    },
+    {
+      "name": "SANS",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SEP-BLO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SEP-EGP",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SEP-LEO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SEP-ZEB",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SES-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SES-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-111",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-15",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-200",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-400",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-402",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-404",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-500",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-601",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-701",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-707",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOF-900",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-111",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-400",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-500",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-600",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-602",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-603",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-604",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-700",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-901",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOG-904",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-01",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-03",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-05",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-07",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-08",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-09",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-10",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-105",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-11",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-110",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-113",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-12",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-123",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-124",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-13",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-14",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-15",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-16",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-17",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-18",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-19",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-20",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-222",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-24",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-26",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-28",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-31",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-33",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-50",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-64",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-70",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-84",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-88",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-90",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-97",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOL-99",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-08",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-11",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-14",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-15",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-18",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-19",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "SOQ-20",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-001",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-07",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-10",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-15",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-18",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-20",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-21",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-22",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TES-31",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-ASP-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-ASP-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-BLU-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-BLU-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-DB-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-DB-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-GRE-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-GRE-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-TOB-LE",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "TOG-TOB-MO",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-02",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-04",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-05",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-10",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-16",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-33",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-34",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-38",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-39",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-44",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-50",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-51",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-57",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-68",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-76",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-83",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "VEG-84",
+      "tags": [
+        "Fabrics",
+        "General Fabrics"
+      ]
+    },
+    {
+      "name": "GULD",
+      "tags": [
+        "Nitar"
+      ]
+    },
+    {
+      "name": "SILVER",
+      "tags": [
+        "Nitar"
+      ]
+    },
+    {
+      "name": "SVARTGULD",
+      "tags": [
+        "Nitar"
+      ]
+    },
+    {
+      "name": "BW",
+      "tags": [
+        "Legs",
+        "Leg_Wood"
+      ]
+    },
+    {
+      "name": "OO",
+      "tags": [
+        "Legs",
+        "Leg_Wood"
+      ]
+    },
+    {
+      "name": "WN",
+      "tags": [
+        "Legs",
+        "Leg_Wood"
+      ]
+    },
+    {
+      "name": "KOPPAR",
+      "tags": [
+        "Legs",
+        "Metal"
+      ]
+    },
+    {
+      "name": "L-STR-BW",
+      "tags": [
+        "Leg_Struts"
+      ]
+    },
+    {
+      "name": "L-STR-DO",
+      "tags": [
+        "Leg_Struts"
+      ]
+    },
+    {
+      "name": "L-STR-OO",
+      "tags": [
+        "Leg_Struts"
+      ]
+    },
+    {
+      "name": "L-STR-SO",
+      "tags": [
+        "Leg_Struts"
+      ]
+    },
+    {
+      "name": "L-STR-WO",
+      "tags": [
+        "Leg_Struts"
+      ]
+    },
+    {
+      "name": "SD",
+      "tags": [
+        "Marmor"
+      ]
+    },
+    {
+      "name": "TR",
+      "tags": [
+        "Marmor"
+      ]
+    },
+    {
+      "name": "AG",
+      "tags": [
+        "Marmor"
+      ]
+    },
+    {
+      "name": "TGR",
+      "tags": [
+        "Marmor"
+      ]
+    },
+    {
+      "name": "L-GAS-BW",
+      "tags": [
+        "Legs",
+        "Leg_GAS"
+      ]
+    },
+    {
+      "name": "L-GAS-DO",
+      "tags": [
+        "Legs",
+        "Leg_GAS"
+      ]
+    },
+    {
+      "name": "L-GAS-OO",
+      "tags": [
+        "Legs",
+        "Leg_GAS"
+      ]
+    },
+    {
+      "name": "KML_PAINT-1003-Y20R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-1505-Y30R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-1015-Y",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-1030-Y",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-2030-G80Y",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-0520-Y70R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-2030-Y40R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-3026-Y19R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-1080-Y90R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-2075-Y70R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-3560-Y70R",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-2060-R30B",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-3020-R30B",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-0515-B",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-4020-B50G",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-5020-G30Y",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-5540-B80G",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-3060-R80B",
+      "tags": [
+        "Paint"
+      ]
+    },
+    {
+      "name": "KML_PAINT-8500-N",
+      "tags": [
+        "Paint"
+      ]
+    }
+  ],
+  "meshAssignments": {
+    "geo_fabric_all": {
+      "defaultMaterial": "ANA-16",
+      "variants": [
+        {
+          "name": "ANA-16",
+          "material": "ANA-16"
+        },
+        {
+          "name": "ANA-18",
+          "material": "ANA-18"
+        },
+        {
+          "name": "ANA-19",
+          "material": "ANA-19"
+        },
+        {
+          "name": "ANA-2",
+          "material": "ANA-2"
+        },
+        {
+          "name": "ANA-21",
+          "material": "ANA-21"
+        },
+        {
+          "name": "ANA-22",
+          "material": "ANA-22"
+        },
+        {
+          "name": "ANA-3",
+          "material": "ANA-3"
+        },
+        {
+          "name": "ANA-4",
+          "material": "ANA-4"
+        },
+        {
+          "name": "ANA-7",
+          "material": "ANA-7"
+        },
+        {
+          "name": "ANA-8",
+          "material": "ANA-8"
+        },
+        {
+          "name": "ANA-9",
+          "material": "ANA-9"
+        },
+        {
+          "name": "ASQ-24",
+          "material": "ASQ-24"
+        },
+        {
+          "name": "ASQ-27",
+          "material": "ASQ-27"
+        },
+        {
+          "name": "ASQ-31",
+          "material": "ASQ-31"
+        },
+        {
+          "name": "ASQ-51",
+          "material": "ASQ-51"
+        },
+        {
+          "name": "ASQ-54",
+          "material": "ASQ-54"
+        },
+        {
+          "name": "ASQ-99",
+          "material": "ASQ-99"
+        },
+        {
+          "name": "AST-08",
+          "material": "AST-08"
+        },
+        {
+          "name": "AST-110",
+          "material": "AST-110"
+        },
+        {
+          "name": "AST-124",
+          "material": "AST-124"
+        },
+        {
+          "name": "AST-13",
+          "material": "AST-13"
+        },
+        {
+          "name": "AST-24",
+          "material": "AST-24"
+        },
+        {
+          "name": "AST-27",
+          "material": "AST-27"
+        },
+        {
+          "name": "AST-28",
+          "material": "AST-28"
+        },
+        {
+          "name": "AST-31",
+          "material": "AST-31"
+        },
+        {
+          "name": "AST-33",
+          "material": "AST-33"
+        },
+        {
+          "name": "AST-62",
+          "material": "AST-62"
+        },
+        {
+          "name": "AST-70",
+          "material": "AST-70"
+        },
+        {
+          "name": "AST-84",
+          "material": "AST-84"
+        },
+        {
+          "name": "AST-90",
+          "material": "AST-90"
+        },
+        {
+          "name": "AST-97",
+          "material": "AST-97"
+        },
+        {
+          "name": "AST-99",
+          "material": "AST-99"
+        },
+        {
+          "name": "BAL-2071",
+          "material": "BAL-2071"
+        },
+        {
+          "name": "BAL-2073",
+          "material": "BAL-2073"
+        },
+        {
+          "name": "BAL-2074",
+          "material": "BAL-2074"
+        },
+        {
+          "name": "BAL-2075",
+          "material": "BAL-2075"
+        },
+        {
+          "name": "BAL-2078",
+          "material": "BAL-2078"
+        },
+        {
+          "name": "BAL-2080",
+          "material": "BAL-2080"
+        },
+        {
+          "name": "BAL-2082",
+          "material": "BAL-2082"
+        },
+        {
+          "name": "BAL-2083",
+          "material": "BAL-2083"
+        },
+        {
+          "name": "BAL-2084",
+          "material": "BAL-2084"
+        },
+        {
+          "name": "BAL-2086",
+          "material": "BAL-2086"
+        },
+        {
+          "name": "BAL-2087",
+          "material": "BAL-2087"
+        },
+        {
+          "name": "BAL-2089",
+          "material": "BAL-2089"
+        },
+        {
+          "name": "CAN-01",
+          "material": "CAN-01"
+        },
+        {
+          "name": "CAN-02",
+          "material": "CAN-02"
+        },
+        {
+          "name": "CAN-04",
+          "material": "CAN-04"
+        },
+        {
+          "name": "CAN-06",
+          "material": "CAN-06"
+        },
+        {
+          "name": "CAN-10",
+          "material": "CAN-10"
+        },
+        {
+          "name": "CAN-105",
+          "material": "CAN-105"
+        },
+        {
+          "name": "CAN-13",
+          "material": "CAN-13"
+        },
+        {
+          "name": "CAN-16",
+          "material": "CAN-16"
+        },
+        {
+          "name": "CAN-18",
+          "material": "CAN-18"
+        },
+        {
+          "name": "CAN-19",
+          "material": "CAN-19"
+        },
+        {
+          "name": "CAN-200",
+          "material": "CAN-200"
+        },
+        {
+          "name": "CAN-22",
+          "material": "CAN-22"
+        },
+        {
+          "name": "CAN-26",
+          "material": "CAN-26"
+        },
+        {
+          "name": "CAN-27",
+          "material": "CAN-27"
+        },
+        {
+          "name": "CAN-29",
+          "material": "CAN-29"
+        },
+        {
+          "name": "CAN-33",
+          "material": "CAN-33"
+        },
+        {
+          "name": "COC-001",
+          "material": "COC-001"
+        },
+        {
+          "name": "COC-005",
+          "material": "COC-005"
+        },
+        {
+          "name": "COC-007",
+          "material": "COC-007"
+        },
+        {
+          "name": "COC-015",
+          "material": "COC-015"
+        },
+        {
+          "name": "COC-023",
+          "material": "COC-023"
+        },
+        {
+          "name": "COC-025",
+          "material": "COC-025"
+        },
+        {
+          "name": "COC-033",
+          "material": "COC-033"
+        },
+        {
+          "name": "DJU-01",
+          "material": "DJU-01"
+        },
+        {
+          "name": "DJU-03",
+          "material": "DJU-03"
+        },
+        {
+          "name": "DJU-04",
+          "material": "DJU-04"
+        },
+        {
+          "name": "DJU-05",
+          "material": "DJU-05"
+        },
+        {
+          "name": "DJU-06",
+          "material": "DJU-06"
+        },
+        {
+          "name": "DJU-07",
+          "material": "DJU-07"
+        },
+        {
+          "name": "FIO-0020",
+          "material": "FIO-0020"
+        },
+        {
+          "name": "FIO-107",
+          "material": "FIO-107"
+        },
+        {
+          "name": "FIO-1424",
+          "material": "FIO-1424"
+        },
+        {
+          "name": "FIO-1700",
+          "material": "FIO-1700"
+        },
+        {
+          "name": "FIO-206",
+          "material": "FIO-206"
+        },
+        {
+          "name": "FIO-2491",
+          "material": "FIO-2491"
+        },
+        {
+          "name": "FIO-2919",
+          "material": "FIO-2919"
+        },
+        {
+          "name": "FIO-3237",
+          "material": "FIO-3237"
+        },
+        {
+          "name": "FIO-351",
+          "material": "FIO-351"
+        },
+        {
+          "name": "FIO-4832",
+          "material": "FIO-4832"
+        },
+        {
+          "name": "FIO-5233",
+          "material": "FIO-5233"
+        },
+        {
+          "name": "FIO-5604",
+          "material": "FIO-5604"
+        },
+        {
+          "name": "FIO-5667",
+          "material": "FIO-5667"
+        },
+        {
+          "name": "FIO-5726",
+          "material": "FIO-5726"
+        },
+        {
+          "name": "FIO-6609",
+          "material": "FIO-6609"
+        },
+        {
+          "name": "FIO-6714",
+          "material": "FIO-6714"
+        },
+        {
+          "name": "FIO-702",
+          "material": "FIO-702"
+        },
+        {
+          "name": "FIO-705",
+          "material": "FIO-705"
+        },
+        {
+          "name": "FIO-7307",
+          "material": "FIO-7307"
+        },
+        {
+          "name": "FIO-9606",
+          "material": "FIO-9606"
+        },
+        {
+          "name": "FKO",
+          "material": "FKO"
+        },
+        {
+          "name": "FKO-01",
+          "material": "FKO-01"
+        },
+        {
+          "name": "FKO-02",
+          "material": "FKO-02"
+        },
+        {
+          "name": "FKO-03",
+          "material": "FKO-03"
+        },
+        {
+          "name": "FKO-04",
+          "material": "FKO-04"
+        },
+        {
+          "name": "FKO-28",
+          "material": "FKO-28"
+        },
+        {
+          "name": "FLI-01",
+          "material": "FLI-01"
+        },
+        {
+          "name": "FLI-02",
+          "material": "FLI-02"
+        },
+        {
+          "name": "FLI-03",
+          "material": "FLI-03"
+        },
+        {
+          "name": "FLI-04",
+          "material": "FLI-04"
+        },
+        {
+          "name": "FLI-06",
+          "material": "FLI-06"
+        },
+        {
+          "name": "FLI-08",
+          "material": "FLI-08"
+        },
+        {
+          "name": "FLI-10",
+          "material": "FLI-10"
+        },
+        {
+          "name": "FLI-11",
+          "material": "FLI-11"
+        },
+        {
+          "name": "FLI-12",
+          "material": "FLI-12"
+        },
+        {
+          "name": "FLI-14",
+          "material": "FLI-14"
+        },
+        {
+          "name": "FLI-18",
+          "material": "FLI-18"
+        },
+        {
+          "name": "FLO-0036",
+          "material": "FLO-0036"
+        },
+        {
+          "name": "FLO-1274-02",
+          "material": "FLO-1274-02"
+        },
+        {
+          "name": "FLO-1274-11",
+          "material": "FLO-1274-11"
+        },
+        {
+          "name": "FLO-1503-01",
+          "material": "FLO-1503-01"
+        },
+        {
+          "name": "FLO-1503-08",
+          "material": "FLO-1503-08"
+        },
+        {
+          "name": "FLO-1503-110",
+          "material": "FLO-1503-110"
+        },
+        {
+          "name": "FLO-1503-36",
+          "material": "FLO-1503-36"
+        },
+        {
+          "name": "FLO-1503-37",
+          "material": "FLO-1503-37"
+        },
+        {
+          "name": "FLO-1503-38",
+          "material": "FLO-1503-38"
+        },
+        {
+          "name": "FLO-1503-44",
+          "material": "FLO-1503-44"
+        },
+        {
+          "name": "FLO-1503-49",
+          "material": "FLO-1503-49"
+        },
+        {
+          "name": "FLP-01",
+          "material": "FLP-01"
+        },
+        {
+          "name": "FLP-02",
+          "material": "FLP-02"
+        },
+        {
+          "name": "MISSING",
+          "material": "MISSING"
+        },
+        {
+          "name": "MOO-100",
+          "material": "MOO-100"
+        },
+        {
+          "name": "MOO-303",
+          "material": "MOO-303"
+        },
+        {
+          "name": "MOO-400",
+          "material": "MOO-400"
+        },
+        {
+          "name": "MOO-403",
+          "material": "MOO-403"
+        },
+        {
+          "name": "MOO-405",
+          "material": "MOO-405"
+        },
+        {
+          "name": "MOO-500",
+          "material": "MOO-500"
+        },
+        {
+          "name": "MOO-601",
+          "material": "MOO-601"
+        },
+        {
+          "name": "MOO-602",
+          "material": "MOO-602"
+        },
+        {
+          "name": "MOO-700",
+          "material": "MOO-700"
+        },
+        {
+          "name": "MOO-701",
+          "material": "MOO-701"
+        },
+        {
+          "name": "MOO-704",
+          "material": "MOO-704"
+        },
+        {
+          "name": "MOO-801",
+          "material": "MOO-801"
+        },
+        {
+          "name": "MOO-802",
+          "material": "MOO-802"
+        },
+        {
+          "name": "MOO-900",
+          "material": "MOO-900"
+        },
+        {
+          "name": "MOO-901",
+          "material": "MOO-901"
+        },
+        {
+          "name": "MYA-ANT-LE",
+          "material": "MYA-ANT-LE"
+        },
+        {
+          "name": "MYA-ANT-MO",
+          "material": "MYA-ANT-MO"
+        },
+        {
+          "name": "MYA-BD-LE",
+          "material": "MYA-BD-LE"
+        },
+        {
+          "name": "MYA-BD-MO",
+          "material": "MYA-BD-MO"
+        },
+        {
+          "name": "MYA-BS-LE",
+          "material": "MYA-BS-LE"
+        },
+        {
+          "name": "MYA-BS-MO",
+          "material": "MYA-BS-MO"
+        },
+        {
+          "name": "MYA-CH-LE",
+          "material": "MYA-CH-LE"
+        },
+        {
+          "name": "MYA-CH-MO",
+          "material": "MYA-CH-MO"
+        },
+        {
+          "name": "MYA-CO-LE",
+          "material": "MYA-CO-LE"
+        },
+        {
+          "name": "MYA-CO-MO",
+          "material": "MYA-CO-MO"
+        },
+        {
+          "name": "MYA-DB-LE",
+          "material": "MYA-DB-LE"
+        },
+        {
+          "name": "MYA-DB-MO",
+          "material": "MYA-DB-MO"
+        },
+        {
+          "name": "MYA-DE-LE",
+          "material": "MYA-DE-LE"
+        },
+        {
+          "name": "MYA-DE-MO",
+          "material": "MYA-DE-MO"
+        },
+        {
+          "name": "MYA-HE-LE",
+          "material": "MYA-HE-LE"
+        },
+        {
+          "name": "MYA-HE-MO",
+          "material": "MYA-HE-MO"
+        },
+        {
+          "name": "MYA-MU-LE",
+          "material": "MYA-MU-LE"
+        },
+        {
+          "name": "MYA-MU-MO",
+          "material": "MYA-MU-MO"
+        },
+        {
+          "name": "NUT-111",
+          "material": "NUT-111"
+        },
+        {
+          "name": "NUT-400",
+          "material": "NUT-400"
+        },
+        {
+          "name": "NUT-401",
+          "material": "NUT-401"
+        },
+        {
+          "name": "NUT-603",
+          "material": "NUT-603"
+        },
+        {
+          "name": "NUT-606",
+          "material": "NUT-606"
+        },
+        {
+          "name": "NUT-704",
+          "material": "NUT-704"
+        },
+        {
+          "name": "NUT-800",
+          "material": "NUT-800"
+        },
+        {
+          "name": "NUT-804",
+          "material": "NUT-804"
+        },
+        {
+          "name": "NUT-806",
+          "material": "NUT-806"
+        },
+        {
+          "name": "NUT-900",
+          "material": "NUT-900"
+        },
+        {
+          "name": "NUV-111",
+          "material": "NUV-111"
+        },
+        {
+          "name": "NUV-400",
+          "material": "NUV-400"
+        },
+        {
+          "name": "NUV-401",
+          "material": "NUV-401"
+        },
+        {
+          "name": "NUV-501",
+          "material": "NUV-501"
+        },
+        {
+          "name": "NUV-603",
+          "material": "NUV-603"
+        },
+        {
+          "name": "NUV-606",
+          "material": "NUV-606"
+        },
+        {
+          "name": "NUV-704",
+          "material": "NUV-704"
+        },
+        {
+          "name": "NUV-800",
+          "material": "NUV-800"
+        },
+        {
+          "name": "NUV-804",
+          "material": "NUV-804"
+        },
+        {
+          "name": "NUV-806",
+          "material": "NUV-806"
+        },
+        {
+          "name": "NUV-900",
+          "material": "NUV-900"
+        },
+        {
+          "name": "OYS-02",
+          "material": "OYS-02"
+        },
+        {
+          "name": "OYS-04",
+          "material": "OYS-04"
+        },
+        {
+          "name": "OYS-08",
+          "material": "OYS-08"
+        },
+        {
+          "name": "OYS-09",
+          "material": "OYS-09"
+        },
+        {
+          "name": "OYS-10",
+          "material": "OYS-10"
+        },
+        {
+          "name": "OYS-11",
+          "material": "OYS-11"
+        },
+        {
+          "name": "OYS-12",
+          "material": "OYS-12"
+        },
+        {
+          "name": "OYS-23",
+          "material": "OYS-23"
+        },
+        {
+          "name": "OYS-28",
+          "material": "OYS-28"
+        },
+        {
+          "name": "OYS-36",
+          "material": "OYS-36"
+        },
+        {
+          "name": "OYS-44",
+          "material": "OYS-44"
+        },
+        {
+          "name": "OYS-48",
+          "material": "OYS-48"
+        },
+        {
+          "name": "PAG-05",
+          "material": "PAG-05"
+        },
+        {
+          "name": "PUR-01",
+          "material": "PUR-01"
+        },
+        {
+          "name": "PUR-02",
+          "material": "PUR-02"
+        },
+        {
+          "name": "PUR-04",
+          "material": "PUR-04"
+        },
+        {
+          "name": "PUR-112",
+          "material": "PUR-112"
+        },
+        {
+          "name": "PUR-113",
+          "material": "PUR-113"
+        },
+        {
+          "name": "PUR-114",
+          "material": "PUR-114"
+        },
+        {
+          "name": "PUR-16",
+          "material": "PUR-16"
+        },
+        {
+          "name": "PUR-31",
+          "material": "PUR-31"
+        },
+        {
+          "name": "PUR-34",
+          "material": "PUR-34"
+        },
+        {
+          "name": "PUR-39",
+          "material": "PUR-39"
+        },
+        {
+          "name": "PUR-48",
+          "material": "PUR-48"
+        },
+        {
+          "name": "PUR-53",
+          "material": "PUR-53"
+        },
+        {
+          "name": "PUR-56",
+          "material": "PUR-56"
+        },
+        {
+          "name": "PUR-60",
+          "material": "PUR-60"
+        },
+        {
+          "name": "PUR-64",
+          "material": "PUR-64"
+        },
+        {
+          "name": "RAW-GOG",
+          "material": "RAW-GOG"
+        },
+        {
+          "name": "SAL-1",
+          "material": "SAL-1"
+        },
+        {
+          "name": "SAL-10",
+          "material": "SAL-10"
+        },
+        {
+          "name": "SAL-11",
+          "material": "SAL-11"
+        },
+        {
+          "name": "SAL-12",
+          "material": "SAL-12"
+        },
+        {
+          "name": "SAL-13",
+          "material": "SAL-13"
+        },
+        {
+          "name": "SAL-14",
+          "material": "SAL-14"
+        },
+        {
+          "name": "SAL-15",
+          "material": "SAL-15"
+        },
+        {
+          "name": "SAL-17",
+          "material": "SAL-17"
+        },
+        {
+          "name": "SAL-18",
+          "material": "SAL-18"
+        },
+        {
+          "name": "SAL-19",
+          "material": "SAL-19"
+        },
+        {
+          "name": "SAL-2",
+          "material": "SAL-2"
+        },
+        {
+          "name": "SAL-3",
+          "material": "SAL-3"
+        },
+        {
+          "name": "SAL-4",
+          "material": "SAL-4"
+        },
+        {
+          "name": "SAL-5",
+          "material": "SAL-5"
+        },
+        {
+          "name": "SAL-6",
+          "material": "SAL-6"
+        },
+        {
+          "name": "SAL-7",
+          "material": "SAL-7"
+        },
+        {
+          "name": "SAL-8",
+          "material": "SAL-8"
+        },
+        {
+          "name": "SAL-9",
+          "material": "SAL-9"
+        },
+        {
+          "name": "SANS",
+          "material": "SANS"
+        },
+        {
+          "name": "SEP-BLO",
+          "material": "SEP-BLO"
+        },
+        {
+          "name": "SEP-EGP",
+          "material": "SEP-EGP"
+        },
+        {
+          "name": "SEP-LEO",
+          "material": "SEP-LEO"
+        },
+        {
+          "name": "SEP-ZEB",
+          "material": "SEP-ZEB"
+        },
+        {
+          "name": "SES-01",
+          "material": "SES-01"
+        },
+        {
+          "name": "SES-02",
+          "material": "SES-02"
+        },
+        {
+          "name": "SOF-111",
+          "material": "SOF-111"
+        },
+        {
+          "name": "SOF-15",
+          "material": "SOF-15"
+        },
+        {
+          "name": "SOF-200",
+          "material": "SOF-200"
+        },
+        {
+          "name": "SOF-400",
+          "material": "SOF-400"
+        },
+        {
+          "name": "SOF-402",
+          "material": "SOF-402"
+        },
+        {
+          "name": "SOF-404",
+          "material": "SOF-404"
+        },
+        {
+          "name": "SOF-500",
+          "material": "SOF-500"
+        },
+        {
+          "name": "SOF-601",
+          "material": "SOF-601"
+        },
+        {
+          "name": "SOF-701",
+          "material": "SOF-701"
+        },
+        {
+          "name": "SOF-707",
+          "material": "SOF-707"
+        },
+        {
+          "name": "SOF-900",
+          "material": "SOF-900"
+        },
+        {
+          "name": "SOG-111",
+          "material": "SOG-111"
+        },
+        {
+          "name": "SOG-400",
+          "material": "SOG-400"
+        },
+        {
+          "name": "SOG-500",
+          "material": "SOG-500"
+        },
+        {
+          "name": "SOG-600",
+          "material": "SOG-600"
+        },
+        {
+          "name": "SOG-602",
+          "material": "SOG-602"
+        },
+        {
+          "name": "SOG-603",
+          "material": "SOG-603"
+        },
+        {
+          "name": "SOG-604",
+          "material": "SOG-604"
+        },
+        {
+          "name": "SOG-700",
+          "material": "SOG-700"
+        },
+        {
+          "name": "SOG-901",
+          "material": "SOG-901"
+        },
+        {
+          "name": "SOG-904",
+          "material": "SOG-904"
+        },
+        {
+          "name": "SOL-01",
+          "material": "SOL-01"
+        },
+        {
+          "name": "SOL-02",
+          "material": "SOL-02"
+        },
+        {
+          "name": "SOL-03",
+          "material": "SOL-03"
+        },
+        {
+          "name": "SOL-04",
+          "material": "SOL-04"
+        },
+        {
+          "name": "SOL-05",
+          "material": "SOL-05"
+        },
+        {
+          "name": "SOL-07",
+          "material": "SOL-07"
+        },
+        {
+          "name": "SOL-08",
+          "material": "SOL-08"
+        },
+        {
+          "name": "SOL-09",
+          "material": "SOL-09"
+        },
+        {
+          "name": "SOL-10",
+          "material": "SOL-10"
+        },
+        {
+          "name": "SOL-105",
+          "material": "SOL-105"
+        },
+        {
+          "name": "SOL-11",
+          "material": "SOL-11"
+        },
+        {
+          "name": "SOL-110",
+          "material": "SOL-110"
+        },
+        {
+          "name": "SOL-113",
+          "material": "SOL-113"
+        },
+        {
+          "name": "SOL-12",
+          "material": "SOL-12"
+        },
+        {
+          "name": "SOL-123",
+          "material": "SOL-123"
+        },
+        {
+          "name": "SOL-124",
+          "material": "SOL-124"
+        },
+        {
+          "name": "SOL-13",
+          "material": "SOL-13"
+        },
+        {
+          "name": "SOL-14",
+          "material": "SOL-14"
+        },
+        {
+          "name": "SOL-15",
+          "material": "SOL-15"
+        },
+        {
+          "name": "SOL-16",
+          "material": "SOL-16"
+        },
+        {
+          "name": "SOL-17",
+          "material": "SOL-17"
+        },
+        {
+          "name": "SOL-18",
+          "material": "SOL-18"
+        },
+        {
+          "name": "SOL-19",
+          "material": "SOL-19"
+        },
+        {
+          "name": "SOL-20",
+          "material": "SOL-20"
+        },
+        {
+          "name": "SOL-222",
+          "material": "SOL-222"
+        },
+        {
+          "name": "SOL-24",
+          "material": "SOL-24"
+        },
+        {
+          "name": "SOL-26",
+          "material": "SOL-26"
+        },
+        {
+          "name": "SOL-28",
+          "material": "SOL-28"
+        },
+        {
+          "name": "SOL-31",
+          "material": "SOL-31"
+        },
+        {
+          "name": "SOL-33",
+          "material": "SOL-33"
+        },
+        {
+          "name": "SOL-50",
+          "material": "SOL-50"
+        },
+        {
+          "name": "SOL-64",
+          "material": "SOL-64"
+        },
+        {
+          "name": "SOL-70",
+          "material": "SOL-70"
+        },
+        {
+          "name": "SOL-84",
+          "material": "SOL-84"
+        },
+        {
+          "name": "SOL-88",
+          "material": "SOL-88"
+        },
+        {
+          "name": "SOL-90",
+          "material": "SOL-90"
+        },
+        {
+          "name": "SOL-97",
+          "material": "SOL-97"
+        },
+        {
+          "name": "SOL-99",
+          "material": "SOL-99"
+        },
+        {
+          "name": "SOQ-04",
+          "material": "SOQ-04"
+        },
+        {
+          "name": "SOQ-08",
+          "material": "SOQ-08"
+        },
+        {
+          "name": "SOQ-11",
+          "material": "SOQ-11"
+        },
+        {
+          "name": "SOQ-14",
+          "material": "SOQ-14"
+        },
+        {
+          "name": "SOQ-15",
+          "material": "SOQ-15"
+        },
+        {
+          "name": "SOQ-18",
+          "material": "SOQ-18"
+        },
+        {
+          "name": "SOQ-19",
+          "material": "SOQ-19"
+        },
+        {
+          "name": "SOQ-20",
+          "material": "SOQ-20"
+        },
+        {
+          "name": "TES-001",
+          "material": "TES-001"
+        },
+        {
+          "name": "TES-02",
+          "material": "TES-02"
+        },
+        {
+          "name": "TES-07",
+          "material": "TES-07"
+        },
+        {
+          "name": "TES-10",
+          "material": "TES-10"
+        },
+        {
+          "name": "TES-15",
+          "material": "TES-15"
+        },
+        {
+          "name": "TES-18",
+          "material": "TES-18"
+        },
+        {
+          "name": "TES-20",
+          "material": "TES-20"
+        },
+        {
+          "name": "TES-21",
+          "material": "TES-21"
+        },
+        {
+          "name": "TES-22",
+          "material": "TES-22"
+        },
+        {
+          "name": "TES-31",
+          "material": "TES-31"
+        },
+        {
+          "name": "TOG-ASP-LE",
+          "material": "TOG-ASP-LE"
+        },
+        {
+          "name": "TOG-ASP-MO",
+          "material": "TOG-ASP-MO"
+        },
+        {
+          "name": "TOG-BLU-LE",
+          "material": "TOG-BLU-LE"
+        },
+        {
+          "name": "TOG-BLU-MO",
+          "material": "TOG-BLU-MO"
+        },
+        {
+          "name": "TOG-DB-LE",
+          "material": "TOG-DB-LE"
+        },
+        {
+          "name": "TOG-DB-MO",
+          "material": "TOG-DB-MO"
+        },
+        {
+          "name": "TOG-GRE-LE",
+          "material": "TOG-GRE-LE"
+        },
+        {
+          "name": "TOG-GRE-MO",
+          "material": "TOG-GRE-MO"
+        },
+        {
+          "name": "TOG-TOB-LE",
+          "material": "TOG-TOB-LE"
+        },
+        {
+          "name": "TOG-TOB-MO",
+          "material": "TOG-TOB-MO"
+        },
+        {
+          "name": "VEG-02",
+          "material": "VEG-02"
+        },
+        {
+          "name": "VEG-04",
+          "material": "VEG-04"
+        },
+        {
+          "name": "VEG-05",
+          "material": "VEG-05"
+        },
+        {
+          "name": "VEG-10",
+          "material": "VEG-10"
+        },
+        {
+          "name": "VEG-16",
+          "material": "VEG-16"
+        },
+        {
+          "name": "VEG-33",
+          "material": "VEG-33"
+        },
+        {
+          "name": "VEG-34",
+          "material": "VEG-34"
+        },
+        {
+          "name": "VEG-38",
+          "material": "VEG-38"
+        },
+        {
+          "name": "VEG-39",
+          "material": "VEG-39"
+        },
+        {
+          "name": "VEG-44",
+          "material": "VEG-44"
+        },
+        {
+          "name": "VEG-50",
+          "material": "VEG-50"
+        },
+        {
+          "name": "VEG-51",
+          "material": "VEG-51"
+        },
+        {
+          "name": "VEG-57",
+          "material": "VEG-57"
+        },
+        {
+          "name": "VEG-68",
+          "material": "VEG-68"
+        },
+        {
+          "name": "VEG-76",
+          "material": "VEG-76"
+        },
+        {
+          "name": "VEG-83",
+          "material": "VEG-83"
+        },
+        {
+          "name": "VEG-84",
+          "material": "VEG-84"
+        }
+      ]
+    },
+    "geo_fabric_bedsofa": {
+      "defaultMaterial": "ANA-16",
+      "variants": [
+        {
+          "name": "ANA-16",
+          "material": "ANA-16"
+        },
+        {
+          "name": "ANA-18",
+          "material": "ANA-18"
+        },
+        {
+          "name": "ANA-19",
+          "material": "ANA-19"
+        },
+        {
+          "name": "ANA-2",
+          "material": "ANA-2"
+        },
+        {
+          "name": "ANA-21",
+          "material": "ANA-21"
+        },
+        {
+          "name": "ANA-22",
+          "material": "ANA-22"
+        },
+        {
+          "name": "ANA-3",
+          "material": "ANA-3"
+        },
+        {
+          "name": "ANA-4",
+          "material": "ANA-4"
+        },
+        {
+          "name": "ANA-7",
+          "material": "ANA-7"
+        },
+        {
+          "name": "ANA-8",
+          "material": "ANA-8"
+        },
+        {
+          "name": "ANA-9",
+          "material": "ANA-9"
+        },
+        {
+          "name": "BAL-2071",
+          "material": "BAL-2071"
+        },
+        {
+          "name": "BAL-2073",
+          "material": "BAL-2073"
+        },
+        {
+          "name": "BAL-2074",
+          "material": "BAL-2074"
+        },
+        {
+          "name": "BAL-2075",
+          "material": "BAL-2075"
+        },
+        {
+          "name": "BAL-2078",
+          "material": "BAL-2078"
+        },
+        {
+          "name": "BAL-2080",
+          "material": "BAL-2080"
+        },
+        {
+          "name": "BAL-2082",
+          "material": "BAL-2082"
+        },
+        {
+          "name": "BAL-2083",
+          "material": "BAL-2083"
+        },
+        {
+          "name": "BAL-2084",
+          "material": "BAL-2084"
+        },
+        {
+          "name": "BAL-2086",
+          "material": "BAL-2086"
+        },
+        {
+          "name": "BAL-2087",
+          "material": "BAL-2087"
+        },
+        {
+          "name": "BAL-2089",
+          "material": "BAL-2089"
+        },
+        {
+          "name": "MISSING",
+          "material": "MISSING"
+        },
+        {
+          "name": "SAL-1",
+          "material": "SAL-1"
+        },
+        {
+          "name": "SAL-10",
+          "material": "SAL-10"
+        },
+        {
+          "name": "SAL-11",
+          "material": "SAL-11"
+        },
+        {
+          "name": "SAL-12",
+          "material": "SAL-12"
+        },
+        {
+          "name": "SAL-13",
+          "material": "SAL-13"
+        },
+        {
+          "name": "SAL-14",
+          "material": "SAL-14"
+        },
+        {
+          "name": "SAL-15",
+          "material": "SAL-15"
+        },
+        {
+          "name": "SAL-17",
+          "material": "SAL-17"
+        },
+        {
+          "name": "SAL-18",
+          "material": "SAL-18"
+        },
+        {
+          "name": "SAL-19",
+          "material": "SAL-19"
+        },
+        {
+          "name": "SAL-2",
+          "material": "SAL-2"
+        },
+        {
+          "name": "SAL-3",
+          "material": "SAL-3"
+        },
+        {
+          "name": "SAL-4",
+          "material": "SAL-4"
+        },
+        {
+          "name": "SAL-5",
+          "material": "SAL-5"
+        },
+        {
+          "name": "SAL-6",
+          "material": "SAL-6"
+        },
+        {
+          "name": "SAL-7",
+          "material": "SAL-7"
+        },
+        {
+          "name": "SAL-8",
+          "material": "SAL-8"
+        },
+        {
+          "name": "SAL-9",
+          "material": "SAL-9"
+        }
+      ]
+    },
+    "geo_fabric_PAN": {
+      "defaultMaterial": "BAL-2071",
+      "variants": [
+        {
+          "name": "BAL-2071",
+          "material": "BAL-2071"
+        },
+        {
+          "name": "BAL-2073",
+          "material": "BAL-2073"
+        },
+        {
+          "name": "BAL-2074",
+          "material": "BAL-2074"
+        },
+        {
+          "name": "BAL-2075",
+          "material": "BAL-2075"
+        },
+        {
+          "name": "BAL-2078",
+          "material": "BAL-2078"
+        },
+        {
+          "name": "BAL-2080",
+          "material": "BAL-2080"
+        },
+        {
+          "name": "BAL-2082",
+          "material": "BAL-2082"
+        },
+        {
+          "name": "BAL-2083",
+          "material": "BAL-2083"
+        },
+        {
+          "name": "BAL-2084",
+          "material": "BAL-2084"
+        },
+        {
+          "name": "BAL-2086",
+          "material": "BAL-2086"
+        },
+        {
+          "name": "BAL-2087",
+          "material": "BAL-2087"
+        },
+        {
+          "name": "BAL-2089",
+          "material": "BAL-2089"
+        },
+        {
+          "name": "FKO",
+          "material": "FKO"
+        },
+        {
+          "name": "FKO-01",
+          "material": "FKO-01"
+        },
+        {
+          "name": "FKO-02",
+          "material": "FKO-02"
+        },
+        {
+          "name": "FKO-03",
+          "material": "FKO-03"
+        },
+        {
+          "name": "FKO-04",
+          "material": "FKO-04"
+        },
+        {
+          "name": "SAL-1",
+          "material": "SAL-1"
+        },
+        {
+          "name": "SAL-10",
+          "material": "SAL-10"
+        },
+        {
+          "name": "SAL-11",
+          "material": "SAL-11"
+        },
+        {
+          "name": "SAL-12",
+          "material": "SAL-12"
+        },
+        {
+          "name": "SAL-13",
+          "material": "SAL-13"
+        },
+        {
+          "name": "SAL-14",
+          "material": "SAL-14"
+        },
+        {
+          "name": "SAL-15",
+          "material": "SAL-15"
+        },
+        {
+          "name": "SAL-17",
+          "material": "SAL-17"
+        },
+        {
+          "name": "SAL-18",
+          "material": "SAL-18"
+        },
+        {
+          "name": "SAL-19",
+          "material": "SAL-19"
+        },
+        {
+          "name": "SAL-2",
+          "material": "SAL-2"
+        },
+        {
+          "name": "SAL-3",
+          "material": "SAL-3"
+        },
+        {
+          "name": "SAL-4",
+          "material": "SAL-4"
+        },
+        {
+          "name": "SAL-5",
+          "material": "SAL-5"
+        },
+        {
+          "name": "SAL-6",
+          "material": "SAL-6"
+        },
+        {
+          "name": "SAL-7",
+          "material": "SAL-7"
+        },
+        {
+          "name": "SAL-8",
+          "material": "SAL-8"
+        },
+        {
+          "name": "SAL-9",
+          "material": "SAL-9"
+        }
+      ]
+    },
+    "geo_fabric": {
+      "defaultMaterial": "ASQ-24",
+      "variants": [
+        {
+          "name": "ASQ-24",
+          "material": "ASQ-24"
+        },
+        {
+          "name": "ASQ-27",
+          "material": "ASQ-27"
+        },
+        {
+          "name": "ASQ-31",
+          "material": "ASQ-31"
+        },
+        {
+          "name": "ASQ-51",
+          "material": "ASQ-51"
+        },
+        {
+          "name": "ASQ-54",
+          "material": "ASQ-54"
+        },
+        {
+          "name": "ASQ-99",
+          "material": "ASQ-99"
+        },
+        {
+          "name": "AST-08",
+          "material": "AST-08"
+        },
+        {
+          "name": "AST-110",
+          "material": "AST-110"
+        },
+        {
+          "name": "AST-124",
+          "material": "AST-124"
+        },
+        {
+          "name": "AST-13",
+          "material": "AST-13"
+        },
+        {
+          "name": "AST-24",
+          "material": "AST-24"
+        },
+        {
+          "name": "AST-27",
+          "material": "AST-27"
+        },
+        {
+          "name": "AST-28",
+          "material": "AST-28"
+        },
+        {
+          "name": "AST-31",
+          "material": "AST-31"
+        },
+        {
+          "name": "AST-33",
+          "material": "AST-33"
+        },
+        {
+          "name": "AST-62",
+          "material": "AST-62"
+        },
+        {
+          "name": "AST-70",
+          "material": "AST-70"
+        },
+        {
+          "name": "AST-84",
+          "material": "AST-84"
+        },
+        {
+          "name": "AST-90",
+          "material": "AST-90"
+        },
+        {
+          "name": "AST-97",
+          "material": "AST-97"
+        },
+        {
+          "name": "AST-99",
+          "material": "AST-99"
+        },
+        {
+          "name": "BAL-2071",
+          "material": "BAL-2071"
+        },
+        {
+          "name": "BAL-2073",
+          "material": "BAL-2073"
+        },
+        {
+          "name": "BAL-2074",
+          "material": "BAL-2074"
+        },
+        {
+          "name": "BAL-2075",
+          "material": "BAL-2075"
+        },
+        {
+          "name": "BAL-2078",
+          "material": "BAL-2078"
+        },
+        {
+          "name": "BAL-2080",
+          "material": "BAL-2080"
+        },
+        {
+          "name": "BAL-2082",
+          "material": "BAL-2082"
+        },
+        {
+          "name": "BAL-2083",
+          "material": "BAL-2083"
+        },
+        {
+          "name": "BAL-2084",
+          "material": "BAL-2084"
+        },
+        {
+          "name": "BAL-2086",
+          "material": "BAL-2086"
+        },
+        {
+          "name": "BAL-2087",
+          "material": "BAL-2087"
+        },
+        {
+          "name": "BAL-2089",
+          "material": "BAL-2089"
+        },
+        {
+          "name": "CAN-01",
+          "material": "CAN-01"
+        },
+        {
+          "name": "CAN-02",
+          "material": "CAN-02"
+        },
+        {
+          "name": "CAN-04",
+          "material": "CAN-04"
+        },
+        {
+          "name": "CAN-06",
+          "material": "CAN-06"
+        },
+        {
+          "name": "CAN-10",
+          "material": "CAN-10"
+        },
+        {
+          "name": "CAN-105",
+          "material": "CAN-105"
+        },
+        {
+          "name": "CAN-13",
+          "material": "CAN-13"
+        },
+        {
+          "name": "CAN-16",
+          "material": "CAN-16"
+        },
+        {
+          "name": "CAN-18",
+          "material": "CAN-18"
+        },
+        {
+          "name": "CAN-19",
+          "material": "CAN-19"
+        },
+        {
+          "name": "CAN-200",
+          "material": "CAN-200"
+        },
+        {
+          "name": "CAN-22",
+          "material": "CAN-22"
+        },
+        {
+          "name": "CAN-26",
+          "material": "CAN-26"
+        },
+        {
+          "name": "CAN-27",
+          "material": "CAN-27"
+        },
+        {
+          "name": "CAN-29",
+          "material": "CAN-29"
+        },
+        {
+          "name": "CAN-33",
+          "material": "CAN-33"
+        },
+        {
+          "name": "COC-001",
+          "material": "COC-001"
+        },
+        {
+          "name": "COC-005",
+          "material": "COC-005"
+        },
+        {
+          "name": "COC-007",
+          "material": "COC-007"
+        },
+        {
+          "name": "COC-015",
+          "material": "COC-015"
+        },
+        {
+          "name": "COC-023",
+          "material": "COC-023"
+        },
+        {
+          "name": "COC-025",
+          "material": "COC-025"
+        },
+        {
+          "name": "COC-033",
+          "material": "COC-033"
+        },
+        {
+          "name": "DJU-01",
+          "material": "DJU-01"
+        },
+        {
+          "name": "DJU-03",
+          "material": "DJU-03"
+        },
+        {
+          "name": "DJU-04",
+          "material": "DJU-04"
+        },
+        {
+          "name": "DJU-05",
+          "material": "DJU-05"
+        },
+        {
+          "name": "DJU-06",
+          "material": "DJU-06"
+        },
+        {
+          "name": "DJU-07",
+          "material": "DJU-07"
+        },
+        {
+          "name": "FIO-0020",
+          "material": "FIO-0020"
+        },
+        {
+          "name": "FIO-107",
+          "material": "FIO-107"
+        },
+        {
+          "name": "FIO-1424",
+          "material": "FIO-1424"
+        },
+        {
+          "name": "FIO-1700",
+          "material": "FIO-1700"
+        },
+        {
+          "name": "FIO-206",
+          "material": "FIO-206"
+        },
+        {
+          "name": "FIO-2491",
+          "material": "FIO-2491"
+        },
+        {
+          "name": "FIO-2919",
+          "material": "FIO-2919"
+        },
+        {
+          "name": "FIO-3237",
+          "material": "FIO-3237"
+        },
+        {
+          "name": "FIO-351",
+          "material": "FIO-351"
+        },
+        {
+          "name": "FIO-4832",
+          "material": "FIO-4832"
+        },
+        {
+          "name": "FIO-5233",
+          "material": "FIO-5233"
+        },
+        {
+          "name": "FIO-5604",
+          "material": "FIO-5604"
+        },
+        {
+          "name": "FIO-5667",
+          "material": "FIO-5667"
+        },
+        {
+          "name": "FIO-5726",
+          "material": "FIO-5726"
+        },
+        {
+          "name": "FIO-6609",
+          "material": "FIO-6609"
+        },
+        {
+          "name": "FIO-6714",
+          "material": "FIO-6714"
+        },
+        {
+          "name": "FIO-702",
+          "material": "FIO-702"
+        },
+        {
+          "name": "FIO-705",
+          "material": "FIO-705"
+        },
+        {
+          "name": "FIO-7307",
+          "material": "FIO-7307"
+        },
+        {
+          "name": "FIO-9606",
+          "material": "FIO-9606"
+        },
+        {
+          "name": "FKO",
+          "material": "FKO"
+        },
+        {
+          "name": "FKO-01",
+          "material": "FKO-01"
+        },
+        {
+          "name": "FKO-02",
+          "material": "FKO-02"
+        },
+        {
+          "name": "FKO-03",
+          "material": "FKO-03"
+        },
+        {
+          "name": "FKO-28",
+          "material": "FKO-28"
+        },
+        {
+          "name": "FLI-01",
+          "material": "FLI-01"
+        },
+        {
+          "name": "FLI-02",
+          "material": "FLI-02"
+        },
+        {
+          "name": "FLI-03",
+          "material": "FLI-03"
+        },
+        {
+          "name": "FLI-04",
+          "material": "FLI-04"
+        },
+        {
+          "name": "FLI-06",
+          "material": "FLI-06"
+        },
+        {
+          "name": "FLI-08",
+          "material": "FLI-08"
+        },
+        {
+          "name": "FLI-10",
+          "material": "FLI-10"
+        },
+        {
+          "name": "FLI-11",
+          "material": "FLI-11"
+        },
+        {
+          "name": "FLI-12",
+          "material": "FLI-12"
+        },
+        {
+          "name": "FLI-14",
+          "material": "FLI-14"
+        },
+        {
+          "name": "FLI-18",
+          "material": "FLI-18"
+        },
+        {
+          "name": "FLO-0036",
+          "material": "FLO-0036"
+        },
+        {
+          "name": "FLO-1274-02",
+          "material": "FLO-1274-02"
+        },
+        {
+          "name": "FLO-1274-11",
+          "material": "FLO-1274-11"
+        },
+        {
+          "name": "FLO-1503-01",
+          "material": "FLO-1503-01"
+        },
+        {
+          "name": "FLO-1503-08",
+          "material": "FLO-1503-08"
+        },
+        {
+          "name": "FLO-1503-110",
+          "material": "FLO-1503-110"
+        },
+        {
+          "name": "FLO-1503-36",
+          "material": "FLO-1503-36"
+        },
+        {
+          "name": "FLO-1503-37",
+          "material": "FLO-1503-37"
+        },
+        {
+          "name": "FLO-1503-38",
+          "material": "FLO-1503-38"
+        },
+        {
+          "name": "FLO-1503-44",
+          "material": "FLO-1503-44"
+        },
+        {
+          "name": "FLO-1503-49",
+          "material": "FLO-1503-49"
+        },
+        {
+          "name": "FLP-01",
+          "material": "FLP-01"
+        },
+        {
+          "name": "FLP-02",
+          "material": "FLP-02"
+        },
+        {
+          "name": "MISSING",
+          "material": "MISSING"
+        },
+        {
+          "name": "MOO-100",
+          "material": "MOO-100"
+        },
+        {
+          "name": "MOO-303",
+          "material": "MOO-303"
+        },
+        {
+          "name": "MOO-400",
+          "material": "MOO-400"
+        },
+        {
+          "name": "MOO-403",
+          "material": "MOO-403"
+        },
+        {
+          "name": "MOO-405",
+          "material": "MOO-405"
+        },
+        {
+          "name": "MOO-500",
+          "material": "MOO-500"
+        },
+        {
+          "name": "MOO-601",
+          "material": "MOO-601"
+        },
+        {
+          "name": "MOO-602",
+          "material": "MOO-602"
+        },
+        {
+          "name": "MOO-700",
+          "material": "MOO-700"
+        },
+        {
+          "name": "MOO-701",
+          "material": "MOO-701"
+        },
+        {
+          "name": "MOO-704",
+          "material": "MOO-704"
+        },
+        {
+          "name": "MOO-801",
+          "material": "MOO-801"
+        },
+        {
+          "name": "MOO-802",
+          "material": "MOO-802"
+        },
+        {
+          "name": "MOO-900",
+          "material": "MOO-900"
+        },
+        {
+          "name": "MOO-901",
+          "material": "MOO-901"
+        },
+        {
+          "name": "MYA-ANT-LE",
+          "material": "MYA-ANT-LE"
+        },
+        {
+          "name": "MYA-ANT-MO",
+          "material": "MYA-ANT-MO"
+        },
+        {
+          "name": "MYA-BD-LE",
+          "material": "MYA-BD-LE"
+        },
+        {
+          "name": "MYA-BD-MO",
+          "material": "MYA-BD-MO"
+        },
+        {
+          "name": "MYA-BS-LE",
+          "material": "MYA-BS-LE"
+        },
+        {
+          "name": "MYA-BS-MO",
+          "material": "MYA-BS-MO"
+        },
+        {
+          "name": "MYA-CH-LE",
+          "material": "MYA-CH-LE"
+        },
+        {
+          "name": "MYA-CH-MO",
+          "material": "MYA-CH-MO"
+        },
+        {
+          "name": "MYA-CO-LE",
+          "material": "MYA-CO-LE"
+        },
+        {
+          "name": "MYA-CO-MO",
+          "material": "MYA-CO-MO"
+        },
+        {
+          "name": "MYA-DB-LE",
+          "material": "MYA-DB-LE"
+        },
+        {
+          "name": "MYA-DB-MO",
+          "material": "MYA-DB-MO"
+        },
+        {
+          "name": "MYA-DE-LE",
+          "material": "MYA-DE-LE"
+        },
+        {
+          "name": "MYA-DE-MO",
+          "material": "MYA-DE-MO"
+        },
+        {
+          "name": "MYA-HE-LE",
+          "material": "MYA-HE-LE"
+        },
+        {
+          "name": "MYA-HE-MO",
+          "material": "MYA-HE-MO"
+        },
+        {
+          "name": "MYA-MU-LE",
+          "material": "MYA-MU-LE"
+        },
+        {
+          "name": "MYA-MU-MO",
+          "material": "MYA-MU-MO"
+        },
+        {
+          "name": "NUT-111",
+          "material": "NUT-111"
+        },
+        {
+          "name": "NUT-400",
+          "material": "NUT-400"
+        },
+        {
+          "name": "NUT-401",
+          "material": "NUT-401"
+        },
+        {
+          "name": "NUT-603",
+          "material": "NUT-603"
+        },
+        {
+          "name": "NUT-606",
+          "material": "NUT-606"
+        },
+        {
+          "name": "NUT-704",
+          "material": "NUT-704"
+        },
+        {
+          "name": "NUT-800",
+          "material": "NUT-800"
+        },
+        {
+          "name": "NUT-804",
+          "material": "NUT-804"
+        },
+        {
+          "name": "NUT-806",
+          "material": "NUT-806"
+        },
+        {
+          "name": "NUT-900",
+          "material": "NUT-900"
+        },
+        {
+          "name": "NUV-111",
+          "material": "NUV-111"
+        },
+        {
+          "name": "NUV-400",
+          "material": "NUV-400"
+        },
+        {
+          "name": "NUV-401",
+          "material": "NUV-401"
+        },
+        {
+          "name": "NUV-501",
+          "material": "NUV-501"
+        },
+        {
+          "name": "NUV-603",
+          "material": "NUV-603"
+        },
+        {
+          "name": "NUV-606",
+          "material": "NUV-606"
+        },
+        {
+          "name": "NUV-704",
+          "material": "NUV-704"
+        },
+        {
+          "name": "NUV-800",
+          "material": "NUV-800"
+        },
+        {
+          "name": "NUV-804",
+          "material": "NUV-804"
+        },
+        {
+          "name": "NUV-806",
+          "material": "NUV-806"
+        },
+        {
+          "name": "NUV-900",
+          "material": "NUV-900"
+        },
+        {
+          "name": "OYS-02",
+          "material": "OYS-02"
+        },
+        {
+          "name": "OYS-04",
+          "material": "OYS-04"
+        },
+        {
+          "name": "OYS-08",
+          "material": "OYS-08"
+        },
+        {
+          "name": "OYS-09",
+          "material": "OYS-09"
+        },
+        {
+          "name": "OYS-10",
+          "material": "OYS-10"
+        },
+        {
+          "name": "OYS-11",
+          "material": "OYS-11"
+        },
+        {
+          "name": "OYS-12",
+          "material": "OYS-12"
+        },
+        {
+          "name": "OYS-23",
+          "material": "OYS-23"
+        },
+        {
+          "name": "OYS-28",
+          "material": "OYS-28"
+        },
+        {
+          "name": "OYS-36",
+          "material": "OYS-36"
+        },
+        {
+          "name": "OYS-44",
+          "material": "OYS-44"
+        },
+        {
+          "name": "OYS-48",
+          "material": "OYS-48"
+        },
+        {
+          "name": "PAG-05",
+          "material": "PAG-05"
+        },
+        {
+          "name": "PUR-01",
+          "material": "PUR-01"
+        },
+        {
+          "name": "PUR-02",
+          "material": "PUR-02"
+        },
+        {
+          "name": "PUR-04",
+          "material": "PUR-04"
+        },
+        {
+          "name": "PUR-112",
+          "material": "PUR-112"
+        },
+        {
+          "name": "PUR-113",
+          "material": "PUR-113"
+        },
+        {
+          "name": "PUR-114",
+          "material": "PUR-114"
+        },
+        {
+          "name": "PUR-16",
+          "material": "PUR-16"
+        },
+        {
+          "name": "PUR-31",
+          "material": "PUR-31"
+        },
+        {
+          "name": "PUR-34",
+          "material": "PUR-34"
+        },
+        {
+          "name": "PUR-39",
+          "material": "PUR-39"
+        },
+        {
+          "name": "PUR-48",
+          "material": "PUR-48"
+        },
+        {
+          "name": "PUR-53",
+          "material": "PUR-53"
+        },
+        {
+          "name": "PUR-56",
+          "material": "PUR-56"
+        },
+        {
+          "name": "PUR-60",
+          "material": "PUR-60"
+        },
+        {
+          "name": "PUR-64",
+          "material": "PUR-64"
+        },
+        {
+          "name": "RAW-GOG",
+          "material": "RAW-GOG"
+        },
+        {
+          "name": "SANS",
+          "material": "SANS"
+        },
+        {
+          "name": "SEP-BLO",
+          "material": "SEP-BLO"
+        },
+        {
+          "name": "SEP-EGP",
+          "material": "SEP-EGP"
+        },
+        {
+          "name": "SEP-LEO",
+          "material": "SEP-LEO"
+        },
+        {
+          "name": "SEP-ZEB",
+          "material": "SEP-ZEB"
+        },
+        {
+          "name": "SES-01",
+          "material": "SES-01"
+        },
+        {
+          "name": "SES-02",
+          "material": "SES-02"
+        },
+        {
+          "name": "SOF-111",
+          "material": "SOF-111"
+        },
+        {
+          "name": "SOF-15",
+          "material": "SOF-15"
+        },
+        {
+          "name": "SOF-200",
+          "material": "SOF-200"
+        },
+        {
+          "name": "SOF-400",
+          "material": "SOF-400"
+        },
+        {
+          "name": "SOF-402",
+          "material": "SOF-402"
+        },
+        {
+          "name": "SOF-404",
+          "material": "SOF-404"
+        },
+        {
+          "name": "SOF-500",
+          "material": "SOF-500"
+        },
+        {
+          "name": "SOF-601",
+          "material": "SOF-601"
+        },
+        {
+          "name": "SOF-701",
+          "material": "SOF-701"
+        },
+        {
+          "name": "SOF-707",
+          "material": "SOF-707"
+        },
+        {
+          "name": "SOF-900",
+          "material": "SOF-900"
+        },
+        {
+          "name": "SOG-111",
+          "material": "SOG-111"
+        },
+        {
+          "name": "SOG-400",
+          "material": "SOG-400"
+        },
+        {
+          "name": "SOG-500",
+          "material": "SOG-500"
+        },
+        {
+          "name": "SOG-600",
+          "material": "SOG-600"
+        },
+        {
+          "name": "SOG-602",
+          "material": "SOG-602"
+        },
+        {
+          "name": "SOG-603",
+          "material": "SOG-603"
+        },
+        {
+          "name": "SOG-604",
+          "material": "SOG-604"
+        },
+        {
+          "name": "SOG-700",
+          "material": "SOG-700"
+        },
+        {
+          "name": "SOG-901",
+          "material": "SOG-901"
+        },
+        {
+          "name": "SOG-904",
+          "material": "SOG-904"
+        },
+        {
+          "name": "SOL-01",
+          "material": "SOL-01"
+        },
+        {
+          "name": "SOL-02",
+          "material": "SOL-02"
+        },
+        {
+          "name": "SOL-03",
+          "material": "SOL-03"
+        },
+        {
+          "name": "SOL-04",
+          "material": "SOL-04"
+        },
+        {
+          "name": "SOL-05",
+          "material": "SOL-05"
+        },
+        {
+          "name": "SOL-07",
+          "material": "SOL-07"
+        },
+        {
+          "name": "SOL-08",
+          "material": "SOL-08"
+        },
+        {
+          "name": "SOL-09",
+          "material": "SOL-09"
+        },
+        {
+          "name": "SOL-10",
+          "material": "SOL-10"
+        },
+        {
+          "name": "SOL-105",
+          "material": "SOL-105"
+        },
+        {
+          "name": "SOL-11",
+          "material": "SOL-11"
+        },
+        {
+          "name": "SOL-110",
+          "material": "SOL-110"
+        },
+        {
+          "name": "SOL-113",
+          "material": "SOL-113"
+        },
+        {
+          "name": "SOL-12",
+          "material": "SOL-12"
+        },
+        {
+          "name": "SOL-123",
+          "material": "SOL-123"
+        },
+        {
+          "name": "SOL-124",
+          "material": "SOL-124"
+        },
+        {
+          "name": "SOL-13",
+          "material": "SOL-13"
+        },
+        {
+          "name": "SOL-14",
+          "material": "SOL-14"
+        },
+        {
+          "name": "SOL-15",
+          "material": "SOL-15"
+        },
+        {
+          "name": "SOL-16",
+          "material": "SOL-16"
+        },
+        {
+          "name": "SOL-17",
+          "material": "SOL-17"
+        },
+        {
+          "name": "SOL-18",
+          "material": "SOL-18"
+        },
+        {
+          "name": "SOL-19",
+          "material": "SOL-19"
+        },
+        {
+          "name": "SOL-20",
+          "material": "SOL-20"
+        },
+        {
+          "name": "SOL-222",
+          "material": "SOL-222"
+        },
+        {
+          "name": "SOL-24",
+          "material": "SOL-24"
+        },
+        {
+          "name": "SOL-26",
+          "material": "SOL-26"
+        },
+        {
+          "name": "SOL-28",
+          "material": "SOL-28"
+        },
+        {
+          "name": "SOL-31",
+          "material": "SOL-31"
+        },
+        {
+          "name": "SOL-33",
+          "material": "SOL-33"
+        },
+        {
+          "name": "SOL-50",
+          "material": "SOL-50"
+        },
+        {
+          "name": "SOL-64",
+          "material": "SOL-64"
+        },
+        {
+          "name": "SOL-70",
+          "material": "SOL-70"
+        },
+        {
+          "name": "SOL-84",
+          "material": "SOL-84"
+        },
+        {
+          "name": "SOL-88",
+          "material": "SOL-88"
+        },
+        {
+          "name": "SOL-90",
+          "material": "SOL-90"
+        },
+        {
+          "name": "SOL-97",
+          "material": "SOL-97"
+        },
+        {
+          "name": "SOL-99",
+          "material": "SOL-99"
+        },
+        {
+          "name": "SOQ-04",
+          "material": "SOQ-04"
+        },
+        {
+          "name": "SOQ-08",
+          "material": "SOQ-08"
+        },
+        {
+          "name": "SOQ-11",
+          "material": "SOQ-11"
+        },
+        {
+          "name": "SOQ-14",
+          "material": "SOQ-14"
+        },
+        {
+          "name": "SOQ-15",
+          "material": "SOQ-15"
+        },
+        {
+          "name": "SOQ-18",
+          "material": "SOQ-18"
+        },
+        {
+          "name": "SOQ-19",
+          "material": "SOQ-19"
+        },
+        {
+          "name": "SOQ-20",
+          "material": "SOQ-20"
+        },
+        {
+          "name": "TES-001",
+          "material": "TES-001"
+        },
+        {
+          "name": "TES-02",
+          "material": "TES-02"
+        },
+        {
+          "name": "TES-07",
+          "material": "TES-07"
+        },
+        {
+          "name": "TES-10",
+          "material": "TES-10"
+        },
+        {
+          "name": "TES-15",
+          "material": "TES-15"
+        },
+        {
+          "name": "TES-18",
+          "material": "TES-18"
+        },
+        {
+          "name": "TES-20",
+          "material": "TES-20"
+        },
+        {
+          "name": "TES-21",
+          "material": "TES-21"
+        },
+        {
+          "name": "TES-22",
+          "material": "TES-22"
+        },
+        {
+          "name": "TES-31",
+          "material": "TES-31"
+        },
+        {
+          "name": "TOG-ASP-LE",
+          "material": "TOG-ASP-LE"
+        },
+        {
+          "name": "TOG-ASP-MO",
+          "material": "TOG-ASP-MO"
+        },
+        {
+          "name": "TOG-BLU-LE",
+          "material": "TOG-BLU-LE"
+        },
+        {
+          "name": "TOG-BLU-MO",
+          "material": "TOG-BLU-MO"
+        },
+        {
+          "name": "TOG-DB-LE",
+          "material": "TOG-DB-LE"
+        },
+        {
+          "name": "TOG-DB-MO",
+          "material": "TOG-DB-MO"
+        },
+        {
+          "name": "TOG-GRE-LE",
+          "material": "TOG-GRE-LE"
+        },
+        {
+          "name": "TOG-GRE-MO",
+          "material": "TOG-GRE-MO"
+        },
+        {
+          "name": "TOG-TOB-LE",
+          "material": "TOG-TOB-LE"
+        },
+        {
+          "name": "TOG-TOB-MO",
+          "material": "TOG-TOB-MO"
+        },
+        {
+          "name": "VEG-02",
+          "material": "VEG-02"
+        },
+        {
+          "name": "VEG-04",
+          "material": "VEG-04"
+        },
+        {
+          "name": "VEG-05",
+          "material": "VEG-05"
+        },
+        {
+          "name": "VEG-10",
+          "material": "VEG-10"
+        },
+        {
+          "name": "VEG-16",
+          "material": "VEG-16"
+        },
+        {
+          "name": "VEG-33",
+          "material": "VEG-33"
+        },
+        {
+          "name": "VEG-34",
+          "material": "VEG-34"
+        },
+        {
+          "name": "VEG-38",
+          "material": "VEG-38"
+        },
+        {
+          "name": "VEG-39",
+          "material": "VEG-39"
+        },
+        {
+          "name": "VEG-44",
+          "material": "VEG-44"
+        },
+        {
+          "name": "VEG-50",
+          "material": "VEG-50"
+        },
+        {
+          "name": "VEG-51",
+          "material": "VEG-51"
+        },
+        {
+          "name": "VEG-57",
+          "material": "VEG-57"
+        },
+        {
+          "name": "VEG-68",
+          "material": "VEG-68"
+        },
+        {
+          "name": "VEG-76",
+          "material": "VEG-76"
+        },
+        {
+          "name": "VEG-83",
+          "material": "VEG-83"
+        },
+        {
+          "name": "VEG-84",
+          "material": "VEG-84"
+        }
+      ]
+    },
+    "extra_fabric": {
+      "defaultMaterial": "",
+      "variants": []
+    },
+    "geo_nitar": {
+      "defaultMaterial": "GULD",
+      "variants": [
+        {
+          "name": "RI-GULD",
+          "material": "GULD"
+        },
+        {
+          "name": "RI-SILVER",
+          "material": "SILVER"
+        },
+        {
+          "name": "RI-SVARTGULD",
+          "material": "SVARTGULD"
+        }
+      ]
+    },
+    "geo_smallNitar": {
+      "defaultMaterial": "GULD",
+      "variants": [
+        {
+          "name": "RI-S-GULD",
+          "material": "GULD"
+        },
+        {
+          "name": "RI-S-SILVER",
+          "material": "SILVER"
+        },
+        {
+          "name": "RI-S-SVARTGULD",
+          "material": "SVARTGULD"
+        }
+      ]
+    }
+  }
+}

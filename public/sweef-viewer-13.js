@@ -67506,15 +67506,7 @@ const SceneGraphMixin = (ModelViewerElement) => {
                     await model[$switchVariant](variantName);
                     this[$needsRender]();
                     this.dispatchEvent(new CustomEvent('variant-applied'));
-                    //CSCustomCode
-                        if (this.availableAnimations.length > 0 && this.mainScene.model.getObjectByName("geo_fabric")) {
-                            if (this.sweefAnimationComplete) {
-                                this.mainScene.model.getObjectByName("geo_fabric").material.aoMapIntensity = 0;
-                            } else {
-                                this.mainScene.model.getObjectByName("geo_fabric").material.aoMapIntensity = 0.8;
-                            }
-                        }
-                        //CSCustomCode
+                
                 }
                 updateVariantProgress(1.0);
             }
