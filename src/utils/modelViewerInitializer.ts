@@ -35,6 +35,59 @@ export const initializeModelViewer = (modelViewerElement: any): any => {
     return modelViewerElement[sceneSymbol].model;
   };
 
+  // Public helpers to access three.js internals safely
+  modelViewerElement.getThreeModel = () => getSceneModel();
+  modelViewerElement.withThreeModel = (fn: (model: any) => void) => {
+    const model = getSceneModel();
+    if (!model) return;
+    try { fn(model); } catch {}
+  };
+
+  // Public: adjust normal scale for all mesh materials
+  modelViewerElement.setNormalScale = (value: number) => {
+    const model = getSceneModel();
+    if (!model || typeof model.traverse !== 'function') return;
+    const v = Math.abs(value) < 0.001 ? 0 : value;
+    model.traverse((object: any) => {
+      if (object?.isMesh && object.material && 'normalScale' in object.material) {
+        const ns = object.material.normalScale;
+        if (ns && typeof ns.set === 'function') ns.set(v, v);
+        else object.material.normalScale = { x: v, y: v };
+        // avoid forcing needsUpdate to reduce flicker
+      }
+    });
+  };
+
+  // Public: adjust scalar PBR properties without touching textures
+  modelViewerElement.setMaterialScalars = (scalars: {
+    baseColor?: [number, number, number, number];
+    metallicFactor?: number;
+    roughnessFactor?: number;
+    emissiveFactor?: [number, number, number];
+  }) => {
+    const model = getSceneModel();
+    if (!model || typeof model.traverse !== 'function') return;
+    const hasBase = Array.isArray(scalars.baseColor) && scalars.baseColor.length >= 3;
+    const hasEmis = Array.isArray(scalars.emissiveFactor) && scalars.emissiveFactor.length >= 3;
+    model.traverse((object: any) => {
+      if (!object?.isMesh || !object.material) return;
+      const mat = object.material;
+      if (hasBase && mat.color?.setRGB) {
+        mat.color.setRGB(scalars.baseColor![0], scalars.baseColor![1], scalars.baseColor![2]);
+      }
+      if (typeof scalars.metallicFactor === 'number' && 'metalness' in mat) {
+        mat.metalness = scalars.metallicFactor;
+      }
+      if (typeof scalars.roughnessFactor === 'number' && 'roughness' in mat) {
+        mat.roughness = scalars.roughnessFactor;
+      }
+      if (hasEmis && mat.emissive?.setRGB) {
+        mat.emissive.setRGB(scalars.emissiveFactor![0], scalars.emissiveFactor![1], scalars.emissiveFactor![2]);
+      }
+      // avoid needsUpdate to reduce flicker
+    });
+  };
+
   /**
    * Count the total number of meshes in the scene
    */

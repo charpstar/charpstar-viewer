@@ -1,6 +1,4 @@
-// types/model-viewer.d.ts
-
-// Define the custom element
+// global declaration for <model-viewer> so JSX recognizes it everywhere
 declare namespace JSX {
   interface IntrinsicElements {
     'model-viewer': React.DetailedHTMLProps<
@@ -9,19 +7,18 @@ declare namespace JSX {
         alt?: string;
         id?: string;
         style?: React.CSSProperties;
-        // core toggles
         'camera-controls'?: boolean;
         'auto-rotate'?: boolean;
         'disable-pan'?: boolean;
-        // lighting and tone mapping
         'environment-image'?: string;
         'exposure'?: string | number;
         'tone-mapping'?: 'neutral' | 'aces' | (string & {});
         'shadow-intensity'?: string | number;
-        // prompts
         'interaction-prompt'?: 'auto' | 'none' | 'when-focused' | (string & {});
       },
       HTMLElement
     >;
   }
 }
+
+

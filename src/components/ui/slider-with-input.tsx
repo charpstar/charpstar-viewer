@@ -30,7 +30,7 @@ const SliderWithInput = ({
   parseInput, // New prop to allow custom parsing
   className = "",
   inputWidth = "w-10",
-  sliderWidth = "w-24",
+  sliderWidth = "w-full",
   disabled = false,
   showValue = true,
 }: SliderWithInputProps) => {
@@ -46,7 +46,9 @@ const SliderWithInput = ({
 
   // Handle slider change
   const handleSliderChange = (newValue: number[]) => {
-    onChange(newValue[0])
+    if (newValue && newValue.length > 0 && typeof newValue[0] === 'number') {
+      onChange(newValue[0])
+    }
   }
 
   // Handle input change
@@ -58,6 +60,8 @@ const SliderWithInput = ({
   // Handle input blur (commit the value)
   const handleInputBlur = () => {
     setIsEditing(false)
+    // Clear drag flag used by preview to prevent texture rebinds during drag
+    try { (window as any).__mv_drag_active__ = false } catch {}
     
     let numValue: number;
 
@@ -110,7 +114,7 @@ const SliderWithInput = ({
   }
 
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className={`flex items-center space-x-2 ${className}`} style={{width:'100%'}}>
       <Slider
         disabled={disabled}
         min={min}

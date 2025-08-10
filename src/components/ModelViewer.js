@@ -39,8 +39,6 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
     const modelViewer = document.getElementById('model-viewer');
     if (modelViewer) {
       const handleLoad = () => {
-        console.log('Model loaded');
-        
         // Store references
         window.modelViewerElement = modelViewer;
         window.currentFileName = fileNameRef.current;
@@ -48,15 +46,10 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
         // Initialize our custom model viewer functions
         modelViewerElementRef.current = initializeModelViewer(modelViewer);
         
-        // Set a small delay to ensure the model is fully processed
-        // Increased timeout to ensure model is fully loaded and processed
-        setTimeout(() => {
-          if (onModelLoaded && !modelLoadedRef.current) {
-            console.log('Triggering onModelLoaded callback');
-            modelLoadedRef.current = true;
-            onModelLoaded();
-          }
-        }, 500); // Increased from 100ms to 500ms
+        if (onModelLoaded && !modelLoadedRef.current) {
+          modelLoadedRef.current = true;
+          onModelLoaded();
+        }
       };
       
       modelViewer.addEventListener('load', handleLoad);
@@ -92,14 +85,12 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
   const handleDragOver = (e) => {
     if (!clientModelUrl) {
       e.preventDefault();
-      e.currentTarget.classList.add('bg-[#EFEFEF]');
     }
   };
 
   const handleDragLeave = (e) => {
     if (!clientModelUrl) {
       e.preventDefault();
-      e.currentTarget.classList.remove('bg-[#EFEFEF]');
     }
   };
 

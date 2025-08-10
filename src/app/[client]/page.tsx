@@ -58,102 +58,38 @@ export default function ClientPage() {
         const structure = modelViewerRef.current.getModelStructure();
         
         if (structure) {
-          console.log('Model structure loaded:', structure);
           setModelStructure(structure);
           return true;
         } else {
-          console.warn('Model structure is empty or null');
           return false;
         }
       } catch (error) {
-        console.error('Error fetching model structure:', error);
         return false;
       }
     } else {
-      console.warn('modelViewer or getModelStructure method not available');
       return false;
     }
   };
   
-  // Set up retry logic for fetching model structure
+  // Initialize ref from global (set by ModelViewer) once available
   useEffect(() => {
-    if (modelLoaded && !modelStructure) {
-      console.log('Model loaded but structure not yet available, attempting to fetch...');
-      
-      // Try immediately first
-      if (!fetchModelStructure()) {
-        // If first attempt fails, set up a retry mechanism
-        const retryAttempts = 5;
-        let currentAttempt = 0;
-        
-        // Use model-viewer events instead of polling for retries
-        if (window.modelViewerElement) {
-          const modelViewer = window.modelViewerElement;
-          
-          const handleModelLoad = () => {
-            console.log('Model loaded - attempting to fetch structure...');
-            if (fetchModelStructure()) {
-              modelViewer.removeEventListener('load', handleModelLoad);
-              modelViewer.removeEventListener('model-visibility', handleModelLoad);
-            }
-          };
-          
-          modelViewer.addEventListener('load', handleModelLoad);
-          modelViewer.addEventListener('model-visibility', handleModelLoad);
-          
-          return () => {
-            modelViewer.removeEventListener('load', handleModelLoad);
-            modelViewer.removeEventListener('model-visibility', handleModelLoad);
-          };
-        }
-      }
+    if (!modelViewerRef.current && window.modelViewerElement) {
+      modelViewerRef.current = window.modelViewerElement;
     }
-  }, [modelLoaded, modelStructure]);
-
-  // Set up model viewer reference
-  useEffect(() => {
-    const setupModelViewer = () => {
-      const modelViewer = document.getElementById('model-viewer');
-      if (modelViewer) {
-        modelViewerRef.current = modelViewer;
-        
-        if (modelViewer.getAttribute('src')) {
-          // We don't call fetchModelStructure here anymore
-          // It will be called by the onModelLoaded handler
-        }
-      }
-    };
-
-    setupModelViewer();
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.addedNodes.length) {
-          const modelViewer = document.querySelector('model-viewer');
-          if (modelViewer && !modelViewerRef.current) {
-            setupModelViewer();
-          }
-        }
-      });
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => {
-      observer.disconnect();
-    };
   }, []);
 
   // Handler for model loaded event
   const handleModelLoaded = () => {
-    console.log('Model loaded event received');
     setModelLoaded(true);
+    // Store the initialized model-viewer reference
+    if (window.modelViewerElement) {
+      modelViewerRef.current = window.modelViewerElement;
+    }
     fetchModelStructure();
   };
 
   // Handler for variant change
   const handleVariantChange = () => {
-    console.log('Variant changed, updating material view');
     fetchModelStructure();
   };
 
@@ -208,7 +144,6 @@ export default function ClientPage() {
 
   // Function to refresh the model after successful save
   const refreshModel = () => {
-    console.log('Refreshing model to show saved changes...');
     
     // Set global cache timestamp to bust cache for ALL models
     const timestamp = Date.now();
@@ -246,30 +181,16 @@ export default function ClientPage() {
       setSaveMessage("Preparing materials data...");
 
       // Get all resource data from saveGLTF
-      console.log('Calling saveGLTF...');
       const resourceData = await modelViewerRef.current.saveGLTF();
       
       // Use the complete GLTF from saveGLTF (it already includes everything!)
-      console.log('Using complete GLTF from saveGLTF...');
       let gltfData = null;
       
       if (resourceData.gltf && typeof resourceData.gltf === 'string') {
         gltfData = resourceData.gltf;
-        console.log('Using complete GLTF from saveGLTF:', gltfData.length, 'characters');
       } else {
         console.error('No complete GLTF data returned from saveGLTF');
       }
-      
-      // Debug what we got back
-      console.log('saveGLTF returned:', {
-        hasMaterials: !!resourceData.materials,
-        hasTextures: !!resourceData.textures,
-        hasImages: !!resourceData.images,
-        materialsCount: resourceData.materials?.length,
-        texturesCount: resourceData.textures?.length,
-        imagesCount: resourceData.images?.length,
-        hasGltfData: !!gltfData
-      });
       
       setSaveProgress(20);
       setSaveMessage("Uploading material changes...");
@@ -284,7 +205,6 @@ export default function ClientPage() {
       
       // Upload materials.json
       if (resourceData.materials) {
-        console.log('Uploading materials.json...');
         
         const materialsResponse = await fetch('/api/upload', {
           method: 'POST',
@@ -299,8 +219,6 @@ export default function ClientPage() {
         });
 
         if (materialsResponse.ok) {
-          const result = await materialsResponse.json();
-          console.log('Materials saved successfully:', result.fileUrl);
           uploadResults.materials = true;
           setSaveProgress(40);
           setSaveMessage("Materials uploaded successfully...");
@@ -316,7 +234,6 @@ export default function ClientPage() {
 
       // Upload complete GLTF file to Uploads folder
       if (gltfData) {
-        console.log('Uploading complete GLTF file...');
         setSaveMessage("Uploading complete model file...");
         
         // Generate counter-based filename: 0001-Day-Month-Year-TimeinMinutes
@@ -364,7 +281,6 @@ export default function ClientPage() {
           savedGltfFilename = `0001-${new Date().toISOString().split('T')[0]}-0000.gltf`;
         }
         
-        console.log('Generated filename:', savedGltfFilename);
         
         const gltfResponse = await fetch('/api/upload', {
           method: 'POST',
@@ -380,8 +296,6 @@ export default function ClientPage() {
         });
 
         if (gltfResponse.ok) {
-          const result = await gltfResponse.json();
-          console.log('GLTF saved successfully:', result.fileUrl);
           uploadResults.gltf = true;
           setSaveProgress(65);
           setSaveMessage("Complete model uploaded successfully...");

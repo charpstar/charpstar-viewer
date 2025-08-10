@@ -181,17 +181,10 @@ export default function ClientDemoPage() {
   
  // Handle model loaded event
   const handleModelLoaded = () => {
-    console.log('Model loaded callback received');
-    
-    // After the model loads, store a reference to the model-viewer element
-    setTimeout(() => {
-      // Get the initialized model-viewer element with our custom functions attached
-      const modelViewer = window.modelViewerElement;
-      if (modelViewer && !modelViewerRef.current) {
-        modelViewerRef.current = modelViewer;
-        console.log('Stored model-viewer reference with custom functions');
-      }
-    }, 100);
+    const modelViewer = window.modelViewerElement;
+    if (modelViewer) {
+      modelViewerRef.current = modelViewer;
+    }
   };
   
   return (

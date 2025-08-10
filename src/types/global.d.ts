@@ -1,3 +1,5 @@
+declare module 'draco3dgltf';
+
 // src/types/global.d.ts
 
 // Add model-viewer to the JSX namespace globally

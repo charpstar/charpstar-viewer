@@ -46,8 +46,8 @@ const CameraControlsPanel: React.FC<CameraControlsPanelProps> = ({ modelViewerRe
           modelViewerRef.current.requestRender();
         }
       }
-    } catch (error) {
-      console.error('Error toggling grid visibility:', error);
+    } catch {
+      // no-op
     }
   };
 
@@ -76,8 +76,8 @@ const CameraControlsPanel: React.FC<CameraControlsPanelProps> = ({ modelViewerRe
         modelViewerRef.current.cameraOrbit = orbit;
         console.log('Set camera orbit directly to:', orbit);
       }
-    } catch (error) {
-      console.error('Error changing camera view:', error);
+    } catch {
+      // no-op
     } finally {
       // Re-show the grid after generating the poster
       toggleGridVisibility(true);

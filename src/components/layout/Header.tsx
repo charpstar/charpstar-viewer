@@ -44,8 +44,9 @@ const Header: React.FC<HeaderProps> = ({
   const isClientView = isValidClient(clientName);
   const isManageView = pathname?.includes('/manage');
   
-  // Determine current page (only Editor and Manage now)
-  const currentPage = isManageView ? 'manage' : 'editor';
+  // Determine current page (Editor, Manage, and Materials)
+  const isMaterialsView = pathname?.includes('/materials');
+  const currentPage = isMaterialsView ? 'materials' : isManageView ? 'manage' : 'editor';
 
   return (
     <header className="h-12 bg-white text-[#111827] flex items-center justify-between px-6 border-b border-gray-200 shadow-sm w-full">
@@ -83,6 +84,17 @@ const Header: React.FC<HeaderProps> = ({
                   Manage
                 </button>
               </Link>
+              <Link href={`/${clientName}/materials`}>
+                <button
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
+                    currentPage === 'materials'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  }`}
+                >
+                  Materials
+                </button>
+              </Link>
             </div>
           </nav>
         )}
@@ -101,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({
       
       <div className="flex items-center space-x-3">
         {/* Dynamic Action Buttons */}
-        {currentPage === 'editor' && onSave && (
+        {(currentPage === 'editor' || currentPage === 'materials') && onSave && (
           <Button 
             variant="default"
             size="sm"
@@ -110,13 +122,13 @@ const Header: React.FC<HeaderProps> = ({
             className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             <Save size={14} className="mr-2" />
-            {isSaving ? "Saving..." : "Save to Live"}
+            {isSaving ? "Saving..." : (currentPage === 'materials' ? 'Save All' : 'Save to Live')}
           </Button>
         )}
         
-        {currentPage === 'manage' && (
+        {(currentPage === 'manage' || currentPage === 'materials') && (
           <>
-            {onUploadModels && (
+            {onUploadModels && currentPage === 'manage' && (
               <Button 
                 variant="default"
                 size="sm"
@@ -135,7 +147,7 @@ const Header: React.FC<HeaderProps> = ({
                 className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200"
               >
                 <RefreshCw size={14} className="mr-2" />
-                Refresh
+                {currentPage === 'materials' ? 'Reload Materials' : 'Refresh'}
               </Button>
             )}
           </>

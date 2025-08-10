@@ -88,8 +88,8 @@ export default function ManageModelsPage() {
 
   // Load models on component mount with auto-select - SIMPLE useEffect
   useEffect(() => {
-    loadExistingModels(true); // Auto-select first model on initial load
-  }, []); // No dependencies needed
+    loadExistingModels(true);
+  }, []);
 
   // Show delete confirmation dialog
   const showDeleteDialog = (filename: string) => {
@@ -149,18 +149,11 @@ export default function ManageModelsPage() {
 
   // SIMPLE function - no useCallback needed  
   const handleModelLoaded = () => {
-    console.log('Model loaded callback received');
     setIsModelLoading(false);
-    
-    // After the model loads, store a reference to the model-viewer element
-    setTimeout(() => {
-      // Get the initialized model-viewer element with our custom functions attached
-      const modelViewer = window.modelViewerElement;
-      if (modelViewer && !modelViewerRef.current) {
-        modelViewerRef.current = modelViewer;
-        console.log('Stored model-viewer reference with custom functions');
-      }
-    }, 100);
+    // Capture the initialized model-viewer reference
+    if (window.modelViewerElement) {
+      modelViewerRef.current = window.modelViewerElement;
+    }
   };
 
   // SIMPLE functions - no useCallback needed

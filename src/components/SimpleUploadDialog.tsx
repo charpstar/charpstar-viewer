@@ -206,7 +206,7 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-white">
         <DialogHeader>
           <DialogTitle>Upload GLTF Models</DialogTitle>
           <DialogDescription>
@@ -376,7 +376,7 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
             onClick={onClose}
             className="cursor-pointer"
           >
-            Cancel
+            Close
           </Button>
           {uploadFiles.length > 0 && (
             <Button

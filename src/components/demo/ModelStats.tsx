@@ -38,230 +38,80 @@ const CompactModelStats: React.FC<CompactModelStatsProps> = ({
   });
   const [showDoubleSidedDetails, setShowDoubleSidedDetails] = useState(false);
   const lastValidStatsRef = useRef<ModelStatistics | null>(null);
-  const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Improved stats fetching with retry mechanism and cached values
+  // Minimal stats fetch
   const fetchStats = () => {
-    if (!modelViewerRef.current) {
-      return false;
+    const el: any = modelViewerRef.current || (window as any).modelViewerElement || (document.getElementById('model-viewer') as any);
+    if (!el) return;
+    const variants = el.availableVariants || [];
+    const variantCount = Array.isArray(variants) ? variants.length : 0;
+    const get = (fn: any, fallback: any) => (typeof fn === 'function' ? fn.call(el) : fallback);
+    const combined = typeof el.getModelStats === 'function' ? el.getModelStats() : null;
+    if (combined) {
+      const newStats = {
+        vertices: combined.vertices || 0,
+        triangles: combined.triangles || 0,
+        meshCount: combined.meshCount || 0,
+        materialCount: combined.materialCount || 0,
+        doubleSidedCount: combined.doubleSidedCount || 0,
+        doubleSidedMaterials: combined.doubleSidedMaterials || [],
+        variantCount,
+        isLoading: false,
+      };
+      lastValidStatsRef.current = newStats;
+      setStats(newStats);
+      return;
     }
-    
-    try {
-      // First, always gather the variant count which is more reliable
-      const variants = modelViewerRef.current.availableVariants || [];
-      const variantCount = Array.isArray(variants) ? variants.length : 0;
-      
-      // Try to get stats via the combined method first
-      if (typeof modelViewerRef.current.getModelStats === 'function') {
-        const modelStats = modelViewerRef.current.getModelStats() || {};
-        
-        // Sanity check the values - make sure they're numbers and not all zeros
-        const hasValidStats = 
-          typeof modelStats.triangles === 'number' && 
-          typeof modelStats.vertices === 'number' &&
-          typeof modelStats.meshCount === 'number' &&
-          typeof modelStats.materialCount === 'number' &&
-          !(modelStats.triangles === 0 && 
-             modelStats.vertices === 0 && 
-             modelStats.meshCount === 0 &&
-             modelStats.materialCount === 0);
-        
-        if (hasValidStats) {
-          const newStats = {
-            vertices: modelStats.vertices,
-            triangles: modelStats.triangles,
-            meshCount: modelStats.meshCount,
-            materialCount: modelStats.materialCount,
-            doubleSidedCount: modelStats.doubleSidedCount || 0,
-            doubleSidedMaterials: modelStats.doubleSidedMaterials || [],
-            variantCount,
-            isLoading: false
-          };
-          
-          // Cache this valid set of stats
-          lastValidStatsRef.current = newStats;
-          
-          setStats(newStats);
-          return true;
-        }
-      }
-      
-      // Try individual methods as fallback
-      const polyStats = typeof modelViewerRef.current.getPolyStats === 'function' 
-        ? modelViewerRef.current.getPolyStats() : null;
-      
-      const meshCount = typeof modelViewerRef.current.totalMeshCount === 'function'
-        ? modelViewerRef.current.totalMeshCount() : null;
-        
-      const materialCount = typeof modelViewerRef.current.totalMaterialCount === 'function'
-        ? modelViewerRef.current.totalMaterialCount() : null;
-        
-      const doubleSidedInfo = typeof modelViewerRef.current.checkForDoubleSided === 'function'
-        ? modelViewerRef.current.checkForDoubleSided() 
-        : { count: 0, materials: [] };
-      
-      // Check if we have valid data from individual methods
-      const hasValidIndividualStats = 
-        polyStats && 
-        typeof polyStats.triangles === 'number' && 
-        typeof polyStats.vertices === 'number' &&
-        typeof meshCount === 'number' &&
-        typeof materialCount === 'number' &&
-        !(polyStats.triangles === 0 && 
-           polyStats.vertices === 0 && 
-           meshCount === 0 &&
-           materialCount === 0);
-      
-      if (hasValidIndividualStats) {
-        const newStats = {
-          vertices: polyStats.vertices,
-          triangles: polyStats.triangles,
-          meshCount: meshCount,
-          materialCount: materialCount,
-          doubleSidedCount: doubleSidedInfo.count || 0,
-          doubleSidedMaterials: doubleSidedInfo.materials || [],
-          variantCount,
-          isLoading: false
-        };
-        
-        // Cache this valid set of stats
-        lastValidStatsRef.current = newStats;
-        
-        setStats(newStats);
-        return true;
-      }
-      
-      // If we get here and have lastValidStats but with different variant count,
-      // update just the variant count but keep other stats
-      if (lastValidStatsRef.current) {
-        if (lastValidStatsRef.current.variantCount !== variantCount) {
-          const updatedStats = {
-            ...lastValidStatsRef.current,
-            variantCount,
-            isLoading: false
-          };
-          
-          setStats(updatedStats);
-          return true;
-        }
-        
-        // Otherwise, just reuse the last valid stats entirely
-        setStats({
-          ...lastValidStatsRef.current,
-          isLoading: false
-        });
-        return true;
-      }
-      
-      // If we get here, we couldn't get valid stats
-      return false;
-    } catch (error) {
-      console.error('Error fetching model statistics:', error);
-      
-      // If we have lastValidStats, use them as fallback in case of error
-      if (lastValidStatsRef.current) {
-        setStats({
-          ...lastValidStatsRef.current,
-          isLoading: false
-        });
-        return true;
-      }
-      
-      setStats(prev => ({ ...prev, isLoading: false }));
-      return false;
-    }
+    const poly = get(el.getPolyStats, { vertices: 0, triangles: 0 });
+    const meshCount = get(el.totalMeshCount, 0);
+    const materialCount = get(el.totalMaterialCount, 0);
+    const doubleInfo = get(el.checkForDoubleSided, { count: 0, materials: [] });
+    const fallback = {
+      vertices: poly.vertices || 0,
+      triangles: poly.triangles || 0,
+      meshCount: meshCount || 0,
+      materialCount: materialCount || 0,
+      doubleSidedCount: doubleInfo.count || 0,
+      doubleSidedMaterials: doubleInfo.materials || [],
+      variantCount,
+      isLoading: false,
+    };
+    lastValidStatsRef.current = fallback;
+    setStats(fallback);
   };
   
-  // Improved effect to handle model changes and ensure stats are accurate
+  // Minimal effect: fetch once per model change
   useEffect(() => {
-    // Clear any existing polling timeout
-    if (pollingTimeoutRef.current) {
-      clearTimeout(pollingTimeoutRef.current);
-      pollingTimeoutRef.current = null;
-    }
-    
-    // Reset loading state when model changes
     setStats(prev => ({ ...prev, isLoading: true }));
-    
-    // Reset the last valid stats when model changes
-    lastValidStatsRef.current = null;
-    
-    // Create a more robust polling mechanism
-    const startPolling = () => {
-      let attempts = 0;
-      const maxAttempts = 30; // More attempts but with exponential backoff
-      
-      const poll = () => {
-        attempts++;
-        
-        const success = fetchStats();
-        
-        if (success && attempts >= 3) {
-          // If we've had success and tried at least 3 times, stop polling
-          return;
-        } else if (attempts >= maxAttempts) {
-          // If we've reached the maximum number of attempts, stop polling
-          setStats(prev => ({ ...prev, isLoading: false }));
-          return;
-        }
-        
-        // Calculate backoff time - start with 100ms, then increase (max 2000ms)
-        const backoff = Math.min(2000, Math.pow(1.5, attempts) * 100); 
-        
-        // Schedule next poll with exponential backoff
-        pollingTimeoutRef.current = setTimeout(poll, backoff);
-      };
-      
-      // Start polling
-      poll();
-    };
-    
-    // Try once immediately (for fast models)
-    const initialSuccess = fetchStats();
-    
-    // If not immediately successful, start polling
-    if (!initialSuccess) {
-      startPolling();
-    } else {
-      // If initially successful, still do a couple more polls to refine data
-      // (helpful for when the model is still loading textures etc.)
-      pollingTimeoutRef.current = setTimeout(() => {
-        fetchStats();
-        
-        // One more poll after a longer delay
-        pollingTimeoutRef.current = setTimeout(() => {
-          fetchStats();
-        }, 500);
-      }, 200);
-    }
-    
-    // Cleanup polling on unmount or model change
-    return () => {
-      if (pollingTimeoutRef.current) {
-        clearTimeout(pollingTimeoutRef.current);
-        pollingTimeoutRef.current = null;
-      }
-    };
-  }, [modelViewerRef, modelName]);
+    fetchStats();
+  }, [modelName]);
   
-  // React to variant changes via model-viewer events instead of polling
+  // Ensure stats initialize on hard refresh and when variants apply
   useEffect(() => {
-    if (!modelViewerRef?.current) return;
-    
-    const modelViewer = modelViewerRef.current;
-    
-    const handleVariantChange = () => {
-      console.log('Variant changed - refreshing stats...');
-      fetchStats();
+    const bind = (element: any) => {
+      if (!element) return () => {};
+      const onLoad = () => fetchStats();
+      const onVariant = () => fetchStats();
+      element.addEventListener('load', onLoad);
+      element.addEventListener('variant-applied', onVariant);
+      if (element.loaded) fetchStats();
+      return () => {
+        element.removeEventListener('load', onLoad);
+        element.removeEventListener('variant-applied', onVariant);
+      };
     };
-    
-    // Listen for variant changes to update stats
-    modelViewer.addEventListener('variant-applied', handleVariantChange);
-    
-    return () => {
-      modelViewer.removeEventListener('variant-applied', handleVariantChange);
-    };
-  }, [modelViewerRef]);
+    const el: any = modelViewerRef.current || (window as any).modelViewerElement || (document.getElementById('model-viewer') as any);
+    if (el) {
+      return bind(el);
+    }
+    const t = setTimeout(() => {
+      const lateEl: any = modelViewerRef.current || (window as any).modelViewerElement || (document.getElementById('model-viewer') as any);
+      if (lateEl) {
+        bind(lateEl);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, []);
   
   const toggleDoubleSidedDetails = () => {
     setShowDoubleSidedDetails(!showDoubleSidedDetails);

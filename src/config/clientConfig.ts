@@ -79,6 +79,22 @@ export const clients: Record<string, ClientConfig> = {
       imagesFolder: "images"
     }
   },
+  Sweef: {
+    name: "Sweev",
+    description: "Sweef Editor",
+    modelUrl: "https://cdn.charpstar.net/Client-Editor/Sweef/TIG-2.gltf",
+    hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
+    scriptPath: "/model-viewer.min.js",
+    resourcesPath: "Sweef",
+    livePassword: "sweef2024",
+    exposure: 1.4,
+    toneMapping: "auto",
+    bunnyCdn: {
+      basePath: "Client-Editor/Sweef",
+      resourcesFolder: "resources",
+      imagesFolder: "images"
+    }
+  },
 };
 
 // Helper function to get client configuration

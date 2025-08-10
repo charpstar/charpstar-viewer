@@ -32,9 +32,7 @@ const SimpleLayout: React.FC<SimpleLayoutProps> = ({
   // Handler for variant changes to force re-render of material panel
   const handleVariantChange = () => {
     setVariantChangeCounter(prev => prev + 1);
-    if (onVariantChange) {
-      onVariantChange();
-    }
+    onVariantChange?.();
   };
 
   return (

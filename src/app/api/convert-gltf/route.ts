@@ -502,80 +502,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check if reference GLTF uses external JSON references and resolve them
-    const basePath = clientConfig.bunnyCdn.basePath;
-    const resourcesPath = `${basePath}/${clientConfig.bunnyCdn.resourcesFolder}`;
-    
-    try {
-      // If materials is a string reference, fetch the actual materials
-      if (referenceData.materials && typeof referenceData.materials === 'string') {
-        console.log(`Reference GLTF has external materials reference: ${referenceData.materials}`);
-        const materialsUrl = `https://${BUNNY_PULL_ZONE_URL}/${resourcesPath}/${referenceData.materials}`;
-        const materialsResponse = await fetch(materialsUrl);
-        if (materialsResponse.ok) {
-          const materialArray = await materialsResponse.json();
-          referenceData.materials = materialArray;
-          console.log(`Loaded ${Array.isArray(materialArray) ? materialArray.length : 0} materials from external file`);
-        } else {
-          throw new Error(`Failed to load materials from ${referenceData.materials}`);
-        }
-      }
-
-      // If textures is a string reference, fetch the actual textures
-      if (referenceData.textures && typeof referenceData.textures === 'string') {
-        console.log(`Reference GLTF has external textures reference: ${referenceData.textures}`);
-        const texturesUrl = `https://${BUNNY_PULL_ZONE_URL}/${resourcesPath}/${referenceData.textures}`;
-        const texturesResponse = await fetch(texturesUrl);
-        if (texturesResponse.ok) {
-          const textureArray = await texturesResponse.json();
-          referenceData.textures = textureArray;
-          console.log(`Loaded ${Array.isArray(textureArray) ? textureArray.length : 0} textures from external file`);
-        } else {
-          throw new Error(`Failed to load textures from ${referenceData.textures}`);
-        }
-      }
-
-      // If images is a string reference, fetch the actual images
-      if (referenceData.images && typeof referenceData.images === 'string') {
-        console.log(`Reference GLTF has external images reference: ${referenceData.images}`);
-        const imagesUrl = `https://${BUNNY_PULL_ZONE_URL}/${resourcesPath}/${referenceData.images}`;
-        const imagesResponse = await fetch(imagesUrl);
-        if (imagesResponse.ok) {
-          const imageArray = await imagesResponse.json();
-          referenceData.images = imageArray;
-          console.log(`Loaded ${Array.isArray(imageArray) ? imageArray.length : 0} images from external file`);
-        } else {
-          throw new Error(`Failed to load images from ${referenceData.images}`);
-        }
-      }
-
-      // If externalImagesUri exists, fetch and append those images
-      if (referenceData.externalImagesUri && typeof referenceData.externalImagesUri === 'string') {
-        console.log(`Reference GLTF has externalImagesUri: ${referenceData.externalImagesUri}`);
-        const externalImagesUrl = `https://${BUNNY_PULL_ZONE_URL}/${resourcesPath}/${referenceData.externalImagesUri}`;
-        const externalImagesResponse = await fetch(externalImagesUrl);
-        if (externalImagesResponse.ok) {
-          const externalImages = await externalImagesResponse.json();
-          // Append external images to existing images array
-          if (Array.isArray(referenceData.images) && Array.isArray(externalImages)) {
-            referenceData.images = [...referenceData.images, ...externalImages];
-            console.log(`Appended ${externalImages.length} external images, total: ${referenceData.images.length}`);
-          } else if (Array.isArray(externalImages)) {
-            referenceData.images = externalImages;
-            console.log(`Set ${externalImages.length} external images as main images array`);
-          }
-        } else {
-          console.warn(`Failed to load external images from ${referenceData.externalImagesUri}`);
-        }
-      }
-
-      console.log('Reference data after resolving external references completed');
-      
-    } catch (externalRefError) {
-      console.error('Error resolving external references:', externalRefError);
-      const errorMessage = externalRefError instanceof Error ? externalRefError.message : 'Unknown error';
-      return NextResponse.json({ 
-        error: `Failed to resolve external references in reference GLTF: ${errorMessage}` 
+    // Externalized arrays are no longer supported. Require embedded arrays in reference.gltf.
+    if (typeof (referenceData as any).materials === 'string' ||
+        typeof (referenceData as any).textures === 'string' ||
+        typeof (referenceData as any).images === 'string' ||
+        typeof (referenceData as any).externalImagesUri === 'string') {
+      return NextResponse.json({
+        error: 'Externalized materials/textures/images are no longer supported. Embed arrays directly in reference.gltf.'
       }, { status: 400 });
     }
 

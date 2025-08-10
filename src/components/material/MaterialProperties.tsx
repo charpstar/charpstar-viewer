@@ -102,8 +102,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           modelViewerRef.current.requestRender();
         }
       }
-    } catch (error) {
-      console.error(`Error updating ${property}:`, error);
+    } catch {
+      // no-op
     }
   }, [modelViewerRef, selectedNode]);
 
@@ -141,8 +141,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           modelViewerRef.current.requestRender();
         }
       }
-    } catch (error) {
-      console.error(`Error updating shared tiling:`, error);
+    } catch {
+      // no-op
     }
   };
 
@@ -180,8 +180,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           modelViewerRef.current.requestRender();
         }
       }
-    } catch (error) {
-      console.error(`Error updating sheen tiling:`, error);
+    } catch {
+      // no-op
     }
   };
 
@@ -238,8 +238,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           modelViewerRef.current.requestRender();
         }
       }
-    } catch (error) {
-      console.error('Error updating sheen UV set:', error);
+    } catch {
+      // no-op
     }
   };
 
@@ -319,8 +319,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         setMaterial(null);
         setIsMeshPhysicalMaterial(false);
       }
-    } catch (error) {
-      console.error('Error accessing material:', error);
+    } catch {
       setMaterial(null);
       setIsMeshPhysicalMaterial(false);
     }
@@ -364,8 +363,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           };
         });
       }
-    } catch (error) {
-      console.error('Error accessing sheen material properties:', error);
+    } catch {
+      // no-op
     }
   }, [selectedNode, modelViewerRef, variantChangeCounter]);
 
@@ -397,8 +396,8 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           modelViewerRef.current.requestRender();
         }
       }
-    } catch (error) {
-      console.error('Error updating normal map intensity:', error);
+    } catch {
+      // no-op
     }
   };
 
