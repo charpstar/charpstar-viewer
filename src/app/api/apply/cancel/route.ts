@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     if (!res.ok) {
       return NextResponse.json({ error: data?.error || 'Failed to cancel job' }, { status: res.status });
     }
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, logUrl: typeof data?.logUrl === 'string' ? data.logUrl : undefined });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'Failed to cancel job' }, { status: 500 });
   }

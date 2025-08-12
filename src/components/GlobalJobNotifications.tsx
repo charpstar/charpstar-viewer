@@ -424,11 +424,13 @@ const GlobalJobNotifications: React.FC = () => {
               try {
                 const id = localStorage.getItem(`charpstar:applyJob:${job.clientName}`) || job.jobId;
                 if (!id) return;
-                await fetch('/api/apply/cancel', {
+                const cancelRes = await fetch('/api/apply/cancel', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ jobId: id })
                 });
+                const cancelJson = await cancelRes.json().catch(() => ({} as any));
+                const logUrl = typeof cancelJson?.logUrl === 'string' ? cancelJson.logUrl : undefined;
                 // Update UI immediately to a cancelled summary
                 setActiveJobs(prev => {
                   const current = prev[job.clientName];
@@ -457,14 +459,16 @@ const GlobalJobNotifications: React.FC = () => {
                         failed,
                         failedFiles: files.filter((f: any) => f?.status === 'failed').map((f: any) => f?.filename),
                         processedFiles: files,
+                        logUrl,
                       },
                     } as ActiveJob,
                   };
                   return next;
                 });
-                // Keep polling so the real job status (with logUrl) arrives shortly after
-                // Do not clear localStorage yet; the poller will clean up on completion
-                window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName: job.clientName, status: 'cancelled-requested' } }));
+                // Stop polling and clear local job marker immediately so we don't wait
+                stopPolling(job.clientName);
+                try { localStorage.removeItem(`charpstar:applyJob:${job.clientName}`); } catch {}
+                window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName: job.clientName, status: 'cancelled' } }));
               } catch {}
             }}
         />
