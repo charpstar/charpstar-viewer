@@ -462,10 +462,9 @@ const GlobalJobNotifications: React.FC = () => {
                   };
                   return next;
                 });
-                // Stop polling and clear local job marker; header will rely on worker client-status until it fully stops
-                stopPolling(job.clientName);
-                try { localStorage.removeItem(`charpstar:applyJob:${job.clientName}`); } catch {}
-                window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName: job.clientName, status: 'cancelled' } }));
+                // Keep polling so the real job status (with logUrl) arrives shortly after
+                // Do not clear localStorage yet; the poller will clean up on completion
+                window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName: job.clientName, status: 'cancelled-requested' } }));
               } catch {}
             }}
         />
