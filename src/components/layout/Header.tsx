@@ -108,6 +108,13 @@ const Header: React.FC<HeaderProps> = ({
             const cj = await cr.json().catch(() => ({} as any));
             if (cr.ok && cj && typeof cj.active === 'boolean') {
               active = !!cj.active;
+              // If an active job exists on the worker but this tab lacks a jobId, persist it and broadcast
+              if (active && cj.jobId && typeof window !== 'undefined' && !localStorage.getItem(jobKey)) {
+                try {
+                  localStorage.setItem(jobKey, cj.jobId);
+                  window.dispatchEvent(new CustomEvent('charpstar:jobStarted', { detail: { clientName, jobId: cj.jobId } }));
+                } catch {}
+              }
             }
           }
         }

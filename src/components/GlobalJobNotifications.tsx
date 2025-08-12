@@ -72,10 +72,21 @@ const GlobalJobNotifications: React.FC = () => {
     const checkExistingJob = async () => {
       try {
         const jobId = localStorage.getItem(`charpstar:applyJob:${clientName}`);
-        if (!jobId) return;
+        if (!jobId) {
+          // Ask worker if a job is already running for this client (other device/user)
+          const cr = await fetch(`/api/apply/client-status?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
+          const cj = await cr.json().catch(() => ({} as any));
+          if (cr.ok && cj?.active && cj?.jobId) {
+            try { localStorage.setItem(`charpstar:applyJob:${clientName}`, cj.jobId as string); } catch {}
+          } else {
+            return;
+          }
+        }
         
         // Check if job is still active
-        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}`, { 
+        const existingIdRaw = localStorage.getItem(`charpstar:applyJob:${clientName}`);
+        const existingId = typeof existingIdRaw === 'string' ? existingIdRaw : '';
+        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(existingId)}`, { 
           cache: 'no-store' 
         });
         
@@ -94,7 +105,7 @@ const GlobalJobNotifications: React.FC = () => {
             ...prev,
             [clientName]: {
               clientName,
-              jobId,
+              jobId: jobId || '',
               isApplying: true,
               progress: {
                 total: data.total || 0,
@@ -103,17 +114,17 @@ const GlobalJobNotifications: React.FC = () => {
                 processedFiles: data.processedFiles || []
               },
               summary: null
-            }
+            } as ActiveJob
           }));
           
-          startPolling(clientName, jobId);
+          startPolling(clientName, jobId || '');
         } else {
           // Job completed, show summary
           setActiveJobs(prev => ({
             ...prev,
             [clientName]: {
               clientName,
-              jobId,
+              jobId: jobId || '',
               isApplying: false,
               progress: null,
               summary: {
@@ -125,7 +136,7 @@ const GlobalJobNotifications: React.FC = () => {
                   .map((f: any) => f.filename),
                 processedFiles: data.processedFiles || []
               }
-            }
+            } as ActiveJob
           }));
         }
       } catch (error) {
