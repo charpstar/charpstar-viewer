@@ -71,22 +71,21 @@ const GlobalJobNotifications: React.FC = () => {
     
     const checkExistingJob = async () => {
       try {
-        const jobId = localStorage.getItem(`charpstar:applyJob:${clientName}`);
+        let jobId = localStorage.getItem(`charpstar:applyJob:${clientName}`);
         if (!jobId) {
           // Ask worker if a job is already running for this client (other device/user)
           const cr = await fetch(`/api/apply/client-status?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
           const cj = await cr.json().catch(() => ({} as any));
           if (cr.ok && cj?.active && cj?.jobId) {
             try { localStorage.setItem(`charpstar:applyJob:${clientName}`, cj.jobId as string); } catch {}
+            jobId = String(cj.jobId);
           } else {
             return;
           }
         }
         
         // Check if job is still active
-        const existingIdRaw = localStorage.getItem(`charpstar:applyJob:${clientName}`);
-        const existingId = typeof existingIdRaw === 'string' ? existingIdRaw : '';
-        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(existingId)}`, { 
+        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}`, { 
           cache: 'no-store' 
         });
         
@@ -105,7 +104,7 @@ const GlobalJobNotifications: React.FC = () => {
             ...prev,
             [clientName]: {
               clientName,
-              jobId: jobId || '',
+              jobId,
               isApplying: true,
               progress: {
                 total: data.total || 0,
@@ -117,14 +116,14 @@ const GlobalJobNotifications: React.FC = () => {
             } as ActiveJob
           }));
           
-          startPolling(clientName, jobId || '');
+          startPolling(clientName, jobId);
         } else {
           // Job completed, show summary
           setActiveJobs(prev => ({
             ...prev,
             [clientName]: {
               clientName,
-              jobId: jobId || '',
+              jobId,
               isApplying: false,
               progress: null,
               summary: {
@@ -214,41 +213,29 @@ const GlobalJobNotifications: React.FC = () => {
         const failed = data.failed || 0;
         const total = data.total || 0;
         const files = data.processedFiles || [];
-        
+
         // If worker marks terminated explicitly
         if (data.status === 'terminated') {
           finalizeWithError('Background job terminated', { total, done, failed, processedFiles: files });
           return;
         }
 
-        // Only update state if data actually changed
-        const currentProgress = activeJobs[client]?.progress;
-        const hasChanges = done !== currentProgress?.done || 
-                          failed !== currentProgress?.failed ||
-                          files.length !== (currentProgress?.processedFiles?.length || 0);
-        
-        if (hasChanges) {
-          // Use functional update to minimize re-renders
-          const newProgress = { total, done, failed, processedFiles: files };
-          const newProgressJson = JSON.stringify(newProgress);
-          
-          // Skip update if exact same data as last time
-          if (lastUpdateRef.current[client] === newProgressJson) {
-            return;
-          }
-          
+        // Build progress and compare to last seen snapshot (avoid stale state closures)
+        const newProgress = { total, done, failed, processedFiles: files };
+        const newProgressJson = JSON.stringify(newProgress);
+        const lastJson = lastUpdateRef.current[client];
+
+        if (lastJson !== newProgressJson) {
           lastUpdateRef.current[client] = newProgressJson;
-          
           setActiveJobs(prev => {
             const current = prev[client];
             if (!current) return prev;
-            
             return {
               ...prev,
               [client]: {
                 ...current,
-                progress: newProgress
-              }
+                progress: newProgress,
+              },
             };
           });
           lastUpdateTime = Date.now();
@@ -423,7 +410,7 @@ const GlobalJobNotifications: React.FC = () => {
   return (
     <>
       {jobArray.map((job, index) => (
-        <ApplyJobNotification
+          <ApplyJobNotification
           key={job.clientName}
           isVisible={true}
           isApplying={job.isApplying}
@@ -432,6 +419,46 @@ const GlobalJobNotifications: React.FC = () => {
           clientName={job.clientName}
           stackIndex={index}
           onDismiss={() => dismissJob(job.clientName)}
+            onCancel={async () => {
+              try {
+                const id = localStorage.getItem(`charpstar:applyJob:${job.clientName}`) || job.jobId;
+                if (!id) return;
+                await fetch('/api/apply/cancel', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ jobId: id })
+                });
+                // Update UI immediately to a cancelled summary
+                setActiveJobs(prev => {
+                  const current = prev[job.clientName];
+                  if (!current) return prev;
+                  const total = current.progress?.total || current.summary?.total || 0;
+                  const done = current.progress?.done || current.summary?.done || 0;
+                  const failed = (current.progress?.failed || current.summary?.failed || 0) + 1;
+                  const files = (current.progress?.processedFiles || current.summary?.processedFiles || []).slice();
+                  files.push({ filename: 'Cancelled by user', status: 'failed', error: 'Cancelled' } as any);
+                  return {
+                    ...prev,
+                    [job.clientName]: {
+                      ...current,
+                      isApplying: false,
+                      progress: null,
+                      summary: {
+                        total,
+                        done: Math.min(total, done + failed),
+                        failed,
+                        failedFiles: files.filter((f: any) => f?.status === 'failed').map((f: any) => f?.filename),
+                        processedFiles: files,
+                      },
+                    },
+                  };
+                });
+                // Stop polling and clear local job marker; header will rely on worker client-status until it fully stops
+                stopPolling(job.clientName);
+                try { localStorage.removeItem(`charpstar:applyJob:${job.clientName}`); } catch {}
+                window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName: job.clientName, status: 'cancelled' } }));
+              } catch {}
+            }}
         />
       ))}
     </>

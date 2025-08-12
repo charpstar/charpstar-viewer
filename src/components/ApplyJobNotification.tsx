@@ -47,6 +47,7 @@ interface ApplyJobNotificationProps {
   summary: ApplySummary | null;
   clientName: string;
   onDismiss: () => void;
+  onCancel?: () => void;
   stackIndex?: number; // For stacking multiple notifications
 }
 
@@ -57,9 +58,11 @@ const ApplyJobNotification: React.FC<ApplyJobNotificationProps> = ({
   summary,
   clientName,
   onDismiss,
+  onCancel,
   stackIndex = 0
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [confirmCancel, setConfirmCancel] = React.useState(false);
 
   if (!isVisible) return null;
 
@@ -121,6 +124,17 @@ const ApplyJobNotification: React.FC<ApplyJobNotificationProps> = ({
                 </div>
               )}
               
+              {!isComplete && totalFiles > 0 && onCancel && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmCancel(true)}
+                  className="h-6 px-2 text-xs"
+                >
+                  Cancel
+                </Button>
+              )}
+
               {(progress?.processedFiles?.length || 0) > 0 && (
                 <Button
                   variant="ghost"
@@ -216,6 +230,27 @@ const ApplyJobNotification: React.FC<ApplyJobNotificationProps> = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Confirm Cancel Dialog (lightweight inline) */}
+      {confirmCancel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-md shadow-lg p-4 w-[320px]">
+            <div className="text-sm font-medium text-gray-900">Cancel apply?</div>
+            <div className="text-xs text-gray-600 mt-2">This will stop the job. Are you sure?</div>
+            <div className="mt-4 flex items-center justify-end space-x-2">
+              <Button variant="outline" size="sm" onClick={() => setConfirmCancel(false)} className="h-7 px-3 text-xs">No</Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => { setConfirmCancel(false); onCancel?.(); }}
+                className="h-7 px-3 text-xs"
+              >
+                Yes, cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
