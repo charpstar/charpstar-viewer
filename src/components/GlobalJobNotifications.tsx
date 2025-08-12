@@ -283,7 +283,8 @@ const GlobalJobNotifications: React.FC = () => {
                 failedFiles: files
                   .filter((f: any) => f.status === 'failed')
                   .map((f: any) => f.filename),
-                processedFiles: files
+                processedFiles: files,
+                logUrl: typeof (data?.logUrl) === 'string' ? data.logUrl : undefined,
               }
             }
           }));

@@ -38,6 +38,7 @@ interface ApplySummary {
     size?: number;
     error?: string;
   }>;
+  logUrl?: string;
 }
 
 interface ApplyJobNotificationProps {
@@ -190,14 +191,23 @@ const ApplyJobNotification: React.FC<ApplyJobNotificationProps> = ({
                   </span>
                 )}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onDismiss}
-                className="h-6 px-2 text-xs"
-              >
-                Dismiss
-              </Button>
+              <div className="flex items-center space-x-2">
+                {summary?.logUrl && (
+                  <a href={summary.logUrl} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
+                      Download log
+                    </Button>
+                  </a>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onDismiss}
+                  className="h-6 px-2 text-xs"
+                >
+                  Dismiss
+                </Button>
+              </div>
             </div>
           )}
 
