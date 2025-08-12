@@ -24,6 +24,19 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
+      <head>
+        {/* Import map for module-bare specifier 'three' used by /model-viewer-module.js */}
+        <script
+          type="importmap"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              imports: {
+                three: '/three.module.js',
+              },
+            }),
+          }}
+        />
+      </head>
       <body className={`${jost.className} text-[14px]`}>
         {/* Load the appropriate viewer script based on client */}
         <SimpleClientViewerScript />

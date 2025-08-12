@@ -47,7 +47,7 @@ const InputLocker: React.FC<InputLockerProps> = ({ isLocked }) => {
         document.body.removeChild(existingBlocker);
       }
     };
-  }, [isLocked]);
+  }, [isLocked]); 
 
   // This component doesn't render anything visible
   return null;
