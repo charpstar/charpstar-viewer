@@ -435,9 +435,16 @@ const GlobalJobNotifications: React.FC = () => {
                   const total = current.progress?.total || current.summary?.total || 0;
                   const done = current.progress?.done || current.summary?.done || 0;
                   const failed = (current.progress?.failed || current.summary?.failed || 0) + 1;
-                  const files = (current.progress?.processedFiles || current.summary?.processedFiles || []).slice();
-                  files.push({ filename: 'Cancelled by user', status: 'failed', error: 'Cancelled' } as any);
-                  return {
+                  // Coerce to summary-safe entries: no 'processing' status allowed
+                  const baseFiles = (current.progress?.processedFiles || current.summary?.processedFiles || []).map((f: any) => ({
+                    filename: f?.filename as string,
+                    status: (f?.status === 'success' ? 'success' : (f?.status === 'failed' ? 'failed' : 'failed')) as 'success' | 'failed',
+                    size: f?.size as number | undefined,
+                    error: f?.error as string | undefined,
+                  }));
+                  const files = baseFiles.slice();
+                  files.push({ filename: 'Cancelled by user', status: 'failed', size: undefined, error: 'Cancelled' });
+                  const next: Record<string, ActiveJob> = {
                     ...prev,
                     [job.clientName]: {
                       ...current,
@@ -450,8 +457,9 @@ const GlobalJobNotifications: React.FC = () => {
                         failedFiles: files.filter((f: any) => f?.status === 'failed').map((f: any) => f?.filename),
                         processedFiles: files,
                       },
-                    },
+                    } as ActiveJob,
                   };
+                  return next;
                 });
                 // Stop polling and clear local job marker; header will rely on worker client-status until it fully stops
                 stopPolling(job.clientName);
