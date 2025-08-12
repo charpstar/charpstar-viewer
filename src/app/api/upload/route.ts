@@ -49,14 +49,12 @@ export async function POST(request: NextRequest) {
     // Log what we're trying to process
     console.log(`Processing upload for ${filename} with data of type ${typeof resourceData}, isGlbFile: ${isGlbFile}`);
     
-    // Validate the filename is one of our expected types
-    const validFilenames = ['materials.json', 'textures.json', 'images.json'];
+    // Only GLTF/GLB uploads are supported in the new workflow
     const isGltfFile = filename.endsWith('.gltf');
     const isGlbBinaryFile = filename.endsWith('.glb');
-    
-    if (!validFilenames.includes(filename) && !isGltfFile && !isGlbBinaryFile) {
-      console.error(`Invalid filename: ${filename}`);
-      return NextResponse.json({ error: 'Invalid filename. Must be one of: ' + validFilenames.join(', ') + ', a .gltf file, or a .glb file' }, { status: 400 });
+    if (!isGltfFile && !isGlbBinaryFile) {
+      console.error(`Invalid filename (new workflow only supports .gltf/.glb): ${filename}`);
+      return NextResponse.json({ error: 'Invalid filename. Only .gltf or .glb files are supported.' }, { status: 400 });
     }
 
     let buffer: Buffer;
@@ -83,12 +81,6 @@ export async function POST(request: NextRequest) {
         buffer = Buffer.from(dataString);
         contentType = 'model/gltf+json';
         console.log(`Processing GLTF file ${filename}, length: ${dataString.length}`);
-      } else {
-        // For JSON files, stringify the data
-        const dataString = JSON.stringify(resourceData, null, 2);
-        buffer = Buffer.from(dataString);
-        contentType = 'application/json';
-        console.log(`Successfully stringified ${filename} data, length: ${dataString.length}`);
       }
     } catch (processingError) {
       console.error(`Error processing ${filename} data:`, processingError);
@@ -111,8 +103,6 @@ export async function POST(request: NextRequest) {
       targetFolder = customTargetFolder;
     } else if (isGltfFile || isGlbBinaryFile) {
       targetFolder = ''; // GLTF and GLB files go to base folder (root of client folder)
-    } else {
-      targetFolder = clientConfig.bunnyCdn.resourcesFolder; // JSON files go to resources
     }
     
     // Construct the path for the file in BunnyCDN using client-specific paths

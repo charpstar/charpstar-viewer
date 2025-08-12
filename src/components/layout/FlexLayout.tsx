@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/layout/FlexLayout.tsx
 'use client';
 

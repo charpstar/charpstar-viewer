@@ -82,14 +82,13 @@ const ModelInfo: React.FC<ModelInfoProps> = ({ model, modelViewerRef }) => {
     fetchVariants();
     
     // Use model-viewer events instead of polling
+    const handleModelLoad = () => {
+      console.log('Model loaded - fetching variants in ModelInfo...');
+      fetchVariants();
+    };
+
     if (modelViewerRef.current) {
       const modelViewer = modelViewerRef.current;
-      
-      const handleModelLoad = () => {
-        console.log('Model loaded - fetching variants in ModelInfo...');
-        fetchVariants();
-      };
-      
       modelViewer.addEventListener('load', handleModelLoad);
       modelViewer.addEventListener('model-visibility', handleModelLoad);
     }

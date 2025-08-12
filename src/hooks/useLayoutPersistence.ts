@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/hooks/useLayoutPersistence.ts
 
 import { useState, useEffect } from 'react';

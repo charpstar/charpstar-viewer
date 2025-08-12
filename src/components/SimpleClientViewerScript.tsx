@@ -11,8 +11,8 @@ const SimpleClientViewerScript = () => {
   const clientName = params?.client as string;
   const pathname = usePathname();
   
-  // Get the appropriate script for this client
-  const scriptSrc = getClientConfig(clientName).scriptPath;
+  // Use a consistent local module build of model-viewer
+  const scriptSrc = '/model-viewer-module.js';
 
   // Skip loading client viewer scripts on materials and manage pages to avoid conflicts
   if (typeof pathname === 'string' && (pathname.includes('/materials') || pathname.includes('/manage'))) {
