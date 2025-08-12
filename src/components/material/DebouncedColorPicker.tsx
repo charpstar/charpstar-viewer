@@ -87,17 +87,18 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const [anchor, setAnchor] = useState<{top:number; left:number; height:number} | null>(null);
   const [sidebarLeft, setSidebarLeft] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const interactingRef = useRef(false);
 
   // Update local color when prop changes (not during dragging)
   useEffect(() => {
-    if (!isDragging) {
+    if (!interactingRef.current) {
       const next = (value ?? color);
       if (typeof next === 'string') {
         const rgb = hexToRgb(next);
         if (rgb) setHsv(rgbToHsv(rgb.r, rgb.g, rgb.b));
       }
     }
-  }, [value, color, isDragging]);
+  }, [value, color]);
 
   // Handle color input change
   const emitHex = useCallback((hsvVal: {h:number;s:number;v:number}) => {
@@ -108,11 +109,12 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   }, [debounceTime, onChange]);
 
   // Handle the start of dragging
-  const handleDragStart = () => setIsDragging(true);
+  const handleDragStart = () => { interactingRef.current = true; setIsDragging(true); };
 
   // Handle the end of dragging
   const handleDragEnd = () => {
     setIsDragging(false);
+    interactingRef.current = false;
     emitHex(hsv);
   };
 
@@ -127,13 +129,14 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const svRef = useRef<HTMLDivElement | null>(null);
   const onPointerDownSV = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    interactingRef.current = true;
+    setIsDragging(true);
     const rect = svRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
     const y = clamp((e.clientY - rect.top) / rect.height, 0, 1);
     const next = { h: hsv.h, s: x, v: 1 - y };
     setHsv(next);
     emitHex(next);
-    setIsDragging(true);
   };
   const onPointerMoveSV = (e: React.PointerEvent) => {
     if (!isDragging) return;
@@ -149,12 +152,13 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const hueRef = useRef<HTMLDivElement | null>(null);
   const onPointerDownHue = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    interactingRef.current = true;
+    setIsDragging(true);
     const rect = hueRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
     const next = { ...hsv, h: x * 360 };
     setHsv(next);
     emitHex(next);
-    setIsDragging(true);
   };
   const onPointerMoveHue = (e: React.PointerEvent) => {
     if (!isDragging) return;
@@ -169,12 +173,13 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const satRef = useRef<HTMLDivElement | null>(null);
   const onPointerDownSat = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    interactingRef.current = true;
+    setIsDragging(true);
     const rect = satRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
     const next = { ...hsv, s: x };
     setHsv(next);
     emitHex(next);
-    setIsDragging(true);
   };
   const onPointerMoveSat = (e: React.PointerEvent) => {
     if (!isDragging) return;
@@ -189,12 +194,13 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const valRef = useRef<HTMLDivElement | null>(null);
   const onPointerDownVal = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    interactingRef.current = true;
+    setIsDragging(true);
     const rect = valRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
     const next = { ...hsv, v: x };
     setHsv(next);
     emitHex(next);
-    setIsDragging(true);
   };
   const onPointerMoveVal = (e: React.PointerEvent) => {
     if (!isDragging) return;

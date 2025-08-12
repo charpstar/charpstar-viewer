@@ -9,7 +9,6 @@ export interface ClientConfig {
   // URLs and paths
   modelUrl: string;
   hdrPath: string;
-  scriptPath: string;
   resourcesPath: string;
   
   // Security
@@ -22,7 +21,6 @@ export interface ClientConfig {
   // BunnyCDN specific paths
   bunnyCdn: {
     basePath: string;          
-    resourcesFolder: string; 
     imagesFolder: string;      
   };
 }
@@ -33,65 +31,43 @@ const DEFAULT_CONFIG: ClientConfig = {
   description: "Default Configuration",
   modelUrl: "",
   hdrPath: "https://cdn.charpstar.net/HDR/default.hdr",
-  scriptPath: "/model-viewer.js",
   resourcesPath: "",
   livePassword: "",
   exposure: 1.0,
   toneMapping: "neutral",
   bunnyCdn: {
     basePath: "Client-Editor/Default",
-    resourcesFolder: "resources",
     imagesFolder: "images"
   }
 };
 
 // Client-specific configurations
 export const clients: Record<string, ClientConfig> = {
-  SweefV2: {
-    name: "SweevV2",
-    description: "Sweef Editor",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/SweefV2/TIG-2.gltf",
-    hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
-    scriptPath: "/sweef-viewer-13.js",
-    resourcesPath: "SweefV2",
-    livePassword: "sweef2024",
-    exposure: 1.4,
-    toneMapping: "auto",
-    bunnyCdn: {
-      basePath: "Client-Editor/SweefV2",
-      resourcesFolder: "resources",
-      imagesFolder: "images"
-    }
-  },
   Artwood: {
     name: "Artwood",
     description: "Artwood Editor",
     modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/7844-4401-2.gltf",
     hdrPath: "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr",
-    scriptPath: "/model-viewer.js",
     resourcesPath: "Artwood",
     livePassword: "artwood2024",
     exposure: 1.5,
     toneMapping: "aces",
     bunnyCdn: {
       basePath: "Client-Editor/Artwood",
-      resourcesFolder: "resources",
       imagesFolder: "images"
     }
   },
   Sweef: {
-    name: "Sweev",
+    name: "Sweef",
     description: "Sweef Editor",
     modelUrl: "https://cdn.charpstar.net/Client-Editor/Sweef/TIG-2.gltf",
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
-    scriptPath: "/model-viewer.min.js",
     resourcesPath: "Sweef",
     livePassword: "sweef2024",
     exposure: 1.4,
-    toneMapping: "auto",
+    toneMapping: "aces",
     bunnyCdn: {
       basePath: "Client-Editor/Sweef",
-      resourcesFolder: "resources",
       imagesFolder: "images"
     }
   },
@@ -107,10 +83,6 @@ export const getDefaultClientName = (): string => {
   return Object.keys(clients)[0] || 'SweefV2';
 };
 
-// Helper to check if a client should use the Sweef viewer
-export const usesSweefViewer = (clientName: string): boolean => {
-  return getClientConfig(clientName).scriptPath === '/sweef-viewer-13.js';
-};
 
 // Helper to check if a client is valid
 export const isValidClient = (clientName: string): boolean => {

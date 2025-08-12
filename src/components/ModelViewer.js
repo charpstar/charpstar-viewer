@@ -11,6 +11,7 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
   const clientName = params?.client;
   const [modelSrc, setModelSrc] = useState(clientModelUrl || null);
   const [isClient, setIsClient] = useState(false);
+  const [moduleReady, setModuleReady] = useState(false);
   const fileNameRef = useRef('model');
   const modelLoadedRef = useRef(false);
   const modelViewerElementRef = useRef(null);
@@ -25,6 +26,55 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
     setIsClient(true);
   }, []);
 
+  // Ensure the same module build as materials page is loaded (no clientConfig script)
+  function ensureModelViewerModuleLoaded() {
+    return new Promise((resolve, reject) => {
+      if (typeof window !== 'undefined' && window.customElements?.get?.('model-viewer')) {
+        resolve();
+        return;
+      }
+
+      // Ensure import map for 'three'
+      const existingImportMap = document.querySelector('script[type="importmap"][data-loader="mv-importmap"]');
+      if (!existingImportMap) {
+        const importMap = document.createElement('script');
+        importMap.type = 'importmap';
+        importMap.setAttribute('data-loader', 'mv-importmap');
+        importMap.textContent = JSON.stringify({
+          imports: {
+            three: '/three.module.js'
+          }
+        });
+        document.head.appendChild(importMap);
+      }
+
+      // Load module version of model-viewer (no bundled three)
+      const existing = document.querySelector('script[type="module"][data-loader="model-viewer-module"]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', () => reject(new Error('Failed to load model-viewer module')));
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = '/model-viewer-module.js';
+      script.setAttribute('data-loader', 'model-viewer-module');
+      script.addEventListener('load', () => resolve());
+      script.addEventListener('error', () => reject(new Error('Failed to load model-viewer module')));
+      document.head.appendChild(script);
+    });
+  }
+
+  useEffect(() => {
+    if (!isClient) return;
+    let cancelled = false;
+    ensureModelViewerModuleLoaded()
+      .then(() => { if (!cancelled) setModuleReady(true); })
+      .catch(() => { if (!cancelled) setModuleReady(false); });
+    return () => { cancelled = true; };
+  }, [isClient]);
+
   // Update modelSrc when clientModelUrl changes
   useEffect(() => {
     if (clientModelUrl) {
@@ -34,7 +84,7 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
 
   // Effect to handle model load event
   useEffect(() => {
-    if (!isClient || !modelSrc) return;
+    if (!isClient || !moduleReady || !modelSrc) return;
 
     const modelViewer = document.getElementById('model-viewer');
     if (modelViewer) {
@@ -62,7 +112,7 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
         modelLoadedRef.current = false;
       };
     }
-  }, [isClient, modelSrc, onModelLoaded]);
+  }, [isClient, moduleReady, modelSrc, onModelLoaded]);
 
   // Only enable drag and drop if no client model URL is provided
   const handleDrop = (e) => {
@@ -102,14 +152,15 @@ const ModelViewer = ({ onModelLoaded, clientModelUrl }) => {
       className="w-full h-full flex items-center justify-center transition-colors duration-200 rounded-md bg-[#F8F9FA]"
     >
       <div className="w-full h-full flex items-center justify-center">
-        {isClient && modelSrc && (
+        {isClient && moduleReady && modelSrc && (
           <model-viewer
             src={modelSrc}
             alt="A 3D model"
             id="model-viewer"
             disable-pan
             interaction-prompt = "none"
-            shadow-intensity="0"
+            shadow-intensity="0.6"
+            shadow-softness="0.9"
             environment-image={environmentImage}
             exposure={exposure}
             tone-mapping={toneMapping}

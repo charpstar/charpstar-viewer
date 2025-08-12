@@ -1,4 +1,5 @@
 declare module 'draco3dgltf';
+declare module '/three.module.js';
 
 // src/types/global.d.ts
 

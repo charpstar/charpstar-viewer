@@ -308,7 +308,7 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
             r: object.material.sheenColor.r,
             g: object.material.sheenColor.g,
             b: object.material.sheenColor.b
-          } : '#ffffff',
+          } : '#000000',
           sheenColorMap: object.material.sheenColorMap || null,
           sheenColorMap_channel: object.material.sheenColorMap?.channel || 0
         };

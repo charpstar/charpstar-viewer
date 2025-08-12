@@ -204,16 +204,29 @@ function findAllImageReferences(gltfData: GltfData): Array<{ object: any; key: s
 // Helper to find target AO image (AO image in uploaded file)
 function findTargetAOImage(targetData: GltfData): number | null {
   const images = Array.isArray(targetData.images) ? targetData.images : [];
-  
+
+  const isAOName = (label: string): boolean => {
+    if (!label) return false;
+    const lower = label.toLowerCase();
+    // Common AO name patterns, case-insensitive
+    return (
+      lower.endsWith('_ao') ||
+      lower.endsWith('-ao') ||
+      /(^|[_\-.])ao($|[_\-.])/.test(lower) ||
+      lower.includes('ambientocclusion') ||
+      lower.includes('occlusion') // fallback heuristic
+    );
+  };
+
   for (let i = 0; i < images.length; i++) {
     const image = images[i];
-    const imageName = image.name || image.uri || '';
-    
-    if (imageName.endsWith('_AO')) {
+    const label = (typeof image.name === 'string' && image.name.trim())
+      ? image.name
+      : (typeof image.uri === 'string' ? image.uri : '');
+    if (isAOName(label)) {
       return i;
     }
   }
-  
   return null;
 }
 
@@ -238,57 +251,54 @@ function handleAOTextures(
 ): {
   updatedTextures: GltfTexture[];
   updatedImages: GltfImage[];
+  aoTextureIndex: number | null;
 } {
-  const targetAOImageIndex = findTargetAOImage(targetData);
-  if (targetAOImageIndex === null) {
-    // No AO image in target, just use reference data as-is
-    return {
-      updatedTextures: [...(Array.isArray(referenceData.textures) ? referenceData.textures : [])],
-      updatedImages: [...(Array.isArray(referenceData.images) ? referenceData.images : [])]
-    };
-  }
-
-  const refAOTextureIndex = findReferenceAOTexture(referenceData);
-  if (refAOTextureIndex === null) {
-    // No AO texture in reference, just use reference data as-is
-    console.warn('No AO texture found in reference file, using reference data as-is');
-    return {
-      updatedTextures: [...(Array.isArray(referenceData.textures) ? referenceData.textures : [])] as GltfTexture[],
-      updatedImages: [...(Array.isArray(referenceData.images) ? referenceData.images : [])] as GltfImage[]
-    };
-  }
-
-  const updatedTextures = [...(Array.isArray(referenceData.textures) ? referenceData.textures : [])] as GltfTexture[];
-  const updatedImages = [...(Array.isArray(referenceData.images) ? referenceData.images : [])] as GltfImage[];
+  const referenceTextures = Array.isArray(referenceData.textures) ? referenceData.textures : [];
+  const referenceImages = Array.isArray(referenceData.images) ? referenceData.images : [];
 
   const targetImages = Array.isArray(targetData.images) ? targetData.images : [];
-  const referenceTextures = Array.isArray(referenceData.textures) ? referenceData.textures : [];
-  
-  const targetAOImage = targetImages[targetAOImageIndex];
-  const refAOTexture = referenceTextures[refAOTextureIndex];
-  
-  if (!refAOTexture || refAOTexture.source === undefined) {
-    console.warn('Reference AO texture has no source image');
+
+  // If target has no images, just return reference assets untouched
+  if (targetImages.length === 0) {
     return {
-      updatedTextures,
-      updatedImages
+      updatedTextures: [...referenceTextures] as GltfTexture[],
+      updatedImages: [...referenceImages] as GltfImage[],
+      aoTextureIndex: findReferenceAOTexture(referenceData),
     };
   }
 
-  // Replace the reference AO image with the target AO image
-  updatedImages[refAOTexture.source] = targetAOImage;
+  // Simple rule: use the FIRST image from target as the AO image
+  const aoImageFromTarget = JSON.parse(JSON.stringify(targetImages[0])) as GltfImage;
 
-  console.log('AO Texture Update:', {
-    targetAOImageIndex,
-    refAOTextureIndex,
-    refAOImageSource: refAOTexture.source,
-    targetAOImageName: targetAOImage.name,
+  // Replace reference image[0] (AO) with the target AO image to avoid any index shifts
+  const updatedImages: GltfImage[] = [...referenceImages];
+  if (updatedImages.length === 0) {
+    // If reference unexpectedly has no images, start with AO at index 0
+    updatedImages.push(aoImageFromTarget);
+  } else {
+    updatedImages[0] = aoImageFromTarget;
+  }
+
+  // Keep texture indices stable; only ensure AO texture points to image[0]
+  const updatedTextures: GltfTexture[] = referenceTextures.map((t: any) => ({ ...t })) as any;
+
+  // Find AO texture in reference, if any; otherwise create it
+  let aoTextureIndex = findReferenceAOTexture(referenceData);
+  if (typeof aoTextureIndex === 'number' && aoTextureIndex >= 0 && aoTextureIndex < updatedTextures.length) {
+    (updatedTextures[aoTextureIndex] as any).source = 0;
+  } else {
+    const newAoTex = { name: 'tex_AmbientOcclusion_A', source: 0 } as any;
+    updatedTextures.push(newAoTex);
+    aoTextureIndex = updatedTextures.length - 1;
+  }
+
+  console.log('AO Texture (replace ref image[0]) wired to image index 0:', {
+    aoTextureIndex,
+    aoImageName: (aoImageFromTarget as any)?.name,
+    aoImageMime: (aoImageFromTarget as any)?.mimeType,
   });
 
-  return {
-    updatedTextures,
-    updatedImages
-  };
+  return { updatedTextures, updatedImages, aoTextureIndex };
 }
 
 // Helper function to ensure required extensions are present
@@ -542,7 +552,7 @@ export async function POST(request: NextRequest) {
     ensureExtensions(targetData);
 
     // Handle AO texture replacement - preserve target's AO textures while using reference materials
-    const { updatedTextures, updatedImages } = handleAOTextures(targetData, {
+    const { updatedTextures, updatedImages, aoTextureIndex } = handleAOTextures(targetData, {
       ...referenceData,
       textures: resolvedReferenceTextures,
       images: resolvedReferenceImages
@@ -751,9 +761,15 @@ export async function POST(request: NextRequest) {
     targetData.images = updatedImages;
     targetData.samplers = resolvedReferenceSamplers;
 
-    // Reorder textures and images alphabetically (materia-updater feature)
-    console.log('Reordering textures and images for professional organization...');
-    reorderTexturesAndImages(targetData);
+    // Apply AO texture to all materials (simple mode): ensure every material uses our AO texture
+    if (typeof aoTextureIndex === 'number' && aoTextureIndex >= 0) {
+      if (Array.isArray(targetData.materials)) {
+        targetData.materials.forEach((mat: any, idx: number) => {
+          if (!mat || typeof mat !== 'object') return;
+          mat.occlusionTexture = { index: aoTextureIndex, texCoord: 1 };
+        });
+      }
+    }
 
     // Final extension check after all processing
     ensureExtensions(targetData);

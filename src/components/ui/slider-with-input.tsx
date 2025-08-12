@@ -35,6 +35,8 @@ const SliderWithInput = ({
   showValue = true,
 }: SliderWithInputProps) => {
   const [localValue, setLocalValue] = React.useState<string>(displayFormat(value))
+  const [isDragging, setIsDragging] = React.useState(false)
+  const [dragValue, setDragValue] = React.useState<number | null>(null)
   const [isEditing, setIsEditing] = React.useState(false)
 
   // Update local value when prop value changes (but not during editing)
@@ -44,10 +46,28 @@ const SliderWithInput = ({
     }
   }, [value, displayFormat, isEditing])
 
-  // Handle slider change
+  // Handle slider change (use local state while dragging to avoid heavy re-renders)
   const handleSliderChange = (newValue: number[]) => {
-    if (newValue && newValue.length > 0 && typeof newValue[0] === 'number') {
-      onChange(newValue[0])
+    if (!newValue || newValue.length === 0 || typeof newValue[0] !== 'number') return
+    const v = newValue[0]
+    setIsDragging(true)
+    setDragValue(v)
+  }
+
+  // Commit slider value on release
+  const handleSliderCommit = (newValue: number[]) => {
+    if (!newValue || newValue.length === 0 || typeof newValue[0] !== 'number') return
+    const v = newValue[0]
+    const commit = () => {
+      setIsDragging(false)
+      setDragValue(null)
+      onChange(v)
+      setLocalValue(displayFormat(v))
+    }
+    if (typeof (React as any).startTransition === 'function') {
+      ;(React as any).startTransition(commit)
+    } else {
+      requestAnimationFrame(commit)
     }
   }
 
@@ -120,8 +140,9 @@ const SliderWithInput = ({
         min={min}
         max={max}
         step={step}
-        value={[value]}
+        value={[isDragging && dragValue !== null ? dragValue : value]}
         onValueChange={handleSliderChange}
+        onValueCommit={handleSliderCommit}
         className={`${sliderWidth}`}
       />
       

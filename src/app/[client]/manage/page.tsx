@@ -46,6 +46,7 @@ export default function ManageModelsPage() {
   const [modelLoadError, setModelLoadError] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const modelViewerRef = useRef<any>(null);
+  const [sceneMeshNames, setSceneMeshNames] = useState<string[]>([]);
 
   // Upload dialog state
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -88,7 +89,25 @@ export default function ManageModelsPage() {
 
   // Load models on component mount with auto-select - SIMPLE useEffect
   useEffect(() => {
-    loadExistingModels(true);
+    const tryRestore = () => {
+      try {
+        const key = `charpstar:lastSelectedModel:${clientName}`;
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw) as { filename?: string } | null;
+          const filename = parsed?.filename;
+          if (filename) {
+            setSelectedModel(filename);
+            setCurrentModelUrl(getModelUrl(filename));
+            setModelLoadError(false);
+            return true;
+          }
+        }
+      } catch {}
+      return false;
+    };
+    const restored = tryRestore();
+    loadExistingModels(!restored);
   }, []);
 
   // Show delete confirmation dialog
@@ -145,6 +164,10 @@ export default function ManageModelsPage() {
     setCurrentModelUrl(getModelUrl(filename));
     setModelLoadError(false);
     setIsModelLoading(true);
+    try {
+      const key = `charpstar:lastSelectedModel:${clientName}`;
+      localStorage.setItem(key, JSON.stringify({ filename }));
+    } catch {}
   };
 
   // SIMPLE function - no useCallback needed  
@@ -154,6 +177,27 @@ export default function ManageModelsPage() {
     if (window.modelViewerElement) {
       modelViewerRef.current = window.modelViewerElement;
     }
+    try {
+      const mv = modelViewerRef.current as any;
+      if (!mv) return;
+      const collect = () => {
+        try {
+          // access three scene via initializer side effect
+          const sym = Object.getOwnPropertySymbols(mv).find((s: any) => {
+            try { return (mv as any)[s]?.scene || (mv as any)[s]?.model; } catch { return false; }
+          });
+          const container: any = sym ? (mv as any)[sym as any] : null;
+          const root = container?.scene || container?.model;
+          if (!root) return;
+          const names: string[] = [];
+          root.traverse((obj: any) => { if (obj?.isMesh) names.push(obj.name || '(unnamed)'); });
+          const unique = Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
+          setSceneMeshNames(unique);
+        } catch {}
+      };
+      mv.addEventListener?.('load', collect);
+      if (mv.loaded) collect();
+    } catch {}
   };
 
   // SIMPLE functions - no useCallback needed
@@ -353,15 +397,8 @@ export default function ManageModelsPage() {
                   onModelLoaded={handleModelLoaded}
                 />
 
-                {/* Loading indicator */}
-                {isModelLoading && (
-                  <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center">
-                    <div className="flex flex-col items-center">
-                      <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
-                      <p className="text-sm text-gray-600">Loading model...</p>
-                    </div>
-                  </div>
-                )}
+                {/* Loading indicator (skeleton overlay) */}
+                {/* Remove custom progress indicator; rely on model-viewer's built-in progress bar */}
                 
                 {/* Compact Stats Panel positioned in the top-right corner of the viewer */}
                 {!modelLoadError && !isModelLoading && (
@@ -376,6 +413,20 @@ export default function ManageModelsPage() {
                   <CameraControlsPanel
                     modelViewerRef={modelViewerRef}
                   />
+                )}
+
+                {sceneMeshNames.length > 0 && (
+                  <div className="absolute bottom-4 right-4 bg-white rounded-lg border border-gray-200 shadow-lg w-80 max-h-56 overflow-auto">
+                    <div className="px-3 pt-2 pb-2 border-b border-gray-100 flex items-center justify-between">
+                      <div className="text-sm font-semibold text-gray-900">Scene Meshes</div>
+                      <div className="text-xs text-gray-500">{sceneMeshNames.length}</div>
+                    </div>
+                    <ul className="px-3 py-2 text-xs text-gray-800 space-y-1 list-disc list-inside">
+                      {sceneMeshNames.map((nm) => (
+                        <li key={nm} className="truncate" title={nm}>{nm}</li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
                 
                 {modelLoadError && (

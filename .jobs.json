@@ -1,0 +1,6432 @@
+[
+  {
+    "id": "job_1755000083544_6g76j1yyn",
+    "type": "apply-materials",
+    "status": "completed",
+    "progress": {
+      "total": 532,
+      "done": 532,
+      "failed": 0,
+      "processedFiles": [
+        {
+          "filename": "ANT-25-LC.gltf",
+          "status": "success",
+          "size": 3103368,
+          "processedAt": "2025-08-12T12:01:24.769Z"
+        },
+        {
+          "filename": "ANT-25.gltf",
+          "status": "success",
+          "size": 3716822,
+          "processedAt": "2025-08-12T12:01:25.283Z"
+        },
+        {
+          "filename": "ANT-3-LC.gltf",
+          "status": "success",
+          "size": 3074226,
+          "processedAt": "2025-08-12T12:01:26.056Z"
+        },
+        {
+          "filename": "ANT-3.gltf",
+          "status": "success",
+          "size": 3662361,
+          "processedAt": "2025-08-12T12:01:26.634Z"
+        },
+        {
+          "filename": "ANT-35-LC.gltf",
+          "status": "success",
+          "size": 2559822,
+          "processedAt": "2025-08-12T12:01:27.099Z"
+        },
+        {
+          "filename": "ANT-35.gltf",
+          "status": "success",
+          "size": 3695207,
+          "processedAt": "2025-08-12T12:01:27.955Z"
+        },
+        {
+          "filename": "APP-LETI.gltf",
+          "status": "success",
+          "size": 3369720,
+          "processedAt": "2025-08-12T12:01:28.471Z"
+        },
+        {
+          "filename": "APP-VABL.gltf",
+          "status": "success",
+          "size": 2860734,
+          "processedAt": "2025-08-12T12:01:28.967Z"
+        },
+        {
+          "filename": "BAG-L-DET-SANS.gltf",
+          "status": "success",
+          "size": 986633,
+          "processedAt": "2025-08-12T12:01:29.581Z"
+        },
+        {
+          "filename": "BAG-L.gltf",
+          "status": "success",
+          "size": 981549,
+          "processedAt": "2025-08-12T12:01:29.896Z"
+        },
+        {
+          "filename": "BAG-M-DET-SANS.gltf",
+          "status": "success",
+          "size": 1095788,
+          "processedAt": "2025-08-12T12:01:30.259Z"
+        },
+        {
+          "filename": "BAG-M.gltf",
+          "status": "success",
+          "size": 962334,
+          "processedAt": "2025-08-12T12:01:32.047Z"
+        },
+        {
+          "filename": "BAG-S-DET-SANS.gltf",
+          "status": "success",
+          "size": 1320712,
+          "processedAt": "2025-08-12T12:01:33.161Z"
+        },
+        {
+          "filename": "BAG-S.gltf",
+          "status": "success",
+          "size": 979213,
+          "processedAt": "2025-08-12T12:01:33.516Z"
+        },
+        {
+          "filename": "BAG-XL-DET-SANS.gltf",
+          "status": "success",
+          "size": 805688,
+          "processedAt": "2025-08-12T12:01:34.397Z"
+        },
+        {
+          "filename": "BAG-XL.gltf",
+          "status": "success",
+          "size": 938510,
+          "processedAt": "2025-08-12T12:01:34.947Z"
+        },
+        {
+          "filename": "BEC-120X200.gltf",
+          "status": "success",
+          "size": 1139380,
+          "processedAt": "2025-08-12T12:01:35.305Z"
+        },
+        {
+          "filename": "BEC-140X200.gltf",
+          "status": "success",
+          "size": 1132479,
+          "processedAt": "2025-08-12T12:01:35.734Z"
+        },
+        {
+          "filename": "BEC-160X200.gltf",
+          "status": "success",
+          "size": 1312581,
+          "processedAt": "2025-08-12T12:01:36.162Z"
+        },
+        {
+          "filename": "BEC-180X200.gltf",
+          "status": "success",
+          "size": 1313285,
+          "processedAt": "2025-08-12T12:01:36.548Z"
+        },
+        {
+          "filename": "BEC-90X200.gltf",
+          "status": "success",
+          "size": 1116455,
+          "processedAt": "2025-08-12T12:01:36.934Z"
+        },
+        {
+          "filename": "BJO-15CHL.gltf",
+          "status": "success",
+          "size": 6133042,
+          "processedAt": "2025-08-12T12:01:37.636Z"
+        },
+        {
+          "filename": "BJO-3.gltf",
+          "status": "success",
+          "size": 3664898,
+          "processedAt": "2025-08-12T12:01:38.287Z"
+        },
+        {
+          "filename": "BJO-ARM-COV.gltf",
+          "status": "success",
+          "size": 2270107,
+          "processedAt": "2025-08-12T12:01:38.715Z"
+        },
+        {
+          "filename": "BJO-ARM-LID.gltf",
+          "status": "success",
+          "size": 2833678,
+          "processedAt": "2025-08-12T12:01:39.302Z"
+        },
+        {
+          "filename": "BJO-ARM-SOFT.gltf",
+          "status": "success",
+          "size": 2699387,
+          "processedAt": "2025-08-12T12:01:39.835Z"
+        },
+        {
+          "filename": "BJO-CHL15.gltf",
+          "status": "success",
+          "size": 6134081,
+          "processedAt": "2025-08-12T12:01:40.620Z"
+        },
+        {
+          "filename": "BJO-FOOT1.gltf",
+          "status": "success",
+          "size": 1783727,
+          "processedAt": "2025-08-12T12:01:41.061Z"
+        },
+        {
+          "filename": "BJO-MOD15.gltf",
+          "status": "success",
+          "size": 1865780,
+          "processedAt": "2025-08-12T12:01:41.675Z"
+        },
+        {
+          "filename": "BJO-MOD2.gltf",
+          "status": "success",
+          "size": 2050102,
+          "processedAt": "2025-08-12T12:01:42.148Z"
+        },
+        {
+          "filename": "BJO-MOD3.gltf",
+          "status": "success",
+          "size": 2365945,
+          "processedAt": "2025-08-12T12:01:42.874Z"
+        },
+        {
+          "filename": "BJO-MODCHL.gltf",
+          "status": "success",
+          "size": 1829438,
+          "processedAt": "2025-08-12T12:01:43.287Z"
+        },
+        {
+          "filename": "BJO-MODDIV.gltf",
+          "status": "success",
+          "size": 1782623,
+          "processedAt": "2025-08-12T12:01:43.786Z"
+        },
+        {
+          "filename": "BLA-25C25-LC.gltf",
+          "status": "success",
+          "size": 2067087,
+          "processedAt": "2025-08-12T12:01:44.323Z"
+        },
+        {
+          "filename": "BLA-25C25-RI.gltf",
+          "status": "success",
+          "size": 2737686,
+          "processedAt": "2025-08-12T12:01:45.186Z"
+        },
+        {
+          "filename": "BLA-25C25.gltf",
+          "status": "success",
+          "size": 1724028,
+          "processedAt": "2025-08-12T12:01:45.646Z"
+        },
+        {
+          "filename": "BLA-25E-LC.gltf",
+          "status": "success",
+          "size": 1279551,
+          "processedAt": "2025-08-12T12:01:45.996Z"
+        },
+        {
+          "filename": "BLA-25E-RI.gltf",
+          "status": "success",
+          "size": 1860895,
+          "processedAt": "2025-08-12T12:01:46.473Z"
+        },
+        {
+          "filename": "BLA-25E.gltf",
+          "status": "success",
+          "size": 1165402,
+          "processedAt": "2025-08-12T12:01:46.787Z"
+        },
+        {
+          "filename": "BLA-5-LC.gltf",
+          "status": "success",
+          "size": 1646332,
+          "processedAt": "2025-08-12T12:01:47.196Z"
+        },
+        {
+          "filename": "BLA-5-RI.gltf",
+          "status": "success",
+          "size": 2289590,
+          "processedAt": "2025-08-12T12:01:48.080Z"
+        },
+        {
+          "filename": "BLA-5.gltf",
+          "status": "success",
+          "size": 1406707,
+          "processedAt": "2025-08-12T12:01:48.440Z"
+        },
+        {
+          "filename": "BLA-C90-LC.gltf",
+          "status": "success",
+          "size": 2089025,
+          "processedAt": "2025-08-12T12:01:49.067Z"
+        },
+        {
+          "filename": "BLA-C90-RI.gltf",
+          "status": "success",
+          "size": 2737684,
+          "processedAt": "2025-08-12T12:01:49.483Z"
+        },
+        {
+          "filename": "BLA-C90.gltf",
+          "status": "success",
+          "size": 1724026,
+          "processedAt": "2025-08-12T12:01:49.893Z"
+        },
+        {
+          "filename": "BLA-E25-LC.gltf",
+          "status": "success",
+          "size": 1273945,
+          "processedAt": "2025-08-12T12:01:50.451Z"
+        },
+        {
+          "filename": "BLA-E25-RI.gltf",
+          "status": "success",
+          "size": 5647611,
+          "processedAt": "2025-08-12T12:01:51.157Z"
+        },
+        {
+          "filename": "BLA-E25.gltf",
+          "status": "success",
+          "size": 3290251,
+          "processedAt": "2025-08-12T12:01:51.670Z"
+        },
+        {
+          "filename": "BOC-FOOT1.gltf",
+          "status": "success",
+          "size": 1127567,
+          "processedAt": "2025-08-12T12:01:52.045Z"
+        },
+        {
+          "filename": "BOC-FOOT2.gltf",
+          "status": "success",
+          "size": 1132660,
+          "processedAt": "2025-08-12T12:01:52.451Z"
+        },
+        {
+          "filename": "BOC-FOOT3.gltf",
+          "status": "success",
+          "size": 1114202,
+          "processedAt": "2025-08-12T12:01:52.921Z"
+        },
+        {
+          "filename": "BOL-35.gltf",
+          "status": "success",
+          "size": 1064383,
+          "processedAt": "2025-08-12T12:01:53.279Z"
+        },
+        {
+          "filename": "BUF-1 nitar test.gltf",
+          "status": "success",
+          "size": 3890246,
+          "processedAt": "2025-08-12T12:01:53.893Z"
+        },
+        {
+          "filename": "BUF-1-RI.gltf",
+          "status": "success",
+          "size": 3623254,
+          "processedAt": "2025-08-12T12:01:54.390Z"
+        },
+        {
+          "filename": "BUF-1.gltf",
+          "status": "success",
+          "size": 3623254,
+          "processedAt": "2025-08-12T12:01:54.898Z"
+        },
+        {
+          "filename": "BUF-3-RI.gltf",
+          "status": "success",
+          "size": 4477280,
+          "processedAt": "2025-08-12T12:01:55.587Z"
+        },
+        {
+          "filename": "BUF-3.gltf",
+          "status": "success",
+          "size": 4477280,
+          "processedAt": "2025-08-12T12:01:56.034Z"
+        },
+        {
+          "filename": "BUF-4-RI.gltf",
+          "status": "success",
+          "size": 4316262,
+          "processedAt": "2025-08-12T12:01:56.554Z"
+        },
+        {
+          "filename": "BUF-4.gltf",
+          "status": "success",
+          "size": 4316262,
+          "processedAt": "2025-08-12T12:01:57.051Z"
+        },
+        {
+          "filename": "BUF-FOOT3.gltf",
+          "status": "success",
+          "size": 1514129,
+          "processedAt": "2025-08-12T12:01:57.471Z"
+        },
+        {
+          "filename": "BUF-FOOT4.gltf",
+          "status": "success",
+          "size": 1269049,
+          "processedAt": "2025-08-12T12:01:57.855Z"
+        },
+        {
+          "filename": "COV-ALR.gltf",
+          "status": "success",
+          "size": 2061892,
+          "processedAt": "2025-08-12T12:01:58.252Z"
+        },
+        {
+          "filename": "CYL-19X60.gltf",
+          "status": "success",
+          "size": 843058,
+          "processedAt": "2025-08-12T12:01:58.580Z"
+        },
+        {
+          "filename": "CYL-19X90.gltf",
+          "status": "success",
+          "size": 832016,
+          "processedAt": "2025-08-12T12:01:58.870Z"
+        },
+        {
+          "filename": "DOG-60X70.gltf",
+          "status": "success",
+          "size": 1071017,
+          "processedAt": "2025-08-12T12:01:59.229Z"
+        },
+        {
+          "filename": "DOG-70X90.gltf",
+          "status": "success",
+          "size": 1079996,
+          "processedAt": "2025-08-12T12:02:01.070Z"
+        },
+        {
+          "filename": "DRO-2.gltf",
+          "status": "success",
+          "size": 2542600,
+          "processedAt": "2025-08-12T12:02:01.641Z"
+        },
+        {
+          "filename": "DRO-3.gltf",
+          "status": "success",
+          "size": 2665338,
+          "processedAt": "2025-08-12T12:02:02.703Z"
+        },
+        {
+          "filename": "DRO-4.gltf",
+          "status": "success",
+          "size": 2827043,
+          "processedAt": "2025-08-12T12:02:03.135Z"
+        },
+        {
+          "filename": "DRO-5.gltf",
+          "status": "success",
+          "size": 3030887,
+          "processedAt": "2025-08-12T12:02:03.726Z"
+        },
+        {
+          "filename": "DRO-AL.gltf",
+          "status": "success",
+          "size": 915118,
+          "processedAt": "2025-08-12T12:02:04.105Z"
+        },
+        {
+          "filename": "DRO-AR.gltf",
+          "status": "success",
+          "size": 915698,
+          "processedAt": "2025-08-12T12:02:04.430Z"
+        },
+        {
+          "filename": "DRO-C.gltf",
+          "status": "success",
+          "size": 3064048,
+          "processedAt": "2025-08-12T12:02:04.902Z"
+        },
+        {
+          "filename": "DRO-P-2X2.gltf",
+          "status": "success",
+          "size": 1946217,
+          "processedAt": "2025-08-12T12:02:05.315Z"
+        },
+        {
+          "filename": "DRO-P-2X3.gltf",
+          "status": "success",
+          "size": 2039300,
+          "processedAt": "2025-08-12T12:02:05.723Z"
+        },
+        {
+          "filename": "ds.gltf",
+          "status": "success",
+          "size": 1253033,
+          "processedAt": "2025-08-12T12:02:06.060Z"
+        },
+        {
+          "filename": "DUV-1.gltf",
+          "status": "success",
+          "size": 1295282,
+          "processedAt": "2025-08-12T12:02:06.495Z"
+        },
+        {
+          "filename": "EKO-2.gltf",
+          "status": "success",
+          "size": 11085224,
+          "processedAt": "2025-08-12T12:02:07.431Z"
+        },
+        {
+          "filename": "ELE-35CAS-RI.gltf",
+          "status": "success",
+          "size": 4337894,
+          "processedAt": "2025-08-12T12:02:08.050Z"
+        },
+        {
+          "filename": "ELE-35CAS.gltf",
+          "status": "success",
+          "size": 2376050,
+          "processedAt": "2025-08-12T12:02:08.620Z"
+        },
+        {
+          "filename": "ELE-35CHI-RI.gltf",
+          "status": "success",
+          "size": 4167983,
+          "processedAt": "2025-08-12T12:02:09.462Z"
+        },
+        {
+          "filename": "ELE-35CHI.gltf",
+          "status": "success",
+          "size": 2203985,
+          "processedAt": "2025-08-12T12:02:09.879Z"
+        },
+        {
+          "filename": "ELE-3CHLCAS-RI.gltf",
+          "status": "success",
+          "size": 5990312,
+          "processedAt": "2025-08-12T12:02:10.502Z"
+        },
+        {
+          "filename": "ELE-3CHLCAS.gltf",
+          "status": "success",
+          "size": 3232695,
+          "processedAt": "2025-08-12T12:02:10.918Z"
+        },
+        {
+          "filename": "ELE-3CHLCHI-RI.gltf",
+          "status": "success",
+          "size": 6671945,
+          "processedAt": "2025-08-12T12:02:11.463Z"
+        },
+        {
+          "filename": "ELE-3CHLCHI.gltf",
+          "status": "success",
+          "size": 3854001,
+          "processedAt": "2025-08-12T12:02:12.029Z"
+        },
+        {
+          "filename": "ELE-CHL3CAS-RI.gltf",
+          "status": "success",
+          "size": 5989993,
+          "processedAt": "2025-08-12T12:02:13.937Z"
+        },
+        {
+          "filename": "ELE-CHL3CAS.gltf",
+          "status": "success",
+          "size": 3168947,
+          "processedAt": "2025-08-12T12:02:14.420Z"
+        },
+        {
+          "filename": "ELE-CHL3CHI-RI.gltf",
+          "status": "success",
+          "size": 6675053,
+          "processedAt": "2025-08-12T12:02:15.098Z"
+        },
+        {
+          "filename": "ELE-CHL3CHI.gltf",
+          "status": "success",
+          "size": 3855555,
+          "processedAt": "2025-08-12T12:02:15.571Z"
+        },
+        {
+          "filename": "ENH-160X200-L-CHL.gltf",
+          "status": "success",
+          "size": 2587287,
+          "processedAt": "2025-08-12T12:02:15.986Z"
+        },
+        {
+          "filename": "ENH-160X200-L-WOL.gltf",
+          "status": "success",
+          "size": 2163788,
+          "processedAt": "2025-08-12T12:02:16.640Z"
+        },
+        {
+          "filename": "ENH-160X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2763703,
+          "processedAt": "2025-08-12T12:02:17.045Z"
+        },
+        {
+          "filename": "ENH-160X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2245994,
+          "processedAt": "2025-08-12T12:02:17.513Z"
+        },
+        {
+          "filename": "ENH-160X200-PL.gltf",
+          "status": "success",
+          "size": 2763703,
+          "processedAt": "2025-08-12T12:02:18.097Z"
+        },
+        {
+          "filename": "ENH-160X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3284350,
+          "processedAt": "2025-08-12T12:02:18.600Z"
+        },
+        {
+          "filename": "ENH-160X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2762854,
+          "processedAt": "2025-08-12T12:02:19.051Z"
+        },
+        {
+          "filename": "ENH-160X200-R.gltf",
+          "status": "success",
+          "size": 3284350,
+          "processedAt": "2025-08-12T12:02:19.508Z"
+        },
+        {
+          "filename": "ENH-160X200.gltf",
+          "status": "success",
+          "size": 2587287,
+          "processedAt": "2025-08-12T12:02:19.925Z"
+        },
+        {
+          "filename": "ENH-180X200-L-CHL.gltf",
+          "status": "success",
+          "size": 2557806,
+          "processedAt": "2025-08-12T12:02:21.325Z"
+        },
+        {
+          "filename": "ENH-180X200-L-WOL.gltf",
+          "status": "success",
+          "size": 2144498,
+          "processedAt": "2025-08-12T12:02:21.850Z"
+        },
+        {
+          "filename": "ENH-180X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 3039321,
+          "processedAt": "2025-08-12T12:02:22.341Z"
+        },
+        {
+          "filename": "ENH-180X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2444346,
+          "processedAt": "2025-08-12T12:02:23.087Z"
+        },
+        {
+          "filename": "ENH-180X200-PL.gltf",
+          "status": "success",
+          "size": 3039321,
+          "processedAt": "2025-08-12T12:02:23.572Z"
+        },
+        {
+          "filename": "ENH-180X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3569986,
+          "processedAt": "2025-08-12T12:02:24.060Z"
+        },
+        {
+          "filename": "ENH-180X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2950168,
+          "processedAt": "2025-08-12T12:02:24.571Z"
+        },
+        {
+          "filename": "ENH-180X200-R.gltf",
+          "status": "success",
+          "size": 3569986,
+          "processedAt": "2025-08-12T12:02:25.132Z"
+        },
+        {
+          "filename": "ENH-180X200.gltf",
+          "status": "success",
+          "size": 2557806,
+          "processedAt": "2025-08-12T12:02:25.519Z"
+        },
+        {
+          "filename": "ENH-210X210-L-CHL.gltf",
+          "status": "success",
+          "size": 2640376,
+          "processedAt": "2025-08-12T12:02:26.280Z"
+        },
+        {
+          "filename": "ENH-210X210-L-WOL.gltf",
+          "status": "success",
+          "size": 2221747,
+          "processedAt": "2025-08-12T12:02:27.170Z"
+        },
+        {
+          "filename": "ENH-210X210-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2976943,
+          "processedAt": "2025-08-12T12:02:27.620Z"
+        },
+        {
+          "filename": "ENH-210X210-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2455972,
+          "processedAt": "2025-08-12T12:02:28.047Z"
+        },
+        {
+          "filename": "ENH-210X210-PL.gltf",
+          "status": "success",
+          "size": 2976943,
+          "processedAt": "2025-08-12T12:02:28.607Z"
+        },
+        {
+          "filename": "ENH-210X210-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3599404,
+          "processedAt": "2025-08-12T12:02:29.084Z"
+        },
+        {
+          "filename": "ENH-210X210-R-L-WOL.gltf",
+          "status": "success",
+          "size": 3166797,
+          "processedAt": "2025-08-12T12:02:29.581Z"
+        },
+        {
+          "filename": "ENH-210X210-R.gltf",
+          "status": "success",
+          "size": 3599404,
+          "processedAt": "2025-08-12T12:02:30.747Z"
+        },
+        {
+          "filename": "ENH-210X210.gltf",
+          "status": "success",
+          "size": 2640376,
+          "processedAt": "2025-08-12T12:02:31.182Z"
+        },
+        {
+          "filename": "EXT-ANT-25.gltf",
+          "status": "success",
+          "size": 1320629,
+          "processedAt": "2025-08-12T12:02:31.777Z"
+        },
+        {
+          "filename": "EXT-ANT-3.gltf",
+          "status": "success",
+          "size": 2932597,
+          "processedAt": "2025-08-12T12:02:32.248Z"
+        },
+        {
+          "filename": "EXT-ANT-35.gltf",
+          "status": "success",
+          "size": 2559822,
+          "processedAt": "2025-08-12T12:02:32.688Z"
+        },
+        {
+          "filename": "EXT-BLA-25C25.gltf",
+          "status": "success",
+          "size": 2067087,
+          "processedAt": "2025-08-12T12:02:33.090Z"
+        },
+        {
+          "filename": "EXT-BLA-25E.gltf",
+          "status": "success",
+          "size": 1279551,
+          "processedAt": "2025-08-12T12:02:33.442Z"
+        },
+        {
+          "filename": "EXT-BLA-5.gltf",
+          "status": "success",
+          "size": 1646332,
+          "processedAt": "2025-08-12T12:02:40.560Z"
+        },
+        {
+          "filename": "EXT-BLA-C90.gltf",
+          "status": "success",
+          "size": 2089025,
+          "processedAt": "2025-08-12T12:02:41.065Z"
+        },
+        {
+          "filename": "EXT-BLA-E25.gltf",
+          "status": "success",
+          "size": 1273945,
+          "processedAt": "2025-08-12T12:02:42.015Z"
+        },
+        {
+          "filename": "EXT-FLK-2X60.gltf",
+          "status": "success",
+          "size": 2038281,
+          "processedAt": "2025-08-12T12:02:42.391Z"
+        },
+        {
+          "filename": "EXT-FLK-2X90.gltf",
+          "status": "success",
+          "size": 2052577,
+          "processedAt": "2025-08-12T12:02:42.931Z"
+        },
+        {
+          "filename": "EXT-FLK-3X60.gltf",
+          "status": "success",
+          "size": 2365515,
+          "processedAt": "2025-08-12T12:02:43.321Z"
+        },
+        {
+          "filename": "EXT-FLK-3X90.gltf",
+          "status": "success",
+          "size": 2675313,
+          "processedAt": "2025-08-12T12:02:43.772Z"
+        },
+        {
+          "filename": "EXT-FLK-4X60.gltf",
+          "status": "success",
+          "size": 2753857,
+          "processedAt": "2025-08-12T12:02:44.284Z"
+        },
+        {
+          "filename": "EXT-LEJ-1.gltf",
+          "status": "success",
+          "size": 2824365,
+          "processedAt": "2025-08-12T12:02:44.715Z"
+        },
+        {
+          "filename": "EXT-LEJ-2-ROUND.gltf",
+          "status": "success",
+          "size": 5940355,
+          "processedAt": "2025-08-12T12:02:45.238Z"
+        },
+        {
+          "filename": "EXT-LEJ-2.gltf",
+          "status": "success",
+          "size": 5493555,
+          "processedAt": "2025-08-12T12:02:45.733Z"
+        },
+        {
+          "filename": "EXT-LEJ-25-ROUND.gltf",
+          "status": "success",
+          "size": 5493022,
+          "processedAt": "2025-08-12T12:02:46.388Z"
+        },
+        {
+          "filename": "EXT-LEJ-3-ROUND.gltf",
+          "status": "success",
+          "size": 5523606,
+          "processedAt": "2025-08-12T12:02:46.950Z"
+        },
+        {
+          "filename": "EXT-LEJ-3.gltf",
+          "status": "success",
+          "size": 5937383,
+          "processedAt": "2025-08-12T12:02:47.566Z"
+        },
+        {
+          "filename": "EXT-LEJ-FOOT1.gltf",
+          "status": "success",
+          "size": 2695819,
+          "processedAt": "2025-08-12T12:02:47.984Z"
+        },
+        {
+          "filename": "EXT-LEJ-FOOT2.gltf",
+          "status": "success",
+          "size": 2577658,
+          "processedAt": "2025-08-12T12:02:49.225Z"
+        },
+        {
+          "filename": "EXT-VAL-1.gltf",
+          "status": "success",
+          "size": 1389762,
+          "processedAt": "2025-08-12T12:02:49.623Z"
+        },
+        {
+          "filename": "EXT-VAL-15.gltf",
+          "status": "success",
+          "size": 1316216,
+          "processedAt": "2025-08-12T12:02:52.384Z"
+        },
+        {
+          "filename": "EXT-VAL-3.gltf",
+          "status": "success",
+          "size": 1651228,
+          "processedAt": "2025-08-12T12:02:52.761Z"
+        },
+        {
+          "filename": "EXT-VAL-35.gltf",
+          "status": "success",
+          "size": 1683376,
+          "processedAt": "2025-08-12T12:02:53.244Z"
+        },
+        {
+          "filename": "EXT-VAL-4.gltf",
+          "status": "success",
+          "size": 4291925,
+          "processedAt": "2025-08-12T12:02:54.085Z"
+        },
+        {
+          "filename": "EXT-VAL-FOOT1.gltf",
+          "status": "success",
+          "size": 2611188,
+          "processedAt": "2025-08-12T12:02:54.496Z"
+        },
+        {
+          "filename": "EXT-VAL-FOOT2.gltf",
+          "status": "success",
+          "size": 2609984,
+          "processedAt": "2025-08-12T12:02:54.915Z"
+        },
+        {
+          "filename": "FAR-1.gltf",
+          "status": "success",
+          "size": 1259562,
+          "processedAt": "2025-08-12T12:02:55.261Z"
+        },
+        {
+          "filename": "FLA-1.gltf",
+          "status": "success",
+          "size": 1935745,
+          "processedAt": "2025-08-12T12:02:55.631Z"
+        },
+        {
+          "filename": "FLA-2.gltf",
+          "status": "success",
+          "size": 2507050,
+          "processedAt": "2025-08-12T12:02:56.053Z"
+        },
+        {
+          "filename": "FLA-25.gltf",
+          "status": "success",
+          "size": 4142305,
+          "processedAt": "2025-08-12T12:02:56.594Z"
+        },
+        {
+          "filename": "FLA-35.gltf",
+          "status": "success",
+          "size": 2698790,
+          "processedAt": "2025-08-12T12:02:57.027Z"
+        },
+        {
+          "filename": "FLA-FOOT1.gltf",
+          "status": "success",
+          "size": 2029840,
+          "processedAt": "2025-08-12T12:02:57.809Z"
+        },
+        {
+          "filename": "FLB-160.gltf",
+          "status": "success",
+          "size": 1432270,
+          "processedAt": "2025-08-12T12:02:58.165Z"
+        },
+        {
+          "filename": "FLB-180.gltf",
+          "status": "success",
+          "size": 1421538,
+          "processedAt": "2025-08-12T12:02:58.502Z"
+        },
+        {
+          "filename": "FLK-2X60-LC.gltf",
+          "status": "success",
+          "size": 2038281,
+          "processedAt": "2025-08-12T12:03:00.190Z"
+        },
+        {
+          "filename": "FLK-2X60.gltf",
+          "status": "success",
+          "size": 1073955,
+          "processedAt": "2025-08-12T12:03:00.535Z"
+        },
+        {
+          "filename": "FLK-2X90-LC.gltf",
+          "status": "success",
+          "size": 2052577,
+          "processedAt": "2025-08-12T12:03:00.886Z"
+        },
+        {
+          "filename": "FLK-2X90.gltf",
+          "status": "success",
+          "size": 1074112,
+          "processedAt": "2025-08-12T12:03:01.201Z"
+        },
+        {
+          "filename": "FLK-3X60-LC.gltf",
+          "status": "success",
+          "size": 2365515,
+          "processedAt": "2025-08-12T12:03:01.693Z"
+        },
+        {
+          "filename": "FLK-3X60.gltf",
+          "status": "success",
+          "size": 1175029,
+          "processedAt": "2025-08-12T12:03:02.010Z"
+        },
+        {
+          "filename": "FLK-3X90-LC.gltf",
+          "status": "success",
+          "size": 2675313,
+          "processedAt": "2025-08-12T12:03:02.469Z"
+        },
+        {
+          "filename": "FLK-3X90.gltf",
+          "status": "success",
+          "size": 1157192,
+          "processedAt": "2025-08-12T12:03:02.798Z"
+        },
+        {
+          "filename": "FLK-4X60-LC.gltf",
+          "status": "success",
+          "size": 2753857,
+          "processedAt": "2025-08-12T12:03:03.259Z"
+        },
+        {
+          "filename": "FLK-4X60.gltf",
+          "status": "success",
+          "size": 1262565,
+          "processedAt": "2025-08-12T12:03:03.608Z"
+        },
+        {
+          "filename": "GAS-1.gltf",
+          "status": "success",
+          "size": 1209259,
+          "processedAt": "2025-08-12T12:03:04.015Z"
+        },
+        {
+          "filename": "GET-1.gltf",
+          "status": "success",
+          "size": 1236692,
+          "processedAt": "2025-08-12T12:03:04.399Z"
+        },
+        {
+          "filename": "GET-FOOT1.gltf",
+          "status": "success",
+          "size": 1064828,
+          "processedAt": "2025-08-12T12:03:04.742Z"
+        },
+        {
+          "filename": "GIR-1.gltf",
+          "status": "success",
+          "size": 4038800,
+          "processedAt": "2025-08-12T12:03:05.229Z"
+        },
+        {
+          "filename": "GIR-15.gltf",
+          "status": "success",
+          "size": 9624283,
+          "processedAt": "2025-08-12T12:03:05.866Z"
+        },
+        {
+          "filename": "GIR-15CHL.gltf",
+          "status": "success",
+          "size": 16057362,
+          "processedAt": "2025-08-12T12:03:06.913Z"
+        },
+        {
+          "filename": "GIR-25.gltf",
+          "status": "success",
+          "size": 18429858,
+          "processedAt": "2025-08-12T12:03:08.375Z"
+        },
+        {
+          "filename": "GIR-3-AO-TEST.gltf",
+          "status": "success",
+          "size": 1938583,
+          "processedAt": "2025-08-12T12:03:08.912Z"
+        },
+        {
+          "filename": "GIR-3.gltf",
+          "status": "success",
+          "size": 6267778,
+          "processedAt": "2025-08-12T12:03:09.602Z"
+        },
+        {
+          "filename": "GIR-35.gltf",
+          "status": "success",
+          "size": 6688210,
+          "processedAt": "2025-08-12T12:03:10.230Z"
+        },
+        {
+          "filename": "GIR-CHL15.gltf",
+          "status": "success",
+          "size": 16052135,
+          "processedAt": "2025-08-12T12:03:11.387Z"
+        },
+        {
+          "filename": "GIR-FOOT1.gltf",
+          "status": "success",
+          "size": 958091,
+          "processedAt": "2025-08-12T12:03:11.677Z"
+        },
+        {
+          "filename": "GOR-3.gltf",
+          "status": "success",
+          "size": 5140812,
+          "processedAt": "2025-08-12T12:03:12.219Z"
+        },
+        {
+          "filename": "GRD-1.gltf",
+          "status": "success",
+          "size": 1123915,
+          "processedAt": "2025-08-12T12:03:12.583Z"
+        },
+        {
+          "filename": "GRZ-3.gltf",
+          "status": "success",
+          "size": 2319176,
+          "processedAt": "2025-08-12T12:03:13.137Z"
+        },
+        {
+          "filename": "GRZ-3S.gltf",
+          "status": "success",
+          "size": 1886927,
+          "processedAt": "2025-08-12T12:03:16.273Z"
+        },
+        {
+          "filename": "GRZ-FOOT1.gltf",
+          "status": "success",
+          "size": 812584,
+          "processedAt": "2025-08-12T12:03:16.613Z"
+        },
+        {
+          "filename": "HAJ-1.gltf",
+          "status": "success",
+          "size": 1057885,
+          "processedAt": "2025-08-12T12:03:17.022Z"
+        },
+        {
+          "filename": "HAJ-15.gltf",
+          "status": "success",
+          "size": 1133762,
+          "processedAt": "2025-08-12T12:03:17.509Z"
+        },
+        {
+          "filename": "HAJ-15C.gltf",
+          "status": "success",
+          "size": 855895,
+          "processedAt": "2025-08-12T12:03:17.798Z"
+        },
+        {
+          "filename": "HAJ-1E.gltf",
+          "status": "success",
+          "size": 882534,
+          "processedAt": "2025-08-12T12:03:18.091Z"
+        },
+        {
+          "filename": "HAJ-C15.gltf",
+          "status": "success",
+          "size": 875978,
+          "processedAt": "2025-08-12T12:03:18.386Z"
+        },
+        {
+          "filename": "HAJ-E1.gltf",
+          "status": "success",
+          "size": 975240,
+          "processedAt": "2025-08-12T12:03:18.744Z"
+        },
+        {
+          "filename": "HAJ-FOOT.gltf",
+          "status": "success",
+          "size": 877834,
+          "processedAt": "2025-08-12T12:03:19.033Z"
+        },
+        {
+          "filename": "HAJ.gltf",
+          "status": "success",
+          "size": 1131090,
+          "processedAt": "2025-08-12T12:03:19.365Z"
+        },
+        {
+          "filename": "HEB-C-120.gltf",
+          "status": "success",
+          "size": 8792393,
+          "processedAt": "2025-08-12T12:03:20.468Z"
+        },
+        {
+          "filename": "HEB-C-140.gltf",
+          "status": "success",
+          "size": 9568812,
+          "processedAt": "2025-08-12T12:03:21.802Z"
+        },
+        {
+          "filename": "HEB-C-160.gltf",
+          "status": "success",
+          "size": 16754631,
+          "processedAt": "2025-08-12T12:03:23.213Z"
+        },
+        {
+          "filename": "HEB-C-180.gltf",
+          "status": "success",
+          "size": 11143816,
+          "processedAt": "2025-08-12T12:03:24.238Z"
+        },
+        {
+          "filename": "HEB-C-210.gltf",
+          "status": "success",
+          "size": 14020549,
+          "processedAt": "2025-08-12T12:03:25.505Z"
+        },
+        {
+          "filename": "HEB-C-90.gltf",
+          "status": "success",
+          "size": 8198239,
+          "processedAt": "2025-08-12T12:03:26.275Z"
+        },
+        {
+          "filename": "HEB-LC-120.gltf",
+          "status": "success",
+          "size": 1151724,
+          "processedAt": "2025-08-12T12:03:26.753Z"
+        },
+        {
+          "filename": "HEB-LC-140.gltf",
+          "status": "success",
+          "size": 1153202,
+          "processedAt": "2025-08-12T12:03:27.293Z"
+        },
+        {
+          "filename": "HEB-LC-160.gltf",
+          "status": "success",
+          "size": 1148166,
+          "processedAt": "2025-08-12T12:03:27.724Z"
+        },
+        {
+          "filename": "HEB-LC-180.gltf",
+          "status": "success",
+          "size": 1149560,
+          "processedAt": "2025-08-12T12:03:28.232Z"
+        },
+        {
+          "filename": "HEB-LC-90.gltf",
+          "status": "success",
+          "size": 1123145,
+          "processedAt": "2025-08-12T12:03:28.987Z"
+        },
+        {
+          "filename": "HEB-M-120.gltf",
+          "status": "success",
+          "size": 3834026,
+          "processedAt": "2025-08-12T12:03:29.466Z"
+        },
+        {
+          "filename": "HEB-M-140.gltf",
+          "status": "success",
+          "size": 4107706,
+          "processedAt": "2025-08-12T12:03:30.000Z"
+        },
+        {
+          "filename": "HEB-M-160.gltf",
+          "status": "success",
+          "size": 4051553,
+          "processedAt": "2025-08-12T12:03:30.481Z"
+        },
+        {
+          "filename": "HEB-M-180.gltf",
+          "status": "success",
+          "size": 3673986,
+          "processedAt": "2025-08-12T12:03:30.906Z"
+        },
+        {
+          "filename": "HEB-M-210.gltf",
+          "status": "success",
+          "size": 5117386,
+          "processedAt": "2025-08-12T12:03:31.652Z"
+        },
+        {
+          "filename": "HEB-M-90.gltf",
+          "status": "success",
+          "size": 3320677,
+          "processedAt": "2025-08-12T12:03:32.553Z"
+        },
+        {
+          "filename": "HEB-PL-105.gltf",
+          "status": "success",
+          "size": 806605,
+          "processedAt": "2025-08-12T12:03:32.821Z"
+        },
+        {
+          "filename": "HEB-PL-120.gltf",
+          "status": "success",
+          "size": 803658,
+          "processedAt": "2025-08-12T12:03:33.105Z"
+        },
+        {
+          "filename": "HEB-PL-140.gltf",
+          "status": "success",
+          "size": 831098,
+          "processedAt": "2025-08-12T12:03:33.456Z"
+        },
+        {
+          "filename": "HEB-PL-160.gltf",
+          "status": "success",
+          "size": 830108,
+          "processedAt": "2025-08-12T12:03:33.723Z"
+        },
+        {
+          "filename": "HEB-PL-180.gltf",
+          "status": "success",
+          "size": 831613,
+          "processedAt": "2025-08-12T12:03:33.986Z"
+        },
+        {
+          "filename": "HEB-PL-210.gltf",
+          "status": "success",
+          "size": 830791,
+          "processedAt": "2025-08-12T12:03:34.397Z"
+        },
+        {
+          "filename": "HEB-PL-90.gltf",
+          "status": "success",
+          "size": 799977,
+          "processedAt": "2025-08-12T12:03:34.684Z"
+        },
+        {
+          "filename": "HEB-R-105.gltf",
+          "status": "success",
+          "size": 1303834,
+          "processedAt": "2025-08-12T12:03:35.009Z"
+        },
+        {
+          "filename": "HEB-R-120.gltf",
+          "status": "success",
+          "size": 1388018,
+          "processedAt": "2025-08-12T12:03:36.563Z"
+        },
+        {
+          "filename": "HEB-R-140.gltf",
+          "status": "success",
+          "size": 1431895,
+          "processedAt": "2025-08-12T12:03:36.924Z"
+        },
+        {
+          "filename": "HEB-R-160.gltf",
+          "status": "success",
+          "size": 1520375,
+          "processedAt": "2025-08-12T12:03:37.256Z"
+        },
+        {
+          "filename": "HEB-R-180.gltf",
+          "status": "success",
+          "size": 1623358,
+          "processedAt": "2025-08-12T12:03:37.619Z"
+        },
+        {
+          "filename": "HEB-R-210.gltf",
+          "status": "success",
+          "size": 1783999,
+          "processedAt": "2025-08-12T12:03:37.986Z"
+        },
+        {
+          "filename": "HEB-R-90.gltf",
+          "status": "success",
+          "size": 1234006,
+          "processedAt": "2025-08-12T12:03:38.318Z"
+        },
+        {
+          "filename": "HEB-RI-105.gltf",
+          "status": "success",
+          "size": 1291016,
+          "processedAt": "2025-08-12T12:03:38.664Z"
+        },
+        {
+          "filename": "HEB-RI-120.gltf",
+          "status": "success",
+          "size": 1243131,
+          "processedAt": "2025-08-12T12:03:38.991Z"
+        },
+        {
+          "filename": "HEB-RI-140.gltf",
+          "status": "success",
+          "size": 1427320,
+          "processedAt": "2025-08-12T12:03:39.346Z"
+        },
+        {
+          "filename": "HEB-RI-160.gltf",
+          "status": "success",
+          "size": 1363427,
+          "processedAt": "2025-08-12T12:03:39.831Z"
+        },
+        {
+          "filename": "HEB-RI-180.gltf",
+          "status": "success",
+          "size": 1419100,
+          "processedAt": "2025-08-12T12:03:40.196Z"
+        },
+        {
+          "filename": "HEB-RI-210.gltf",
+          "status": "success",
+          "size": 5077762,
+          "processedAt": "2025-08-12T12:03:41.456Z"
+        },
+        {
+          "filename": "HEB-RI-90.gltf",
+          "status": "success",
+          "size": 1210423,
+          "processedAt": "2025-08-12T12:03:41.808Z"
+        },
+        {
+          "filename": "HFC-FLUFF-DO.gltf",
+          "status": "success",
+          "size": 4363902,
+          "processedAt": "2025-08-12T12:03:42.370Z"
+        },
+        {
+          "filename": "IGE-1.gltf",
+          "status": "success",
+          "size": 1477591,
+          "processedAt": "2025-08-12T12:03:42.698Z"
+        },
+        {
+          "filename": "JAG-100X35-AG.gltf",
+          "status": "success",
+          "size": 857895,
+          "processedAt": "2025-08-12T12:03:42.967Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-AG.gltf",
+          "status": "success",
+          "size": 845727,
+          "processedAt": "2025-08-12T12:03:43.319Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-SD.gltf",
+          "status": "success",
+          "size": 845727,
+          "processedAt": "2025-08-12T12:03:43.620Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 845727,
+          "processedAt": "2025-08-12T12:03:43.896Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-TR.gltf",
+          "status": "success",
+          "size": 845727,
+          "processedAt": "2025-08-12T12:03:44.199Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS.gltf",
+          "status": "success",
+          "size": 845727,
+          "processedAt": "2025-08-12T12:03:44.696Z"
+        },
+        {
+          "filename": "JAG-100X35-SD.gltf",
+          "status": "success",
+          "size": 857895,
+          "processedAt": "2025-08-12T12:03:44.993Z"
+        },
+        {
+          "filename": "JAG-100X35-TGR.gltf",
+          "status": "success",
+          "size": 857895,
+          "processedAt": "2025-08-12T12:03:45.285Z"
+        },
+        {
+          "filename": "JAG-100X35-TR.gltf",
+          "status": "success",
+          "size": 857895,
+          "processedAt": "2025-08-12T12:03:45.576Z"
+        },
+        {
+          "filename": "JAG-100X35.gltf",
+          "status": "success",
+          "size": 857895,
+          "processedAt": "2025-08-12T12:03:45.854Z"
+        },
+        {
+          "filename": "JAG-120-AG.gltf",
+          "status": "success",
+          "size": 819197,
+          "processedAt": "2025-08-12T12:03:46.126Z"
+        },
+        {
+          "filename": "JAG-120-GLAS-AG.gltf",
+          "status": "success",
+          "size": 904858,
+          "processedAt": "2025-08-12T12:03:46.437Z"
+        },
+        {
+          "filename": "JAG-120-GLAS-SD.gltf",
+          "status": "success",
+          "size": 904858,
+          "processedAt": "2025-08-12T12:03:46.740Z"
+        },
+        {
+          "filename": "JAG-120-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 904858,
+          "processedAt": "2025-08-12T12:03:47.019Z"
+        },
+        {
+          "filename": "JAG-120-GLAS.gltf",
+          "status": "success",
+          "size": 904858,
+          "processedAt": "2025-08-12T12:03:47.477Z"
+        },
+        {
+          "filename": "JAG-120-SD.gltf",
+          "status": "success",
+          "size": 819197,
+          "processedAt": "2025-08-12T12:03:47.993Z"
+        },
+        {
+          "filename": "JAG-120-TGR.gltf",
+          "status": "success",
+          "size": 819197,
+          "processedAt": "2025-08-12T12:03:48.378Z"
+        },
+        {
+          "filename": "JAG-120-TR.gltf",
+          "status": "success",
+          "size": 819197,
+          "processedAt": "2025-08-12T12:03:48.798Z"
+        },
+        {
+          "filename": "JAG-120.gltf",
+          "status": "success",
+          "size": 819197,
+          "processedAt": "2025-08-12T12:03:50.377Z"
+        },
+        {
+          "filename": "JAG-120X72-AG.gltf",
+          "status": "success",
+          "size": 908297,
+          "processedAt": "2025-08-12T12:03:51.519Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-AG.gltf",
+          "status": "success",
+          "size": 904982,
+          "processedAt": "2025-08-12T12:03:51.976Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-SD.gltf",
+          "status": "success",
+          "size": 904982,
+          "processedAt": "2025-08-12T12:03:52.411Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 904982,
+          "processedAt": "2025-08-12T12:03:52.836Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-TR.gltf",
+          "status": "success",
+          "size": 904982,
+          "processedAt": "2025-08-12T12:03:53.222Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS.gltf",
+          "status": "success",
+          "size": 904982,
+          "processedAt": "2025-08-12T12:03:53.591Z"
+        },
+        {
+          "filename": "JAG-120X72-SD.gltf",
+          "status": "success",
+          "size": 908297,
+          "processedAt": "2025-08-12T12:03:53.970Z"
+        },
+        {
+          "filename": "JAG-120X72-TGR.gltf",
+          "status": "success",
+          "size": 908297,
+          "processedAt": "2025-08-12T12:03:54.473Z"
+        },
+        {
+          "filename": "JAG-120X72-TR.gltf",
+          "status": "success",
+          "size": 908297,
+          "processedAt": "2025-08-12T12:03:54.848Z"
+        },
+        {
+          "filename": "JAG-120X72.gltf",
+          "status": "success",
+          "size": 908297,
+          "processedAt": "2025-08-12T12:03:55.181Z"
+        },
+        {
+          "filename": "JAG-200X100-AG.gltf",
+          "status": "success",
+          "size": 838117,
+          "processedAt": "2025-08-12T12:03:55.517Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-AG.gltf",
+          "status": "success",
+          "size": 834636,
+          "processedAt": "2025-08-12T12:03:55.830Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-SD.gltf",
+          "status": "success",
+          "size": 834636,
+          "processedAt": "2025-08-12T12:03:56.141Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 834636,
+          "processedAt": "2025-08-12T12:03:56.428Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-TR.gltf",
+          "status": "success",
+          "size": 834636,
+          "processedAt": "2025-08-12T12:03:56.738Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS.gltf",
+          "status": "success",
+          "size": 834636,
+          "processedAt": "2025-08-12T12:03:57.077Z"
+        },
+        {
+          "filename": "JAG-200X100-SD.gltf",
+          "status": "success",
+          "size": 838117,
+          "processedAt": "2025-08-12T12:03:57.436Z"
+        },
+        {
+          "filename": "JAG-200X100-TGR.gltf",
+          "status": "success",
+          "size": 838117,
+          "processedAt": "2025-08-12T12:03:57.816Z"
+        },
+        {
+          "filename": "JAG-200X100-TR.gltf",
+          "status": "success",
+          "size": 838117,
+          "processedAt": "2025-08-12T12:03:58.113Z"
+        },
+        {
+          "filename": "JAG-200X100.gltf",
+          "status": "success",
+          "size": 838117,
+          "processedAt": "2025-08-12T12:03:59.484Z"
+        },
+        {
+          "filename": "JAG-55-AG.gltf",
+          "status": "success",
+          "size": 841643,
+          "processedAt": "2025-08-12T12:04:00.508Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-AG.gltf",
+          "status": "success",
+          "size": 829785,
+          "processedAt": "2025-08-12T12:04:00.832Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-SD.gltf",
+          "status": "success",
+          "size": 829785,
+          "processedAt": "2025-08-12T12:04:01.173Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 829785,
+          "processedAt": "2025-08-12T12:04:01.495Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-TR.gltf",
+          "status": "success",
+          "size": 829785,
+          "processedAt": "2025-08-12T12:04:01.792Z"
+        },
+        {
+          "filename": "JAG-55-GLAS.gltf",
+          "status": "success",
+          "size": 829785,
+          "processedAt": "2025-08-12T12:04:02.082Z"
+        },
+        {
+          "filename": "JAG-55-SD.gltf",
+          "status": "success",
+          "size": 841643,
+          "processedAt": "2025-08-12T12:04:02.391Z"
+        },
+        {
+          "filename": "JAG-55-TGR.gltf",
+          "status": "success",
+          "size": 841643,
+          "processedAt": "2025-08-12T12:04:02.724Z"
+        },
+        {
+          "filename": "JAG-55-TR.gltf",
+          "status": "success",
+          "size": 841643,
+          "processedAt": "2025-08-12T12:04:03.017Z"
+        },
+        {
+          "filename": "JAG-55.gltf",
+          "status": "success",
+          "size": 841643,
+          "processedAt": "2025-08-12T12:04:03.355Z"
+        },
+        {
+          "filename": "JAG-85-AG.gltf",
+          "status": "success",
+          "size": 826706,
+          "processedAt": "2025-08-12T12:04:03.657Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-AG.gltf",
+          "status": "success",
+          "size": 819155,
+          "processedAt": "2025-08-12T12:04:03.990Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-SD.gltf",
+          "status": "success",
+          "size": 819155,
+          "processedAt": "2025-08-12T12:04:04.365Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 819155,
+          "processedAt": "2025-08-12T12:04:04.698Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-TR.gltf",
+          "status": "success",
+          "size": 819155,
+          "processedAt": "2025-08-12T12:04:04.999Z"
+        },
+        {
+          "filename": "JAG-85-GLAS.gltf",
+          "status": "success",
+          "size": 819155,
+          "processedAt": "2025-08-12T12:04:05.326Z"
+        },
+        {
+          "filename": "JAG-85-SD.gltf",
+          "status": "success",
+          "size": 826706,
+          "processedAt": "2025-08-12T12:04:05.608Z"
+        },
+        {
+          "filename": "JAG-85-TGR.gltf",
+          "status": "success",
+          "size": 826706,
+          "processedAt": "2025-08-12T12:04:05.913Z"
+        },
+        {
+          "filename": "JAG-85-TR.gltf",
+          "status": "success",
+          "size": 826706,
+          "processedAt": "2025-08-12T12:04:06.193Z"
+        },
+        {
+          "filename": "JAG-85.gltf",
+          "status": "success",
+          "size": 826706,
+          "processedAt": "2025-08-12T12:04:06.497Z"
+        },
+        {
+          "filename": "KAM-1-AR.gltf",
+          "status": "success",
+          "size": 1070994,
+          "processedAt": "2025-08-12T12:04:06.857Z"
+        },
+        {
+          "filename": "KAM-1.gltf",
+          "status": "success",
+          "size": 957008,
+          "processedAt": "2025-08-12T12:04:07.145Z"
+        },
+        {
+          "filename": "KAM-15-AR.gltf",
+          "status": "success",
+          "size": 1079050,
+          "processedAt": "2025-08-12T12:04:07.723Z"
+        },
+        {
+          "filename": "KAM-15.gltf",
+          "status": "success",
+          "size": 1048811,
+          "processedAt": "2025-08-12T12:04:08.096Z"
+        },
+        {
+          "filename": "KAM-3.gltf",
+          "status": "success",
+          "size": 1254695,
+          "processedAt": "2025-08-12T12:04:08.448Z"
+        },
+        {
+          "filename": "KAM-AL-1.gltf",
+          "status": "success",
+          "size": 1048864,
+          "processedAt": "2025-08-12T12:04:08.784Z"
+        },
+        {
+          "filename": "KAM-AL-15.gltf",
+          "status": "success",
+          "size": 1079748,
+          "processedAt": "2025-08-12T12:04:09.226Z"
+        },
+        {
+          "filename": "KAM-C90.gltf",
+          "status": "success",
+          "size": 3735638,
+          "processedAt": "2025-08-12T12:04:09.660Z"
+        },
+        {
+          "filename": "KAM-FOOT.gltf",
+          "status": "success",
+          "size": 892716,
+          "processedAt": "2025-08-12T12:04:09.951Z"
+        },
+        {
+          "filename": "KAM-FOOT1.gltf",
+          "status": "success",
+          "size": 999149,
+          "processedAt": "2025-08-12T12:04:10.266Z"
+        },
+        {
+          "filename": "KAT-15CHL.gltf",
+          "status": "success",
+          "size": 3020556,
+          "processedAt": "2025-08-12T12:04:10.675Z"
+        },
+        {
+          "filename": "KAT-3.gltf",
+          "status": "success",
+          "size": 2245302,
+          "processedAt": "2025-08-12T12:04:11.069Z"
+        },
+        {
+          "filename": "KAT-CHL15.gltf",
+          "status": "success",
+          "size": 3020171,
+          "processedAt": "2025-08-12T12:04:11.482Z"
+        },
+        {
+          "filename": "KAT-FOOT1.gltf",
+          "status": "success",
+          "size": 1321855,
+          "processedAt": "2025-08-12T12:04:11.810Z"
+        },
+        {
+          "filename": "KML_100X35.gltf",
+          "status": "success",
+          "size": 2892393,
+          "processedAt": "2025-08-12T12:04:12.254Z"
+        },
+        {
+          "filename": "KML_110X55.gltf",
+          "status": "success",
+          "size": 2700366,
+          "processedAt": "2025-08-12T12:04:12.771Z"
+        },
+        {
+          "filename": "KML_93X30.gltf",
+          "status": "success",
+          "size": 3031308,
+          "processedAt": "2025-08-12T12:04:13.268Z"
+        },
+        {
+          "filename": "KML_D_R90.gltf",
+          "status": "success",
+          "size": 2581427,
+          "processedAt": "2025-08-12T12:04:13.740Z"
+        },
+        {
+          "filename": "KML_PEANUT.gltf",
+          "status": "success",
+          "size": 2955664,
+          "processedAt": "2025-08-12T12:04:14.148Z"
+        },
+        {
+          "filename": "KML_R38.gltf",
+          "status": "success",
+          "size": 778901,
+          "processedAt": "2025-08-12T12:04:14.426Z"
+        },
+        {
+          "filename": "KML_R70.gltf",
+          "status": "success",
+          "size": 2490431,
+          "processedAt": "2025-08-12T12:04:14.911Z"
+        },
+        {
+          "filename": "KML_R90.gltf",
+          "status": "success",
+          "size": 2395458,
+          "processedAt": "2025-08-12T12:04:15.606Z"
+        },
+        {
+          "filename": "KML-1.gltf",
+          "status": "success",
+          "size": 3443284,
+          "processedAt": "2025-08-12T12:04:16.088Z"
+        },
+        {
+          "filename": "KOA-1.gltf",
+          "status": "success",
+          "size": 1223127,
+          "processedAt": "2025-08-12T12:04:16.418Z"
+        },
+        {
+          "filename": "KOA-3.gltf",
+          "status": "success",
+          "size": 1212687,
+          "processedAt": "2025-08-12T12:04:16.757Z"
+        },
+        {
+          "filename": "KVA-45X45.gltf",
+          "status": "success",
+          "size": 3095268,
+          "processedAt": "2025-08-12T12:04:17.409Z"
+        },
+        {
+          "filename": "KVA-62X62.gltf",
+          "status": "success",
+          "size": 1046640,
+          "processedAt": "2025-08-12T12:04:17.727Z"
+        },
+        {
+          "filename": "KVA-82X82.gltf",
+          "status": "success",
+          "size": 846027,
+          "processedAt": "2025-08-12T12:04:18.031Z"
+        },
+        {
+          "filename": "LEJ-1-AR.gltf",
+          "status": "success",
+          "size": 4300213,
+          "processedAt": "2025-08-12T12:04:18.562Z"
+        },
+        {
+          "filename": "LEJ-1-LC.gltf",
+          "status": "success",
+          "size": 2824365,
+          "processedAt": "2025-08-12T12:04:18.992Z"
+        },
+        {
+          "filename": "LEJ-1.gltf",
+          "status": "success",
+          "size": 4284605,
+          "processedAt": "2025-08-12T12:04:19.503Z"
+        },
+        {
+          "filename": "LEJ-2-LC.gltf",
+          "status": "success",
+          "size": 5493625,
+          "processedAt": "2025-08-12T12:04:20.126Z"
+        },
+        {
+          "filename": "LEJ-2-ROUND-LC.gltf",
+          "status": "success",
+          "size": 5940355,
+          "processedAt": "2025-08-12T12:04:22.101Z"
+        },
+        {
+          "filename": "LEJ-2-ROUND.gltf",
+          "status": "success",
+          "size": 1768414,
+          "processedAt": "2025-08-12T12:04:22.621Z"
+        },
+        {
+          "filename": "LEJ-2.gltf",
+          "status": "success",
+          "size": 5912038,
+          "processedAt": "2025-08-12T12:04:23.161Z"
+        },
+        {
+          "filename": "LEJ-25-ROUND-LC.gltf",
+          "status": "success",
+          "size": 5493022,
+          "processedAt": "2025-08-12T12:04:23.722Z"
+        },
+        {
+          "filename": "LEJ-25-ROUND.gltf",
+          "status": "success",
+          "size": 5928836,
+          "processedAt": "2025-08-12T12:04:24.354Z"
+        },
+        {
+          "filename": "LEJ-3-LC.gltf",
+          "status": "success",
+          "size": 5937383,
+          "processedAt": "2025-08-12T12:04:24.930Z"
+        },
+        {
+          "filename": "LEJ-3-ROUND-LC.gltf",
+          "status": "success",
+          "size": 5523606,
+          "processedAt": "2025-08-12T12:04:25.649Z"
+        },
+        {
+          "filename": "LEJ-3-ROUND.gltf",
+          "status": "success",
+          "size": 6484382,
+          "processedAt": "2025-08-12T12:04:26.427Z"
+        },
+        {
+          "filename": "LEJ-3.gltf",
+          "status": "success",
+          "size": 5878244,
+          "processedAt": "2025-08-12T12:04:27.914Z"
+        },
+        {
+          "filename": "LEJ-FOOT1-LC.gltf",
+          "status": "success",
+          "size": 2695816,
+          "processedAt": "2025-08-12T12:04:28.414Z"
+        },
+        {
+          "filename": "LEJ-FOOT1.gltf",
+          "status": "success",
+          "size": 1730504,
+          "processedAt": "2025-08-12T12:04:28.772Z"
+        },
+        {
+          "filename": "LEJ-FOOT2-LC.gltf",
+          "status": "success",
+          "size": 2577658,
+          "processedAt": "2025-08-12T12:04:29.167Z"
+        },
+        {
+          "filename": "LEJ-FOOT2.gltf",
+          "status": "success",
+          "size": 1669572,
+          "processedAt": "2025-08-12T12:04:29.611Z"
+        },
+        {
+          "filename": "LEO-100x100-TOP-C15x33-LEG.gltf",
+          "status": "success",
+          "size": 926244,
+          "processedAt": "2025-08-12T12:04:29.929Z"
+        },
+        {
+          "filename": "LEO-100x100-TOP-C40x72-LEG.gltf",
+          "status": "success",
+          "size": 1071418,
+          "processedAt": "2025-08-12T12:04:30.237Z"
+        },
+        {
+          "filename": "LEO-100X100-TOP.gltf",
+          "status": "success",
+          "size": 1026129,
+          "processedAt": "2025-08-12T12:04:30.583Z"
+        },
+        {
+          "filename": "LEO-120_glas.gltf",
+          "status": "success",
+          "size": 988360,
+          "processedAt": "2025-08-12T12:04:30.870Z"
+        },
+        {
+          "filename": "LEO-120x35-TOP-C22x72-LEG.gltf",
+          "status": "success",
+          "size": 1029469,
+          "processedAt": "2025-08-12T12:04:31.308Z"
+        },
+        {
+          "filename": "LEO-120X35-TOP.gltf",
+          "status": "success",
+          "size": 1106834,
+          "processedAt": "2025-08-12T12:04:31.641Z"
+        },
+        {
+          "filename": "LEO-120X70_glas.gltf",
+          "status": "success",
+          "size": 981330,
+          "processedAt": "2025-08-12T12:04:31.932Z"
+        },
+        {
+          "filename": "LEO-120x70-TOP-C15x33-LEG_glas.gltf",
+          "status": "success",
+          "size": 865847,
+          "processedAt": "2025-08-12T12:04:32.230Z"
+        },
+        {
+          "filename": "LEO-120x70-TOP-C15x33-LEG.gltf",
+          "status": "success",
+          "size": 988916,
+          "processedAt": "2025-08-12T12:04:32.547Z"
+        },
+        {
+          "filename": "LEO-120X70-TOP.gltf",
+          "status": "success",
+          "size": 896282,
+          "processedAt": "2025-08-12T12:04:32.897Z"
+        },
+        {
+          "filename": "LEO-90_glas.gltf",
+          "status": "success",
+          "size": 927160,
+          "processedAt": "2025-08-12T12:04:33.290Z"
+        },
+        {
+          "filename": "LEO-C15X33-LEG.gltf",
+          "status": "success",
+          "size": 682946,
+          "processedAt": "2025-08-12T12:04:33.828Z"
+        },
+        {
+          "filename": "LEO-C22X72-LEG.gltf",
+          "status": "success",
+          "size": 721573,
+          "processedAt": "2025-08-12T12:04:34.238Z"
+        },
+        {
+          "filename": "LEO-C40X72-LEG.gltf",
+          "status": "success",
+          "size": 940706,
+          "processedAt": "2025-08-12T12:04:34.536Z"
+        },
+        {
+          "filename": "LEO-P18X18X33-LEG.gltf",
+          "status": "success",
+          "size": 656140,
+          "processedAt": "2025-08-12T12:04:34.813Z"
+        },
+        {
+          "filename": "LEO-R33-LEG.gltf",
+          "status": "success",
+          "size": 722432,
+          "processedAt": "2025-08-12T12:04:39.206Z"
+        },
+        {
+          "filename": "LEO-R33X10-LEG.gltf",
+          "status": "success",
+          "size": 728008,
+          "processedAt": "2025-08-12T12:04:39.493Z"
+        },
+        {
+          "filename": "LEO-R55-TOP-C15x33-LEG.gltf",
+          "status": "success",
+          "size": 956797,
+          "processedAt": "2025-08-12T12:04:39.829Z"
+        },
+        {
+          "filename": "LEO-R55-TOP.gltf",
+          "status": "success",
+          "size": 1432482,
+          "processedAt": "2025-08-12T12:04:40.176Z"
+        },
+        {
+          "filename": "LEO-R90-C40x72-LEG.gltf",
+          "status": "success",
+          "size": 1396725,
+          "processedAt": "2025-08-12T12:04:40.529Z"
+        },
+        {
+          "filename": "LEO-R90-TOP-MIX-LEG_glas.gltf",
+          "status": "success",
+          "size": 884722,
+          "processedAt": "2025-08-12T12:04:40.880Z"
+        },
+        {
+          "filename": "LEO-R90-TOP-MIX-LEG.gltf",
+          "status": "success",
+          "size": 1050400,
+          "processedAt": "2025-08-12T12:04:41.333Z"
+        },
+        {
+          "filename": "LEO-R90-TOP.gltf",
+          "status": "success",
+          "size": 1440053,
+          "processedAt": "2025-08-12T12:04:41.898Z"
+        },
+        {
+          "filename": "MAM_OUT-1.gltf",
+          "status": "success",
+          "size": 5058249,
+          "processedAt": "2025-08-12T12:04:42.454Z"
+        },
+        {
+          "filename": "MAM_OUT-15.gltf",
+          "status": "success",
+          "size": 4110282,
+          "processedAt": "2025-08-12T12:04:43.070Z"
+        },
+        {
+          "filename": "MAM_OUT-C.gltf",
+          "status": "success",
+          "size": 4455843,
+          "processedAt": "2025-08-12T12:04:43.782Z"
+        },
+        {
+          "filename": "MAM_OUT-CHL.gltf",
+          "status": "success",
+          "size": 3479609,
+          "processedAt": "2025-08-12T12:04:44.235Z"
+        },
+        {
+          "filename": "MAM-1.gltf",
+          "status": "success",
+          "size": 1074243,
+          "processedAt": "2025-08-12T12:04:44.637Z"
+        },
+        {
+          "filename": "MAM-15.gltf",
+          "status": "success",
+          "size": 974067,
+          "processedAt": "2025-08-12T12:04:44.984Z"
+        },
+        {
+          "filename": "MAM-AL.gltf",
+          "status": "success",
+          "size": 802964,
+          "processedAt": "2025-08-12T12:04:45.273Z"
+        },
+        {
+          "filename": "MAM-AR.gltf",
+          "status": "success",
+          "size": 802964,
+          "processedAt": "2025-08-12T12:04:45.614Z"
+        },
+        {
+          "filename": "MAM-C45.gltf",
+          "status": "success",
+          "size": 1023130,
+          "processedAt": "2025-08-12T12:04:45.966Z"
+        },
+        {
+          "filename": "MAM-C90.gltf",
+          "status": "success",
+          "size": 1028386,
+          "processedAt": "2025-08-12T12:04:46.294Z"
+        },
+        {
+          "filename": "MAM-CHL15.gltf",
+          "status": "success",
+          "size": 1639716,
+          "processedAt": "2025-08-12T12:04:46.682Z"
+        },
+        {
+          "filename": "MAM-DIV15.gltf",
+          "status": "success",
+          "size": 1578067,
+          "processedAt": "2025-08-12T12:04:47.051Z"
+        },
+        {
+          "filename": "MAM-ENDL.gltf",
+          "status": "success",
+          "size": 2234596,
+          "processedAt": "2025-08-12T12:04:47.485Z"
+        },
+        {
+          "filename": "MAM-ENDR.gltf",
+          "status": "success",
+          "size": 2109448,
+          "processedAt": "2025-08-12T12:04:47.854Z"
+        },
+        {
+          "filename": "MAM-FOOT.gltf",
+          "status": "success",
+          "size": 914779,
+          "processedAt": "2025-08-12T12:04:48.865Z"
+        },
+        {
+          "filename": "MAM-HFC-1.gltf",
+          "status": "success",
+          "size": 1355049,
+          "processedAt": "2025-08-12T12:04:49.221Z"
+        },
+        {
+          "filename": "MAM-HFC-15.gltf",
+          "status": "success",
+          "size": 1353255,
+          "processedAt": "2025-08-12T12:04:49.599Z"
+        },
+        {
+          "filename": "MAM-HFC-AL.gltf",
+          "status": "success",
+          "size": 912971,
+          "processedAt": "2025-08-12T12:04:51.360Z"
+        },
+        {
+          "filename": "MAM-HFC-AR.gltf",
+          "status": "success",
+          "size": 911031,
+          "processedAt": "2025-08-12T12:04:51.655Z"
+        },
+        {
+          "filename": "MAM-HFC-C90.gltf",
+          "status": "success",
+          "size": 1473136,
+          "processedAt": "2025-08-12T12:04:51.999Z"
+        },
+        {
+          "filename": "MAM-HFC-CHL.gltf",
+          "status": "success",
+          "size": 1415207,
+          "processedAt": "2025-08-12T12:04:52.350Z"
+        },
+        {
+          "filename": "MDF_100x100.gltf",
+          "status": "success",
+          "size": 963333,
+          "processedAt": "2025-08-12T12:04:52.650Z"
+        },
+        {
+          "filename": "MDF_120x70.gltf",
+          "status": "success",
+          "size": 932618,
+          "processedAt": "2025-08-12T12:04:52.949Z"
+        },
+        {
+          "filename": "MDF_90.gltf",
+          "status": "success",
+          "size": 1429877,
+          "processedAt": "2025-08-12T12:04:53.322Z"
+        },
+        {
+          "filename": "Metall_55.gltf",
+          "status": "success",
+          "size": 935243,
+          "processedAt": "2025-08-12T12:04:53.624Z"
+        },
+        {
+          "filename": "MUS-1.gltf",
+          "status": "success",
+          "size": 2653345,
+          "processedAt": "2025-08-12T12:04:54.048Z"
+        },
+        {
+          "filename": "MUS-25.gltf",
+          "status": "success",
+          "size": 3336387,
+          "processedAt": "2025-08-12T12:04:54.530Z"
+        },
+        {
+          "filename": "ORM-1.gltf",
+          "status": "success",
+          "size": 2618701,
+          "processedAt": "2025-08-12T12:04:55.094Z"
+        },
+        {
+          "filename": "OXE-2.gltf",
+          "status": "success",
+          "size": 1964639,
+          "processedAt": "2025-08-12T12:04:55.500Z"
+        },
+        {
+          "filename": "PAN-1.gltf",
+          "status": "success",
+          "size": 972657,
+          "processedAt": "2025-08-12T12:04:55.822Z"
+        },
+        {
+          "filename": "PON-105X200-L-CHH.gltf",
+          "status": "success",
+          "size": 3584011,
+          "processedAt": "2025-08-12T12:04:56.416Z"
+        },
+        {
+          "filename": "PON-105X200-L-WOH.gltf",
+          "status": "success",
+          "size": 2742300,
+          "processedAt": "2025-08-12T12:04:56.888Z"
+        },
+        {
+          "filename": "PON-105X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1727068,
+          "processedAt": "2025-08-12T12:04:57.245Z"
+        },
+        {
+          "filename": "PON-105X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 1401370,
+          "processedAt": "2025-08-12T12:04:57.583Z"
+        },
+        {
+          "filename": "PON-105X200-PL.gltf",
+          "status": "success",
+          "size": 1727068,
+          "processedAt": "2025-08-12T12:04:57.963Z"
+        },
+        {
+          "filename": "PON-105X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 2064497,
+          "processedAt": "2025-08-12T12:04:59.029Z"
+        },
+        {
+          "filename": "PON-105X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1696311,
+          "processedAt": "2025-08-12T12:04:59.455Z"
+        },
+        {
+          "filename": "PON-105X200-R.gltf",
+          "status": "success",
+          "size": 2064497,
+          "processedAt": "2025-08-12T12:04:59.960Z"
+        },
+        {
+          "filename": "PON-105X200.gltf",
+          "status": "success",
+          "size": 1524363,
+          "processedAt": "2025-08-12T12:05:00.356Z"
+        },
+        {
+          "filename": "PON-120X200-L-CHH.gltf",
+          "status": "success",
+          "size": 1855857,
+          "processedAt": "2025-08-12T12:05:01.241Z"
+        },
+        {
+          "filename": "PON-120X200-L-WOH.gltf",
+          "status": "success",
+          "size": 1375641,
+          "processedAt": "2025-08-12T12:05:01.711Z"
+        },
+        {
+          "filename": "PON-120X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1848223,
+          "processedAt": "2025-08-12T12:05:02.152Z"
+        },
+        {
+          "filename": "PON-120X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 1516435,
+          "processedAt": "2025-08-12T12:05:02.643Z"
+        },
+        {
+          "filename": "PON-120X200-PL.gltf",
+          "status": "success",
+          "size": 1848223,
+          "processedAt": "2025-08-12T12:05:03.233Z"
+        },
+        {
+          "filename": "PON-120X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 2215903,
+          "processedAt": "2025-08-12T12:05:03.715Z"
+        },
+        {
+          "filename": "PON-120X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1883970,
+          "processedAt": "2025-08-12T12:05:04.146Z"
+        },
+        {
+          "filename": "PON-120X200-R.gltf",
+          "status": "success",
+          "size": 2215903,
+          "processedAt": "2025-08-12T12:05:04.626Z"
+        },
+        {
+          "filename": "PON-120X200.gltf",
+          "status": "success",
+          "size": 1602938,
+          "processedAt": "2025-08-12T12:05:05.323Z"
+        },
+        {
+          "filename": "PON-140X200-L-CHH.gltf",
+          "status": "success",
+          "size": 1835739,
+          "processedAt": "2025-08-12T12:05:05.831Z"
+        },
+        {
+          "filename": "PON-140X200-L-WOH.gltf",
+          "status": "success",
+          "size": 1572118,
+          "processedAt": "2025-08-12T12:05:06.325Z"
+        },
+        {
+          "filename": "PON-140X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1864242,
+          "processedAt": "2025-08-12T12:05:06.786Z"
+        },
+        {
+          "filename": "PON-140X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 1535951,
+          "processedAt": "2025-08-12T12:05:07.228Z"
+        },
+        {
+          "filename": "PON-140X200-PL-TEST.gltf",
+          "status": "success",
+          "size": 4345820,
+          "processedAt": "2025-08-12T12:05:07.792Z"
+        },
+        {
+          "filename": "PON-140X200-PL.gltf",
+          "status": "success",
+          "size": 1864242,
+          "processedAt": "2025-08-12T12:05:08.242Z"
+        },
+        {
+          "filename": "PON-140X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 2257964,
+          "processedAt": "2025-08-12T12:05:08.703Z"
+        },
+        {
+          "filename": "PON-140X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1926388,
+          "processedAt": "2025-08-12T12:05:09.148Z"
+        },
+        {
+          "filename": "PON-140X200-R.gltf",
+          "status": "success",
+          "size": 2257964,
+          "processedAt": "2025-08-12T12:05:09.640Z"
+        },
+        {
+          "filename": "PON-140X200.gltf",
+          "status": "success",
+          "size": 1592098,
+          "processedAt": "2025-08-12T12:05:10.261Z"
+        },
+        {
+          "filename": "PON-90X200-L-CHH.gltf",
+          "status": "success",
+          "size": 1688303,
+          "processedAt": "2025-08-12T12:05:10.735Z"
+        },
+        {
+          "filename": "PON-90X200-L-WOH.gltf",
+          "status": "success",
+          "size": 1459778,
+          "processedAt": "2025-08-12T12:05:11.154Z"
+        },
+        {
+          "filename": "PON-90X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1726311,
+          "processedAt": "2025-08-12T12:05:11.613Z"
+        },
+        {
+          "filename": "PON-90X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 1412242,
+          "processedAt": "2025-08-12T12:05:12.341Z"
+        },
+        {
+          "filename": "PON-90X200-PL.gltf",
+          "status": "success",
+          "size": 1726311,
+          "processedAt": "2025-08-12T12:05:12.810Z"
+        },
+        {
+          "filename": "PON-90X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 1950855,
+          "processedAt": "2025-08-12T12:05:13.268Z"
+        },
+        {
+          "filename": "PON-90X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1679782,
+          "processedAt": "2025-08-12T12:05:13.739Z"
+        },
+        {
+          "filename": "PON-90X200-R.gltf",
+          "status": "success",
+          "size": 1950855,
+          "processedAt": "2025-08-12T12:05:14.219Z"
+        },
+        {
+          "filename": "PON-90X200.gltf",
+          "status": "success",
+          "size": 1521458,
+          "processedAt": "2025-08-12T12:05:14.770Z"
+        },
+        {
+          "filename": "REK-60X40-DET-SANS.gltf",
+          "status": "success",
+          "size": 1186846,
+          "processedAt": "2025-08-12T12:05:15.322Z"
+        },
+        {
+          "filename": "REK-60X40-SANS.gltf",
+          "status": "success",
+          "size": 1530517,
+          "processedAt": "2025-08-12T12:05:15.619Z"
+        },
+        {
+          "filename": "REK-60X40.gltf",
+          "status": "success",
+          "size": 896330,
+          "processedAt": "2025-08-12T12:05:16.323Z"
+        },
+        {
+          "filename": "sad.gltf",
+          "status": "success",
+          "size": 1020841,
+          "processedAt": "2025-08-12T12:05:16.631Z"
+        },
+        {
+          "filename": "STR-35.gltf",
+          "status": "success",
+          "size": 4899284,
+          "processedAt": "2025-08-12T12:05:17.254Z"
+        },
+        {
+          "filename": "SVA-15.gltf",
+          "status": "success",
+          "size": 1579824,
+          "processedAt": "2025-08-12T12:05:17.685Z"
+        },
+        {
+          "filename": "SVA-3.gltf",
+          "status": "success",
+          "size": 1638129,
+          "processedAt": "2025-08-12T12:05:18.066Z"
+        },
+        {
+          "filename": "SVA-35.gltf",
+          "status": "success",
+          "size": 1846434,
+          "processedAt": "2025-08-12T12:05:18.498Z"
+        },
+        {
+          "filename": "SVA-FOOT1.gltf",
+          "status": "success",
+          "size": 1511343,
+          "processedAt": "2025-08-12T12:05:18.880Z"
+        },
+        {
+          "filename": "TEST.gltf",
+          "status": "success",
+          "size": 1116002,
+          "processedAt": "2025-08-12T12:05:19.526Z"
+        },
+        {
+          "filename": "TIG-1.gltf",
+          "status": "success",
+          "size": 3497778,
+          "processedAt": "2025-08-12T12:05:20.024Z"
+        },
+        {
+          "filename": "TIG-2-ROUND.gltf",
+          "status": "success",
+          "size": 1857501,
+          "processedAt": "2025-08-12T12:05:20.549Z"
+        },
+        {
+          "filename": "TIG-2.gltf",
+          "status": "success",
+          "size": 1916966,
+          "processedAt": "2025-08-12T12:05:20.979Z"
+        },
+        {
+          "filename": "TIG-3-ROUND.gltf",
+          "status": "success",
+          "size": 1920854,
+          "processedAt": "2025-08-12T12:05:21.392Z"
+        },
+        {
+          "filename": "TIG-3.gltf",
+          "status": "success",
+          "size": 1897937,
+          "processedAt": "2025-08-12T12:05:22.136Z"
+        },
+        {
+          "filename": "TIG-FOOT1.gltf",
+          "status": "success",
+          "size": 1733972,
+          "processedAt": "2025-08-12T12:05:22.517Z"
+        },
+        {
+          "filename": "VAL-1-LC.gltf",
+          "status": "success",
+          "size": 1389762,
+          "processedAt": "2025-08-12T12:05:23.015Z"
+        },
+        {
+          "filename": "VAL-1-RI.gltf",
+          "status": "success",
+          "size": 3779368,
+          "processedAt": "2025-08-12T12:05:23.531Z"
+        },
+        {
+          "filename": "VAL-1.gltf",
+          "status": "success",
+          "size": 2121797,
+          "processedAt": "2025-08-12T12:05:23.938Z"
+        },
+        {
+          "filename": "VAL-15-LC.gltf",
+          "status": "success",
+          "size": 1316216,
+          "processedAt": "2025-08-12T12:05:24.268Z"
+        },
+        {
+          "filename": "VAL-15-RI.gltf",
+          "status": "success",
+          "size": 1557736,
+          "processedAt": "2025-08-12T12:05:24.674Z"
+        },
+        {
+          "filename": "VAL-15.gltf",
+          "status": "success",
+          "size": 1116002,
+          "processedAt": "2025-08-12T12:05:25.024Z"
+        },
+        {
+          "filename": "VAL-15C3-RI.gltf",
+          "status": "success",
+          "size": 7227744,
+          "processedAt": "2025-08-12T12:05:25.636Z"
+        },
+        {
+          "filename": "VAL-15C3.gltf",
+          "status": "success",
+          "size": 1714233,
+          "processedAt": "2025-08-12T12:05:26.835Z"
+        },
+        {
+          "filename": "VAL-15CHL-RI.gltf",
+          "status": "success",
+          "size": 6883216,
+          "processedAt": "2025-08-12T12:05:27.374Z"
+        },
+        {
+          "filename": "VAL-15CHL.gltf",
+          "status": "success",
+          "size": 1322155,
+          "processedAt": "2025-08-12T12:05:27.754Z"
+        },
+        {
+          "filename": "VAL-15COZY-RI.gltf",
+          "status": "success",
+          "size": 7641410,
+          "processedAt": "2025-08-12T12:05:28.535Z"
+        },
+        {
+          "filename": "VAL-15COZY.gltf",
+          "status": "success",
+          "size": 1505065,
+          "processedAt": "2025-08-12T12:05:28.927Z"
+        },
+        {
+          "filename": "VAL-3-LC.gltf",
+          "status": "success",
+          "size": 1651228,
+          "processedAt": "2025-08-12T12:05:29.909Z"
+        },
+        {
+          "filename": "VAL-3-RI.gltf",
+          "status": "success",
+          "size": 6015592,
+          "processedAt": "2025-08-12T12:05:30.435Z"
+        },
+        {
+          "filename": "VAL-3.gltf",
+          "status": "success",
+          "size": 2921885,
+          "processedAt": "2025-08-12T12:05:30.915Z"
+        },
+        {
+          "filename": "VAL-35-LC.gltf",
+          "status": "success",
+          "size": 1683376,
+          "processedAt": "2025-08-12T12:05:31.257Z"
+        },
+        {
+          "filename": "VAL-35-RI.gltf",
+          "status": "success",
+          "size": 1771764,
+          "processedAt": "2025-08-12T12:05:31.750Z"
+        },
+        {
+          "filename": "VAL-35.gltf",
+          "status": "success",
+          "size": 3393550,
+          "processedAt": "2025-08-12T12:05:32.254Z"
+        },
+        {
+          "filename": "VAL-3C15-RI.gltf",
+          "status": "success",
+          "size": 6735923,
+          "processedAt": "2025-08-12T12:05:33.019Z"
+        },
+        {
+          "filename": "VAL-3C15.gltf",
+          "status": "success",
+          "size": 1709024,
+          "processedAt": "2025-08-12T12:05:33.656Z"
+        },
+        {
+          "filename": "VAL-3C3-RI.gltf",
+          "status": "success",
+          "size": 27449446,
+          "processedAt": "2025-08-12T12:05:35.261Z"
+        },
+        {
+          "filename": "VAL-3C3.gltf",
+          "status": "success",
+          "size": 5943592,
+          "processedAt": "2025-08-12T12:05:35.839Z"
+        },
+        {
+          "filename": "VAL-4-LC.gltf",
+          "status": "success",
+          "size": 4291925,
+          "processedAt": "2025-08-12T12:05:36.836Z"
+        },
+        {
+          "filename": "VAL-4-RI.gltf",
+          "status": "success",
+          "size": 5139413,
+          "processedAt": "2025-08-12T12:05:37.611Z"
+        },
+        {
+          "filename": "VAL-4.gltf",
+          "status": "success",
+          "size": 4096986,
+          "processedAt": "2025-08-12T12:05:38.197Z"
+        },
+        {
+          "filename": "VAL-CHL15-RI.gltf",
+          "status": "success",
+          "size": 6888553,
+          "processedAt": "2025-08-12T12:05:38.855Z"
+        },
+        {
+          "filename": "VAL-CHL15.gltf",
+          "status": "success",
+          "size": 1322263,
+          "processedAt": "2025-08-12T12:05:39.837Z"
+        },
+        {
+          "filename": "VAL-COZY15-RI.gltf",
+          "status": "success",
+          "size": 7810995,
+          "processedAt": "2025-08-12T12:05:40.428Z"
+        },
+        {
+          "filename": "VAL-COZY15.gltf",
+          "status": "success",
+          "size": 1509884,
+          "processedAt": "2025-08-12T12:05:40.787Z"
+        },
+        {
+          "filename": "VAL-FOOT1-LC.gltf",
+          "status": "success",
+          "size": 2611188,
+          "processedAt": "2025-08-12T12:05:41.221Z"
+        },
+        {
+          "filename": "VAL-FOOT1-RI.gltf",
+          "status": "success",
+          "size": 2423662,
+          "processedAt": "2025-08-12T12:05:41.804Z"
+        },
+        {
+          "filename": "VAL-FOOT1.gltf",
+          "status": "success",
+          "size": 878422,
+          "processedAt": "2025-08-12T12:05:42.670Z"
+        },
+        {
+          "filename": "VAL-FOOT2-LC.gltf",
+          "status": "success",
+          "size": 2609984,
+          "processedAt": "2025-08-12T12:05:43.220Z"
+        },
+        {
+          "filename": "VAL-FOOT2-RI.gltf",
+          "status": "success",
+          "size": 2648896,
+          "processedAt": "2025-08-12T12:05:47.464Z"
+        },
+        {
+          "filename": "VAL-FOOT2.gltf",
+          "status": "success",
+          "size": 862894,
+          "processedAt": "2025-08-12T12:05:47.778Z"
+        },
+        {
+          "filename": "ValenArmstod.gltf",
+          "status": "success",
+          "size": 1306777,
+          "processedAt": "2025-08-12T12:05:48.104Z"
+        },
+        {
+          "filename": "VAR-15CHL.gltf",
+          "status": "success",
+          "size": 2677609,
+          "processedAt": "2025-08-12T12:05:48.607Z"
+        },
+        {
+          "filename": "VAR-3.gltf",
+          "status": "success",
+          "size": 1734750,
+          "processedAt": "2025-08-12T12:05:49.117Z"
+        },
+        {
+          "filename": "VAR-CHL15.gltf",
+          "status": "success",
+          "size": 2677668,
+          "processedAt": "2025-08-12T12:05:49.775Z"
+        },
+        {
+          "filename": "VAR-CHLL.gltf",
+          "status": "success",
+          "size": 2824611,
+          "processedAt": "2025-08-12T12:05:50.488Z"
+        },
+        {
+          "filename": "VAR-CHLR.gltf",
+          "status": "success",
+          "size": 2824833,
+          "processedAt": "2025-08-12T12:05:50.951Z"
+        },
+        {
+          "filename": "VAR-DIIVAN.gltf",
+          "status": "success",
+          "size": 5962727,
+          "processedAt": "2025-08-12T12:05:51.668Z"
+        },
+        {
+          "filename": "VAR-FOOT1.gltf",
+          "status": "success",
+          "size": 1145511,
+          "processedAt": "2025-08-12T12:05:52.063Z"
+        },
+        {
+          "filename": "VLR-2CHL.gltf",
+          "status": "success",
+          "size": 3476319,
+          "processedAt": "2025-08-12T12:05:52.515Z"
+        },
+        {
+          "filename": "VLR-3.gltf",
+          "status": "success",
+          "size": 1929475,
+          "processedAt": "2025-08-12T12:05:52.916Z"
+        },
+        {
+          "filename": "VLR-CHL2.gltf",
+          "status": "success",
+          "size": 3473542,
+          "processedAt": "2025-08-12T12:05:53.474Z"
+        },
+        {
+          "filename": "ZEB-120-C.gltf",
+          "status": "success",
+          "size": 4237076,
+          "processedAt": "2025-08-12T12:05:54.216Z"
+        },
+        {
+          "filename": "ZEB-120-M.gltf",
+          "status": "success",
+          "size": 3920492,
+          "processedAt": "2025-08-12T12:05:54.842Z"
+        },
+        {
+          "filename": "ZEB-120X200-LC.gltf",
+          "status": "success",
+          "size": 4152070,
+          "processedAt": "2025-08-12T12:05:55.382Z"
+        },
+        {
+          "filename": "ZEB-120X200.gltf",
+          "status": "success",
+          "size": 6509889,
+          "processedAt": "2025-08-12T12:05:57.773Z"
+        },
+        {
+          "filename": "ZEB-140-C.gltf",
+          "status": "success",
+          "size": 4585216,
+          "processedAt": "2025-08-12T12:05:58.619Z"
+        },
+        {
+          "filename": "ZEB-140-M.gltf",
+          "status": "success",
+          "size": 4080283,
+          "processedAt": "2025-08-12T12:05:59.336Z"
+        },
+        {
+          "filename": "ZEB-140X200-LC.gltf",
+          "status": "success",
+          "size": 4058771,
+          "processedAt": "2025-08-12T12:05:59.996Z"
+        },
+        {
+          "filename": "ZEB-140X200.gltf",
+          "status": "success",
+          "size": 8948778,
+          "processedAt": "2025-08-12T12:06:01.147Z"
+        },
+        {
+          "filename": "ZEB-160-C.gltf",
+          "status": "success",
+          "size": 6319233,
+          "processedAt": "2025-08-12T12:06:01.874Z"
+        },
+        {
+          "filename": "ZEB-160-M.gltf",
+          "status": "success",
+          "size": 5254014,
+          "processedAt": "2025-08-12T12:06:02.890Z"
+        },
+        {
+          "filename": "ZEB-160X200-L-CHL.gltf",
+          "status": "success",
+          "size": 3218294,
+          "processedAt": "2025-08-12T12:06:03.476Z"
+        },
+        {
+          "filename": "ZEB-160X200-L-WOL.gltf",
+          "status": "success",
+          "size": 2185158,
+          "processedAt": "2025-08-12T12:06:04.290Z"
+        },
+        {
+          "filename": "ZEB-160X200-LC.gltf",
+          "status": "success",
+          "size": 4534305,
+          "processedAt": "2025-08-12T12:06:04.750Z"
+        },
+        {
+          "filename": "ZEB-160X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2824032,
+          "processedAt": "2025-08-12T12:06:05.199Z"
+        },
+        {
+          "filename": "ZEB-160X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2302557,
+          "processedAt": "2025-08-12T12:06:05.798Z"
+        },
+        {
+          "filename": "ZEB-160X200-PL.gltf",
+          "status": "success",
+          "size": 2824032,
+          "processedAt": "2025-08-12T12:06:06.256Z"
+        },
+        {
+          "filename": "ZEB-160X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3338386,
+          "processedAt": "2025-08-12T12:06:06.729Z"
+        },
+        {
+          "filename": "ZEB-160X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2832958,
+          "processedAt": "2025-08-12T12:06:07.124Z"
+        },
+        {
+          "filename": "ZEB-160X200-R.gltf",
+          "status": "success",
+          "size": 3338386,
+          "processedAt": "2025-08-12T12:06:07.610Z"
+        },
+        {
+          "filename": "ZEB-160X200.gltf",
+          "status": "success",
+          "size": 7358796,
+          "processedAt": "2025-08-12T12:06:08.582Z"
+        },
+        {
+          "filename": "ZEB-180-C.gltf",
+          "status": "success",
+          "size": 5743916,
+          "processedAt": "2025-08-12T12:06:09.458Z"
+        },
+        {
+          "filename": "ZEB-180-M.gltf",
+          "status": "success",
+          "size": 5097649,
+          "processedAt": "2025-08-12T12:06:09.955Z"
+        },
+        {
+          "filename": "ZEB-180X200-L-CHL.gltf",
+          "status": "success",
+          "size": 2612850,
+          "processedAt": "2025-08-12T12:06:10.289Z"
+        },
+        {
+          "filename": "ZEB-180X200-L-WOL.gltf",
+          "status": "success",
+          "size": 2183561,
+          "processedAt": "2025-08-12T12:06:10.680Z"
+        },
+        {
+          "filename": "ZEB-180X200-LC.gltf",
+          "status": "success",
+          "size": 4459545,
+          "processedAt": "2025-08-12T12:06:11.199Z"
+        },
+        {
+          "filename": "ZEB-180X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2819154,
+          "processedAt": "2025-08-12T12:06:11.751Z"
+        },
+        {
+          "filename": "ZEB-180X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2299302,
+          "processedAt": "2025-08-12T12:06:12.292Z"
+        },
+        {
+          "filename": "ZEB-180X200-PL.gltf",
+          "status": "success",
+          "size": 2819154,
+          "processedAt": "2025-08-12T12:06:12.740Z"
+        },
+        {
+          "filename": "ZEB-180X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3407481,
+          "processedAt": "2025-08-12T12:06:13.175Z"
+        },
+        {
+          "filename": "ZEB-180X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2890120,
+          "processedAt": "2025-08-12T12:06:13.617Z"
+        },
+        {
+          "filename": "ZEB-180X200-R.gltf",
+          "status": "success",
+          "size": 3407481,
+          "processedAt": "2025-08-12T12:06:14.049Z"
+        },
+        {
+          "filename": "ZEB-180X200.gltf",
+          "status": "success",
+          "size": 5663209,
+          "processedAt": "2025-08-12T12:06:14.722Z"
+        },
+        {
+          "filename": "ZEB-210-C.gltf",
+          "status": "success",
+          "size": 5657870,
+          "processedAt": "2025-08-12T12:06:15.320Z"
+        },
+        {
+          "filename": "ZEB-210-M.gltf",
+          "status": "success",
+          "size": 5330093,
+          "processedAt": "2025-08-12T12:06:15.874Z"
+        },
+        {
+          "filename": "ZEB-210X210-L-CHL.gltf",
+          "status": "success",
+          "size": 2635274,
+          "processedAt": "2025-08-12T12:06:16.363Z"
+        },
+        {
+          "filename": "ZEB-210X210-L-WOL.gltf",
+          "status": "success",
+          "size": 2219388,
+          "processedAt": "2025-08-12T12:06:16.759Z"
+        },
+        {
+          "filename": "ZEB-210X210-LC.gltf",
+          "status": "success",
+          "size": 4065415,
+          "processedAt": "2025-08-12T12:06:17.858Z"
+        },
+        {
+          "filename": "ZEB-210X210-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2996050,
+          "processedAt": "2025-08-12T12:06:18.307Z"
+        },
+        {
+          "filename": "ZEB-210X210-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2473833,
+          "processedAt": "2025-08-12T12:06:18.737Z"
+        },
+        {
+          "filename": "ZEB-210X210-PL.gltf",
+          "status": "success",
+          "size": 2996050,
+          "processedAt": "2025-08-12T12:06:20.388Z"
+        },
+        {
+          "filename": "ZEB-210X210-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3711927,
+          "processedAt": "2025-08-12T12:06:21.422Z"
+        },
+        {
+          "filename": "ZEB-210X210-R-L-WOL.gltf",
+          "status": "success",
+          "size": 3189937,
+          "processedAt": "2025-08-12T12:06:21.791Z"
+        },
+        {
+          "filename": "ZEB-210X210-R.gltf",
+          "status": "success",
+          "size": 3711927,
+          "processedAt": "2025-08-12T12:06:22.257Z"
+        },
+        {
+          "filename": "ZEB-210X210.gltf",
+          "status": "success",
+          "size": 8819186,
+          "processedAt": "2025-08-12T12:06:22.906Z"
+        },
+        {
+          "filename": "ZEB-90-C.gltf",
+          "status": "success",
+          "size": 3998210,
+          "processedAt": "2025-08-12T12:06:23.491Z"
+        },
+        {
+          "filename": "ZEB-90-M.gltf",
+          "status": "success",
+          "size": 3589250,
+          "processedAt": "2025-08-12T12:06:23.933Z"
+        },
+        {
+          "filename": "ZEB-90X200-LC.gltf",
+          "status": "success",
+          "size": 4187031,
+          "processedAt": "2025-08-12T12:06:25.186Z"
+        },
+        {
+          "filename": "ZEB-90X200.gltf",
+          "status": "success",
+          "size": 5230689,
+          "processedAt": "2025-08-12T12:06:25.736Z"
+        }
+      ],
+      "currentFile": "ZEB-90X200.gltf"
+    },
+    "clientName": "Sweef",
+    "createdAt": "2025-08-12T12:01:23.544Z",
+    "startedAt": "2025-08-12T12:01:23.544Z",
+    "metadata": {
+      "totalFiles": 532,
+      "successfulFiles": 532,
+      "failedFiles": [],
+      "downloadUrl": "https://cdn.charpstar.net/Client-Editor/Sweef/ANT-25-LC.gltf"
+    },
+    "completedAt": "2025-08-12T12:06:25.736Z"
+  },
+  {
+    "id": "job_1755000314916_peqezx3ce",
+    "type": "apply-materials",
+    "status": "completed",
+    "progress": {
+      "total": 532,
+      "done": 532,
+      "failed": 0,
+      "processedFiles": [
+        {
+          "filename": "ANT-25-LC.gltf",
+          "status": "success",
+          "size": 2546289,
+          "processedAt": "2025-08-12T12:05:15.952Z"
+        },
+        {
+          "filename": "ANT-25.gltf",
+          "status": "success",
+          "size": 3159743,
+          "processedAt": "2025-08-12T12:05:16.414Z"
+        },
+        {
+          "filename": "ANT-3-LC.gltf",
+          "status": "success",
+          "size": 2517147,
+          "processedAt": "2025-08-12T12:05:16.956Z"
+        },
+        {
+          "filename": "ANT-3.gltf",
+          "status": "success",
+          "size": 3105282,
+          "processedAt": "2025-08-12T12:05:17.403Z"
+        },
+        {
+          "filename": "ANT-35-LC.gltf",
+          "status": "success",
+          "size": 2002743,
+          "processedAt": "2025-08-12T12:05:17.807Z"
+        },
+        {
+          "filename": "ANT-35.gltf",
+          "status": "success",
+          "size": 3138128,
+          "processedAt": "2025-08-12T12:05:19.048Z"
+        },
+        {
+          "filename": "APP-LETI.gltf",
+          "status": "success",
+          "size": 2812641,
+          "processedAt": "2025-08-12T12:05:19.672Z"
+        },
+        {
+          "filename": "APP-VABL.gltf",
+          "status": "success",
+          "size": 2303655,
+          "processedAt": "2025-08-12T12:05:20.147Z"
+        },
+        {
+          "filename": "BAG-L-DET-SANS.gltf",
+          "status": "success",
+          "size": 429554,
+          "processedAt": "2025-08-12T12:05:20.449Z"
+        },
+        {
+          "filename": "BAG-L.gltf",
+          "status": "success",
+          "size": 424470,
+          "processedAt": "2025-08-12T12:05:20.754Z"
+        },
+        {
+          "filename": "BAG-M-DET-SANS.gltf",
+          "status": "success",
+          "size": 538709,
+          "processedAt": "2025-08-12T12:05:21.152Z"
+        },
+        {
+          "filename": "BAG-M.gltf",
+          "status": "success",
+          "size": 405255,
+          "processedAt": "2025-08-12T12:05:21.722Z"
+        },
+        {
+          "filename": "BAG-S-DET-SANS.gltf",
+          "status": "success",
+          "size": 763633,
+          "processedAt": "2025-08-12T12:05:22.018Z"
+        },
+        {
+          "filename": "BAG-S.gltf",
+          "status": "success",
+          "size": 422134,
+          "processedAt": "2025-08-12T12:05:22.617Z"
+        },
+        {
+          "filename": "BAG-XL-DET-SANS.gltf",
+          "status": "success",
+          "size": 248609,
+          "processedAt": "2025-08-12T12:05:22.917Z"
+        },
+        {
+          "filename": "BAG-XL.gltf",
+          "status": "success",
+          "size": 381431,
+          "processedAt": "2025-08-12T12:05:23.227Z"
+        },
+        {
+          "filename": "BEC-120X200.gltf",
+          "status": "success",
+          "size": 582301,
+          "processedAt": "2025-08-12T12:05:24.548Z"
+        },
+        {
+          "filename": "BEC-140X200.gltf",
+          "status": "success",
+          "size": 575400,
+          "processedAt": "2025-08-12T12:05:24.865Z"
+        },
+        {
+          "filename": "BEC-160X200.gltf",
+          "status": "success",
+          "size": 755502,
+          "processedAt": "2025-08-12T12:05:25.199Z"
+        },
+        {
+          "filename": "BEC-180X200.gltf",
+          "status": "success",
+          "size": 756206,
+          "processedAt": "2025-08-12T12:05:25.834Z"
+        },
+        {
+          "filename": "BEC-90X200.gltf",
+          "status": "success",
+          "size": 559376,
+          "processedAt": "2025-08-12T12:05:26.147Z"
+        },
+        {
+          "filename": "BJO-15CHL.gltf",
+          "status": "success",
+          "size": 5575963,
+          "processedAt": "2025-08-12T12:05:26.734Z"
+        },
+        {
+          "filename": "BJO-3.gltf",
+          "status": "success",
+          "size": 3107819,
+          "processedAt": "2025-08-12T12:05:27.294Z"
+        },
+        {
+          "filename": "BJO-ARM-COV.gltf",
+          "status": "success",
+          "size": 1713028,
+          "processedAt": "2025-08-12T12:05:27.844Z"
+        },
+        {
+          "filename": "BJO-ARM-LID.gltf",
+          "status": "success",
+          "size": 2276599,
+          "processedAt": "2025-08-12T12:05:28.371Z"
+        },
+        {
+          "filename": "BJO-ARM-SOFT.gltf",
+          "status": "success",
+          "size": 2142308,
+          "processedAt": "2025-08-12T12:05:28.813Z"
+        },
+        {
+          "filename": "BJO-CHL15.gltf",
+          "status": "success",
+          "size": 5577002,
+          "processedAt": "2025-08-12T12:05:29.404Z"
+        },
+        {
+          "filename": "BJO-FOOT1.gltf",
+          "status": "success",
+          "size": 1226648,
+          "processedAt": "2025-08-12T12:05:29.799Z"
+        },
+        {
+          "filename": "BJO-MOD15.gltf",
+          "status": "success",
+          "size": 1308701,
+          "processedAt": "2025-08-12T12:05:30.234Z"
+        },
+        {
+          "filename": "BJO-MOD2.gltf",
+          "status": "success",
+          "size": 1493023,
+          "processedAt": "2025-08-12T12:05:30.728Z"
+        },
+        {
+          "filename": "BJO-MOD3.gltf",
+          "status": "success",
+          "size": 1808866,
+          "processedAt": "2025-08-12T12:05:31.170Z"
+        },
+        {
+          "filename": "BJO-MODCHL.gltf",
+          "status": "success",
+          "size": 1272359,
+          "processedAt": "2025-08-12T12:05:31.655Z"
+        },
+        {
+          "filename": "BJO-MODDIV.gltf",
+          "status": "success",
+          "size": 1225544,
+          "processedAt": "2025-08-12T12:05:32.092Z"
+        },
+        {
+          "filename": "BLA-25C25-LC.gltf",
+          "status": "success",
+          "size": 1510008,
+          "processedAt": "2025-08-12T12:05:32.493Z"
+        },
+        {
+          "filename": "BLA-25C25-RI.gltf",
+          "status": "success",
+          "size": 2180751,
+          "processedAt": "2025-08-12T12:05:32.897Z"
+        },
+        {
+          "filename": "BLA-25C25.gltf",
+          "status": "success",
+          "size": 1166949,
+          "processedAt": "2025-08-12T12:05:33.466Z"
+        },
+        {
+          "filename": "BLA-25E-LC.gltf",
+          "status": "success",
+          "size": 722472,
+          "processedAt": "2025-08-12T12:05:34.052Z"
+        },
+        {
+          "filename": "BLA-25E-RI.gltf",
+          "status": "success",
+          "size": 1303960,
+          "processedAt": "2025-08-12T12:05:34.546Z"
+        },
+        {
+          "filename": "BLA-25E.gltf",
+          "status": "success",
+          "size": 608323,
+          "processedAt": "2025-08-12T12:05:34.978Z"
+        },
+        {
+          "filename": "BLA-5-LC.gltf",
+          "status": "success",
+          "size": 1089253,
+          "processedAt": "2025-08-12T12:05:35.360Z"
+        },
+        {
+          "filename": "BLA-5-RI.gltf",
+          "status": "success",
+          "size": 1732655,
+          "processedAt": "2025-08-12T12:05:35.948Z"
+        },
+        {
+          "filename": "BLA-5.gltf",
+          "status": "success",
+          "size": 849628,
+          "processedAt": "2025-08-12T12:05:36.570Z"
+        },
+        {
+          "filename": "BLA-C90-LC.gltf",
+          "status": "success",
+          "size": 1531946,
+          "processedAt": "2025-08-12T12:05:36.956Z"
+        },
+        {
+          "filename": "BLA-C90-RI.gltf",
+          "status": "success",
+          "size": 2180749,
+          "processedAt": "2025-08-12T12:05:37.508Z"
+        },
+        {
+          "filename": "BLA-C90.gltf",
+          "status": "success",
+          "size": 1166947,
+          "processedAt": "2025-08-12T12:05:37.888Z"
+        },
+        {
+          "filename": "BLA-E25-LC.gltf",
+          "status": "success",
+          "size": 716866,
+          "processedAt": "2025-08-12T12:05:38.617Z"
+        },
+        {
+          "filename": "BLA-E25-RI.gltf",
+          "status": "success",
+          "size": 5090676,
+          "processedAt": "2025-08-12T12:05:39.189Z"
+        },
+        {
+          "filename": "BLA-E25.gltf",
+          "status": "success",
+          "size": 2733172,
+          "processedAt": "2025-08-12T12:05:39.717Z"
+        },
+        {
+          "filename": "BOC-FOOT1.gltf",
+          "status": "success",
+          "size": 570488,
+          "processedAt": "2025-08-12T12:05:40.045Z"
+        },
+        {
+          "filename": "BOC-FOOT2.gltf",
+          "status": "success",
+          "size": 575581,
+          "processedAt": "2025-08-12T12:05:40.528Z"
+        },
+        {
+          "filename": "BOC-FOOT3.gltf",
+          "status": "success",
+          "size": 557123,
+          "processedAt": "2025-08-12T12:05:40.886Z"
+        },
+        {
+          "filename": "BOL-35.gltf",
+          "status": "success",
+          "size": 507304,
+          "processedAt": "2025-08-12T12:05:41.327Z"
+        },
+        {
+          "filename": "BUF-1 nitar test.gltf",
+          "status": "success",
+          "size": 3333311,
+          "processedAt": "2025-08-12T12:05:41.915Z"
+        },
+        {
+          "filename": "BUF-1-RI.gltf",
+          "status": "success",
+          "size": 3066319,
+          "processedAt": "2025-08-12T12:05:42.759Z"
+        },
+        {
+          "filename": "BUF-1.gltf",
+          "status": "success",
+          "size": 3066319,
+          "processedAt": "2025-08-12T12:05:43.402Z"
+        },
+        {
+          "filename": "BUF-3-RI.gltf",
+          "status": "success",
+          "size": 3920345,
+          "processedAt": "2025-08-12T12:05:44.202Z"
+        },
+        {
+          "filename": "BUF-3.gltf",
+          "status": "success",
+          "size": 3920345,
+          "processedAt": "2025-08-12T12:05:44.808Z"
+        },
+        {
+          "filename": "BUF-4-RI.gltf",
+          "status": "success",
+          "size": 3759327,
+          "processedAt": "2025-08-12T12:05:45.229Z"
+        },
+        {
+          "filename": "BUF-4.gltf",
+          "status": "success",
+          "size": 3759327,
+          "processedAt": "2025-08-12T12:05:45.701Z"
+        },
+        {
+          "filename": "BUF-FOOT3.gltf",
+          "status": "success",
+          "size": 957050,
+          "processedAt": "2025-08-12T12:05:46.081Z"
+        },
+        {
+          "filename": "BUF-FOOT4.gltf",
+          "status": "success",
+          "size": 711970,
+          "processedAt": "2025-08-12T12:05:46.467Z"
+        },
+        {
+          "filename": "COV-ALR.gltf",
+          "status": "success",
+          "size": 1504813,
+          "processedAt": "2025-08-12T12:05:46.808Z"
+        },
+        {
+          "filename": "CYL-19X60.gltf",
+          "status": "success",
+          "size": 285979,
+          "processedAt": "2025-08-12T12:05:47.084Z"
+        },
+        {
+          "filename": "CYL-19X90.gltf",
+          "status": "success",
+          "size": 274937,
+          "processedAt": "2025-08-12T12:05:47.363Z"
+        },
+        {
+          "filename": "DOG-60X70.gltf",
+          "status": "success",
+          "size": 513938,
+          "processedAt": "2025-08-12T12:05:47.672Z"
+        },
+        {
+          "filename": "DOG-70X90.gltf",
+          "status": "success",
+          "size": 522917,
+          "processedAt": "2025-08-12T12:05:48.508Z"
+        },
+        {
+          "filename": "DRO-2.gltf",
+          "status": "success",
+          "size": 1985521,
+          "processedAt": "2025-08-12T12:05:49.017Z"
+        },
+        {
+          "filename": "DRO-3.gltf",
+          "status": "success",
+          "size": 2108259,
+          "processedAt": "2025-08-12T12:05:49.467Z"
+        },
+        {
+          "filename": "DRO-4.gltf",
+          "status": "success",
+          "size": 2269964,
+          "processedAt": "2025-08-12T12:05:50.074Z"
+        },
+        {
+          "filename": "DRO-5.gltf",
+          "status": "success",
+          "size": 2473808,
+          "processedAt": "2025-08-12T12:05:50.590Z"
+        },
+        {
+          "filename": "DRO-AL.gltf",
+          "status": "success",
+          "size": 358039,
+          "processedAt": "2025-08-12T12:05:50.851Z"
+        },
+        {
+          "filename": "DRO-AR.gltf",
+          "status": "success",
+          "size": 358619,
+          "processedAt": "2025-08-12T12:05:51.167Z"
+        },
+        {
+          "filename": "DRO-C.gltf",
+          "status": "success",
+          "size": 2506969,
+          "processedAt": "2025-08-12T12:05:51.570Z"
+        },
+        {
+          "filename": "DRO-P-2X2.gltf",
+          "status": "success",
+          "size": 1389138,
+          "processedAt": "2025-08-12T12:05:52.165Z"
+        },
+        {
+          "filename": "DRO-P-2X3.gltf",
+          "status": "success",
+          "size": 1482221,
+          "processedAt": "2025-08-12T12:05:52.708Z"
+        },
+        {
+          "filename": "ds.gltf",
+          "status": "success",
+          "size": 696446,
+          "processedAt": "2025-08-12T12:05:53.017Z"
+        },
+        {
+          "filename": "DUV-1.gltf",
+          "status": "success",
+          "size": 738347,
+          "processedAt": "2025-08-12T12:05:53.311Z"
+        },
+        {
+          "filename": "EKO-2.gltf",
+          "status": "success",
+          "size": 10528145,
+          "processedAt": "2025-08-12T12:05:54.298Z"
+        },
+        {
+          "filename": "ELE-35CAS-RI.gltf",
+          "status": "success",
+          "size": 3780959,
+          "processedAt": "2025-08-12T12:05:54.763Z"
+        },
+        {
+          "filename": "ELE-35CAS.gltf",
+          "status": "success",
+          "size": 1818971,
+          "processedAt": "2025-08-12T12:05:55.140Z"
+        },
+        {
+          "filename": "ELE-35CHI-RI.gltf",
+          "status": "success",
+          "size": 3611048,
+          "processedAt": "2025-08-12T12:05:56.254Z"
+        },
+        {
+          "filename": "ELE-35CHI.gltf",
+          "status": "success",
+          "size": 1646906,
+          "processedAt": "2025-08-12T12:05:56.761Z"
+        },
+        {
+          "filename": "ELE-3CHLCAS-RI.gltf",
+          "status": "success",
+          "size": 5433377,
+          "processedAt": "2025-08-12T12:05:57.482Z"
+        },
+        {
+          "filename": "ELE-3CHLCAS.gltf",
+          "status": "success",
+          "size": 2675616,
+          "processedAt": "2025-08-12T12:05:58.046Z"
+        },
+        {
+          "filename": "ELE-3CHLCHI-RI.gltf",
+          "status": "success",
+          "size": 6115010,
+          "processedAt": "2025-08-12T12:05:59.114Z"
+        },
+        {
+          "filename": "ELE-3CHLCHI.gltf",
+          "status": "success",
+          "size": 3296922,
+          "processedAt": "2025-08-12T12:05:59.816Z"
+        },
+        {
+          "filename": "ELE-CHL3CAS-RI.gltf",
+          "status": "success",
+          "size": 5433058,
+          "processedAt": "2025-08-12T12:06:00.794Z"
+        },
+        {
+          "filename": "ELE-CHL3CAS.gltf",
+          "status": "success",
+          "size": 2611868,
+          "processedAt": "2025-08-12T12:06:01.545Z"
+        },
+        {
+          "filename": "ELE-CHL3CHI-RI.gltf",
+          "status": "success",
+          "size": 6118118,
+          "processedAt": "2025-08-12T12:06:03.013Z"
+        },
+        {
+          "filename": "ELE-CHL3CHI.gltf",
+          "status": "success",
+          "size": 3298476,
+          "processedAt": "2025-08-12T12:06:03.619Z"
+        },
+        {
+          "filename": "ENH-160X200-L-CHL.gltf",
+          "status": "success",
+          "size": 2030208,
+          "processedAt": "2025-08-12T12:06:04.204Z"
+        },
+        {
+          "filename": "ENH-160X200-L-WOL.gltf",
+          "status": "success",
+          "size": 1606853,
+          "processedAt": "2025-08-12T12:06:04.582Z"
+        },
+        {
+          "filename": "ENH-160X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2206624,
+          "processedAt": "2025-08-12T12:06:05.442Z"
+        },
+        {
+          "filename": "ENH-160X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 1689059,
+          "processedAt": "2025-08-12T12:06:06.356Z"
+        },
+        {
+          "filename": "ENH-160X200-PL.gltf",
+          "status": "success",
+          "size": 2206624,
+          "processedAt": "2025-08-12T12:06:07.727Z"
+        },
+        {
+          "filename": "ENH-160X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 2727271,
+          "processedAt": "2025-08-12T12:06:08.291Z"
+        },
+        {
+          "filename": "ENH-160X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2205919,
+          "processedAt": "2025-08-12T12:06:08.745Z"
+        },
+        {
+          "filename": "ENH-160X200-R.gltf",
+          "status": "success",
+          "size": 2727271,
+          "processedAt": "2025-08-12T12:06:09.177Z"
+        },
+        {
+          "filename": "ENH-160X200.gltf",
+          "status": "success",
+          "size": 2030208,
+          "processedAt": "2025-08-12T12:06:10.583Z"
+        },
+        {
+          "filename": "ENH-180X200-L-CHL.gltf",
+          "status": "success",
+          "size": 2000727,
+          "processedAt": "2025-08-12T12:06:11.022Z"
+        },
+        {
+          "filename": "ENH-180X200-L-WOL.gltf",
+          "status": "success",
+          "size": 1587563,
+          "processedAt": "2025-08-12T12:06:11.625Z"
+        },
+        {
+          "filename": "ENH-180X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2482242,
+          "processedAt": "2025-08-12T12:06:12.220Z"
+        },
+        {
+          "filename": "ENH-180X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 1887411,
+          "processedAt": "2025-08-12T12:06:12.640Z"
+        },
+        {
+          "filename": "ENH-180X200-PL.gltf",
+          "status": "success",
+          "size": 2482242,
+          "processedAt": "2025-08-12T12:06:13.076Z"
+        },
+        {
+          "filename": "ENH-180X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3012907,
+          "processedAt": "2025-08-12T12:06:13.819Z"
+        },
+        {
+          "filename": "ENH-180X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2393233,
+          "processedAt": "2025-08-12T12:06:14.261Z"
+        },
+        {
+          "filename": "ENH-180X200-R.gltf",
+          "status": "success",
+          "size": 3012907,
+          "processedAt": "2025-08-12T12:06:14.827Z"
+        },
+        {
+          "filename": "ENH-180X200.gltf",
+          "status": "success",
+          "size": 2000727,
+          "processedAt": "2025-08-12T12:06:15.225Z"
+        },
+        {
+          "filename": "ENH-210X210-L-CHL.gltf",
+          "status": "success",
+          "size": 2083297,
+          "processedAt": "2025-08-12T12:06:15.649Z"
+        },
+        {
+          "filename": "ENH-210X210-L-WOL.gltf",
+          "status": "success",
+          "size": 1664812,
+          "processedAt": "2025-08-12T12:06:16.043Z"
+        },
+        {
+          "filename": "ENH-210X210-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2419864,
+          "processedAt": "2025-08-12T12:06:16.475Z"
+        },
+        {
+          "filename": "ENH-210X210-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 1899037,
+          "processedAt": "2025-08-12T12:06:17.006Z"
+        },
+        {
+          "filename": "ENH-210X210-PL.gltf",
+          "status": "success",
+          "size": 2419864,
+          "processedAt": "2025-08-12T12:06:17.408Z"
+        },
+        {
+          "filename": "ENH-210X210-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3042325,
+          "processedAt": "2025-08-12T12:06:17.957Z"
+        },
+        {
+          "filename": "ENH-210X210-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2609862,
+          "processedAt": "2025-08-12T12:06:18.420Z"
+        },
+        {
+          "filename": "ENH-210X210-R.gltf",
+          "status": "success",
+          "size": 3042325,
+          "processedAt": "2025-08-12T12:06:18.880Z"
+        },
+        {
+          "filename": "ENH-210X210.gltf",
+          "status": "success",
+          "size": 2083297,
+          "processedAt": "2025-08-12T12:06:19.226Z"
+        },
+        {
+          "filename": "EXT-ANT-25.gltf",
+          "status": "success",
+          "size": 763550,
+          "processedAt": "2025-08-12T12:06:19.523Z"
+        },
+        {
+          "filename": "EXT-ANT-3.gltf",
+          "status": "success",
+          "size": 2375518,
+          "processedAt": "2025-08-12T12:06:19.906Z"
+        },
+        {
+          "filename": "EXT-ANT-35.gltf",
+          "status": "success",
+          "size": 2002743,
+          "processedAt": "2025-08-12T12:06:20.287Z"
+        },
+        {
+          "filename": "EXT-BLA-25C25.gltf",
+          "status": "success",
+          "size": 1510008,
+          "processedAt": "2025-08-12T12:06:20.812Z"
+        },
+        {
+          "filename": "EXT-BLA-25E.gltf",
+          "status": "success",
+          "size": 722472,
+          "processedAt": "2025-08-12T12:06:21.161Z"
+        },
+        {
+          "filename": "EXT-BLA-5.gltf",
+          "status": "success",
+          "size": 1089253,
+          "processedAt": "2025-08-12T12:06:22.083Z"
+        },
+        {
+          "filename": "EXT-BLA-C90.gltf",
+          "status": "success",
+          "size": 1531946,
+          "processedAt": "2025-08-12T12:06:22.608Z"
+        },
+        {
+          "filename": "EXT-BLA-E25.gltf",
+          "status": "success",
+          "size": 716866,
+          "processedAt": "2025-08-12T12:06:23.006Z"
+        },
+        {
+          "filename": "EXT-FLK-2X60.gltf",
+          "status": "success",
+          "size": 1481202,
+          "processedAt": "2025-08-12T12:06:23.358Z"
+        },
+        {
+          "filename": "EXT-FLK-2X90.gltf",
+          "status": "success",
+          "size": 1495498,
+          "processedAt": "2025-08-12T12:06:23.796Z"
+        },
+        {
+          "filename": "EXT-FLK-3X60.gltf",
+          "status": "success",
+          "size": 1808436,
+          "processedAt": "2025-08-12T12:06:24.214Z"
+        },
+        {
+          "filename": "EXT-FLK-3X90.gltf",
+          "status": "success",
+          "size": 2118234,
+          "processedAt": "2025-08-12T12:06:24.646Z"
+        },
+        {
+          "filename": "EXT-FLK-4X60.gltf",
+          "status": "success",
+          "size": 2196778,
+          "processedAt": "2025-08-12T12:06:25.089Z"
+        },
+        {
+          "filename": "EXT-LEJ-1.gltf",
+          "status": "success",
+          "size": 2267574,
+          "processedAt": "2025-08-12T12:06:25.496Z"
+        },
+        {
+          "filename": "EXT-LEJ-2-ROUND.gltf",
+          "status": "success",
+          "size": 5383564,
+          "processedAt": "2025-08-12T12:06:26.047Z"
+        },
+        {
+          "filename": "EXT-LEJ-2.gltf",
+          "status": "success",
+          "size": 4936764,
+          "processedAt": "2025-08-12T12:06:26.612Z"
+        },
+        {
+          "filename": "EXT-LEJ-25-ROUND.gltf",
+          "status": "success",
+          "size": 4936231,
+          "processedAt": "2025-08-12T12:06:27.099Z"
+        },
+        {
+          "filename": "EXT-LEJ-3-ROUND.gltf",
+          "status": "success",
+          "size": 4966815,
+          "processedAt": "2025-08-12T12:06:29.349Z"
+        },
+        {
+          "filename": "EXT-LEJ-3.gltf",
+          "status": "success",
+          "size": 5380592,
+          "processedAt": "2025-08-12T12:06:30.104Z"
+        },
+        {
+          "filename": "EXT-LEJ-FOOT1.gltf",
+          "status": "success",
+          "size": 2139028,
+          "processedAt": "2025-08-12T12:06:30.534Z"
+        },
+        {
+          "filename": "EXT-LEJ-FOOT2.gltf",
+          "status": "success",
+          "size": 2020867,
+          "processedAt": "2025-08-12T12:06:30.955Z"
+        },
+        {
+          "filename": "EXT-VAL-1.gltf",
+          "status": "success",
+          "size": 832683,
+          "processedAt": "2025-08-12T12:06:31.255Z"
+        },
+        {
+          "filename": "EXT-VAL-15.gltf",
+          "status": "success",
+          "size": 759137,
+          "processedAt": "2025-08-12T12:06:31.571Z"
+        },
+        {
+          "filename": "EXT-VAL-3.gltf",
+          "status": "success",
+          "size": 1094149,
+          "processedAt": "2025-08-12T12:06:31.906Z"
+        },
+        {
+          "filename": "EXT-VAL-35.gltf",
+          "status": "success",
+          "size": 1126297,
+          "processedAt": "2025-08-12T12:06:32.277Z"
+        },
+        {
+          "filename": "EXT-VAL-4.gltf",
+          "status": "success",
+          "size": 3734846,
+          "processedAt": "2025-08-12T12:06:33.034Z"
+        },
+        {
+          "filename": "EXT-VAL-FOOT1.gltf",
+          "status": "success",
+          "size": 2054109,
+          "processedAt": "2025-08-12T12:06:33.501Z"
+        },
+        {
+          "filename": "EXT-VAL-FOOT2.gltf",
+          "status": "success",
+          "size": 2052905,
+          "processedAt": "2025-08-12T12:06:33.882Z"
+        },
+        {
+          "filename": "FAR-1.gltf",
+          "status": "success",
+          "size": 702483,
+          "processedAt": "2025-08-12T12:06:34.194Z"
+        },
+        {
+          "filename": "FLA-1.gltf",
+          "status": "success",
+          "size": 1378666,
+          "processedAt": "2025-08-12T12:06:34.566Z"
+        },
+        {
+          "filename": "FLA-2.gltf",
+          "status": "success",
+          "size": 1949971,
+          "processedAt": "2025-08-12T12:06:35.505Z"
+        },
+        {
+          "filename": "FLA-25.gltf",
+          "status": "success",
+          "size": 3585226,
+          "processedAt": "2025-08-12T12:06:37.733Z"
+        },
+        {
+          "filename": "FLA-35.gltf",
+          "status": "success",
+          "size": 2141711,
+          "processedAt": "2025-08-12T12:06:40.616Z"
+        },
+        {
+          "filename": "FLA-FOOT1.gltf",
+          "status": "success",
+          "size": 1472761,
+          "processedAt": "2025-08-12T12:06:40.978Z"
+        },
+        {
+          "filename": "FLB-160.gltf",
+          "status": "success",
+          "size": 875191,
+          "processedAt": "2025-08-12T12:06:41.328Z"
+        },
+        {
+          "filename": "FLB-180.gltf",
+          "status": "success",
+          "size": 864459,
+          "processedAt": "2025-08-12T12:06:41.657Z"
+        },
+        {
+          "filename": "FLK-2X60-LC.gltf",
+          "status": "success",
+          "size": 1481202,
+          "processedAt": "2025-08-12T12:06:42.011Z"
+        },
+        {
+          "filename": "FLK-2X60.gltf",
+          "status": "success",
+          "size": 516876,
+          "processedAt": "2025-08-12T12:06:42.362Z"
+        },
+        {
+          "filename": "FLK-2X90-LC.gltf",
+          "status": "success",
+          "size": 1495498,
+          "processedAt": "2025-08-12T12:06:42.752Z"
+        },
+        {
+          "filename": "FLK-2X90.gltf",
+          "status": "success",
+          "size": 517033,
+          "processedAt": "2025-08-12T12:06:43.058Z"
+        },
+        {
+          "filename": "FLK-3X60-LC.gltf",
+          "status": "success",
+          "size": 1808436,
+          "processedAt": "2025-08-12T12:06:43.519Z"
+        },
+        {
+          "filename": "FLK-3X60.gltf",
+          "status": "success",
+          "size": 617950,
+          "processedAt": "2025-08-12T12:06:43.818Z"
+        },
+        {
+          "filename": "FLK-3X90-LC.gltf",
+          "status": "success",
+          "size": 2118234,
+          "processedAt": "2025-08-12T12:06:44.285Z"
+        },
+        {
+          "filename": "FLK-3X90.gltf",
+          "status": "success",
+          "size": 600113,
+          "processedAt": "2025-08-12T12:06:44.606Z"
+        },
+        {
+          "filename": "FLK-4X60-LC.gltf",
+          "status": "success",
+          "size": 2196778,
+          "processedAt": "2025-08-12T12:06:45.616Z"
+        },
+        {
+          "filename": "FLK-4X60.gltf",
+          "status": "success",
+          "size": 705486,
+          "processedAt": "2025-08-12T12:06:45.945Z"
+        },
+        {
+          "filename": "GAS-1.gltf",
+          "status": "success",
+          "size": 652324,
+          "processedAt": "2025-08-12T12:06:47.121Z"
+        },
+        {
+          "filename": "GET-1.gltf",
+          "status": "success",
+          "size": 679613,
+          "processedAt": "2025-08-12T12:06:47.477Z"
+        },
+        {
+          "filename": "GET-FOOT1.gltf",
+          "status": "success",
+          "size": 507749,
+          "processedAt": "2025-08-12T12:06:47.760Z"
+        },
+        {
+          "filename": "GIR-1.gltf",
+          "status": "success",
+          "size": 3481865,
+          "processedAt": "2025-08-12T12:06:48.432Z"
+        },
+        {
+          "filename": "GIR-15.gltf",
+          "status": "success",
+          "size": 9067348,
+          "processedAt": "2025-08-12T12:06:49.198Z"
+        },
+        {
+          "filename": "GIR-15CHL.gltf",
+          "status": "success",
+          "size": 15500427,
+          "processedAt": "2025-08-12T12:06:50.413Z"
+        },
+        {
+          "filename": "GIR-25.gltf",
+          "status": "success",
+          "size": 17872923,
+          "processedAt": "2025-08-12T12:06:51.245Z"
+        },
+        {
+          "filename": "GIR-3-AO-TEST.gltf",
+          "status": "success",
+          "size": 1381504,
+          "processedAt": "2025-08-12T12:06:51.573Z"
+        },
+        {
+          "filename": "GIR-3.gltf",
+          "status": "success",
+          "size": 5710843,
+          "processedAt": "2025-08-12T12:06:52.229Z"
+        },
+        {
+          "filename": "GIR-35.gltf",
+          "status": "success",
+          "size": 6131275,
+          "processedAt": "2025-08-12T12:06:52.937Z"
+        },
+        {
+          "filename": "GIR-CHL15.gltf",
+          "status": "success",
+          "size": 15495200,
+          "processedAt": "2025-08-12T12:06:54.129Z"
+        },
+        {
+          "filename": "GIR-FOOT1.gltf",
+          "status": "success",
+          "size": 401012,
+          "processedAt": "2025-08-12T12:06:54.803Z"
+        },
+        {
+          "filename": "GOR-3.gltf",
+          "status": "success",
+          "size": 4583733,
+          "processedAt": "2025-08-12T12:06:55.300Z"
+        },
+        {
+          "filename": "GRD-1.gltf",
+          "status": "success",
+          "size": 566836,
+          "processedAt": "2025-08-12T12:06:55.814Z"
+        },
+        {
+          "filename": "GRZ-3.gltf",
+          "status": "success",
+          "size": 1762097,
+          "processedAt": "2025-08-12T12:06:56.191Z"
+        },
+        {
+          "filename": "GRZ-3S.gltf",
+          "status": "success",
+          "size": 1329848,
+          "processedAt": "2025-08-12T12:06:56.550Z"
+        },
+        {
+          "filename": "GRZ-FOOT1.gltf",
+          "status": "success",
+          "size": 255505,
+          "processedAt": "2025-08-12T12:06:56.824Z"
+        },
+        {
+          "filename": "HAJ-1.gltf",
+          "status": "success",
+          "size": 500806,
+          "processedAt": "2025-08-12T12:06:57.156Z"
+        },
+        {
+          "filename": "HAJ-15.gltf",
+          "status": "success",
+          "size": 576683,
+          "processedAt": "2025-08-12T12:06:57.452Z"
+        },
+        {
+          "filename": "HAJ-15C.gltf",
+          "status": "success",
+          "size": 298816,
+          "processedAt": "2025-08-12T12:06:58.642Z"
+        },
+        {
+          "filename": "HAJ-1E.gltf",
+          "status": "success",
+          "size": 325455,
+          "processedAt": "2025-08-12T12:06:58.928Z"
+        },
+        {
+          "filename": "HAJ-C15.gltf",
+          "status": "success",
+          "size": 318899,
+          "processedAt": "2025-08-12T12:06:59.207Z"
+        },
+        {
+          "filename": "HAJ-E1.gltf",
+          "status": "success",
+          "size": 418161,
+          "processedAt": "2025-08-12T12:06:59.510Z"
+        },
+        {
+          "filename": "HAJ-FOOT.gltf",
+          "status": "success",
+          "size": 320755,
+          "processedAt": "2025-08-12T12:07:00.118Z"
+        },
+        {
+          "filename": "HAJ.gltf",
+          "status": "success",
+          "size": 574011,
+          "processedAt": "2025-08-12T12:07:00.405Z"
+        },
+        {
+          "filename": "HEB-C-120.gltf",
+          "status": "success",
+          "size": 8235314,
+          "processedAt": "2025-08-12T12:07:01.141Z"
+        },
+        {
+          "filename": "HEB-C-140.gltf",
+          "status": "success",
+          "size": 9011733,
+          "processedAt": "2025-08-12T12:07:02.088Z"
+        },
+        {
+          "filename": "HEB-C-160.gltf",
+          "status": "success",
+          "size": 16197552,
+          "processedAt": "2025-08-12T12:07:02.771Z"
+        },
+        {
+          "filename": "HEB-C-180.gltf",
+          "status": "success",
+          "size": 10586737,
+          "processedAt": "2025-08-12T12:07:03.846Z"
+        },
+        {
+          "filename": "HEB-C-210.gltf",
+          "status": "success",
+          "size": 13463470,
+          "processedAt": "2025-08-12T12:07:04.666Z"
+        },
+        {
+          "filename": "HEB-C-90.gltf",
+          "status": "success",
+          "size": 7641160,
+          "processedAt": "2025-08-12T12:07:05.367Z"
+        },
+        {
+          "filename": "HEB-LC-120.gltf",
+          "status": "success",
+          "size": 594645,
+          "processedAt": "2025-08-12T12:07:05.748Z"
+        },
+        {
+          "filename": "HEB-LC-140.gltf",
+          "status": "success",
+          "size": 596123,
+          "processedAt": "2025-08-12T12:07:06.032Z"
+        },
+        {
+          "filename": "HEB-LC-160.gltf",
+          "status": "success",
+          "size": 591087,
+          "processedAt": "2025-08-12T12:07:06.355Z"
+        },
+        {
+          "filename": "HEB-LC-180.gltf",
+          "status": "success",
+          "size": 592481,
+          "processedAt": "2025-08-12T12:07:06.671Z"
+        },
+        {
+          "filename": "HEB-LC-90.gltf",
+          "status": "success",
+          "size": 566066,
+          "processedAt": "2025-08-12T12:07:06.955Z"
+        },
+        {
+          "filename": "HEB-M-120.gltf",
+          "status": "success",
+          "size": 3276947,
+          "processedAt": "2025-08-12T12:07:07.457Z"
+        },
+        {
+          "filename": "HEB-M-140.gltf",
+          "status": "success",
+          "size": 3550627,
+          "processedAt": "2025-08-12T12:07:07.904Z"
+        },
+        {
+          "filename": "HEB-M-160.gltf",
+          "status": "success",
+          "size": 3494474,
+          "processedAt": "2025-08-12T12:07:08.365Z"
+        },
+        {
+          "filename": "HEB-M-180.gltf",
+          "status": "success",
+          "size": 3116907,
+          "processedAt": "2025-08-12T12:07:08.785Z"
+        },
+        {
+          "filename": "HEB-M-210.gltf",
+          "status": "success",
+          "size": 4560307,
+          "processedAt": "2025-08-12T12:07:09.357Z"
+        },
+        {
+          "filename": "HEB-M-90.gltf",
+          "status": "success",
+          "size": 2763598,
+          "processedAt": "2025-08-12T12:07:09.814Z"
+        },
+        {
+          "filename": "HEB-PL-105.gltf",
+          "status": "success",
+          "size": 249526,
+          "processedAt": "2025-08-12T12:07:10.329Z"
+        },
+        {
+          "filename": "HEB-PL-120.gltf",
+          "status": "success",
+          "size": 246579,
+          "processedAt": "2025-08-12T12:07:10.649Z"
+        },
+        {
+          "filename": "HEB-PL-140.gltf",
+          "status": "success",
+          "size": 274019,
+          "processedAt": "2025-08-12T12:07:10.918Z"
+        },
+        {
+          "filename": "HEB-PL-160.gltf",
+          "status": "success",
+          "size": 273029,
+          "processedAt": "2025-08-12T12:07:11.250Z"
+        },
+        {
+          "filename": "HEB-PL-180.gltf",
+          "status": "success",
+          "size": 274534,
+          "processedAt": "2025-08-12T12:07:11.520Z"
+        },
+        {
+          "filename": "HEB-PL-210.gltf",
+          "status": "success",
+          "size": 273712,
+          "processedAt": "2025-08-12T12:07:11.896Z"
+        },
+        {
+          "filename": "HEB-PL-90.gltf",
+          "status": "success",
+          "size": 242898,
+          "processedAt": "2025-08-12T12:07:12.232Z"
+        },
+        {
+          "filename": "HEB-R-105.gltf",
+          "status": "success",
+          "size": 746755,
+          "processedAt": "2025-08-12T12:07:12.552Z"
+        },
+        {
+          "filename": "HEB-R-120.gltf",
+          "status": "success",
+          "size": 830939,
+          "processedAt": "2025-08-12T12:07:12.848Z"
+        },
+        {
+          "filename": "HEB-R-140.gltf",
+          "status": "success",
+          "size": 874816,
+          "processedAt": "2025-08-12T12:07:13.403Z"
+        },
+        {
+          "filename": "HEB-R-160.gltf",
+          "status": "success",
+          "size": 963296,
+          "processedAt": "2025-08-12T12:07:13.720Z"
+        },
+        {
+          "filename": "HEB-R-180.gltf",
+          "status": "success",
+          "size": 1066279,
+          "processedAt": "2025-08-12T12:07:14.064Z"
+        },
+        {
+          "filename": "HEB-R-210.gltf",
+          "status": "success",
+          "size": 1226920,
+          "processedAt": "2025-08-12T12:07:14.443Z"
+        },
+        {
+          "filename": "HEB-R-90.gltf",
+          "status": "success",
+          "size": 676927,
+          "processedAt": "2025-08-12T12:07:14.759Z"
+        },
+        {
+          "filename": "HEB-RI-105.gltf",
+          "status": "success",
+          "size": 734081,
+          "processedAt": "2025-08-12T12:07:15.100Z"
+        },
+        {
+          "filename": "HEB-RI-120.gltf",
+          "status": "success",
+          "size": 686196,
+          "processedAt": "2025-08-12T12:07:15.444Z"
+        },
+        {
+          "filename": "HEB-RI-140.gltf",
+          "status": "success",
+          "size": 870385,
+          "processedAt": "2025-08-12T12:07:15.750Z"
+        },
+        {
+          "filename": "HEB-RI-160.gltf",
+          "status": "success",
+          "size": 806492,
+          "processedAt": "2025-08-12T12:07:16.078Z"
+        },
+        {
+          "filename": "HEB-RI-180.gltf",
+          "status": "success",
+          "size": 862165,
+          "processedAt": "2025-08-12T12:07:16.396Z"
+        },
+        {
+          "filename": "HEB-RI-210.gltf",
+          "status": "success",
+          "size": 4520827,
+          "processedAt": "2025-08-12T12:07:17.014Z"
+        },
+        {
+          "filename": "HEB-RI-90.gltf",
+          "status": "success",
+          "size": 653488,
+          "processedAt": "2025-08-12T12:07:17.314Z"
+        },
+        {
+          "filename": "HFC-FLUFF-DO.gltf",
+          "status": "success",
+          "size": 3806823,
+          "processedAt": "2025-08-12T12:07:17.804Z"
+        },
+        {
+          "filename": "IGE-1.gltf",
+          "status": "success",
+          "size": 920512,
+          "processedAt": "2025-08-12T12:07:19.684Z"
+        },
+        {
+          "filename": "JAG-100X35-AG.gltf",
+          "status": "success",
+          "size": 300960,
+          "processedAt": "2025-08-12T12:07:20.106Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-AG.gltf",
+          "status": "success",
+          "size": 288792,
+          "processedAt": "2025-08-12T12:07:20.391Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-SD.gltf",
+          "status": "success",
+          "size": 288792,
+          "processedAt": "2025-08-12T12:07:20.731Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 288792,
+          "processedAt": "2025-08-12T12:07:21.010Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS-TR.gltf",
+          "status": "success",
+          "size": 288792,
+          "processedAt": "2025-08-12T12:07:21.278Z"
+        },
+        {
+          "filename": "JAG-100X35-GLAS.gltf",
+          "status": "success",
+          "size": 288792,
+          "processedAt": "2025-08-12T12:07:21.561Z"
+        },
+        {
+          "filename": "JAG-100X35-SD.gltf",
+          "status": "success",
+          "size": 300960,
+          "processedAt": "2025-08-12T12:07:21.864Z"
+        },
+        {
+          "filename": "JAG-100X35-TGR.gltf",
+          "status": "success",
+          "size": 300960,
+          "processedAt": "2025-08-12T12:07:22.145Z"
+        },
+        {
+          "filename": "JAG-100X35-TR.gltf",
+          "status": "success",
+          "size": 300960,
+          "processedAt": "2025-08-12T12:07:22.439Z"
+        },
+        {
+          "filename": "JAG-100X35.gltf",
+          "status": "success",
+          "size": 300960,
+          "processedAt": "2025-08-12T12:07:22.741Z"
+        },
+        {
+          "filename": "JAG-120-AG.gltf",
+          "status": "success",
+          "size": 262262,
+          "processedAt": "2025-08-12T12:07:23.016Z"
+        },
+        {
+          "filename": "JAG-120-GLAS-AG.gltf",
+          "status": "success",
+          "size": 347923,
+          "processedAt": "2025-08-12T12:07:23.308Z"
+        },
+        {
+          "filename": "JAG-120-GLAS-SD.gltf",
+          "status": "success",
+          "size": 347923,
+          "processedAt": "2025-08-12T12:07:23.601Z"
+        },
+        {
+          "filename": "JAG-120-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 347923,
+          "processedAt": "2025-08-12T12:07:23.879Z"
+        },
+        {
+          "filename": "JAG-120-GLAS.gltf",
+          "status": "success",
+          "size": 347923,
+          "processedAt": "2025-08-12T12:07:24.166Z"
+        },
+        {
+          "filename": "JAG-120-SD.gltf",
+          "status": "success",
+          "size": 262262,
+          "processedAt": "2025-08-12T12:07:24.842Z"
+        },
+        {
+          "filename": "JAG-120-TGR.gltf",
+          "status": "success",
+          "size": 262262,
+          "processedAt": "2025-08-12T12:07:25.138Z"
+        },
+        {
+          "filename": "JAG-120-TR.gltf",
+          "status": "success",
+          "size": 262262,
+          "processedAt": "2025-08-12T12:07:25.419Z"
+        },
+        {
+          "filename": "JAG-120.gltf",
+          "status": "success",
+          "size": 262262,
+          "processedAt": "2025-08-12T12:07:25.695Z"
+        },
+        {
+          "filename": "JAG-120X72-AG.gltf",
+          "status": "success",
+          "size": 351362,
+          "processedAt": "2025-08-12T12:07:26.053Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-AG.gltf",
+          "status": "success",
+          "size": 348047,
+          "processedAt": "2025-08-12T12:07:26.406Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-SD.gltf",
+          "status": "success",
+          "size": 348047,
+          "processedAt": "2025-08-12T12:07:26.696Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 348047,
+          "processedAt": "2025-08-12T12:07:26.996Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS-TR.gltf",
+          "status": "success",
+          "size": 348047,
+          "processedAt": "2025-08-12T12:07:27.298Z"
+        },
+        {
+          "filename": "JAG-120X72-GLAS.gltf",
+          "status": "success",
+          "size": 348047,
+          "processedAt": "2025-08-12T12:07:27.607Z"
+        },
+        {
+          "filename": "JAG-120X72-SD.gltf",
+          "status": "success",
+          "size": 351362,
+          "processedAt": "2025-08-12T12:07:27.928Z"
+        },
+        {
+          "filename": "JAG-120X72-TGR.gltf",
+          "status": "success",
+          "size": 351362,
+          "processedAt": "2025-08-12T12:07:28.364Z"
+        },
+        {
+          "filename": "JAG-120X72-TR.gltf",
+          "status": "success",
+          "size": 351362,
+          "processedAt": "2025-08-12T12:07:28.643Z"
+        },
+        {
+          "filename": "JAG-120X72.gltf",
+          "status": "success",
+          "size": 351362,
+          "processedAt": "2025-08-12T12:07:28.934Z"
+        },
+        {
+          "filename": "JAG-200X100-AG.gltf",
+          "status": "success",
+          "size": 281182,
+          "processedAt": "2025-08-12T12:07:29.342Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-AG.gltf",
+          "status": "success",
+          "size": 277701,
+          "processedAt": "2025-08-12T12:07:29.623Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-SD.gltf",
+          "status": "success",
+          "size": 277701,
+          "processedAt": "2025-08-12T12:07:30.036Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 277701,
+          "processedAt": "2025-08-12T12:07:30.374Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS-TR.gltf",
+          "status": "success",
+          "size": 277701,
+          "processedAt": "2025-08-12T12:07:30.698Z"
+        },
+        {
+          "filename": "JAG-200X100-GLAS.gltf",
+          "status": "success",
+          "size": 277701,
+          "processedAt": "2025-08-12T12:07:31.008Z"
+        },
+        {
+          "filename": "JAG-200X100-SD.gltf",
+          "status": "success",
+          "size": 281182,
+          "processedAt": "2025-08-12T12:07:31.289Z"
+        },
+        {
+          "filename": "JAG-200X100-TGR.gltf",
+          "status": "success",
+          "size": 281182,
+          "processedAt": "2025-08-12T12:07:31.792Z"
+        },
+        {
+          "filename": "JAG-200X100-TR.gltf",
+          "status": "success",
+          "size": 281182,
+          "processedAt": "2025-08-12T12:07:32.101Z"
+        },
+        {
+          "filename": "JAG-200X100.gltf",
+          "status": "success",
+          "size": 281182,
+          "processedAt": "2025-08-12T12:07:32.481Z"
+        },
+        {
+          "filename": "JAG-55-AG.gltf",
+          "status": "success",
+          "size": 284708,
+          "processedAt": "2025-08-12T12:07:32.798Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-AG.gltf",
+          "status": "success",
+          "size": 272850,
+          "processedAt": "2025-08-12T12:07:33.138Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-SD.gltf",
+          "status": "success",
+          "size": 272850,
+          "processedAt": "2025-08-12T12:07:33.407Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 272850,
+          "processedAt": "2025-08-12T12:07:33.684Z"
+        },
+        {
+          "filename": "JAG-55-GLAS-TR.gltf",
+          "status": "success",
+          "size": 272850,
+          "processedAt": "2025-08-12T12:07:33.982Z"
+        },
+        {
+          "filename": "JAG-55-GLAS.gltf",
+          "status": "success",
+          "size": 272850,
+          "processedAt": "2025-08-12T12:07:34.256Z"
+        },
+        {
+          "filename": "JAG-55-SD.gltf",
+          "status": "success",
+          "size": 284708,
+          "processedAt": "2025-08-12T12:07:34.565Z"
+        },
+        {
+          "filename": "JAG-55-TGR.gltf",
+          "status": "success",
+          "size": 284708,
+          "processedAt": "2025-08-12T12:07:34.865Z"
+        },
+        {
+          "filename": "JAG-55-TR.gltf",
+          "status": "success",
+          "size": 284708,
+          "processedAt": "2025-08-12T12:07:35.185Z"
+        },
+        {
+          "filename": "JAG-55.gltf",
+          "status": "success",
+          "size": 284708,
+          "processedAt": "2025-08-12T12:07:35.521Z"
+        },
+        {
+          "filename": "JAG-85-AG.gltf",
+          "status": "success",
+          "size": 269771,
+          "processedAt": "2025-08-12T12:07:35.904Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-AG.gltf",
+          "status": "success",
+          "size": 262220,
+          "processedAt": "2025-08-12T12:07:36.465Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-SD.gltf",
+          "status": "success",
+          "size": 262220,
+          "processedAt": "2025-08-12T12:07:36.779Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-TGR.gltf",
+          "status": "success",
+          "size": 262220,
+          "processedAt": "2025-08-12T12:07:37.067Z"
+        },
+        {
+          "filename": "JAG-85-GLAS-TR.gltf",
+          "status": "success",
+          "size": 262220,
+          "processedAt": "2025-08-12T12:07:37.518Z"
+        },
+        {
+          "filename": "JAG-85-GLAS.gltf",
+          "status": "success",
+          "size": 262220,
+          "processedAt": "2025-08-12T12:07:37.887Z"
+        },
+        {
+          "filename": "JAG-85-SD.gltf",
+          "status": "success",
+          "size": 269771,
+          "processedAt": "2025-08-12T12:07:38.252Z"
+        },
+        {
+          "filename": "JAG-85-TGR.gltf",
+          "status": "success",
+          "size": 269771,
+          "processedAt": "2025-08-12T12:07:38.571Z"
+        },
+        {
+          "filename": "JAG-85-TR.gltf",
+          "status": "success",
+          "size": 269771,
+          "processedAt": "2025-08-12T12:07:38.962Z"
+        },
+        {
+          "filename": "JAG-85.gltf",
+          "status": "success",
+          "size": 269771,
+          "processedAt": "2025-08-12T12:07:39.255Z"
+        },
+        {
+          "filename": "KAM-1-AR.gltf",
+          "status": "success",
+          "size": 513915,
+          "processedAt": "2025-08-12T12:07:39.541Z"
+        },
+        {
+          "filename": "KAM-1.gltf",
+          "status": "success",
+          "size": 399929,
+          "processedAt": "2025-08-12T12:07:39.995Z"
+        },
+        {
+          "filename": "KAM-15-AR.gltf",
+          "status": "success",
+          "size": 521971,
+          "processedAt": "2025-08-12T12:07:40.295Z"
+        },
+        {
+          "filename": "KAM-15.gltf",
+          "status": "success",
+          "size": 491732,
+          "processedAt": "2025-08-12T12:07:40.685Z"
+        },
+        {
+          "filename": "KAM-3.gltf",
+          "status": "success",
+          "size": 697616,
+          "processedAt": "2025-08-12T12:07:41.035Z"
+        },
+        {
+          "filename": "KAM-AL-1.gltf",
+          "status": "success",
+          "size": 491785,
+          "processedAt": "2025-08-12T12:07:41.324Z"
+        },
+        {
+          "filename": "KAM-AL-15.gltf",
+          "status": "success",
+          "size": 522669,
+          "processedAt": "2025-08-12T12:07:41.646Z"
+        },
+        {
+          "filename": "KAM-C90.gltf",
+          "status": "success",
+          "size": 3178559,
+          "processedAt": "2025-08-12T12:07:42.196Z"
+        },
+        {
+          "filename": "KAM-FOOT.gltf",
+          "status": "success",
+          "size": 335637,
+          "processedAt": "2025-08-12T12:07:42.468Z"
+        },
+        {
+          "filename": "KAM-FOOT1.gltf",
+          "status": "success",
+          "size": 442070,
+          "processedAt": "2025-08-12T12:07:42.768Z"
+        },
+        {
+          "filename": "KAT-15CHL.gltf",
+          "status": "success",
+          "size": 2463477,
+          "processedAt": "2025-08-12T12:07:43.243Z"
+        },
+        {
+          "filename": "KAT-3.gltf",
+          "status": "success",
+          "size": 1688223,
+          "processedAt": "2025-08-12T12:07:43.623Z"
+        },
+        {
+          "filename": "KAT-CHL15.gltf",
+          "status": "success",
+          "size": 2463092,
+          "processedAt": "2025-08-12T12:07:44.095Z"
+        },
+        {
+          "filename": "KAT-FOOT1.gltf",
+          "status": "success",
+          "size": 764776,
+          "processedAt": "2025-08-12T12:07:44.439Z"
+        },
+        {
+          "filename": "KML_100X35.gltf",
+          "status": "success",
+          "size": 2335458,
+          "processedAt": "2025-08-12T12:07:44.870Z"
+        },
+        {
+          "filename": "KML_110X55.gltf",
+          "status": "success",
+          "size": 2143431,
+          "processedAt": "2025-08-12T12:07:45.268Z"
+        },
+        {
+          "filename": "KML_93X30.gltf",
+          "status": "success",
+          "size": 2474373,
+          "processedAt": "2025-08-12T12:07:45.731Z"
+        },
+        {
+          "filename": "KML_D_R90.gltf",
+          "status": "success",
+          "size": 2024492,
+          "processedAt": "2025-08-12T12:07:46.145Z"
+        },
+        {
+          "filename": "KML_PEANUT.gltf",
+          "status": "success",
+          "size": 2398729,
+          "processedAt": "2025-08-12T12:07:46.572Z"
+        },
+        {
+          "filename": "KML_R38.gltf",
+          "status": "success",
+          "size": 221966,
+          "processedAt": "2025-08-12T12:07:46.842Z"
+        },
+        {
+          "filename": "KML_R70.gltf",
+          "status": "success",
+          "size": 1933496,
+          "processedAt": "2025-08-12T12:07:47.229Z"
+        },
+        {
+          "filename": "KML_R90.gltf",
+          "status": "success",
+          "size": 1838523,
+          "processedAt": "2025-08-12T12:07:47.648Z"
+        },
+        {
+          "filename": "KML-1.gltf",
+          "status": "success",
+          "size": 2886349,
+          "processedAt": "2025-08-12T12:07:48.063Z"
+        },
+        {
+          "filename": "KOA-1.gltf",
+          "status": "success",
+          "size": 666048,
+          "processedAt": "2025-08-12T12:07:48.418Z"
+        },
+        {
+          "filename": "KOA-3.gltf",
+          "status": "success",
+          "size": 655608,
+          "processedAt": "2025-08-12T12:07:48.767Z"
+        },
+        {
+          "filename": "KVA-45X45.gltf",
+          "status": "success",
+          "size": 2538189,
+          "processedAt": "2025-08-12T12:07:49.493Z"
+        },
+        {
+          "filename": "KVA-62X62.gltf",
+          "status": "success",
+          "size": 489561,
+          "processedAt": "2025-08-12T12:07:49.796Z"
+        },
+        {
+          "filename": "KVA-82X82.gltf",
+          "status": "success",
+          "size": 288948,
+          "processedAt": "2025-08-12T12:07:50.128Z"
+        },
+        {
+          "filename": "LEJ-1-AR.gltf",
+          "status": "success",
+          "size": 3743710,
+          "processedAt": "2025-08-12T12:07:50.539Z"
+        },
+        {
+          "filename": "LEJ-1-LC.gltf",
+          "status": "success",
+          "size": 2267574,
+          "processedAt": "2025-08-12T12:07:51.104Z"
+        },
+        {
+          "filename": "LEJ-1.gltf",
+          "status": "success",
+          "size": 3727814,
+          "processedAt": "2025-08-12T12:07:51.657Z"
+        },
+        {
+          "filename": "LEJ-2-LC.gltf",
+          "status": "success",
+          "size": 4936834,
+          "processedAt": "2025-08-12T12:07:52.221Z"
+        },
+        {
+          "filename": "LEJ-2-ROUND-LC.gltf",
+          "status": "success",
+          "size": 5383564,
+          "processedAt": "2025-08-12T12:07:52.890Z"
+        },
+        {
+          "filename": "LEJ-2-ROUND.gltf",
+          "status": "success",
+          "size": 1211623,
+          "processedAt": "2025-08-12T12:07:53.267Z"
+        },
+        {
+          "filename": "LEJ-2.gltf",
+          "status": "success",
+          "size": 5355247,
+          "processedAt": "2025-08-12T12:07:53.931Z"
+        },
+        {
+          "filename": "LEJ-25-ROUND-LC.gltf",
+          "status": "success",
+          "size": 4936231,
+          "processedAt": "2025-08-12T12:07:54.536Z"
+        },
+        {
+          "filename": "LEJ-25-ROUND.gltf",
+          "status": "success",
+          "size": 5372045,
+          "processedAt": "2025-08-12T12:07:55.067Z"
+        },
+        {
+          "filename": "LEJ-3-LC.gltf",
+          "status": "success",
+          "size": 5380592,
+          "processedAt": "2025-08-12T12:07:55.699Z"
+        },
+        {
+          "filename": "LEJ-3-ROUND-LC.gltf",
+          "status": "success",
+          "size": 4966815,
+          "processedAt": "2025-08-12T12:07:56.290Z"
+        },
+        {
+          "filename": "LEJ-3-ROUND.gltf",
+          "status": "success",
+          "size": 5927591,
+          "processedAt": "2025-08-12T12:07:57.178Z"
+        },
+        {
+          "filename": "LEJ-3.gltf",
+          "status": "success",
+          "size": 5321453,
+          "processedAt": "2025-08-12T12:07:57.790Z"
+        },
+        {
+          "filename": "LEJ-FOOT1-LC.gltf",
+          "status": "success",
+          "size": 2139025,
+          "processedAt": "2025-08-12T12:07:58.194Z"
+        },
+        {
+          "filename": "LEJ-FOOT1.gltf",
+          "status": "success",
+          "size": 1173713,
+          "processedAt": "2025-08-12T12:07:58.596Z"
+        },
+        {
+          "filename": "LEJ-FOOT2-LC.gltf",
+          "status": "success",
+          "size": 2020867,
+          "processedAt": "2025-08-12T12:07:59.018Z"
+        },
+        {
+          "filename": "LEJ-FOOT2.gltf",
+          "status": "success",
+          "size": 1112781,
+          "processedAt": "2025-08-12T12:07:59.393Z"
+        },
+        {
+          "filename": "LEO-100x100-TOP-C15x33-LEG.gltf",
+          "status": "success",
+          "size": 369309,
+          "processedAt": "2025-08-12T12:07:59.682Z"
+        },
+        {
+          "filename": "LEO-100x100-TOP-C40x72-LEG.gltf",
+          "status": "success",
+          "size": 514483,
+          "processedAt": "2025-08-12T12:07:59.971Z"
+        },
+        {
+          "filename": "LEO-100X100-TOP.gltf",
+          "status": "success",
+          "size": 469194,
+          "processedAt": "2025-08-12T12:08:00.285Z"
+        },
+        {
+          "filename": "LEO-120_glas.gltf",
+          "status": "success",
+          "size": 431281,
+          "processedAt": "2025-08-12T12:08:00.581Z"
+        },
+        {
+          "filename": "LEO-120x35-TOP-C22x72-LEG.gltf",
+          "status": "success",
+          "size": 472534,
+          "processedAt": "2025-08-12T12:08:00.871Z"
+        },
+        {
+          "filename": "LEO-120X35-TOP.gltf",
+          "status": "success",
+          "size": 549899,
+          "processedAt": "2025-08-12T12:08:01.192Z"
+        },
+        {
+          "filename": "LEO-120X70_glas.gltf",
+          "status": "success",
+          "size": 424251,
+          "processedAt": "2025-08-12T12:08:01.495Z"
+        },
+        {
+          "filename": "LEO-120x70-TOP-C15x33-LEG_glas.gltf",
+          "status": "success",
+          "size": 308912,
+          "processedAt": "2025-08-12T12:08:01.791Z"
+        },
+        {
+          "filename": "LEO-120x70-TOP-C15x33-LEG.gltf",
+          "status": "success",
+          "size": 431981,
+          "processedAt": "2025-08-12T12:08:02.082Z"
+        },
+        {
+          "filename": "LEO-120X70-TOP.gltf",
+          "status": "success",
+          "size": 339347,
+          "processedAt": "2025-08-12T12:08:02.414Z"
+        },
+        {
+          "filename": "LEO-90_glas.gltf",
+          "status": "success",
+          "size": 370081,
+          "processedAt": "2025-08-12T12:08:02.686Z"
+        },
+        {
+          "filename": "LEO-C15X33-LEG.gltf",
+          "status": "success",
+          "size": 126011,
+          "processedAt": "2025-08-12T12:08:02.976Z"
+        },
+        {
+          "filename": "LEO-C22X72-LEG.gltf",
+          "status": "success",
+          "size": 164638,
+          "processedAt": "2025-08-12T12:08:03.247Z"
+        },
+        {
+          "filename": "LEO-C40X72-LEG.gltf",
+          "status": "success",
+          "size": 383771,
+          "processedAt": "2025-08-12T12:08:03.556Z"
+        },
+        {
+          "filename": "LEO-P18X18X33-LEG.gltf",
+          "status": "success",
+          "size": 99205,
+          "processedAt": "2025-08-12T12:08:03.803Z"
+        },
+        {
+          "filename": "LEO-R33-LEG.gltf",
+          "status": "success",
+          "size": 165497,
+          "processedAt": "2025-08-12T12:08:04.084Z"
+        },
+        {
+          "filename": "LEO-R33X10-LEG.gltf",
+          "status": "success",
+          "size": 171073,
+          "processedAt": "2025-08-12T12:08:04.359Z"
+        },
+        {
+          "filename": "LEO-R55-TOP-C15x33-LEG.gltf",
+          "status": "success",
+          "size": 399862,
+          "processedAt": "2025-08-12T12:08:04.673Z"
+        },
+        {
+          "filename": "LEO-R55-TOP.gltf",
+          "status": "success",
+          "size": 875547,
+          "processedAt": "2025-08-12T12:08:04.974Z"
+        },
+        {
+          "filename": "LEO-R90-C40x72-LEG.gltf",
+          "status": "success",
+          "size": 839790,
+          "processedAt": "2025-08-12T12:08:05.330Z"
+        },
+        {
+          "filename": "LEO-R90-TOP-MIX-LEG_glas.gltf",
+          "status": "success",
+          "size": 327787,
+          "processedAt": "2025-08-12T12:08:05.803Z"
+        },
+        {
+          "filename": "LEO-R90-TOP-MIX-LEG.gltf",
+          "status": "success",
+          "size": 493465,
+          "processedAt": "2025-08-12T12:08:06.134Z"
+        },
+        {
+          "filename": "LEO-R90-TOP.gltf",
+          "status": "success",
+          "size": 883118,
+          "processedAt": "2025-08-12T12:08:06.479Z"
+        },
+        {
+          "filename": "MAM_OUT-1.gltf",
+          "status": "success",
+          "size": 4501170,
+          "processedAt": "2025-08-12T12:08:07.075Z"
+        },
+        {
+          "filename": "MAM_OUT-15.gltf",
+          "status": "success",
+          "size": 3553203,
+          "processedAt": "2025-08-12T12:08:09.257Z"
+        },
+        {
+          "filename": "MAM_OUT-C.gltf",
+          "status": "success",
+          "size": 3898764,
+          "processedAt": "2025-08-12T12:08:10.003Z"
+        },
+        {
+          "filename": "MAM_OUT-CHL.gltf",
+          "status": "success",
+          "size": 2922530,
+          "processedAt": "2025-08-12T12:08:10.432Z"
+        },
+        {
+          "filename": "MAM-1.gltf",
+          "status": "success",
+          "size": 517164,
+          "processedAt": "2025-08-12T12:08:11.127Z"
+        },
+        {
+          "filename": "MAM-15.gltf",
+          "status": "success",
+          "size": 416988,
+          "processedAt": "2025-08-12T12:08:11.435Z"
+        },
+        {
+          "filename": "MAM-AL.gltf",
+          "status": "success",
+          "size": 245885,
+          "processedAt": "2025-08-12T12:08:11.712Z"
+        },
+        {
+          "filename": "MAM-AR.gltf",
+          "status": "success",
+          "size": 245885,
+          "processedAt": "2025-08-12T12:08:12.017Z"
+        },
+        {
+          "filename": "MAM-C45.gltf",
+          "status": "success",
+          "size": 466051,
+          "processedAt": "2025-08-12T12:08:12.301Z"
+        },
+        {
+          "filename": "MAM-C90.gltf",
+          "status": "success",
+          "size": 471307,
+          "processedAt": "2025-08-12T12:08:12.986Z"
+        },
+        {
+          "filename": "MAM-CHL15.gltf",
+          "status": "success",
+          "size": 1082637,
+          "processedAt": "2025-08-12T12:08:13.555Z"
+        },
+        {
+          "filename": "MAM-DIV15.gltf",
+          "status": "success",
+          "size": 1020988,
+          "processedAt": "2025-08-12T12:08:13.880Z"
+        },
+        {
+          "filename": "MAM-ENDL.gltf",
+          "status": "success",
+          "size": 1677517,
+          "processedAt": "2025-08-12T12:08:14.299Z"
+        },
+        {
+          "filename": "MAM-ENDR.gltf",
+          "status": "success",
+          "size": 1552369,
+          "processedAt": "2025-08-12T12:08:14.654Z"
+        },
+        {
+          "filename": "MAM-FOOT.gltf",
+          "status": "success",
+          "size": 357700,
+          "processedAt": "2025-08-12T12:08:14.946Z"
+        },
+        {
+          "filename": "MAM-HFC-1.gltf",
+          "status": "success",
+          "size": 797970,
+          "processedAt": "2025-08-12T12:08:15.263Z"
+        },
+        {
+          "filename": "MAM-HFC-15.gltf",
+          "status": "success",
+          "size": 796176,
+          "processedAt": "2025-08-12T12:08:15.570Z"
+        },
+        {
+          "filename": "MAM-HFC-AL.gltf",
+          "status": "success",
+          "size": 355892,
+          "processedAt": "2025-08-12T12:08:15.855Z"
+        },
+        {
+          "filename": "MAM-HFC-AR.gltf",
+          "status": "success",
+          "size": 353952,
+          "processedAt": "2025-08-12T12:08:16.128Z"
+        },
+        {
+          "filename": "MAM-HFC-C90.gltf",
+          "status": "success",
+          "size": 916057,
+          "processedAt": "2025-08-12T12:08:16.446Z"
+        },
+        {
+          "filename": "MAM-HFC-CHL.gltf",
+          "status": "success",
+          "size": 858128,
+          "processedAt": "2025-08-12T12:08:16.755Z"
+        },
+        {
+          "filename": "MDF_100x100.gltf",
+          "status": "success",
+          "size": 406254,
+          "processedAt": "2025-08-12T12:08:17.067Z"
+        },
+        {
+          "filename": "MDF_120x70.gltf",
+          "status": "success",
+          "size": 375539,
+          "processedAt": "2025-08-12T12:08:17.358Z"
+        },
+        {
+          "filename": "MDF_90.gltf",
+          "status": "success",
+          "size": 872798,
+          "processedAt": "2025-08-12T12:08:17.710Z"
+        },
+        {
+          "filename": "Metall_55.gltf",
+          "status": "success",
+          "size": 378164,
+          "processedAt": "2025-08-12T12:08:18.022Z"
+        },
+        {
+          "filename": "MUS-1.gltf",
+          "status": "success",
+          "size": 2096410,
+          "processedAt": "2025-08-12T12:08:18.433Z"
+        },
+        {
+          "filename": "MUS-25.gltf",
+          "status": "success",
+          "size": 2779452,
+          "processedAt": "2025-08-12T12:08:18.835Z"
+        },
+        {
+          "filename": "ORM-1.gltf",
+          "status": "success",
+          "size": 2061622,
+          "processedAt": "2025-08-12T12:08:19.317Z"
+        },
+        {
+          "filename": "OXE-2.gltf",
+          "status": "success",
+          "size": 1407560,
+          "processedAt": "2025-08-12T12:08:19.702Z"
+        },
+        {
+          "filename": "PAN-1.gltf",
+          "status": "success",
+          "size": 415578,
+          "processedAt": "2025-08-12T12:08:20.037Z"
+        },
+        {
+          "filename": "PON-105X200-L-CHH.gltf",
+          "status": "success",
+          "size": 3026932,
+          "processedAt": "2025-08-12T12:08:20.489Z"
+        },
+        {
+          "filename": "PON-105X200-L-WOH.gltf",
+          "status": "success",
+          "size": 2185365,
+          "processedAt": "2025-08-12T12:08:21.125Z"
+        },
+        {
+          "filename": "PON-105X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1169989,
+          "processedAt": "2025-08-12T12:08:21.574Z"
+        },
+        {
+          "filename": "PON-105X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 844435,
+          "processedAt": "2025-08-12T12:08:22.084Z"
+        },
+        {
+          "filename": "PON-105X200-PL.gltf",
+          "status": "success",
+          "size": 1169989,
+          "processedAt": "2025-08-12T12:08:22.930Z"
+        },
+        {
+          "filename": "PON-105X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 1507418,
+          "processedAt": "2025-08-12T12:08:23.850Z"
+        },
+        {
+          "filename": "PON-105X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1139376,
+          "processedAt": "2025-08-12T12:08:24.327Z"
+        },
+        {
+          "filename": "PON-105X200-R.gltf",
+          "status": "success",
+          "size": 2078480,
+          "processedAt": "2025-08-12T12:08:24.867Z"
+        },
+        {
+          "filename": "PON-105X200.gltf",
+          "status": "success",
+          "size": 1538346,
+          "processedAt": "2025-08-12T12:08:25.329Z"
+        },
+        {
+          "filename": "PON-120X200-L-CHH.gltf",
+          "status": "success",
+          "size": 1869840,
+          "processedAt": "2025-08-12T12:08:26.021Z"
+        },
+        {
+          "filename": "PON-120X200-L-WOH.gltf",
+          "status": "success",
+          "size": 1389624,
+          "processedAt": "2025-08-12T12:08:26.897Z"
+        },
+        {
+          "filename": "PON-120X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1862206,
+          "processedAt": "2025-08-12T12:08:27.476Z"
+        },
+        {
+          "filename": "PON-120X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 1530418,
+          "processedAt": "2025-08-12T12:08:28.074Z"
+        },
+        {
+          "filename": "PON-120X200-PL.gltf",
+          "status": "success",
+          "size": 1862206,
+          "processedAt": "2025-08-12T12:08:28.527Z"
+        },
+        {
+          "filename": "PON-120X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 2229886,
+          "processedAt": "2025-08-12T12:08:28.914Z"
+        },
+        {
+          "filename": "PON-120X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1897953,
+          "processedAt": "2025-08-12T12:08:29.348Z"
+        },
+        {
+          "filename": "PON-120X200-R.gltf",
+          "status": "success",
+          "size": 2229886,
+          "processedAt": "2025-08-12T12:08:30.267Z"
+        },
+        {
+          "filename": "PON-120X200.gltf",
+          "status": "success",
+          "size": 1616921,
+          "processedAt": "2025-08-12T12:08:31.224Z"
+        },
+        {
+          "filename": "PON-140X200-L-CHH.gltf",
+          "status": "success",
+          "size": 1849722,
+          "processedAt": "2025-08-12T12:08:31.636Z"
+        },
+        {
+          "filename": "PON-140X200-L-WOH.gltf",
+          "status": "success",
+          "size": 1586101,
+          "processedAt": "2025-08-12T12:08:31.998Z"
+        },
+        {
+          "filename": "PON-140X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1878225,
+          "processedAt": "2025-08-12T12:08:32.380Z"
+        },
+        {
+          "filename": "PON-140X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 1549934,
+          "processedAt": "2025-08-12T12:08:32.744Z"
+        },
+        {
+          "filename": "PON-140X200-PL-TEST.gltf",
+          "status": "success",
+          "size": 4359803,
+          "processedAt": "2025-08-12T12:08:33.204Z"
+        },
+        {
+          "filename": "PON-140X200-PL.gltf",
+          "status": "success",
+          "size": 1878225,
+          "processedAt": "2025-08-12T12:08:33.606Z"
+        },
+        {
+          "filename": "PON-140X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 2271947,
+          "processedAt": "2025-08-12T12:08:33.988Z"
+        },
+        {
+          "filename": "PON-140X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1940371,
+          "processedAt": "2025-08-12T12:08:34.391Z"
+        },
+        {
+          "filename": "PON-140X200-R.gltf",
+          "status": "success",
+          "size": 2271947,
+          "processedAt": "2025-08-12T12:08:34.812Z"
+        },
+        {
+          "filename": "PON-140X200.gltf",
+          "status": "success",
+          "size": 1606081,
+          "processedAt": "2025-08-12T12:08:35.170Z"
+        },
+        {
+          "filename": "PON-90X200-L-CHH.gltf",
+          "status": "success",
+          "size": 1702286,
+          "processedAt": "2025-08-12T12:08:35.576Z"
+        },
+        {
+          "filename": "PON-90X200-L-WOH.gltf",
+          "status": "success",
+          "size": 1473761,
+          "processedAt": "2025-08-12T12:08:35.954Z"
+        },
+        {
+          "filename": "PON-90X200-PL-L-CHH.gltf",
+          "status": "success",
+          "size": 1740294,
+          "processedAt": "2025-08-12T12:08:36.342Z"
+        },
+        {
+          "filename": "PON-90X200-PL-L-WOH.gltf",
+          "status": "success",
+          "size": 1426225,
+          "processedAt": "2025-08-12T12:08:36.722Z"
+        },
+        {
+          "filename": "PON-90X200-PL.gltf",
+          "status": "success",
+          "size": 1740294,
+          "processedAt": "2025-08-12T12:08:37.098Z"
+        },
+        {
+          "filename": "PON-90X200-R-L-CHH.gltf",
+          "status": "success",
+          "size": 1964838,
+          "processedAt": "2025-08-12T12:08:37.630Z"
+        },
+        {
+          "filename": "PON-90X200-R-L-WOH.gltf",
+          "status": "success",
+          "size": 1693765,
+          "processedAt": "2025-08-12T12:08:38.009Z"
+        },
+        {
+          "filename": "PON-90X200-R.gltf",
+          "status": "success",
+          "size": 1964838,
+          "processedAt": "2025-08-12T12:08:38.410Z"
+        },
+        {
+          "filename": "PON-90X200.gltf",
+          "status": "success",
+          "size": 1535441,
+          "processedAt": "2025-08-12T12:08:38.756Z"
+        },
+        {
+          "filename": "REK-60X40-DET-SANS.gltf",
+          "status": "success",
+          "size": 1186846,
+          "processedAt": "2025-08-12T12:08:39.216Z"
+        },
+        {
+          "filename": "REK-60X40-SANS.gltf",
+          "status": "success",
+          "size": 1530517,
+          "processedAt": "2025-08-12T12:08:39.523Z"
+        },
+        {
+          "filename": "REK-60X40.gltf",
+          "status": "success",
+          "size": 896330,
+          "processedAt": "2025-08-12T12:08:39.934Z"
+        },
+        {
+          "filename": "sad.gltf",
+          "status": "success",
+          "size": 1020841,
+          "processedAt": "2025-08-12T12:08:40.247Z"
+        },
+        {
+          "filename": "STR-35.gltf",
+          "status": "success",
+          "size": 4899284,
+          "processedAt": "2025-08-12T12:08:40.979Z"
+        },
+        {
+          "filename": "SVA-15.gltf",
+          "status": "success",
+          "size": 1579824,
+          "processedAt": "2025-08-12T12:08:41.286Z"
+        },
+        {
+          "filename": "SVA-3.gltf",
+          "status": "success",
+          "size": 1638129,
+          "processedAt": "2025-08-12T12:08:41.621Z"
+        },
+        {
+          "filename": "SVA-35.gltf",
+          "status": "success",
+          "size": 1846434,
+          "processedAt": "2025-08-12T12:08:42.100Z"
+        },
+        {
+          "filename": "SVA-FOOT1.gltf",
+          "status": "success",
+          "size": 1511343,
+          "processedAt": "2025-08-12T12:08:42.426Z"
+        },
+        {
+          "filename": "TEST.gltf",
+          "status": "success",
+          "size": 1116002,
+          "processedAt": "2025-08-12T12:08:42.738Z"
+        },
+        {
+          "filename": "TIG-1.gltf",
+          "status": "success",
+          "size": 3497778,
+          "processedAt": "2025-08-12T12:08:43.185Z"
+        },
+        {
+          "filename": "TIG-2-ROUND.gltf",
+          "status": "success",
+          "size": 1857501,
+          "processedAt": "2025-08-12T12:08:43.570Z"
+        },
+        {
+          "filename": "TIG-2.gltf",
+          "status": "success",
+          "size": 1916966,
+          "processedAt": "2025-08-12T12:08:44.009Z"
+        },
+        {
+          "filename": "TIG-3-ROUND.gltf",
+          "status": "success",
+          "size": 1920854,
+          "processedAt": "2025-08-12T12:08:45.245Z"
+        },
+        {
+          "filename": "TIG-3.gltf",
+          "status": "success",
+          "size": 1897937,
+          "processedAt": "2025-08-12T12:08:46.040Z"
+        },
+        {
+          "filename": "TIG-FOOT1.gltf",
+          "status": "success",
+          "size": 1733972,
+          "processedAt": "2025-08-12T12:08:46.691Z"
+        },
+        {
+          "filename": "VAL-1-LC.gltf",
+          "status": "success",
+          "size": 1389762,
+          "processedAt": "2025-08-12T12:08:47.099Z"
+        },
+        {
+          "filename": "VAL-1-RI.gltf",
+          "status": "success",
+          "size": 3779368,
+          "processedAt": "2025-08-12T12:08:47.751Z"
+        },
+        {
+          "filename": "VAL-1.gltf",
+          "status": "success",
+          "size": 2121797,
+          "processedAt": "2025-08-12T12:08:49.408Z"
+        },
+        {
+          "filename": "VAL-15-LC.gltf",
+          "status": "success",
+          "size": 1316216,
+          "processedAt": "2025-08-12T12:08:49.752Z"
+        },
+        {
+          "filename": "VAL-15-RI.gltf",
+          "status": "success",
+          "size": 1557736,
+          "processedAt": "2025-08-12T12:08:50.136Z"
+        },
+        {
+          "filename": "VAL-15.gltf",
+          "status": "success",
+          "size": 1116002,
+          "processedAt": "2025-08-12T12:08:50.493Z"
+        },
+        {
+          "filename": "VAL-15C3-RI.gltf",
+          "status": "success",
+          "size": 7227744,
+          "processedAt": "2025-08-12T12:08:51.579Z"
+        },
+        {
+          "filename": "VAL-15C3.gltf",
+          "status": "success",
+          "size": 1714233,
+          "processedAt": "2025-08-12T12:08:52.078Z"
+        },
+        {
+          "filename": "VAL-15CHL-RI.gltf",
+          "status": "success",
+          "size": 6883216,
+          "processedAt": "2025-08-12T12:08:52.900Z"
+        },
+        {
+          "filename": "VAL-15CHL.gltf",
+          "status": "success",
+          "size": 1322155,
+          "processedAt": "2025-08-12T12:08:53.219Z"
+        },
+        {
+          "filename": "VAL-15COZY-RI.gltf",
+          "status": "success",
+          "size": 7641410,
+          "processedAt": "2025-08-12T12:08:53.876Z"
+        },
+        {
+          "filename": "VAL-15COZY.gltf",
+          "status": "success",
+          "size": 1505065,
+          "processedAt": "2025-08-12T12:08:54.208Z"
+        },
+        {
+          "filename": "VAL-3-LC.gltf",
+          "status": "success",
+          "size": 1651228,
+          "processedAt": "2025-08-12T12:08:55.389Z"
+        },
+        {
+          "filename": "VAL-3-RI.gltf",
+          "status": "success",
+          "size": 6015592,
+          "processedAt": "2025-08-12T12:08:56.285Z"
+        },
+        {
+          "filename": "VAL-3.gltf",
+          "status": "success",
+          "size": 2921885,
+          "processedAt": "2025-08-12T12:08:56.713Z"
+        },
+        {
+          "filename": "VAL-35-LC.gltf",
+          "status": "success",
+          "size": 1683376,
+          "processedAt": "2025-08-12T12:08:57.088Z"
+        },
+        {
+          "filename": "VAL-35-RI.gltf",
+          "status": "success",
+          "size": 1771764,
+          "processedAt": "2025-08-12T12:08:57.432Z"
+        },
+        {
+          "filename": "VAL-35.gltf",
+          "status": "success",
+          "size": 3393550,
+          "processedAt": "2025-08-12T12:08:57.938Z"
+        },
+        {
+          "filename": "VAL-3C15-RI.gltf",
+          "status": "success",
+          "size": 6735923,
+          "processedAt": "2025-08-12T12:08:58.958Z"
+        },
+        {
+          "filename": "VAL-3C15.gltf",
+          "status": "success",
+          "size": 1709024,
+          "processedAt": "2025-08-12T12:08:59.481Z"
+        },
+        {
+          "filename": "VAL-3C3-RI.gltf",
+          "status": "success",
+          "size": 27449446,
+          "processedAt": "2025-08-12T12:09:01.439Z"
+        },
+        {
+          "filename": "VAL-3C3.gltf",
+          "status": "success",
+          "size": 5943592,
+          "processedAt": "2025-08-12T12:09:02.550Z"
+        },
+        {
+          "filename": "VAL-4-LC.gltf",
+          "status": "success",
+          "size": 4291925,
+          "processedAt": "2025-08-12T12:09:04.133Z"
+        },
+        {
+          "filename": "VAL-4-RI.gltf",
+          "status": "success",
+          "size": 5139413,
+          "processedAt": "2025-08-12T12:09:05.290Z"
+        },
+        {
+          "filename": "VAL-4.gltf",
+          "status": "success",
+          "size": 4096986,
+          "processedAt": "2025-08-12T12:09:07.034Z"
+        },
+        {
+          "filename": "VAL-CHL15-RI.gltf",
+          "status": "success",
+          "size": 6888553,
+          "processedAt": "2025-08-12T12:09:07.777Z"
+        },
+        {
+          "filename": "VAL-CHL15.gltf",
+          "status": "success",
+          "size": 1322263,
+          "processedAt": "2025-08-12T12:09:08.137Z"
+        },
+        {
+          "filename": "VAL-COZY15-RI.gltf",
+          "status": "success",
+          "size": 7810995,
+          "processedAt": "2025-08-12T12:09:08.920Z"
+        },
+        {
+          "filename": "VAL-COZY15.gltf",
+          "status": "success",
+          "size": 1509884,
+          "processedAt": "2025-08-12T12:09:09.311Z"
+        },
+        {
+          "filename": "VAL-FOOT1-LC.gltf",
+          "status": "success",
+          "size": 2611188,
+          "processedAt": "2025-08-12T12:09:09.814Z"
+        },
+        {
+          "filename": "VAL-FOOT1-RI.gltf",
+          "status": "success",
+          "size": 2423662,
+          "processedAt": "2025-08-12T12:09:11.610Z"
+        },
+        {
+          "filename": "VAL-FOOT1.gltf",
+          "status": "success",
+          "size": 878422,
+          "processedAt": "2025-08-12T12:09:11.929Z"
+        },
+        {
+          "filename": "VAL-FOOT2-LC.gltf",
+          "status": "success",
+          "size": 2609984,
+          "processedAt": "2025-08-12T12:09:12.331Z"
+        },
+        {
+          "filename": "VAL-FOOT2-RI.gltf",
+          "status": "success",
+          "size": 2648896,
+          "processedAt": "2025-08-12T12:09:12.830Z"
+        },
+        {
+          "filename": "VAL-FOOT2.gltf",
+          "status": "success",
+          "size": 862894,
+          "processedAt": "2025-08-12T12:09:13.160Z"
+        },
+        {
+          "filename": "ValenArmstod.gltf",
+          "status": "success",
+          "size": 1306777,
+          "processedAt": "2025-08-12T12:09:13.483Z"
+        },
+        {
+          "filename": "VAR-15CHL.gltf",
+          "status": "success",
+          "size": 2677609,
+          "processedAt": "2025-08-12T12:09:14.017Z"
+        },
+        {
+          "filename": "VAR-3.gltf",
+          "status": "success",
+          "size": 1734750,
+          "processedAt": "2025-08-12T12:09:19.599Z"
+        },
+        {
+          "filename": "VAR-CHL15.gltf",
+          "status": "success",
+          "size": 2677668,
+          "processedAt": "2025-08-12T12:09:21.193Z"
+        },
+        {
+          "filename": "VAR-CHLL.gltf",
+          "status": "success",
+          "size": 2824611,
+          "processedAt": "2025-08-12T12:09:21.736Z"
+        },
+        {
+          "filename": "VAR-CHLR.gltf",
+          "status": "success",
+          "size": 2824833,
+          "processedAt": "2025-08-12T12:09:22.169Z"
+        },
+        {
+          "filename": "VAR-DIIVAN.gltf",
+          "status": "success",
+          "size": 5962727,
+          "processedAt": "2025-08-12T12:09:23.343Z"
+        },
+        {
+          "filename": "VAR-FOOT1.gltf",
+          "status": "success",
+          "size": 1145511,
+          "processedAt": "2025-08-12T12:09:23.637Z"
+        },
+        {
+          "filename": "VLR-2CHL.gltf",
+          "status": "success",
+          "size": 3476319,
+          "processedAt": "2025-08-12T12:09:24.093Z"
+        },
+        {
+          "filename": "VLR-3.gltf",
+          "status": "success",
+          "size": 1929475,
+          "processedAt": "2025-08-12T12:09:24.497Z"
+        },
+        {
+          "filename": "VLR-CHL2.gltf",
+          "status": "success",
+          "size": 3473542,
+          "processedAt": "2025-08-12T12:09:25.210Z"
+        },
+        {
+          "filename": "ZEB-120-C.gltf",
+          "status": "success",
+          "size": 4237076,
+          "processedAt": "2025-08-12T12:09:25.643Z"
+        },
+        {
+          "filename": "ZEB-120-M.gltf",
+          "status": "success",
+          "size": 3920492,
+          "processedAt": "2025-08-12T12:09:26.116Z"
+        },
+        {
+          "filename": "ZEB-120X200-LC.gltf",
+          "status": "success",
+          "size": 4152070,
+          "processedAt": "2025-08-12T12:09:26.572Z"
+        },
+        {
+          "filename": "ZEB-120X200.gltf",
+          "status": "success",
+          "size": 6509889,
+          "processedAt": "2025-08-12T12:09:27.105Z"
+        },
+        {
+          "filename": "ZEB-140-C.gltf",
+          "status": "success",
+          "size": 4585216,
+          "processedAt": "2025-08-12T12:09:27.509Z"
+        },
+        {
+          "filename": "ZEB-140-M.gltf",
+          "status": "success",
+          "size": 4080283,
+          "processedAt": "2025-08-12T12:09:27.913Z"
+        },
+        {
+          "filename": "ZEB-140X200-LC.gltf",
+          "status": "success",
+          "size": 4058771,
+          "processedAt": "2025-08-12T12:09:28.370Z"
+        },
+        {
+          "filename": "ZEB-140X200.gltf",
+          "status": "success",
+          "size": 8948778,
+          "processedAt": "2025-08-12T12:09:29.127Z"
+        },
+        {
+          "filename": "ZEB-160-C.gltf",
+          "status": "success",
+          "size": 6319233,
+          "processedAt": "2025-08-12T12:09:29.732Z"
+        },
+        {
+          "filename": "ZEB-160-M.gltf",
+          "status": "success",
+          "size": 5254014,
+          "processedAt": "2025-08-12T12:09:30.218Z"
+        },
+        {
+          "filename": "ZEB-160X200-L-CHL.gltf",
+          "status": "success",
+          "size": 3218294,
+          "processedAt": "2025-08-12T12:09:30.708Z"
+        },
+        {
+          "filename": "ZEB-160X200-L-WOL.gltf",
+          "status": "success",
+          "size": 2185158,
+          "processedAt": "2025-08-12T12:09:31.066Z"
+        },
+        {
+          "filename": "ZEB-160X200-LC.gltf",
+          "status": "success",
+          "size": 4534305,
+          "processedAt": "2025-08-12T12:09:31.496Z"
+        },
+        {
+          "filename": "ZEB-160X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2824032,
+          "processedAt": "2025-08-12T12:09:31.893Z"
+        },
+        {
+          "filename": "ZEB-160X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2302557,
+          "processedAt": "2025-08-12T12:09:32.261Z"
+        },
+        {
+          "filename": "ZEB-160X200-PL.gltf",
+          "status": "success",
+          "size": 2824032,
+          "processedAt": "2025-08-12T12:09:32.814Z"
+        },
+        {
+          "filename": "ZEB-160X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3338386,
+          "processedAt": "2025-08-12T12:09:33.269Z"
+        },
+        {
+          "filename": "ZEB-160X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2832958,
+          "processedAt": "2025-08-12T12:09:33.702Z"
+        },
+        {
+          "filename": "ZEB-160X200-R.gltf",
+          "status": "success",
+          "size": 3338386,
+          "processedAt": "2025-08-12T12:09:34.092Z"
+        },
+        {
+          "filename": "ZEB-160X200.gltf",
+          "status": "success",
+          "size": 7358796,
+          "processedAt": "2025-08-12T12:09:34.653Z"
+        },
+        {
+          "filename": "ZEB-180-C.gltf",
+          "status": "success",
+          "size": 5743916,
+          "processedAt": "2025-08-12T12:09:35.580Z"
+        },
+        {
+          "filename": "ZEB-180-M.gltf",
+          "status": "success",
+          "size": 5097649,
+          "processedAt": "2025-08-12T12:09:36.332Z"
+        },
+        {
+          "filename": "ZEB-180X200-L-CHL.gltf",
+          "status": "success",
+          "size": 2612850,
+          "processedAt": "2025-08-12T12:09:36.737Z"
+        },
+        {
+          "filename": "ZEB-180X200-L-WOL.gltf",
+          "status": "success",
+          "size": 2183561,
+          "processedAt": "2025-08-12T12:09:37.089Z"
+        },
+        {
+          "filename": "ZEB-180X200-LC.gltf",
+          "status": "success",
+          "size": 4459545,
+          "processedAt": "2025-08-12T12:09:37.675Z"
+        },
+        {
+          "filename": "ZEB-180X200-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2819154,
+          "processedAt": "2025-08-12T12:09:46.216Z"
+        },
+        {
+          "filename": "ZEB-180X200-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2299302,
+          "processedAt": "2025-08-12T12:09:46.622Z"
+        },
+        {
+          "filename": "ZEB-180X200-PL.gltf",
+          "status": "success",
+          "size": 2819154,
+          "processedAt": "2025-08-12T12:09:47.071Z"
+        },
+        {
+          "filename": "ZEB-180X200-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3407481,
+          "processedAt": "2025-08-12T12:09:47.592Z"
+        },
+        {
+          "filename": "ZEB-180X200-R-L-WOL.gltf",
+          "status": "success",
+          "size": 2890120,
+          "processedAt": "2025-08-12T12:09:47.954Z"
+        },
+        {
+          "filename": "ZEB-180X200-R.gltf",
+          "status": "success",
+          "size": 3407481,
+          "processedAt": "2025-08-12T12:09:48.458Z"
+        },
+        {
+          "filename": "ZEB-180X200.gltf",
+          "status": "success",
+          "size": 5663209,
+          "processedAt": "2025-08-12T12:09:49.025Z"
+        },
+        {
+          "filename": "ZEB-210-C.gltf",
+          "status": "success",
+          "size": 5657870,
+          "processedAt": "2025-08-12T12:09:49.619Z"
+        },
+        {
+          "filename": "ZEB-210-M.gltf",
+          "status": "success",
+          "size": 5330093,
+          "processedAt": "2025-08-12T12:09:50.152Z"
+        },
+        {
+          "filename": "ZEB-210X210-L-CHL.gltf",
+          "status": "success",
+          "size": 2635274,
+          "processedAt": "2025-08-12T12:09:50.559Z"
+        },
+        {
+          "filename": "ZEB-210X210-L-WOL.gltf",
+          "status": "success",
+          "size": 2219388,
+          "processedAt": "2025-08-12T12:09:50.933Z"
+        },
+        {
+          "filename": "ZEB-210X210-LC.gltf",
+          "status": "success",
+          "size": 4065415,
+          "processedAt": "2025-08-12T12:09:51.393Z"
+        },
+        {
+          "filename": "ZEB-210X210-PL-L-CHL.gltf",
+          "status": "success",
+          "size": 2996050,
+          "processedAt": "2025-08-12T12:09:51.909Z"
+        },
+        {
+          "filename": "ZEB-210X210-PL-L-WOL.gltf",
+          "status": "success",
+          "size": 2473833,
+          "processedAt": "2025-08-12T12:09:52.255Z"
+        },
+        {
+          "filename": "ZEB-210X210-PL.gltf",
+          "status": "success",
+          "size": 2996050,
+          "processedAt": "2025-08-12T12:09:52.628Z"
+        },
+        {
+          "filename": "ZEB-210X210-R-L-CHL.gltf",
+          "status": "success",
+          "size": 3711927,
+          "processedAt": "2025-08-12T12:09:53.036Z"
+        },
+        {
+          "filename": "ZEB-210X210-R-L-WOL.gltf",
+          "status": "success",
+          "size": 3189937,
+          "processedAt": "2025-08-12T12:09:53.398Z"
+        },
+        {
+          "filename": "ZEB-210X210-R.gltf",
+          "status": "success",
+          "size": 3711927,
+          "processedAt": "2025-08-12T12:09:53.858Z"
+        },
+        {
+          "filename": "ZEB-210X210.gltf",
+          "status": "success",
+          "size": 8819186,
+          "processedAt": "2025-08-12T12:09:54.516Z"
+        },
+        {
+          "filename": "ZEB-90-C.gltf",
+          "status": "success",
+          "size": 3998210,
+          "processedAt": "2025-08-12T12:09:55.259Z"
+        },
+        {
+          "filename": "ZEB-90-M.gltf",
+          "status": "success",
+          "size": 3589250,
+          "processedAt": "2025-08-12T12:09:55.755Z"
+        },
+        {
+          "filename": "ZEB-90X200-LC.gltf",
+          "status": "success",
+          "size": 4187031,
+          "processedAt": "2025-08-12T12:09:57.178Z"
+        },
+        {
+          "filename": "ZEB-90X200.gltf",
+          "status": "success",
+          "size": 5230689,
+          "processedAt": "2025-08-12T12:09:57.672Z"
+        }
+      ],
+      "currentFile": "ZEB-90X200.gltf"
+    },
+    "clientName": "Sweef",
+    "createdAt": "2025-08-12T12:05:14.916Z",
+    "startedAt": "2025-08-12T12:05:14.917Z",
+    "metadata": {
+      "totalFiles": 532,
+      "successfulFiles": 532,
+      "failedFiles": [],
+      "downloadUrl": "https://cdn.charpstar.net/Client-Editor/Sweef/ANT-25-LC.gltf"
+    },
+    "completedAt": "2025-08-12T12:09:57.672Z"
+  }
+]

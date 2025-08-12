@@ -79,9 +79,10 @@ export default function ModelSelector({ onModelChange, currentModel, cacheTimest
       try {
         setIsLoading(true);
         
-        const response = await fetch('/api/models?client=' + clientName);
-        const models = await response.json();
-        
+        const response = await fetch('/api/list-models?client=' + clientName);
+        const data = await response.json();
+        const models: string[] = Array.isArray(data?.models) ? data.models.map((m: any) => m.filename) : [];
+
         setModelList(models);
         
         // Group models by category

@@ -14,8 +14,8 @@ const SimpleClientViewerScript = () => {
   // Get the appropriate script for this client
   const scriptSrc = getClientConfig(clientName).scriptPath;
 
-  // Skip loading client viewer scripts on the materials editor to avoid conflicts
-  if (typeof pathname === 'string' && pathname.includes('/materials')) {
+  // Skip loading client viewer scripts on materials and manage pages to avoid conflicts
+  if (typeof pathname === 'string' && (pathname.includes('/materials') || pathname.includes('/manage'))) {
     return null;
   }
 

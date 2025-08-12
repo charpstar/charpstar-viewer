@@ -9,11 +9,38 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const client = searchParams.get('client');
+    const listBackups = searchParams.get('listBackups');
     if (!client) return NextResponse.json({ error: 'Client parameter is required' }, { status: 400 });
 
     const clientConfig = getClientConfig(client);
     const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
     console.log(`Fetching reference GLTF for client ${client}: ${referenceUrl}`);
+
+    // If listing backups only, return backup list
+    if (listBackups === '1') {
+      // Backups live under <basePath>/reference/backup/
+      const backupsBase = `${clientConfig.bunnyCdn.basePath}/reference/backup/`;
+      // We cannot list via pull zone; use storage API
+      const zone = (process.env.BUNNY_STORAGE_ZONE_NAME || '').split('/')[0];
+      const host = (process.env.BUNNY_REGION || '') ? `${process.env.BUNNY_REGION}.storage.bunnycdn.com` : 'storage.bunnycdn.com';
+      const resp = await fetch(`https://${host}/${zone}/${backupsBase}`, {
+        method: 'GET',
+        headers: { 'AccessKey': process.env.BUNNY_ACCESS_KEY || '' }
+      });
+      let items: any[] = [];
+      if (resp.ok) {
+        try { items = await resp.json(); } catch {}
+      }
+      const backups = (Array.isArray(items) ? items : [])
+        .filter((e: any) => e && e.ObjectName && !e.IsDirectory && /\.gltf$/i.test(e.ObjectName))
+        .map((e: any) => ({
+          name: e.ObjectName as string,
+          url: `https://${BUNNY_PULL_ZONE_URL}/${backupsBase}${e.ObjectName}`,
+          size: e.Length,
+          lastModified: e.LastChanged,
+        }));
+      return NextResponse.json({ backups });
+    }
 
     // Fetch reference JSON
     const response = await fetch(referenceUrl);
@@ -75,6 +102,19 @@ export async function GET(request: NextRequest) {
       };
 
       const sheen = (mat as any).getExtension?.('KHR_materials_sheen');
+      const baseTransform = baseInfo?.getExtension?.('KHR_texture_transform' as any) as any;
+      const mrTransform = mrInfo?.getExtension?.('KHR_texture_transform' as any) as any;
+      const normalTransform = nInfo?.getExtension?.('KHR_texture_transform' as any) as any;
+      const baseScale = baseTransform?.getScale?.();
+      const mrScale = mrTransform?.getScale?.();
+      const normalScale = normalTransform?.getScale?.();
+      // Sheen texture transform scales
+      const sheenColorInfo = sheen?.getSheenColorTextureInfo?.();
+      const sheenRoughInfo = sheen?.getSheenRoughnessTextureInfo?.();
+      const sheenColorTransform = sheenColorInfo?.getExtension?.('KHR_texture_transform' as any) as any;
+      const sheenRoughTransform = sheenRoughInfo?.getExtension?.('KHR_texture_transform' as any) as any;
+      const sheenColorScale = sheenColorTransform?.getScale?.();
+      const sheenRoughScale = sheenRoughTransform?.getScale?.();
 
       const dto: any = {
         name: mat.getName() || 'Unnamed Material',
@@ -83,16 +123,23 @@ export async function GET(request: NextRequest) {
         roughnessFactor: (pbr?.getRoughnessFactor?.() ?? (mat as any).getRoughnessFactor?.() ?? 0.5),
         emissiveFactor: (mat as any).getEmissiveFactor?.() || [0, 0, 0],
         normalScale: nInfo?.getScale?.() ?? 1,
-        occlusionStrength: oInfo?.getStrength?.() ?? 1,
+        // Prefer TextureInfo strength when occlusion texture exists; fallback later to raw JSON
+        occlusionStrength: (oInfo?.getStrength?.() ?? undefined),
         baseColorTexture: texToKey(baseTex),
         metallicRoughnessTexture: texToKey(mrTex),
         normalTexture: texToKey(nTex),
         occlusionTexture: texToKey(oTex),
         emissiveTexture: texToKey(eTex),
+        // Texture tiling (KHR_texture_transform scale)
+        baseColorTextureScale: Array.isArray(baseScale) ? baseScale : undefined,
+        metallicRoughnessTextureScale: Array.isArray(mrScale) ? mrScale : undefined,
+        normalTextureScale: Array.isArray(normalScale) ? normalScale : undefined,
         sheenRoughnessFactor: sheen?.getSheenRoughnessFactor?.(),
         sheenRoughnessTexture: texToKey(sheen?.getSheenRoughnessTexture?.()),
         sheenColor: sheen?.getSheenColorFactor?.(),
         sheenColorTexture: texToKey(sheen?.getSheenColorTexture?.()),
+        sheenColorTextureScale: Array.isArray(sheenColorScale) ? sheenColorScale : undefined,
+        sheenRoughnessTextureScale: Array.isArray(sheenRoughScale) ? sheenRoughScale : undefined,
       };
 
       // Fallback for normalScale: read from raw JSON if present (ensures 0 is preserved)
@@ -128,6 +175,16 @@ export async function GET(request: NextRequest) {
       const nIdx = original.normalTexture?.index;
       const oIdx = original.occlusionTexture?.index;
       const eIdx = original.emissiveTexture?.index;
+      // Sheen extension fallbacks
+      const sheenExt = original.extensions?.KHR_materials_sheen || {};
+      const sheenColorIdx = sheenExt.sheenColorTexture?.index;
+      const sheenRoughIdx = sheenExt.sheenRoughnessTexture?.index;
+      const sheenColorScaleRaw = sheenExt?.sheenColorTexture?.extensions?.KHR_texture_transform?.scale;
+      const sheenRoughScaleRaw = sheenExt?.sheenRoughnessTexture?.extensions?.KHR_texture_transform?.scale;
+      // Texture transform (tiling) fallbacks
+      const baseScale = pbr.baseColorTexture?.extensions?.KHR_texture_transform?.scale;
+      const mrScaleRaw = pbr.metallicRoughnessTexture?.extensions?.KHR_texture_transform?.scale;
+      const normalScale = original.normalTexture?.extensions?.KHR_texture_transform?.scale;
       return {
         ...m,
         baseColorTexture: m.baseColorTexture ?? getUriFromTexIndex(baseIdx),
@@ -135,8 +192,50 @@ export async function GET(request: NextRequest) {
         normalTexture: m.normalTexture ?? getUriFromTexIndex(nIdx),
         occlusionTexture: m.occlusionTexture ?? getUriFromTexIndex(oIdx),
         emissiveTexture: m.emissiveTexture ?? getUriFromTexIndex(eIdx),
+        sheenColorTexture: (m as any).sheenColorTexture ?? getUriFromTexIndex(sheenColorIdx),
+        sheenRoughnessTexture: (m as any).sheenRoughnessTexture ?? getUriFromTexIndex(sheenRoughIdx),
+        baseColorTextureScale: (m as any).baseColorTextureScale ?? (Array.isArray(baseScale) ? baseScale : undefined),
+        metallicRoughnessTextureScale: (m as any).metallicRoughnessTextureScale ?? (Array.isArray(mrScaleRaw) ? mrScaleRaw : undefined),
+        normalTextureScale: (m as any).normalTextureScale ?? (Array.isArray(normalScale) ? normalScale : undefined),
+          sheenColorTextureScale: (m as any).sheenColorTextureScale ?? (Array.isArray(sheenColorScaleRaw) ? sheenColorScaleRaw : undefined),
+          sheenRoughnessTextureScale: (m as any).sheenRoughnessTextureScale ?? (Array.isArray(sheenRoughScaleRaw) ? sheenRoughScaleRaw : undefined),
+        // Fallback for occlusionStrength: read from raw JSON when present
+        occlusionStrength: m.occlusionStrength ?? (typeof original.occlusionTexture?.strength === 'number' ? original.occlusionTexture.strength : m.occlusionStrength),
       };
     });
+
+    // Compute variant mesh usage per material (from raw JSON for accuracy)
+    try {
+      const meshesJson: any[] = Array.isArray(gltfData.meshes) ? gltfData.meshes : [];
+      const materialsJsonArr: any[] = Array.isArray(gltfData.materials) ? gltfData.materials : [];
+      const materialIndexToVariantMeshes = new Map<number, Set<string>>();
+      meshesJson.forEach((mesh: any, meshIndex: number) => {
+        const meshName = typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIndex}`;
+        const primitives: any[] = Array.isArray(mesh?.primitives) ? mesh.primitives : [];
+        primitives.forEach((prim: any) => {
+          const maps = prim?.extensions?.KHR_materials_variants?.mappings;
+          if (Array.isArray(maps)) {
+            maps.forEach((map: any) => {
+              const matIndex = map?.material;
+              if (typeof matIndex === 'number') {
+                if (!materialIndexToVariantMeshes.has(matIndex)) materialIndexToVariantMeshes.set(matIndex, new Set());
+                materialIndexToVariantMeshes.get(matIndex)!.add(meshName);
+              }
+            });
+          }
+        });
+      });
+      const nameToVariantMeshes = new Map<string, string[]>();
+      materialsJsonArr.forEach((mat: any, idx: number) => {
+        const name = typeof mat?.name === 'string' && mat.name.length > 0 ? mat.name : `Material_${idx}`;
+        const set = materialIndexToVariantMeshes.get(idx);
+        if (set && set.size > 0) nameToVariantMeshes.set(name, Array.from(set).sort());
+      });
+      materials = materials.map((m: any) => ({
+        ...m,
+        variantMeshes: nameToVariantMeshes.get(m.name) || [],
+      }));
+    } catch {}
 
     // Build arrays for UI
     const textures = root.listTextures().map((tex: Texture, index: number) => ({
@@ -150,10 +249,16 @@ export async function GET(request: NextRequest) {
         }))
       : [];
 
+    // Provide list of mesh names for UI (variant assignment)
+    const meshes = Array.isArray(gltfData.meshes)
+      ? gltfData.meshes.map((m: any, idx: number) => (typeof m?.name === 'string' && m.name.length > 0 ? m.name : `Mesh_${idx}`))
+      : [];
+
     const res = NextResponse.json({
       materials,
       textures,
       images,
+      meshes,
       lastModified: new Date().toISOString(),
     });
     res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');

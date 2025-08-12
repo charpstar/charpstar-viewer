@@ -210,17 +210,44 @@ export async function POST(request: NextRequest) {
       };
 
       // BaseColor texture
-      const baseTex = ensureTextureForImageKey(m.baseColorTexture);
-      setSlot(baseTex, () => (mat as any).getBaseColorTextureInfo?.(), (t) => (mat as any).setBaseColorTexture(t));
+      if (m.baseColorTexture == null) {
+        (mat as any).setBaseColorTexture(null as any);
+      } else {
+        const baseTex = ensureTextureForImageKey(m.baseColorTexture);
+        setSlot(baseTex, () => (mat as any).getBaseColorTextureInfo?.(), (t) => (mat as any).setBaseColorTexture(t));
+      }
+      // BaseColor texture tiling (KHR_texture_transform scale)
+      try {
+        const info = (mat as any).getBaseColorTextureInfo?.();
+        const scale = Array.isArray((m as any).baseColorTextureScale) ? (m as any).baseColorTextureScale : undefined;
+        if (info && Array.isArray(scale) && scale.length === 2 && scale.every((v: any) => typeof v === 'number')) {
+          let xform = info.getExtension?.('KHR_texture_transform');
+          if (!xform) {
+            const ext = document.createExtension(KHRTextureTransform);
+            xform = (ext as any).createTextureTransform?.();
+            info.setExtension?.('KHR_texture_transform', xform);
+          }
+          if (xform?.setScale) xform.setScale(scale as [number, number]);
+          else if (xform) (xform as any).scale = scale;
+        }
+      } catch {}
 
       // MetallicRoughness texture
       const mrKey = normalizeKey(m.metallicRoughnessTexture || m.metallicTexture || m.roughnessTexture);
-      const mrTex = ensureTextureForImageKey(mrKey);
-      setSlot(mrTex, () => (mat as any).getMetallicRoughnessTextureInfo?.(), (t) => (mat as any).setMetallicRoughnessTexture(t));
+      if (m.metallicRoughnessTexture == null && (m as any).metallicTexture == null && (m as any).roughnessTexture == null) {
+        (mat as any).setMetallicRoughnessTexture?.(null as any);
+      } else {
+        const mrTex = ensureTextureForImageKey(mrKey);
+        setSlot(mrTex, () => (mat as any).getMetallicRoughnessTextureInfo?.(), (t) => (mat as any).setMetallicRoughnessTexture(t));
+      }
 
       // Normal texture
-      const normalTex = ensureTextureForImageKey(m.normalTexture);
-      setSlot(normalTex, () => (mat as any).getNormalTextureInfo?.(), (t) => (mat as any).setNormalTexture(t));
+      if (m.normalTexture == null) {
+        (mat as any).setNormalTexture(null as any);
+      } else {
+        const normalTex = ensureTextureForImageKey(m.normalTexture);
+        setSlot(normalTex, () => (mat as any).getNormalTextureInfo?.(), (t) => (mat as any).setNormalTexture(t));
+      }
       // Persist normal scale on the glTF-Transform document as well (not only in raw JSON later)
       try {
         if (typeof m.normalScale === 'number' && !isNaN(m.normalScale)) {
@@ -229,26 +256,92 @@ export async function POST(request: NextRequest) {
           else if (nInfo) (nInfo as any).scale = m.normalScale;
         }
       } catch {}
+      // Normal texture tiling (KHR_texture_transform scale)
+      try {
+        const nInfo = (mat as any).getNormalTextureInfo?.();
+        const nScale = Array.isArray((m as any).normalTextureScale) ? (m as any).normalTextureScale : undefined;
+        if (nInfo && Array.isArray(nScale) && nScale.length === 2 && nScale.every((v: any) => typeof v === 'number')) {
+          let nx = nInfo.getExtension?.('KHR_texture_transform');
+          if (!nx) {
+            const ext = document.createExtension(KHRTextureTransform);
+            nx = (ext as any).createTextureTransform?.();
+            nInfo.setExtension?.('KHR_texture_transform', nx);
+          }
+          if (nx?.setScale) nx.setScale(nScale as [number, number]);
+          else if (nx) (nx as any).scale = nScale;
+        }
+      } catch {}
 
       // Occlusion texture
-      const aoTex = ensureTextureForImageKey(m.occlusionTexture);
-      setSlot(aoTex, () => (mat as any).getOcclusionTextureInfo?.(), (t) => (mat as any).setOcclusionTexture(t));
+      if (m.occlusionTexture == null) {
+        (mat as any).setOcclusionTexture(null as any);
+      } else {
+        const aoTex = ensureTextureForImageKey(m.occlusionTexture);
+        setSlot(aoTex, () => (mat as any).getOcclusionTextureInfo?.(), (t) => (mat as any).setOcclusionTexture(t));
+      }
+      // Persist occlusion strength on the glTF-Transform document
+      try {
+        if (typeof m.occlusionStrength === 'number' && !isNaN(m.occlusionStrength)) {
+          const oInfo = (mat as any).getOcclusionTextureInfo?.();
+          if (oInfo?.setStrength) oInfo.setStrength(m.occlusionStrength);
+          else if (oInfo) (oInfo as any).strength = m.occlusionStrength;
+        }
+      } catch {}
 
       // Emissive texture
-      const emissiveTex = ensureTextureForImageKey(m.emissiveTexture);
-      setSlot(emissiveTex, () => (mat as any).getEmissiveTextureInfo?.(), (t) => (mat as any).setEmissiveTexture(t));
+      if (m.emissiveTexture == null) {
+        (mat as any).setEmissiveTexture(null as any);
+      } else {
+        const emissiveTex = ensureTextureForImageKey(m.emissiveTexture);
+        setSlot(emissiveTex, () => (mat as any).getEmissiveTextureInfo?.(), (t) => (mat as any).setEmissiveTexture(t));
+      }
 
-      // Sheen extension (optional)
-      const hasSheenInputs = typeof m.sheenRoughnessFactor === 'number' || Array.isArray(m.sheenColor) || m.sheenRoughnessTexture || m.sheenColorTexture;
+      // Sheen extension (preserve existing TextureInfo; only set what is provided)
+      const hasSheenInputs =
+        typeof m.sheenRoughnessFactor === 'number' ||
+        Array.isArray(m.sheenColor) ||
+        m.sheenRoughnessTexture ||
+        (m as any).sheenTexture ||
+        m.sheenColorTexture;
       if (hasSheenInputs) {
-        const sheenExt = document.createExtension(KHRMaterialsSheen).createSheen();
-        if (typeof m.sheenRoughnessFactor === 'number') sheenExt.setSheenRoughnessFactor(m.sheenRoughnessFactor);
-        if (Array.isArray(m.sheenColor)) sheenExt.setSheenColorFactor(m.sheenColor as [number, number, number]);
-        const sheenRoughTex = ensureTextureForImageKey(m.sheenRoughnessTexture || m.sheenTexture);
-        if (sheenRoughTex) sheenExt.setSheenRoughnessTexture(sheenRoughTex);
-        const sheenColorTex = ensureTextureForImageKey(m.sheenColorTexture);
-        if (sheenColorTex) sheenExt.setSheenColorTexture(sheenColorTex);
-        mat.setExtension('KHR_materials_sheen', sheenExt);
+        let sheenExt = (mat as any).getExtension?.('KHR_materials_sheen');
+        if (!sheenExt) {
+          sheenExt = document.createExtension(KHRMaterialsSheen).createSheen();
+          (mat as any).setExtension?.('KHR_materials_sheen', sheenExt);
+        }
+        if (typeof m.sheenRoughnessFactor === 'number') {
+          sheenExt.setSheenRoughnessFactor(m.sheenRoughnessFactor);
+        }
+        if (Array.isArray(m.sheenColor)) {
+          sheenExt.setSheenColorFactor(m.sheenColor as [number, number, number]);
+        }
+        if ((Object.prototype.hasOwnProperty.call(m as any, 'sheenRoughnessTexture') && (m as any).sheenRoughnessTexture === null) ||
+            (Object.prototype.hasOwnProperty.call(m as any, 'sheenTexture') && (m as any).sheenTexture === null)) {
+          sheenExt.setSheenRoughnessTexture(null as any);
+        } else if (m.sheenRoughnessTexture || (m as any).sheenTexture) {
+          const newSheenRoughTex = ensureTextureForImageKey(m.sheenRoughnessTexture || (m as any).sheenTexture);
+          if (newSheenRoughTex) {
+            setSlot(newSheenRoughTex, () => sheenExt.getSheenRoughnessTextureInfo?.(), (t) => sheenExt.setSheenRoughnessTexture(t));
+          }
+        }
+        if (Object.prototype.hasOwnProperty.call(m as any, 'sheenColorTexture') && (m as any).sheenColorTexture === null) {
+          sheenExt.setSheenColorTexture(null as any);
+        } else if (m.sheenColorTexture) {
+          const newSheenColorTex = ensureTextureForImageKey(m.sheenColorTexture);
+          if (newSheenColorTex) {
+            setSlot(newSheenColorTex, () => sheenExt.getSheenColorTextureInfo?.(), (t) => sheenExt.setSheenColorTexture(t));
+          }
+        }
+      } else {
+        // No sheen inputs provided: if the incoming material explicitly provided nulls for sheen textures and no factors,
+        // we remove the sheen extension entirely to honor full removal.
+        const providedNullSheen =
+          (Object.prototype.hasOwnProperty.call(m as any, 'sheenColorTexture') && (m as any).sheenColorTexture === null) ||
+          (Object.prototype.hasOwnProperty.call(m as any, 'sheenRoughnessTexture') && (m as any).sheenRoughnessTexture === null) ||
+          (Object.prototype.hasOwnProperty.call(m as any, 'sheenTexture') && (m as any).sheenTexture === null);
+        if (providedNullSheen) {
+          (mat as any).setExtension?.('KHR_materials_sheen', null as any);
+        }
       }
     };
 
@@ -256,8 +349,8 @@ export async function POST(request: NextRequest) {
     materials.forEach(upsertMaterial);
 
     // Serialize back to JSON (non-destructive; unchanged data preserved)
-    const updatedJSON = await io.writeJSON(document);
-    const out = (updatedJSON as any).json ?? updatedJSON;
+    const writeResult: any = await io.writeJSON(document);
+    const out = (writeResult as any).json ?? writeResult;
     // Ensure images retain URI when not embedded (avoid invalid entries with neither uri nor bufferView)
     try {
       if (Array.isArray(out.images) && Array.isArray(gltfData.images)) {
@@ -275,6 +368,138 @@ export async function POST(request: NextRequest) {
               if (fallback.mimeType) img.mimeType = fallback.mimeType;
             }
           }
+        });
+      }
+    } catch {}
+
+    // Preserve explicit values that glTF-Transform omits as defaults (e.g., roughnessFactor=1, emissiveFactor=[0,0,0])
+    try {
+      if (Array.isArray((gltfData as any).materials) && Array.isArray((out as any).materials)) {
+        const originalByName = new Map<string, any>();
+        ((gltfData as any).materials as any[]).forEach((m) => { if (m?.name) originalByName.set(m.name, m); });
+        const postedByName = new Map<string, any>();
+        (materials as any[]).forEach((m) => { if (m?.name) postedByName.set(m.name, m); });
+
+        ((out as any).materials as any[]).forEach((m) => {
+          if (!m?.name) return;
+          const orig = originalByName.get(m.name) || {};
+          const posted = postedByName.get(m.name) || {};
+
+          // Ensure nested objects exist when needed
+          m.pbrMetallicRoughness = m.pbrMetallicRoughness || {};
+          const oPMR = (orig as any).pbrMetallicRoughness || {};
+
+          // Preserve roughnessFactor if present in original, not explicitly provided by client, and missing in output
+          const clientProvidedRoughness = Object.prototype.hasOwnProperty.call(posted, 'roughnessFactor');
+          const origHadRoughness = Object.prototype.hasOwnProperty.call(oPMR, 'roughnessFactor');
+          const outHasRoughness = Object.prototype.hasOwnProperty.call(m.pbrMetallicRoughness, 'roughnessFactor');
+          if (!clientProvidedRoughness && origHadRoughness && !outHasRoughness) {
+            m.pbrMetallicRoughness.roughnessFactor = oPMR.roughnessFactor;
+          }
+
+          // Preserve emissiveFactor if present in original, not explicitly provided by client, and missing in output
+          const clientProvidedEmissive = Object.prototype.hasOwnProperty.call(posted, 'emissiveFactor');
+          const origHadEmissive = Object.prototype.hasOwnProperty.call(orig, 'emissiveFactor');
+          const outHasEmissive = Object.prototype.hasOwnProperty.call(m, 'emissiveFactor');
+          if (!clientProvidedEmissive && origHadEmissive && !outHasEmissive) {
+            m.emissiveFactor = [...(orig as any).emissiveFactor];
+          }
+
+          // Preserve alphaMode and alphaCutoff for transparency if original had them and client didn't specify
+          const clientProvidedAlphaMode = Object.prototype.hasOwnProperty.call(posted, 'alphaMode');
+          const clientProvidedAlphaCutoff = Object.prototype.hasOwnProperty.call(posted, 'alphaCutoff');
+          const origHadAlphaMode = Object.prototype.hasOwnProperty.call(orig, 'alphaMode');
+          const origHadAlphaCutoff = Object.prototype.hasOwnProperty.call(orig, 'alphaCutoff');
+          const outHasAlphaMode = Object.prototype.hasOwnProperty.call(m, 'alphaMode');
+          const outHasAlphaCutoff = Object.prototype.hasOwnProperty.call(m, 'alphaCutoff');
+          if (!clientProvidedAlphaMode && origHadAlphaMode && !outHasAlphaMode) {
+            m.alphaMode = (orig as any).alphaMode;
+          }
+          if (!clientProvidedAlphaCutoff && origHadAlphaCutoff && !outHasAlphaCutoff) {
+            m.alphaCutoff = (orig as any).alphaCutoff;
+          }
+        });
+      }
+    } catch {}
+
+    // Apply requested variant mesh assignments for new/edited materials
+    try {
+      // Build map: material name -> array of mesh names to assign as variants
+      const variantMeshesByMaterial = new Map<string, string[]>();
+      (materials as any[]).forEach((m) => {
+        if (m?.name && Array.isArray((m as any).variantMeshes) && (m as any).variantMeshes.length > 0) {
+          const unique = Array.from(new Set((m as any).variantMeshes as Array<string | null | undefined>))
+            .filter((v): v is string => typeof v === 'string' && v.length > 0);
+          if (unique.length > 0) variantMeshesByMaterial.set(m.name, unique);
+        }
+      });
+      if (variantMeshesByMaterial.size > 0 && Array.isArray((out as any).materials)) {
+        // Helper: resolve material index by name from current out.materials
+        const nameToIndex = new Map<string, number>();
+        (out.materials as any[]).forEach((m: any, idx: number) => { if (m?.name) nameToIndex.set(m.name, idx); });
+
+        // Ensure top-level KHR_materials_variants exists with at least one variant
+        (out as any).extensions = (out as any).extensions || {};
+        const extRoot = (out as any).extensions;
+        extRoot.KHR_materials_variants = extRoot.KHR_materials_variants || { variants: [{ name: 'default' }] };
+        const variantsArr: any[] = Array.isArray(extRoot.KHR_materials_variants.variants) ? extRoot.KHR_materials_variants.variants : (extRoot.KHR_materials_variants.variants = [{ name: 'default' }]);
+        const defaultVariantIndex = 0;
+
+        // Iterate meshes and primitives, add mapping when mesh name matches
+        if (Array.isArray((out as any).meshes)) {
+          ((out as any).meshes as any[]).forEach((mesh: any) => {
+            const meshName: string | undefined = typeof mesh?.name === 'string' ? mesh.name : undefined;
+            if (!meshName || !Array.isArray(mesh?.primitives)) return;
+            // Determine if any material requests this mesh
+            const requestingMaterials: Array<{ name: string; index: number }> = [];
+            variantMeshesByMaterial.forEach((meshNames, matName) => {
+              if (meshNames.includes(meshName)) {
+                const idx = nameToIndex.get(matName);
+                if (typeof idx === 'number') requestingMaterials.push({ name: matName, index: idx });
+              }
+            });
+            if (requestingMaterials.length === 0) return;
+
+            mesh.primitives.forEach((prim: any) => {
+              // Decide variant indices to use for this primitive: reuse existing if available, else default 0
+              const maps = prim?.extensions?.KHR_materials_variants?.mappings;
+              let variantIndices: number[] | undefined;
+              if (Array.isArray(maps) && maps.length > 0 && Array.isArray(maps[0]?.variants) && maps[0].variants.length > 0) {
+                variantIndices = [...maps[0].variants];
+              } else {
+                variantIndices = [defaultVariantIndex];
+              }
+
+              // Ensure extension containers
+              prim.extensions = prim.extensions || {};
+              prim.extensions.KHR_materials_variants = prim.extensions.KHR_materials_variants || {};
+              const ext = prim.extensions.KHR_materials_variants;
+              ext.mappings = Array.isArray(ext.mappings) ? ext.mappings : [];
+
+              // Add mapping for each requested material if not already present
+              requestingMaterials.forEach(({ index }) => {
+                const exists = ext.mappings.some((m: any) => m && typeof m.material === 'number' && m.material === index);
+                if (!exists) {
+                  ext.mappings.push({ material: index, variants: variantIndices });
+                }
+              });
+            });
+          });
+        }
+      }
+    } catch {}
+
+    // Inline binary buffer as data URI to avoid external .bin files. Keep images external.
+    try {
+      if (Array.isArray(out.buffers) && writeResult && writeResult.resources) {
+        const resources: Record<string, Uint8Array> = writeResult.resources as any;
+        (out.buffers as any[]).forEach((buf: any) => {
+          const uri: string | undefined = buf?.uri;
+          if (!uri) return;
+          const data = (resources as any)[uri];
+          if (!data) return;
+          const base64 = Buffer.from(data).toString('base64');
+          buf.uri = `data:application/octet-stream;base64,${base64}`;
         });
       }
     } catch {}
@@ -337,7 +562,9 @@ export async function POST(request: NextRequest) {
         return idx;
       };
 
-      const applySlot = (outMat: any, slotPath: string[], texKey?: string) => {
+      let usedTextureTransform = false;
+
+      const applySlot = (outMat: any, slotPath: string[], texKey?: string, transformScale?: [number, number]) => {
         if (!texKey) return;
         // Resolve filename: accept with or without images/ prefix
         const cleanKey = stripImagesPrefix(texKey) || texKey;
@@ -365,6 +592,13 @@ export async function POST(request: NextRequest) {
         } else {
           target[lastKey].index = texIndex;
         }
+        // KHR_texture_transform scale (e.g., tiling) if provided
+        if (Array.isArray(transformScale) && transformScale.length === 2) {
+          target[lastKey].extensions = target[lastKey].extensions || {};
+          target[lastKey].extensions.KHR_texture_transform = target[lastKey].extensions.KHR_texture_transform || {};
+          target[lastKey].extensions.KHR_texture_transform.scale = [...transformScale];
+          usedTextureTransform = true;
+        }
       };
 
       // Apply for all incoming materials (by name)
@@ -373,9 +607,9 @@ export async function POST(request: NextRequest) {
           if (!m?.name) continue;
           const outMat = (out.materials as any[]).find((x) => x?.name === m.name);
           if (!outMat) continue;
-          applySlot(outMat, ['pbrMetallicRoughness', 'baseColorTexture'], m.baseColorTexture);
+          applySlot(outMat, ['pbrMetallicRoughness', 'baseColorTexture'], m.baseColorTexture, (m as any).baseColorTextureScale);
           applySlot(outMat, ['pbrMetallicRoughness', 'metallicRoughnessTexture'], m.metallicRoughnessTexture || (m as any).metallicTexture || (m as any).roughnessTexture);
-          applySlot(outMat, ['normalTexture'], m.normalTexture);
+          applySlot(outMat, ['normalTexture'], m.normalTexture, (m as any).normalTextureScale);
           // Persist normalTexture.scale (normal strength) explicitly in raw JSON
           // Only when a normal texture index is present to avoid creating invalid TextureInfo objects
           if (
@@ -387,6 +621,17 @@ export async function POST(request: NextRequest) {
             outMat.normalTexture.scale = m.normalScale;
           }
           applySlot(outMat, ['occlusionTexture'], m.occlusionTexture);
+          // Persist occlusionTexture.strength in raw JSON when texture index exists
+          try {
+            if (
+              typeof m.occlusionStrength === 'number' &&
+              !isNaN(m.occlusionStrength) &&
+              outMat.occlusionTexture &&
+              typeof outMat.occlusionTexture.index === 'number'
+            ) {
+              outMat.occlusionTexture.strength = m.occlusionStrength;
+            }
+          } catch {}
           applySlot(outMat, ['emissiveTexture'], m.emissiveTexture);
           // Sheen optional
           if (m.sheenRoughnessTexture || (m as any).sheenTexture || m.sheenColorTexture) {
@@ -400,6 +645,14 @@ export async function POST(request: NextRequest) {
             }
           }
         }
+      }
+
+      // Ensure extensionsUsed contains KHR_texture_transform if we wrote any transforms
+      if (usedTextureTransform) {
+        try {
+          (out as any).extensionsUsed = Array.isArray((out as any).extensionsUsed) ? (out as any).extensionsUsed : [];
+          if (!(out as any).extensionsUsed.includes('KHR_texture_transform')) (out as any).extensionsUsed.push('KHR_texture_transform');
+        } catch {}
       }
     } catch {}
 
@@ -452,6 +705,44 @@ export async function POST(request: NextRequest) {
       }
     } catch {}
 
+    // Preserve existing sheen texture bindings (and their KHR_texture_transform) for materials where they were not explicitly changed
+    try {
+      if (Array.isArray((gltfData as any).materials) && Array.isArray((out as any).materials)) {
+        const originalByName = new Map<string, any>();
+        ((gltfData as any).materials as any[]).forEach((m) => { if (m?.name) originalByName.set(m.name, m); });
+        ((out as any).materials as any[]).forEach((m) => {
+          if (!m?.name) return;
+          const orig = originalByName.get(m.name);
+          if (!orig) return;
+          const oSheen = orig?.extensions?.KHR_materials_sheen;
+          if (!oSheen) return;
+          m.extensions = m.extensions || {};
+          const tSheen = m.extensions.KHR_materials_sheen || {};
+          // Determine whether client explicitly changed each sheen texture (presence of key, even if null)
+          const input = (materials as any[]).find((im) => im?.name === m.name) || {};
+          const changedColor = Object.prototype.hasOwnProperty.call(input, 'sheenColorTexture');
+          const changedRough = Object.prototype.hasOwnProperty.call(input, 'sheenRoughnessTexture') || Object.prototype.hasOwnProperty.call(input, 'sheenTexture');
+          // If target lacks sheen textures but original had them, copy original TextureInfo objects verbatim
+          if ((tSheen.sheenColorTexture == null) && oSheen.sheenColorTexture && !changedColor) {
+            tSheen.sheenColorTexture = { ...oSheen.sheenColorTexture };
+          }
+          if ((tSheen.sheenRoughnessTexture == null) && oSheen.sheenRoughnessTexture && !changedRough) {
+            tSheen.sheenRoughnessTexture = { ...oSheen.sheenRoughnessTexture };
+          }
+          // Preserve factors if target omitted them
+          if (tSheen.sheenColorFactor == null && Array.isArray(oSheen.sheenColorFactor)) {
+            tSheen.sheenColorFactor = [...oSheen.sheenColorFactor];
+          }
+          if (tSheen.sheenRoughnessFactor == null && typeof oSheen.sheenRoughnessFactor === 'number') {
+            tSheen.sheenRoughnessFactor = oSheen.sheenRoughnessFactor;
+          }
+          if (Object.keys(tSheen).length > 0) {
+            m.extensions.KHR_materials_sheen = tSheen;
+          }
+        });
+      }
+    } catch {}
+
     // Integrity check: compare counts before/after to ensure non-destructive structure
     try {
       const keysToCheck = [
@@ -487,6 +778,15 @@ export async function POST(request: NextRequest) {
       }
     } catch (e) {
       console.warn('[SAVE INTEGRITY] Skipped integrity check due to error:', e);
+    }
+
+    // Before we upload the updated reference.gltf, create a timestamped backup
+    try {
+      const backupTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupFilePath = `${clientConfig.bunnyCdn.basePath}/reference/backup/reference-${backupTimestamp}.gltf`;
+      await uploadToBunny(backupFilePath, gltfText, 'model/gltf+json');
+    } catch (e) {
+      console.warn('Backup of reference.gltf failed; proceeding with save', e);
     }
 
     // Final upload
