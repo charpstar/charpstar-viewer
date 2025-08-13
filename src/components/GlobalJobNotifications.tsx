@@ -343,6 +343,11 @@ const GlobalJobNotifications: React.FC = () => {
     try {
       localStorage.removeItem(`charpstar:applyJob:${client}`);
     } catch {}
+
+    // Notify pages that the user explicitly dismissed the job UI
+    try {
+      window.dispatchEvent(new CustomEvent('charpstar:jobDismissed', { detail: { clientName: client } }));
+    } catch {}
   }, []);
 
   // Listen for new jobs being started (from materials page)

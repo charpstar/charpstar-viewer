@@ -248,6 +248,7 @@ const Header: React.FC<HeaderProps> = ({
                 size="sm"
                 onClick={onRefreshModels}
                 className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200"
+                title="Refresh (forces re-fetch from storage for materials)"
               >
                 <RefreshCw size={14} className="mr-2" />
                 Refresh

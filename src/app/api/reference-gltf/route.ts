@@ -4,6 +4,11 @@ import { NodeIO, Document, Material, Texture } from '@gltf-transform/core';
 import { KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission, KHRMaterialsVariants } from '@gltf-transform/extensions';
 
 const BUNNY_PULL_ZONE_URL = process.env.BUNNY_PULL_ZONE_URL || 'cdn.charpstar.net';
+const REGION = process.env.BUNNY_REGION || '';
+const BASE_HOSTNAME = 'storage.bunnycdn.com';
+const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
+const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
+const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || '';
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,11 +47,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ backups });
     }
 
-    // Fetch reference JSON
-    const response = await fetch(referenceUrl);
-    if (!response.ok) throw new Error(`Failed to fetch reference GLTF: ${response.status}`);
-    const gltfText = await response.text();
-    const gltfData = JSON.parse(gltfText);
+    // Fetch reference JSON — prefer Bunny Storage origin (authoritative) when force=1
+    const forceFresh = searchParams.get('force') === '1';
+    let gltfData: any;
+    if (forceFresh && STORAGE_ZONE_PATH && ACCESS_KEY) {
+      const zoneName = STORAGE_ZONE_PATH.split('/')[0];
+      const storagePath = `${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+      const storageUrl = `https://${HOSTNAME}/${zoneName}/${storagePath}`;
+      const res = await fetch(storageUrl, { headers: { AccessKey: ACCESS_KEY } });
+      if (!res.ok) throw new Error(`Failed to fetch reference from storage: ${res.status}`);
+      const text = await res.text();
+      gltfData = JSON.parse(text);
+    } else {
+      const response = await fetch(`${referenceUrl}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Failed to fetch reference GLTF: ${response.status}`);
+      const gltfText = await response.text();
+      gltfData = JSON.parse(gltfText);
+    }
 
     // Prepare external buffer resources (skip images to avoid heavy downloads)
     const resources: Record<string, Uint8Array> = {};

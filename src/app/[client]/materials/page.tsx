@@ -290,6 +290,49 @@ export default function MaterialEditorPage() {
     return () => window.removeEventListener('storage', onStorage);
   }, [lockKey]);
 
+  // Defer these effects until after reloadMaterials is defined
+  const postFinishReset = useCallback(() => {
+    try {
+      localStorage.removeItem(lockKey);
+      localStorage.removeItem(`charpstar:applyJob:${clientName}`);
+    } catch {}
+    setIsApplyingLive(false);
+    setApplyProgress(null);
+    setApplySummary(null);
+    setGlobalLock(null);
+    setOverlayDismissed(false);
+    try { reloadMaterials(); } catch {}
+  }, [clientName, lockKey]);
+
+  // Remove auto hard-reload on summary so user can read log; we will hard-reload only on explicit Dismiss
+  useEffect(() => {
+    if (globalLock?.summary) {
+      // Keep summary visible; do not reset automatically
+    }
+  }, [globalLock?.summary]);
+
+  // Fallback: if we were applying and the lock becomes inactive, reset UI
+  useEffect(() => {
+    if (isApplyingLive && globalLock && globalLock.active === false) {
+      postFinishReset();
+    }
+  }, [isApplyingLive, globalLock?.active, postFinishReset]);
+
+  // Hard reset only when the user explicitly clicks Dismiss in the global notification
+  useEffect(() => {
+    const onJobDismissed = (e: Event) => {
+      try {
+        const ce = e as CustomEvent;
+        const detail = (ce?.detail || {}) as any;
+        if (detail?.clientName && detail.clientName !== clientName) return;
+      } catch {}
+      postFinishReset();
+      setTimeout(() => { try { window.location.reload(); } catch {} }, 100);
+    };
+    window.addEventListener('charpstar:jobDismissed', onJobDismissed as EventListener);
+    return () => window.removeEventListener('charpstar:jobDismissed', onJobDismissed as EventListener);
+  }, [clientName, postFinishReset]);
+
   // If this tab owned an in-progress or summary lock and page was refreshed, clear it
   useEffect(() => {
     try {
@@ -334,11 +377,12 @@ export default function MaterialEditorPage() {
   }, [clientName]);
 
   // Load reference GLTF data via server (GLTF-Transform on server)
-  const loadReferenceGltf = async () => {
+  const loadReferenceGltf = async (force = false) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/reference-gltf?client=${clientName}&t=${Date.now()}`, { cache: 'no-store' });
+      const forceParam = force ? '&force=1' : '';
+      const response = await fetch(`/api/reference-gltf?client=${clientName}${forceParam}&t=${Date.now()}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('Failed to load reference GLTF');
       const data = await response.json();
       setReferenceGltf(data);
@@ -774,7 +818,7 @@ export default function MaterialEditorPage() {
 
   // Reload materials from server and reset staged edits
   const reloadMaterials = useCallback(async () => {
-    await loadReferenceGltf();
+    await loadReferenceGltf(true);
     // Clear staged edits and clear any selection per request
     setStagedMaterials({});
     setEditedTextures(null);
@@ -1133,8 +1177,8 @@ export default function MaterialEditorPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        onRefreshModels={reloadMaterials}
+       <Header 
+         onRefreshModels={() => { reloadMaterials(); }}
         onUploadModels={() => {}}
         onSave={saveAllMaterials}
         isSaving={isSaving}
@@ -1156,6 +1200,8 @@ export default function MaterialEditorPage() {
             setApplyProgress(null);
             // 1) Save All to reference first
             await saveAllMaterials();
+             // Simple guard: give CDN a moment to propagate the updated reference before starting the apply job
+             await new Promise((r) => setTimeout(r, 1500));
             // 2) Discover targets on the app server to ensure worker gets a concrete list
             const listRes = await fetch(`/api/list-models?client=${clientName}`, { cache: 'no-store' });
             const listJson = await listRes.json().catch(() => ({ models: [] }));
@@ -1249,7 +1295,7 @@ export default function MaterialEditorPage() {
         <div className="flex h-[calc(100vh-48px)] items-center justify-center">
           <div className="text-center">
             <div className="text-red-500 mb-4">Error: {error}</div>
-            <Button onClick={loadReferenceGltf} variant="outline">
+            <Button onClick={() => loadReferenceGltf(true)} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
               Retry
             </Button>
