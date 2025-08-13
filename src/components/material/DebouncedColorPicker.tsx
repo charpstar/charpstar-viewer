@@ -16,14 +16,22 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!m) return null;
-  return {
-    r: parseInt(m[1], 16),
-    g: parseInt(m[2], 16),
-    b: parseInt(m[3], 16),
-  };
+function hexToRgb(hexInput: string): { r: number; g: number; b: number } | null {
+  if (typeof hexInput !== 'string') return null;
+  const raw = hexInput.trim();
+  if (!raw) return null;
+  const hex = raw.startsWith('#') ? raw.slice(1) : raw;
+  // Support 3-digit (#abc) and 6-digit (#aabbcc) formats
+  const normalized = hex.length === 3
+    ? hex.split('').map((c) => c + c).join('')
+    : hex.length === 6
+      ? hex
+      : null;
+  if (!normalized || !/^[a-f\d]{6}$/i.test(normalized)) return null;
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
+  return { r, g, b };
 }
 
 function rgbToHex(r: number, g: number, b: number): string {
@@ -88,6 +96,8 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const [sidebarLeft, setSidebarLeft] = useState<number | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const interactingRef = useRef(false);
+  const [isEditingHex, setIsEditingHex] = useState(false);
+  const [inputHex, setInputHex] = useState<string>(initialHex);
 
   // Update local color when prop changes (not during dragging)
   useEffect(() => {
@@ -99,6 +109,15 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
       }
     }
   }, [value, color]);
+
+  // Keep text field in sync when not actively editing it
+  useEffect(() => {
+    if (!isEditingHex) {
+      const { r, g, b } = hsvToRgb(hsv.h, hsv.s, hsv.v);
+      const hex = rgbToHex(r, g, b);
+      setInputHex(hex);
+    }
+  }, [hsv, isEditingHex]);
 
   // Handle color input change
   const emitHex = useCallback((hsvVal: {h:number;s:number;v:number}) => {
@@ -130,6 +149,7 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const onPointerDownSV = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     interactingRef.current = true;
+    setIsEditingHex(false);
     setIsDragging(true);
     const rect = svRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
@@ -153,6 +173,7 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const onPointerDownHue = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     interactingRef.current = true;
+    setIsEditingHex(false);
     setIsDragging(true);
     const rect = hueRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
@@ -174,6 +195,7 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const onPointerDownSat = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     interactingRef.current = true;
+    setIsEditingHex(false);
     setIsDragging(true);
     const rect = satRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
@@ -195,6 +217,7 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
   const onPointerDownVal = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     interactingRef.current = true;
+    setIsEditingHex(false);
     setIsDragging(true);
     const rect = valRef.current!.getBoundingClientRect();
     const x = clamp((e.clientX - rect.left) / rect.width, 0, 1);
@@ -245,6 +268,7 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
             const srect = sidebar.getBoundingClientRect();
             setSidebarLeft(srect.left);
           }
+          setIsEditingHex(false);
           setOpen((v) => !v);
         }}
         className="w-6 h-6 border border-gray-300 rounded-sm shadow-sm cursor-pointer"
@@ -341,14 +365,37 @@ const DebouncedColorPicker: React.FC<DebouncedColorPickerProps> = ({
           <div className="mt-3">
             <input
               className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
-              value={displayHex}
+              placeholder="#rrggbb or rrggbb"
+              value={isEditingHex ? inputHex : displayHex}
+              onFocus={() => {
+                setIsEditingHex(true);
+                setInputHex(displayHex);
+              }}
               onChange={(e) => {
-                const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
-                const rgb = hexToRgb(val);
-                if (!rgb) return;
+                const raw = e.target.value;
+                setInputHex(raw);
+                const rgb = hexToRgb(raw);
+                if (!rgb) return; // allow typing partials; only commit on valid
                 const next = rgbToHsv(rgb.r, rgb.g, rgb.b);
                 setHsv(next);
                 emitHex(next);
+              }}
+              onBlur={() => {
+                setIsEditingHex(false);
+                const rgb = hexToRgb(inputHex);
+                if (!rgb) {
+                  // restore to current display color
+                  setInputHex(displayHex);
+                } else {
+                  const next = rgbToHsv(rgb.r, rgb.g, rgb.b);
+                  setHsv(next);
+                  emitHex(next);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  (e.target as HTMLInputElement).blur();
+                }
               }}
             />
           </div>
