@@ -1021,7 +1021,7 @@ export default function MaterialEditorPage() {
   };
 
   // Add new material by name (invoked from modal)
-  const addNewMaterialByName = (name: string, assignMeshName?: string) => {
+  const addNewMaterialByName = (name: string, assignMeshNames?: string[] | string) => {
     const trimmed = name.trim();
     if (!trimmed || !referenceGltf) return;
     const newMaterial: Material = {
@@ -1033,21 +1033,43 @@ export default function MaterialEditorPage() {
       normalScale: 1.0,
       occlusionStrength: 1.0,
     };
-    // If a mesh was chosen, annotate with variantMeshes for UI and staging
-    const annotated: any = assignMeshName ? { ...newMaterial, variantMeshes: [assignMeshName] } : newMaterial;
+    // If meshes were chosen, annotate with variantMeshes for UI and staging
+    const meshList: string[] | undefined = Array.isArray(assignMeshNames)
+      ? assignMeshNames.filter(Boolean)
+      : (typeof assignMeshNames === 'string' && assignMeshNames ? [assignMeshNames] : undefined);
+    const annotated: any = meshList && meshList.length > 0 ? { ...newMaterial, variantMeshes: meshList } : newMaterial;
     setReferenceGltf(prev => prev ? { ...prev, materials: [...prev.materials, annotated] } : prev);
     setIsAddingMaterial(false);
     handleMaterialSelect(annotated);
-    if (assignMeshName) {
+    if (meshList && meshList.length > 0) {
       setStagedMaterials(prev => ({ ...prev, [annotated.name]: annotated } as any));
     }
   };
 
   // Lightweight local modal for adding material (isolates input re-renders)
-  const AddMaterialModal = React.memo(({ open, onOpenChange, onSubmit }: { open: boolean; onOpenChange: (v: boolean) => void; onSubmit: (name: string, meshName?: string) => void }) => {
+  const AddMaterialModal = React.memo(({
+    open,
+    onOpenChange,
+    onSubmit
+  }: {
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+    onSubmit: (name: string, meshNames?: string[] | string) => void;
+  }) => {
     const [name, setName] = useState('');
-    const [mesh, setMesh] = useState('');
-    useEffect(() => { if (open) { setName(''); setMesh(''); } }, [open]);
+    const [selectedMeshes, setSelectedMeshes] = useState<Set<string>>(new Set());
+    const [filter, setFilter] = useState('');
+    useEffect(() => {
+      if (open) {
+        setName('');
+        setSelectedMeshes(new Set());
+        setFilter('');
+      }
+    }, [open]);
+    const meshOptions: string[] = Array.isArray((referenceGltf as any)?.meshes)
+      ? ((referenceGltf as any).meshes as string[])
+      : sceneMeshNames;
+    const filteredOptions = meshOptions.filter(m => m && m.toLowerCase().includes(filter.toLowerCase()));
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger asChild>
@@ -1060,7 +1082,7 @@ export default function MaterialEditorPage() {
           <DialogHeader>
             <DialogTitle>Add New Material</DialogTitle>
             <DialogDescription>
-              Create a new material. Optionally assign it as a variant for a mesh.
+              Create a new material. Optionally assign it as a variant for one or more meshes.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -1070,24 +1092,45 @@ export default function MaterialEditorPage() {
               onChange={(e) => setName(e.target.value)}
             />
             <div className="mt-3">
-              <label className="block text-xs text-gray-600 mb-1">Mesh (optional)</label>
-              <select
-                className="w-full border rounded px-2 py-2 text-sm bg-white"
-                value={mesh}
-                onChange={(e) => setMesh(e.target.value)}
-              >
-                <option value="">None</option>
-                {(referenceGltf?.meshes || []).map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
+              <label className="block text-xs text-gray-600 mb-1">Assign as Variant to Meshes (optional)</label>
+              <Input
+                placeholder="Filter meshes..."
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="mb-2"
+              />
+              <div className="max-h-40 overflow-auto border rounded p-2 bg-white">
+                {filteredOptions.length === 0 ? (
+                  <div className="text-xs text-gray-500">No meshes</div>
+                ) : (
+                  filteredOptions.map((m) => (
+                    <label key={m} className="flex items-center text-xs space-x-2 py-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedMeshes.has(m)}
+                        onChange={(e) => {
+                          setSelectedMeshes((prev) => {
+                            const next = new Set(prev);
+                            if (e.target.checked) next.add(m); else next.delete(m);
+                            return next;
+                          });
+                        }}
+                      />
+                      <span className="truncate">{m}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+              {selectedMeshes.size > 0 && (
+                <div className="text-[11px] text-gray-500 mt-1">{selectedMeshes.size} mesh{selectedMeshes.size !== 1 ? 'es' : ''} selected</div>
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={() => onSubmit(name, mesh || undefined)} disabled={!name.trim()}>
+            <Button onClick={() => onSubmit(name, selectedMeshes.size > 0 ? Array.from(selectedMeshes) : undefined)} disabled={!name.trim()}>
               Add Material
             </Button>
           </DialogFooter>
@@ -1902,7 +1945,31 @@ export default function MaterialEditorPage() {
                               }
                               const mv = modelViewerRef.current as any;
                               if (!mv) return;
-                                  try { withTargetMeshes((mat) => { if ('sheenRoughness' in mat) mat.sheenRoughness = v; }); } catch {}
+                              try {
+                                withTargetMeshes((mat, obj, THREE) => {
+                                  // Upgrade to MeshPhysicalMaterial on-the-fly if needed to reflect sheen changes live
+                                  if (!mat?.isMeshPhysicalMaterial) {
+                                    const phys = new (THREE as any).MeshPhysicalMaterial();
+                                    if (mat?.color) phys.color.copy?.(mat.color);
+                                    if ('metalness' in mat) phys.metalness = mat.metalness;
+                                    if ('roughness' in mat) phys.roughness = mat.roughness;
+                                    phys.map = mat.map ?? null;
+                                    phys.metalnessMap = mat.metalnessMap ?? null;
+                                    phys.roughnessMap = mat.roughnessMap ?? null;
+                                    phys.normalMap = mat.normalMap ?? null;
+                                    phys.aoMap = mat.aoMap ?? null;
+                                    if (mat.emissive) phys.emissive.copy?.(mat.emissive);
+                                    phys.emissiveMap = mat.emissiveMap ?? null;
+                                    phys.opacity = mat.opacity ?? phys.opacity;
+                                    phys.transparent = mat.transparent ?? phys.transparent;
+                                    if (mat.normalScale) phys.normalScale?.copy?.(mat.normalScale);
+                                    obj.material = phys;
+                                    mat = phys;
+                                  }
+                                  if ('sheen' in mat) (mat as any).sheen = 1;
+                                  if ('sheenRoughness' in mat) (mat as any).sheenRoughness = v;
+                                });
+                              } catch {}
                             }} 
                             min={0} max={1} step={0.01} 
                           />
@@ -1947,18 +2014,32 @@ export default function MaterialEditorPage() {
                                     sheenColor: [r, g, b] as any,
                                   }) : prev);
                                 }
-                                attachThreeAccess(mv);
                                 try {
-                                  mv.withThreeModel?.((root: any) => {
-                                    root.traverse((obj: any) => {
-                                      const mat = obj?.material;
-                                      if (obj?.isMesh && mat && mat.sheenColor?.setRGB) {
-                                        mat.sheenColor.setRGB(r, g, b);
-                                        mat.needsUpdate = true;
-                                      }
-                                    });
+                                  withTargetMeshes((mat, obj, THREE) => {
+                                    // Upgrade to MeshPhysicalMaterial on-the-fly if needed
+                                    if (!mat?.isMeshPhysicalMaterial) {
+                                      const phys = new (THREE as any).MeshPhysicalMaterial();
+                                      if (mat?.color) phys.color.copy?.(mat.color);
+                                      if ('metalness' in mat) phys.metalness = mat.metalness;
+                                      if ('roughness' in mat) phys.roughness = mat.roughness;
+                                      phys.map = mat.map ?? null;
+                                      phys.metalnessMap = mat.metalnessMap ?? null;
+                                      phys.roughnessMap = mat.roughnessMap ?? null;
+                                      phys.normalMap = mat.normalMap ?? null;
+                                      phys.aoMap = mat.aoMap ?? null;
+                                      if (mat.emissive) phys.emissive.copy?.(mat.emissive);
+                                      phys.emissiveMap = mat.emissiveMap ?? null;
+                                      phys.opacity = mat.opacity ?? phys.opacity;
+                                      phys.transparent = mat.transparent ?? phys.transparent;
+                                      if (mat.normalScale) phys.normalScale?.copy?.(mat.normalScale);
+                                      obj.material = phys;
+                                      mat = phys;
+                                    }
+                                    if ('sheen' in mat) (mat as any).sheen = 1;
+                                    if (mat?.sheenColor?.setRGB) mat.sheenColor.setRGB(r, g, b);
+                                    mat.needsUpdate = true;
                                   });
-                                  mv.requestRender?.();
+                                  const req = mv.requestRender?.();
                                   forceModelViewerRender(mv);
                                 } catch {}
                               }}
