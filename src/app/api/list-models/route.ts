@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const { zoneName, basePath } = getStorageZoneDetails();
     
     // Construct the path to the client's base folder
-    const clientBasePath = `${clientConfig.bunnyCdn.basePath}/`;
+    const clientBasePath = `${clientConfig.bunnyCdn.modelPath}/`;
     
     console.log(`Listing models for client: ${clientName}, path: ${clientBasePath}`);
     

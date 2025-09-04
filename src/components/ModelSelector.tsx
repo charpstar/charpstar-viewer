@@ -106,9 +106,9 @@ export default function ModelSelector({ onModelChange, currentModel, cacheTimest
 
   // Get model URL with cache-busting if needed
   const getModelUrl = (modelName: string) => {
-    const baseUrl = clientConfig.modelUrl.split('/');
-    baseUrl.pop(); // Remove the file name
-    const url = `${baseUrl.join('/')}/${modelName}`;
+    const base = clientConfig.bunnyCdn.publicBaseUrl.replace(/\/$/, '');
+    const modelRoot = clientConfig.bunnyCdn.modelPath.replace(/\/$/, '');
+    const url = `${base}/${modelRoot}/${modelName}`;
     
     // Add cache-busting parameter if we have a global timestamp (after a save)
     if (cacheTimestamp) {

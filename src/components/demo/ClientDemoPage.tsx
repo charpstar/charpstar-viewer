@@ -168,10 +168,9 @@ export default function ClientDemoPage() {
   
   // Get model URL
   const getModelUrl = (modelName: string) => {
-    // This would be replaced with actual URL construction
-    const baseUrl = clientConfig.modelUrl.split('/');
-    baseUrl.pop(); // Remove the file name
-    return `${baseUrl.join('/')}/${modelName}`;
+    const base = clientConfig.bunnyCdn.publicBaseUrl.replace(/\/$/, '');
+    const modelRoot = clientConfig.bunnyCdn.modelPath.replace(/\/$/, '');
+    return `${base}/${modelRoot}/${modelName}`;
   };
   
   // Model categories stats

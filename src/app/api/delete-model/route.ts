@@ -41,7 +41,7 @@ export async function DELETE(request: NextRequest) {
     const { zoneName, basePath } = getStorageZoneDetails();
     
     // Construct the path for the file in BunnyCDN
-    const filePath = `${clientConfig.bunnyCdn.basePath}/${filename}`;
+    const filePath = `${clientConfig.bunnyCdn.modelPath}/${filename}`;
     
     console.log(`Deleting model file: ${filePath}`);
     

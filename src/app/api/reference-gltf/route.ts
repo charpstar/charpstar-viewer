@@ -18,13 +18,14 @@ export async function GET(request: NextRequest) {
     if (!client) return NextResponse.json({ error: 'Client parameter is required' }, { status: 400 });
 
     const clientConfig = getClientConfig(client);
-    const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+    const referencePath = clientConfig.bunnyCdn.referencePath || 'reference/reference.gltf';
+    const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${referencePath}`;
     console.log(`Fetching reference GLTF for client ${client}: ${referenceUrl}`);
 
     // If listing backups only, return backup list
     if (listBackups === '1') {
-      // Backups live under <basePath>/reference/backup/
-      const backupsBase = `${clientConfig.bunnyCdn.basePath}/reference/backup/`;
+      // Backups path from client config
+      const backupsBase = `${clientConfig.bunnyCdn.backupsPath.replace(/\/$/, '')}/`;
       // We cannot list via pull zone; use storage API
       const zone = (process.env.BUNNY_STORAGE_ZONE_NAME || '').split('/')[0];
       const host = (process.env.BUNNY_REGION || '') ? `${process.env.BUNNY_REGION}.storage.bunnycdn.com` : 'storage.bunnycdn.com';
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
     let gltfData: any;
     if (forceFresh && STORAGE_ZONE_PATH && ACCESS_KEY) {
       const zoneName = STORAGE_ZONE_PATH.split('/')[0];
-      const storagePath = `${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+      const storagePath = `${referencePath}`;
       const storageUrl = `https://${HOSTNAME}/${zoneName}/${storagePath}`;
       const res = await fetch(storageUrl, { headers: { AccessKey: ACCESS_KEY } });
       if (!res.ok) throw new Error(`Failed to fetch reference from storage: ${res.status}`);

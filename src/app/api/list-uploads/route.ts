@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const { zoneName, basePath } = getStorageZoneDetails();
     
     // Construct the path to the uploads folder
-    const uploadsPath = `${clientConfig.bunnyCdn.basePath}/Uploads/`;
+    const uploadsPath = `${clientConfig.bunnyCdn.modelPath}/Uploads/`;
     
     console.log(`Listing uploads for client: ${clientName}, path: ${uploadsPath}`);
     

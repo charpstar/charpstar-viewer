@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
     }
 
     const clientConfig = getClientConfig(client);
-    const backupUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.basePath}/reference/backup/${backup}`;
+    const backupDir = clientConfig.bunnyCdn.backupsPath.replace(/\/$/, '');
+    const backupUrl = `https://${BUNNY_PULL_ZONE_URL}/${backupDir}/${backup}`;
 
     // Fetch backup content
     const resp = await fetch(backupUrl);
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to reference/reference.gltf
     const { zoneName } = getStorageZoneDetails();
-    const destPath = `${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+    const destPath = `${clientConfig.bunnyCdn.referencePath}`;
     await new Promise<void>((resolve, reject) => {
       const buffer = Buffer.from(content);
       const options = {

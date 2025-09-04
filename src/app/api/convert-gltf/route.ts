@@ -88,7 +88,7 @@ const purgeCache = async (fileUrl: string): Promise<void> => {
 
 // Helper to upload processed GLTF to client folder
 const uploadToClientFolder = async (content: string, filename: string, clientConfig: any): Promise<void> => {
-  const basePath = clientConfig.bunnyCdn.basePath;
+  const basePath = clientConfig.bunnyCdn.modelPath;
   const filePath = `${basePath}/${filename}`;
   
   // Upload the GLTF file
@@ -486,7 +486,7 @@ export async function POST(request: NextRequest) {
     // Fetch the reference GLTF file from client's reference folder
     let referenceData: GltfData;
     try {
-      const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+      const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.referencePath}`;
       console.log(`Fetching reference GLTF from: ${referenceUrl}`);
       
       const referenceResponse = await fetch(referenceUrl);
@@ -784,7 +784,7 @@ export async function POST(request: NextRequest) {
     console.log(`📤 Uploading processed GLTF as: ${uploadFilename}`);
     
     // Construct the path for the file in BunnyCDN using client-specific paths
-    const filePath = `${clientConfig.bunnyCdn.basePath}/${uploadFilename}`;
+    const filePath = `${clientConfig.bunnyCdn.modelPath}/${uploadFilename}`;
     console.log(`Full file path for upload: ${filePath}`);
     
     // Upload to BunnyCDN
@@ -800,7 +800,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Purge cache for the uploaded file
-    const fileUrl = `https://cdn.charpstar.net/${clientConfig.bunnyCdn.basePath}/${uploadFilename}`;
+    const fileUrl = `https://cdn.charpstar.net/${clientConfig.bunnyCdn.modelPath}/${uploadFilename}`;
     await purgeCache(fileUrl);
     
     return NextResponse.json({ 

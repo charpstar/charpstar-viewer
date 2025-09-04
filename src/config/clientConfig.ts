@@ -7,7 +7,6 @@ export interface ClientConfig {
   description?: string;
   
   // URLs and paths
-  modelUrl: string;
   hdrPath: string;
   resourcesPath: string;
   
@@ -20,8 +19,11 @@ export interface ClientConfig {
   
   // BunnyCDN specific paths
   bunnyCdn: {
-    basePath: string;          
-    imagesFolder: string;      
+    modelPath: string;         
+    imagesPath: string;        
+    referencePath: string;     
+    backupsPath: string;       
+    publicBaseUrl: string;     
   };
 }
 
@@ -29,15 +31,17 @@ export interface ClientConfig {
 const DEFAULT_CONFIG: ClientConfig = {
   name: "Default",
   description: "Default Configuration",
-  modelUrl: "",
   hdrPath: "https://cdn.charpstar.net/HDR/default.hdr",
   resourcesPath: "",
   livePassword: "",
   exposure: 1.0,
   toneMapping: "neutral",
   bunnyCdn: {
-    basePath: "Client-Editor/Default",
-    imagesFolder: "images"
+    modelPath: "Client-Editor/Default",
+    imagesPath: "Client-Editor/Default/images",
+    referencePath: "Client-Editor/Default/reference/reference.gltf",
+    backupsPath: "Client-Editor/Default/reference/backup",
+    publicBaseUrl: "https://cdn.charpstar.net"
   }
 };
 
@@ -46,29 +50,49 @@ export const clients: Record<string, ClientConfig> = {
   Artwood: {
     name: "Artwood",
     description: "Artwood Editor",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/Artwood/7844-4401-2.gltf",
     hdrPath: "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr",
     resourcesPath: "Artwood",
     livePassword: "artwood2024",
     exposure: 1.5,
     toneMapping: "aces",
     bunnyCdn: {
-      basePath: "Client-Editor/Artwood",
-      imagesFolder: "images"
+      modelPath: "Client-Editor/Artwood",
+      imagesPath: "Client-Editor/Artwood/images",
+      referencePath: "Client-Editor/Artwood/reference/reference.gltf",
+      backupsPath: "Client-Editor/Artwood/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
   Sweef: {
     name: "Sweef",
     description: "Sweef Editor",
-    modelUrl: "https://cdn.charpstar.net/Client-Editor/Sweef/TIG-2.gltf",
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
     resourcesPath: "Sweef",
     livePassword: "sweef2024",
     exposure: 1.4,
     toneMapping: "aces",
     bunnyCdn: {
-      basePath: "Client-Editor/Sweef",
-      imagesFolder: "images"
+      modelPath: "Client-Editor/Sweef",
+      imagesPath: "Client-Editor/Sweef/images",
+      referencePath: "Client-Editor/Sweef/reference/reference.gltf",
+      backupsPath: "Client-Editor/Sweef/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
+    }
+  },
+  GeorgeSmith: {
+    name: "GeorgeSmith",
+    description: "GeorgeSmith Editor",
+    hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
+    resourcesPath: "GeorgeSmith",
+    livePassword: "gs2024",
+    exposure: 1.4,
+    toneMapping: "aces",
+    bunnyCdn: {
+      modelPath: "Client-Editor/GeorgeSmith",
+      imagesPath: "Client-Editor/GeorgeSmith/images",
+      referencePath: "Client-Editor/GeorgeSmith/reference/reference.gltf",
+      backupsPath: "Client-Editor/GeorgeSmith/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
 };

@@ -53,9 +53,9 @@ export default function ManageModelsPage() {
 
   // Model viewing functions (from demo page)
   const getModelUrl = (filename: string) => {
-    const baseUrl = clientConfig.modelUrl.split('/');
-    baseUrl.pop(); // Remove the current file name
-    return `${baseUrl.join('/')}/${filename}`;
+    const base = clientConfig.bunnyCdn.publicBaseUrl.replace(/\/$/, '');
+    const modelRoot = clientConfig.bunnyCdn.modelPath.replace(/\/$/, '');
+    return `${base}/${modelRoot}/${filename}`;
   };
 
   // Load existing models - SIMPLE function, no unnecessary useCallback

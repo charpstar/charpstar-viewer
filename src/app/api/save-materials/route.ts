@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     const clientConfig = getClientConfig(client);
-    const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+    const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.referencePath}`;
 
     // Fetch current reference GLTF
     const response = await fetch(referenceUrl);
@@ -783,7 +783,8 @@ export async function POST(request: NextRequest) {
     // Before we upload the updated reference.gltf, create a timestamped backup
     try {
       const backupTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const backupFilePath = `${clientConfig.bunnyCdn.basePath}/reference/backup/reference-${backupTimestamp}.gltf`;
+      const backupDir = clientConfig.bunnyCdn.backupsPath.replace(/\/$/, '');
+      const backupFilePath = `${backupDir}/reference-${backupTimestamp}.gltf`;
       await uploadToBunny(backupFilePath, gltfText, 'model/gltf+json');
     } catch (e) {
       console.warn('Backup of reference.gltf failed; proceeding with save', e);
@@ -791,7 +792,7 @@ export async function POST(request: NextRequest) {
 
     // Final upload
     const updatedGltfContent = JSON.stringify(out, null, 2);
-    const filePath = `${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+    const filePath = `${clientConfig.bunnyCdn.referencePath}`;
     await uploadToBunny(filePath, updatedGltfContent, 'model/gltf+json');
     await purgeCache(`https://${BUNNY_PULL_ZONE_URL}/${filePath}`);
 

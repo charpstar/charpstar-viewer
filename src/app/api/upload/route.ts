@@ -106,9 +106,10 @@ export async function POST(request: NextRequest) {
     }
     
     // Construct the path for the file in BunnyCDN using client-specific paths
+    const modelBase = clientConfig.bunnyCdn.modelPath.replace(/\/$/, '');
     const filePath = targetFolder 
-      ? `${clientConfig.bunnyCdn.basePath}/${targetFolder}/${filename}`
-      : `${clientConfig.bunnyCdn.basePath}/${filename}`;
+      ? `${modelBase}/${targetFolder}/${filename}`
+      : `${modelBase}/${filename}`;
     console.log(`Full file path for upload: ${filePath}`);
     
     // Upload to BunnyCDN

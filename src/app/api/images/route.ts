@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     if (!client) return NextResponse.json({ error: 'client is required' }, { status: 400 })
     const clientConfig = getClientConfig(client)
     const { zoneName } = getStorageZoneDetails()
-    const dirPath = `/${zoneName}/${clientConfig.bunnyCdn.basePath}/images/`
+    const dirPath = `/${zoneName}/${clientConfig.bunnyCdn.imagesPath.replace(/\/$/, '')}/`
 
     // Bunny Storage API directory listing
     const list = await new Promise<any[]>((resolve, reject) => {
@@ -106,7 +106,8 @@ export async function POST(request: NextRequest) {
     if (!filename) return NextResponse.json({ error: 'filename is required' }, { status: 400 })
 
     const { zoneName } = getStorageZoneDetails()
-    const storagePath = `${clientConfig.bunnyCdn.basePath}/images/${filename}`
+    const baseImagesPath = clientConfig.bunnyCdn.imagesPath.replace(/\/$/, '')
+    const storagePath = `${baseImagesPath}/${filename}`
 
     await new Promise<void>((resolve, reject) => {
       const options = {

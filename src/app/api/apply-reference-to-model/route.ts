@@ -50,18 +50,20 @@ export async function POST(request: NextRequest) {
     if (!client || !target) return NextResponse.json({ error: 'client and target are required' }, { status: 400 });
 
     const clientConfig = getClientConfig(client);
-    const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+    const referenceUrl = `https://${BUNNY_PULL_ZONE_URL}/${clientConfig.bunnyCdn.referencePath}`;
 
-    // Compute target URL from client modelUrl folder
-    const modelBase = new URL('./', clientConfig.modelUrl).toString();
-    const targetUrl = new URL(target.replace(/^\/+/, ''), modelBase).toString();
+    // Compute target URL from publicBaseUrl + modelPath
+    const base = (clientConfig as any).bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
+    const modelRoot = (clientConfig as any).bunnyCdn?.modelPath?.replace(/\/$/, '') || '';
+    const targetUrl = `${base}/${modelRoot}/${target.replace(/^\/+/, '')}`;
 
     // If revertToBackup is provided, first restore the backup to the active reference.gltf
     if (revertToBackup && typeof revertToBackup === 'string') {
       // Copy from backups folder to reference/reference.gltf
       const zoneName = getStorageZoneDetails().zoneName;
-      const backupPath = `${clientConfig.bunnyCdn.basePath}/reference/backup/${revertToBackup}`;
-      const destPath = `${clientConfig.bunnyCdn.basePath}/reference/reference.gltf`;
+      const backupDir = clientConfig.bunnyCdn.backupsPath.replace(/\/$/, '');
+      const backupPath = `${backupDir}/${revertToBackup}`;
+      const destPath = `${clientConfig.bunnyCdn.referencePath}`;
       // Download backup via pull zone then upload to storage (avoids signed storage GET)
       const backupResp = await fetch(`https://${BUNNY_PULL_ZONE_URL}/${backupPath}`);
       if (!backupResp.ok) return NextResponse.json({ error: 'Failed to fetch backup file' }, { status: 400 });
