@@ -79,7 +79,7 @@ export const clients: Record<string, ClientConfig> = {
       publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
-  GeorgeSmith: {
+  Georgesmith: {
     name: "Georgesmith",
     description: "GeorgeSmith Editor",
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
