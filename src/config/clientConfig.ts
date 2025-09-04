@@ -80,7 +80,7 @@ export const clients: Record<string, ClientConfig> = {
     }
   },
   GeorgeSmith: {
-    name: "GeorgeSmith",
+    name: "Georgesmith",
     description: "GeorgeSmith Editor",
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
     resourcesPath: "GeorgeSmith",
