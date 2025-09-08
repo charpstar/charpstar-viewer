@@ -438,12 +438,13 @@ export async function POST(request: NextRequest) {
         const nameToIndex = new Map<string, number>();
         (out.materials as any[]).forEach((m: any, idx: number) => { if (m?.name) nameToIndex.set(m.name, idx); });
 
-        // Ensure top-level KHR_materials_variants exists with at least one variant
+        // Ensure top-level KHR_materials_variants exists and prepare variant name lookup
         (out as any).extensions = (out as any).extensions || {};
         const extRoot = (out as any).extensions;
-        extRoot.KHR_materials_variants = extRoot.KHR_materials_variants || { variants: [{ name: 'default' }] };
-        const variantsArr: any[] = Array.isArray(extRoot.KHR_materials_variants.variants) ? extRoot.KHR_materials_variants.variants : (extRoot.KHR_materials_variants.variants = [{ name: 'default' }]);
-        const defaultVariantIndex = 0;
+        const kmv = (extRoot.KHR_materials_variants = extRoot.KHR_materials_variants || { variants: [{ name: 'default' }] });
+        const variantsArr: any[] = Array.isArray(kmv.variants) ? kmv.variants : (kmv.variants = [{ name: 'default' }]);
+        const variantNameToIndex = new Map<string, number>();
+        variantsArr.forEach((v: any, i: number) => { if (v && typeof v.name === 'string') variantNameToIndex.set(v.name, i); });
 
         // Iterate meshes and primitives, add mapping when mesh name matches
         if (Array.isArray((out as any).meshes)) {
@@ -451,41 +452,50 @@ export async function POST(request: NextRequest) {
             const meshName: string | undefined = typeof mesh?.name === 'string' ? mesh.name : undefined;
             if (!meshName || !Array.isArray(mesh?.primitives)) return;
             // Determine if any material requests this mesh
-            const requestingMaterials: Array<{ name: string; index: number }> = [];
+            const requestingMaterials: Array<{ name: string; index: number; varIdx: number }> = [];
             variantMeshesByMaterial.forEach((meshNames, matName) => {
               if (meshNames.includes(meshName)) {
                 const idx = nameToIndex.get(matName);
-                if (typeof idx === 'number') requestingMaterials.push({ name: matName, index: idx });
+                if (typeof idx === 'number') {
+                  // Ensure a variant exists with the material's exact name
+                  let vIdx = variantNameToIndex.get(matName);
+                  if (typeof vIdx !== 'number') {
+                    variantsArr.push({ name: matName });
+                    vIdx = variantsArr.length - 1;
+                    variantNameToIndex.set(matName, vIdx);
+                  }
+                  requestingMaterials.push({ name: matName, index: idx, varIdx: vIdx });
+                }
               }
             });
             if (requestingMaterials.length === 0) return;
 
             mesh.primitives.forEach((prim: any) => {
-              // Decide variant indices to use for this primitive: reuse existing if available, else default 0
-              const maps = prim?.extensions?.KHR_materials_variants?.mappings;
-              let variantIndices: number[] | undefined;
-              if (Array.isArray(maps) && maps.length > 0 && Array.isArray(maps[0]?.variants) && maps[0].variants.length > 0) {
-                variantIndices = [...maps[0].variants];
-              } else {
-                variantIndices = [defaultVariantIndex];
-              }
-
               // Ensure extension containers
               prim.extensions = prim.extensions || {};
               prim.extensions.KHR_materials_variants = prim.extensions.KHR_materials_variants || {};
               const ext = prim.extensions.KHR_materials_variants;
               ext.mappings = Array.isArray(ext.mappings) ? ext.mappings : [];
 
-              // Add mapping for each requested material if not already present
-              requestingMaterials.forEach(({ index }) => {
-                const exists = ext.mappings.some((m: any) => m && typeof m.material === 'number' && m.material === index);
-                if (!exists) {
-                  ext.mappings.push({ material: index, variants: variantIndices });
+              // Add/merge mapping for each requested material at the material-named variant index
+              requestingMaterials.forEach(({ index, varIdx }) => {
+                const existing = ext.mappings.find((m: any) => m && typeof m.material === 'number' && m.material === index);
+                if (existing) {
+                  existing.variants = Array.isArray(existing.variants) ? existing.variants : [];
+                  if (!existing.variants.includes(varIdx)) existing.variants.push(varIdx);
+                } else {
+                  ext.mappings.push({ material: index, variants: [varIdx] });
                 }
               });
             });
           });
         }
+
+        // Ensure extensionsUsed includes KHR_materials_variants
+        try {
+          (out as any).extensionsUsed = Array.isArray((out as any).extensionsUsed) ? (out as any).extensionsUsed : [];
+          if (!(out as any).extensionsUsed.includes('KHR_materials_variants')) (out as any).extensionsUsed.push('KHR_materials_variants');
+        } catch {}
       }
     } catch {}
 

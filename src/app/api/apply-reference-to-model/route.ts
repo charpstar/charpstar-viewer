@@ -333,89 +333,36 @@ export async function POST(request: NextRequest) {
 
     // (Removed legacy reaffirm step; applySlotRaw already ensures image/texture indices)
 
-    // Copy KHR_materials_variants mappings based on mesh names present in reference JSON
+    // Preserve existing variant names and per-variant material assignments.
+    // Remap mapping.material indices to the new material indices by original material name.
     try {
       const outJson = out;
-      const refMaterialsArr: any[] = Array.isArray(refJson.materials) ? refJson.materials : [];
-      const refMeshes: any[] = Array.isArray(refJson.meshes) ? refJson.meshes : [];
-      const refIndexToName = new Map<number, string>();
-      refMaterialsArr.forEach((m: any, idx: number) => { if (m?.name) refIndexToName.set(idx, m.name); });
+      const oldMaterialsArr: any[] = Array.isArray(tgtJson.materials) ? tgtJson.materials : [];
+      const oldIndexToName: (string | undefined)[] = oldMaterialsArr.map((m: any) => (m && typeof m.name === 'string') ? m.name : undefined);
+      const newMaterialsArr: any[] = Array.isArray(outJson.materials) ? outJson.materials : [];
+      const nameToNewIndex = new Map<string, number>();
+      newMaterialsArr.forEach((m: any, idx: number) => { if (m?.name) nameToNewIndex.set(m.name, idx); });
 
-      // Build material name -> set(mesh names) from reference
-      const matNameToMeshSet = new Map<string, Set<string>>();
-      refMeshes.forEach((mesh: any, meshIndex: number) => {
-        const meshName = typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIndex}`;
+      const meshes: any[] = Array.isArray(outJson.meshes) ? outJson.meshes : [];
+      meshes.forEach((mesh: any) => {
         const prims: any[] = Array.isArray(mesh?.primitives) ? mesh.primitives : [];
         prims.forEach((prim: any) => {
           const maps = prim?.extensions?.KHR_materials_variants?.mappings;
-          if (Array.isArray(maps)) {
-            maps.forEach((map: any) => {
-              const mi = map?.material;
-              if (typeof mi === 'number') {
-                const name = refIndexToName.get(mi);
-                if (!name) return;
-                if (!matNameToMeshSet.has(name)) matNameToMeshSet.set(name, new Set());
-                matNameToMeshSet.get(name)!.add(meshName);
-              }
-            });
-          }
-        });
-      });
-
-      // Prepare target indices
-      const outMaterials: any[] = Array.isArray(outJson.materials) ? outJson.materials : (outJson.materials = []);
-      const nameToTgtMatIndex = new Map<string, number>();
-      outMaterials.forEach((m: any, idx: number) => { if (m?.name) nameToTgtMatIndex.set(m.name, idx); });
-
-      // Ensure root variants array exists; then ensure a variant per material name
-      outJson.extensions = outJson.extensions || {};
-      const kmvRoot = (outJson.extensions.KHR_materials_variants = outJson.extensions.KHR_materials_variants || { variants: [] });
-      kmvRoot.variants = Array.isArray(kmvRoot.variants) ? kmvRoot.variants : [];
-      const variantNameToIndex = new Map<string, number>();
-      // Keep existing variants
-      kmvRoot.variants.forEach((v: any, i: number) => {
-        if (v && typeof v.name === 'string') variantNameToIndex.set(v.name, i);
-      });
-      // Ensure variants for each referenced material name
-      refMaterialsArr.forEach((m: any) => {
-        const name: string | undefined = m?.name;
-        if (!name) return;
-        if (!variantNameToIndex.has(name)) {
-          kmvRoot.variants.push({ name });
-          variantNameToIndex.set(name, kmvRoot.variants.length - 1);
-        }
-      });
-
-      // Apply mappings on target by matching mesh names
-      const tgtMeshes: any[] = Array.isArray(outJson.meshes) ? outJson.meshes : [];
-      tgtMeshes.forEach((mesh: any, meshIndex: number) => {
-        const meshName = typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIndex}`;
-        const requestedMaterialNames: string[] = [];
-        matNameToMeshSet.forEach((set, matName) => {
-          if (set.has(meshName)) requestedMaterialNames.push(matName);
-        });
-        if (requestedMaterialNames.length === 0) return;
-        const prims: any[] = Array.isArray(mesh?.primitives) ? mesh.primitives : [];
-        prims.forEach((prim: any) => {
-          prim.extensions = prim.extensions || {};
-          prim.extensions.KHR_materials_variants = prim.extensions.KHR_materials_variants || {};
-          const ext = prim.extensions.KHR_materials_variants;
-          ext.mappings = Array.isArray(ext.mappings) ? ext.mappings : [];
-          requestedMaterialNames.forEach((matName) => {
-            const matIdx = nameToTgtMatIndex.get(matName);
-            if (typeof matIdx !== 'number') return; // material not present
-            const varIdx = variantNameToIndex.get(matName);
-            if (typeof varIdx !== 'number') return; // safety
-            const existing = ext.mappings.find((m: any) => m && typeof m.material === 'number' && m.material === matIdx);
-            if (existing) {
-              existing.variants = Array.isArray(existing.variants) ? existing.variants : [];
-              if (!existing.variants.includes(varIdx)) existing.variants.push(varIdx);
-            } else {
-              ext.mappings.push({ material: matIdx, variants: [varIdx] });
+          if (!Array.isArray(maps)) return;
+          maps.forEach((map: any) => {
+            const oldIdx = map?.material;
+            if (typeof oldIdx === 'number') {
+              const oldName = oldIndexToName[oldIdx];
+              const newIdx = oldName ? nameToNewIndex.get(oldName) : undefined;
+              map.material = (typeof newIdx === 'number') ? newIdx : 0;
             }
           });
         });
       });
+
+      // Ensure extension is flagged as used
+      outJson.extensionsUsed = Array.isArray(outJson.extensionsUsed) ? outJson.extensionsUsed : [];
+      if (!outJson.extensionsUsed.includes('KHR_materials_variants')) outJson.extensionsUsed.push('KHR_materials_variants');
     } catch {}
 
     // Upload back to Bunny (overwrite target)
