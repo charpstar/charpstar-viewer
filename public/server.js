@@ -349,6 +349,18 @@ async function applyReferenceToTarget(clientName, filename, shouldCancel) {
     if (!out.extensionsUsed.includes('KHR_materials_variants')) out.extensionsUsed.push('KHR_materials_variants');
   } catch {}
 
+  // 3b) Ensure occlusionTexture.strength default when AO texture exists but strength missing
+  try {
+    (Array.isArray(out.materials) ? out.materials : []).forEach((m) => {
+      const hasAO = typeof m?.occlusionTexture?.index === 'number';
+      const hasStrength = typeof m?.occlusionTexture?.strength === 'number';
+      if (hasAO && !hasStrength) {
+        m.occlusionTexture = m.occlusionTexture || {};
+        m.occlusionTexture.strength = 1;
+      }
+    });
+  } catch {}
+
   // 4) Copy reference variant mappings additively (preserve existing variant names; add missing variants by name)
   try {
     const refKmv = refJson?.extensions?.KHR_materials_variants;

@@ -365,6 +365,20 @@ export async function POST(request: NextRequest) {
       if (!outJson.extensionsUsed.includes('KHR_materials_variants')) outJson.extensionsUsed.push('KHR_materials_variants');
     } catch {}
 
+    // Ensure occlusionTexture.strength defaults to 1 when AO texture exists but strength missing
+    try {
+      if (Array.isArray((out as any).materials)) {
+        (out as any).materials.forEach((m: any) => {
+          const hasAO = typeof m?.occlusionTexture?.index === 'number';
+          const hasStrength = typeof m?.occlusionTexture?.strength === 'number';
+          if (hasAO && !hasStrength) {
+            m.occlusionTexture = m.occlusionTexture || {};
+            m.occlusionTexture.strength = 1;
+          }
+        });
+      }
+    } catch {}
+
     // Upload back to Bunny (overwrite target)
     const { zoneName } = getStorageZoneDetails();
     // Build storage path relative to zone from targetUrl

@@ -471,6 +471,26 @@ export async function POST(request: NextRequest) {
             if (requestingMaterials.length === 0) return;
 
             mesh.primitives.forEach((prim: any) => {
+              // If assigning this mesh to new/edited materials, seed their AO from the mesh's current base material
+              try {
+                const outMaterialsArr: any[] = Array.isArray((out as any).materials) ? (out as any).materials : [];
+                const baseMatIdx: number | undefined = (typeof prim?.material === 'number') ? prim.material : undefined;
+                const baseMat: any | undefined = (typeof baseMatIdx === 'number') ? outMaterialsArr[baseMatIdx] : undefined;
+                const baseAOIdx: number | undefined = (typeof baseMat?.occlusionTexture?.index === 'number') ? baseMat.occlusionTexture.index : undefined;
+                const baseAOTexCoord: number | undefined = (typeof baseMat?.occlusionTexture?.texCoord === 'number') ? baseMat.occlusionTexture.texCoord : undefined;
+                const baseAOStrength: number | undefined = (typeof baseMat?.occlusionTexture?.strength === 'number') ? baseMat.occlusionTexture.strength : undefined;
+                if (typeof baseAOIdx === 'number') {
+                  requestingMaterials.forEach(({ index }) => {
+                    const tgt = outMaterialsArr[index];
+                    if (!tgt) return;
+                    const hasAO = typeof tgt?.occlusionTexture?.index === 'number';
+                    if (!hasAO) {
+                      tgt.occlusionTexture = { index: baseAOIdx, texCoord: (typeof baseAOTexCoord === 'number' ? baseAOTexCoord : 1) };
+                      tgt.occlusionTexture.strength = (typeof baseAOStrength === 'number') ? baseAOStrength : 1;
+                    }
+                  });
+                }
+              } catch {}
               // Ensure extension containers
               prim.extensions = prim.extensions || {};
               prim.extensions.KHR_materials_variants = prim.extensions.KHR_materials_variants || {};
@@ -496,6 +516,20 @@ export async function POST(request: NextRequest) {
           (out as any).extensionsUsed = Array.isArray((out as any).extensionsUsed) ? (out as any).extensionsUsed : [];
           if (!(out as any).extensionsUsed.includes('KHR_materials_variants')) (out as any).extensionsUsed.push('KHR_materials_variants');
         } catch {}
+      }
+    } catch {}
+
+    // Ensure occlusionTexture.strength defaults to 1 when occlusion texture is present but strength missing
+    try {
+      if (Array.isArray((out as any).materials)) {
+        (out as any).materials.forEach((m: any) => {
+          const hasAO = typeof m?.occlusionTexture?.index === 'number';
+          const hasStrength = typeof m?.occlusionTexture?.strength === 'number';
+          if (hasAO && !hasStrength) {
+            m.occlusionTexture = m.occlusionTexture || {};
+            m.occlusionTexture.strength = 1;
+          }
+        });
       }
     } catch {}
 

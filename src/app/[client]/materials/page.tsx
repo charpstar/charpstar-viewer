@@ -1026,6 +1026,8 @@ export default function MaterialEditorPage() {
       });
       // Clear staged edits since they are now persisted, keep current selection and editedMaterial as-is
       setStagedMaterials({});
+
+      // (debug download removed)
     } catch (e) {
       addToast('Failed to save materials', 'error');
     } finally {
