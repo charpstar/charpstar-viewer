@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popout Window</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: var(--font-jost), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        #portal {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="portal"></div>
+    <script>
+        // This script facilitates communication with the main window
+        // The main flexlayout will use this to render content via portals
+        window.addEventListener('beforeunload', () => {
+            if (window.opener) {
+                window.opener.postMessage({ type: 'popout_close', windowId: window.name }, '*');
+            }
+        });
+    </script>
+</body>
+</html>
