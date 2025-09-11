@@ -15,7 +15,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 
 interface ViewerControlsProps {
-  activeEnvironment: "v5" | "v6" | "synsam" | null;
+  activeEnvironment: "v5" | "v6" | null;
   exposure: number;
   onExposureChange: (value: number) => void;
   toneMapping: string;

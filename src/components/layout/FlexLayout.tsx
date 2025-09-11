@@ -143,7 +143,7 @@ interface FlexLayoutProps {
   onNodeSelect: (node: any) => void;
   onModelLoaded: () => void;
   onVariantChange: () => void;
-  activeEnvironment: "v5" | "v6" | "synsam" | null;
+  activeEnvironment: "v5" | "v6" | null;
   exposure: number;
   onExposureChange: (value: number) => void;
   toneMapping: string;

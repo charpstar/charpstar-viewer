@@ -24,38 +24,37 @@ export default function Home() {
   const [toneMapping, setToneMapping] = useState("aces");
   const modelViewerRef = useRef<any>(null);
 
-  // Set V6 defaults when initially loading
+  // Set defaults when initially loading
   useEffect(() => {
     setActiveEnvironment("v6");
     setExposure(1.2);
     setToneMapping("aces");
   }, []);
 
-  // Dynamically load the model-viewer script
+  // Dynamically load the model-viewer script (always standard)
   useEffect(() => {
-    // Check if model-viewer is already defined
+    // If already defined, don't load again
     if (customElements.get("model-viewer")) {
-      console.log(
-        "model-viewer already defined, skipping model-viewer.js load"
-      );
+      console.log("model-viewer already defined, skipping model-viewer.js load");
       return;
     }
 
-    // Check if model-viewer.js is already loaded
-    if (document.querySelector('script[src="/model-viewer.js"]')) {
-      console.log("model-viewer.js already loaded");
+    const scriptSrc = "/model-viewer.js";
+
+    // Avoid double-inserting the same script
+    if (document.querySelector(`script[src="${scriptSrc}"]`)) {
+      console.log(`${scriptSrc} already loaded`);
       return;
     }
 
-    // Only load the default model-viewer.js
-    console.log("Loading model-viewer.js for standard mode");
+    console.log(`Loading ${scriptSrc}`);
     const script = document.createElement("script");
     script.type = "module";
-    script.src = "/model-viewer.js";
+    script.src = scriptSrc;
     script.async = true;
     document.body.appendChild(script);
     return () => {
-      console.log("Removing model-viewer.js script");
+      console.log(`Removing ${scriptSrc} script`);
       document.body.removeChild(script);
     };
   }, []);
@@ -158,6 +157,26 @@ export default function Home() {
     // If model-viewer doesn't exist yet, the settings will be applied when it's created (via useEffect)
   };
 
+  // Synsam: directly apply attributes using the standard model-viewer
+  const handleSynsamMode = () => {
+    setActiveEnvironment(null);
+    setExposure(1);
+    setToneMapping("aces");
+
+    const modelViewer = document.getElementById("model-viewer");
+    if (modelViewer) {
+      modelViewer.setAttribute(
+        "environment-image",
+        "https://charpstar.se/3DTester/SynsamNewHDRI.jpg"
+      );
+      modelViewer.setAttribute("exposure", "1");
+      modelViewer.setAttribute("tone-mapping", "aces");
+      if (typeof (modelViewer as any).requestRender === "function") {
+        (modelViewer as any).requestRender();
+      }
+    }
+  };
+
   const handleExposureChange = (value: number) => {
     setExposure(value);
 
@@ -225,16 +244,13 @@ export default function Home() {
 
         modelViewer.addEventListener("camera-change", handleCameraChange);
 
-        // Apply current environment settings if we have an active environment and not in Synsam mode
-        if (
-          (activeEnvironment === "v5" || activeEnvironment === "v6")
-        ) {
+        // Apply current environment settings for V5/V6
+        if (activeEnvironment === "v5" || activeEnvironment === "v6") {
           if (activeEnvironment === "v5") {
             modelViewer.setAttribute(
               "environment-image",
               "https://cdn.charpstar.net/Demos/warm.hdr"
             );
-            // Apply current state values instead of hardcoded defaults
             modelViewer.setAttribute("exposure", exposure.toString());
             modelViewer.setAttribute("tone-mapping", toneMapping);
           } else if (activeEnvironment === "v6") {
@@ -242,7 +258,6 @@ export default function Home() {
               "environment-image",
               "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
             );
-            // Apply current state values instead of hardcoded defaults
             modelViewer.setAttribute("exposure", exposure.toString());
             modelViewer.setAttribute("tone-mapping", toneMapping);
           }
@@ -388,6 +403,7 @@ export default function Home() {
           onExportUSDZ={handleExportUSDZ}
           onEnvironmentChange={handleEnvironmentChange}
           activeEnvironment={activeEnvironment}
+          onSynsamMode={handleSynsamMode}
         />
       </div>
 

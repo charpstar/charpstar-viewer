@@ -23,6 +23,7 @@ interface HeaderProps {
   onExportUSDZ: () => void;
   onEnvironmentChange: (type: "v5" | "v6") => void;
   activeEnvironment: "v5" | "v6" | null;
+  onSynsamMode: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -33,6 +34,7 @@ const Header: React.FC<HeaderProps> = ({
   onExportUSDZ,
   onEnvironmentChange,
   activeEnvironment,
+  onSynsamMode,
 }) => {
   return (
     <header className="h-14 bg-[#FAFAFA] text-[#111827] flex items-center justify-between px-4 border-b border-gray-200 shadow-sm w-full">
@@ -58,6 +60,14 @@ const Header: React.FC<HeaderProps> = ({
             className="text-xs h-8"
           >
             V6 ACES Tester
+          </Button>
+          <Button
+            variant={activeEnvironment === null ? "default" : "outline"}
+            size="sm"
+            onClick={onSynsamMode}
+            className="text-xs h-8"
+          >
+            Synsam
           </Button>
         </div>
 
