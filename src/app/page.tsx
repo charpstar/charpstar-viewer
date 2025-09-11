@@ -24,8 +24,33 @@ export default function Home() {
   const [toneMapping, setToneMapping] = useState("aces");
   const modelViewerRef = useRef<any>(null);
 
-  // Set defaults when initially loading
+  // Set defaults when initially loading, honoring ?mode=(v6ACES|v5|synsam)
   useEffect(() => {
+    const url = new URL(window.location.href);
+    const mode = (url.searchParams.get("mode") || "").toLowerCase();
+
+    if (mode === "v5") {
+      setActiveEnvironment("v5");
+      setExposure(1.3);
+      setToneMapping("commerce");
+      return;
+    }
+
+    if (mode === "v6aces") {
+      setActiveEnvironment("v6");
+      setExposure(1.2);
+      setToneMapping("aces");
+      return;
+    }
+
+    if (mode === "synsam") {
+      setActiveEnvironment(null);
+      setExposure(1);
+      setToneMapping("aces");
+      return;
+    }
+
+    // Default
     setActiveEnvironment("v6");
     setExposure(1.2);
     setToneMapping("aces");
@@ -155,9 +180,14 @@ export default function Home() {
       }
     }
     // If model-viewer doesn't exist yet, the settings will be applied when it's created (via useEffect)
+
+    // Reflect selection in URL without reloading
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", env === "v5" ? "v5" : "v6ACES");
+    window.history.replaceState(null, "", url.toString());
   };
 
-  // Synsam: directly apply attributes using the standard model-viewer
+  // Synsam: directly apply attributes using the standard model-viewer and reflect in URL
   const handleSynsamMode = () => {
     setActiveEnvironment(null);
     setExposure(1);
@@ -175,6 +205,11 @@ export default function Home() {
         (modelViewer as any).requestRender();
       }
     }
+
+    // Reflect selection in URL without reloading
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", "synsam");
+    window.history.replaceState(null, "", url.toString());
   };
 
   const handleExposureChange = (value: number) => {
