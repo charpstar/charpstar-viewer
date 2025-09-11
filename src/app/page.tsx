@@ -244,7 +244,7 @@ export default function Home() {
 
         modelViewer.addEventListener("camera-change", handleCameraChange);
 
-        // Apply current environment settings for V5/V6
+        // Apply current environment settings for V5/V6, otherwise use Synsam defaults
         if (activeEnvironment === "v5" || activeEnvironment === "v6") {
           if (activeEnvironment === "v5") {
             modelViewer.setAttribute(
@@ -260,6 +260,17 @@ export default function Home() {
             );
             modelViewer.setAttribute("exposure", exposure.toString());
             modelViewer.setAttribute("tone-mapping", toneMapping);
+          }
+        } else {
+          // Synsam active
+          modelViewer.setAttribute(
+            "environment-image",
+            "https://charpstar.se/3DTester/SynsamNewHDRI.jpg"
+          );
+          modelViewer.setAttribute("exposure", "1");
+          modelViewer.setAttribute("tone-mapping", "aces");
+          if (typeof (modelViewer as any).requestRender === "function") {
+            (modelViewer as any).requestRender();
           }
         }
       }
