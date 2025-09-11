@@ -254,7 +254,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
       case "viewer":
         return (
           <div
-            className={`h-full bg-[#EFEFEF] relative ${
+            className={`h-full bg-white relative ${
               resizing ? "pointer-events-none" : ""
             }`}
           >

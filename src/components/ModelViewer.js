@@ -97,7 +97,7 @@ const ModelViewer = ({ onModelLoaded }) => {
             shadow-softness="1"
             min-field-of-view="5deg"
             max-field-of-view="35deg"
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%", backgroundColor: "#ffffff" }}
             camera-controls
           ></model-viewer>
         )}
