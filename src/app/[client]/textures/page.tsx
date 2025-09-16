@@ -118,7 +118,9 @@ export default function TexturesPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {filtered.map((img) => {
                 const clean = img.uri?.startsWith('images/') ? img.uri.substring(7) : img.uri;
-                const src = `https://cdn.charpstar.net/Client-Editor/${clientName}/images/${clean}`;
+                const base = clientConfig?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
+                const imagesRoot = clientConfig?.bunnyCdn?.imagesPath?.replace(/\/$/, '') || '';
+                const src = `${base}/${imagesRoot}/${clean}`;
                 return (
                   <div key={img.uri} className="border rounded overflow-hidden bg-white shadow-sm">
                     <a href={src} target="_blank" rel="noopener noreferrer" title="Open original image in new tab">
