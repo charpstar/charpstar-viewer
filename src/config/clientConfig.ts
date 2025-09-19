@@ -83,15 +83,15 @@ export const clients: Record<string, ClientConfig> = {
     name: "Georgesmith",
     description: "GeorgeSmith Editor",
     hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
-    resourcesPath: "GeorgeSmith",
+    resourcesPath: "Georgesmith",
     livePassword: "gs2024",
     exposure: 1.4,
     toneMapping: "aces",
     bunnyCdn: {
-      modelPath: "Client-Editor/GeorgeSmith",
-      imagesPath: "Client-Editor/GeorgeSmith/images",
-      referencePath: "Client-Editor/GeorgeSmith/reference/reference.gltf",
-      backupsPath: "Client-Editor/GeorgeSmith/reference/backup",
+      modelPath: "Client-Editor/Georgesmith",
+      imagesPath: "Client-Editor/Georgesmith/images",
+      referencePath: "Client-Editor/Georgesmith/reference/reference.gltf",
+      backupsPath: "Client-Editor/Georgesmith/reference/backup",
       publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
