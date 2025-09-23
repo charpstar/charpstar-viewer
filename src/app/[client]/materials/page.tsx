@@ -195,6 +195,7 @@ export default function MaterialEditorPage() {
   const [editingModelUrl, setEditingModelUrl] = useState<string | null>(null);
   const [editingModelName, setEditingModelName] = useState<string | null>(null);
   const [sceneMeshNames, setSceneMeshNames] = useState<string[]>([]);
+  const [meshVisibility, setMeshVisibility] = useState<Record<string, boolean>>({});
   const [isApplyingLive, setIsApplyingLive] = useState(false);
   const activeJobIdRef = useRef<string | null>(null);
   const pollTimerRef = useRef<any>(null);
@@ -440,6 +441,42 @@ export default function MaterialEditorPage() {
         });
         const unique = Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
         setSceneMeshNames(unique);
+        // Initialize or merge visibility map; default only one visible per numeric-suffix group
+        setMeshVisibility(prev => {
+          const groups: Record<string, string[]> = {};
+          const groupKey = (nm: string) => {
+            const m = nm.match(/^(.*)_\d+(?:mm|cm|m)?$/i);
+            return m ? m[1] : nm;
+          };
+          unique.forEach(nm => {
+            const key = groupKey(nm);
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(nm);
+          });
+          const next: Record<string, boolean> = {};
+          Object.entries(groups).forEach(([_, group]) => {
+            const sorted = [...group].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+            const defaultVisible = sorted[0];
+            group.forEach(nm => {
+              next[nm] = prev.hasOwnProperty(nm) ? prev[nm] : nm === defaultVisible;
+            });
+          });
+          try {
+            const rootNow = mv.getThreeModel?.();
+            if (rootNow) {
+              rootNow.traverse((obj: any) => {
+                if (!obj?.isMesh) return;
+                const nm = typeof obj.name === 'string' && obj.name.length > 0 ? obj.name : '(unnamed)';
+                const visible = next[nm] !== false;
+                if (obj.visible !== visible) obj.visible = visible;
+              });
+              try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch {}
+              mv.requestRender?.();
+              forceModelViewerRender(mv);
+            }
+          } catch {}
+          return next;
+        });
       } catch {}
     };
     mv.addEventListener?.('load', collect);
@@ -1526,18 +1563,50 @@ export default function MaterialEditorPage() {
               </div>
             )}
 
-            {/* Scene mesh names overlay */}
+            {/* Scene mesh visibility overlay */}
             {sceneMeshNames.length > 0 && (
               <div className="absolute bottom-4 right-4 bg-white rounded-lg border border-gray-200 shadow-lg w-80 max-h-56 overflow-auto">
                 <div className="px-3 pt-2 pb-2 border-b border-gray-100 flex items-center justify-between">
                   <div className="text-sm font-semibold text-gray-900">Scene Meshes</div>
                   <div className="text-xs text-gray-500">{sceneMeshNames.length}</div>
                 </div>
-                <ul className="px-3 py-2 text-xs text-gray-800 space-y-1 list-disc list-inside">
+                <div className="px-3 py-2 text-xs text-gray-800 space-y-1">
                   {sceneMeshNames.map((nm) => (
-                    <li key={nm} className="truncate" title={nm}>{nm}</li>
+                    <label key={nm} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="cursor-pointer"
+                        checked={meshVisibility[nm] !== false}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setMeshVisibility(prev => {
+                            const next = { ...prev, [nm]: checked } as Record<string, boolean>;
+                            try {
+                              const mv = modelViewerRef.current as any;
+                              if (mv) {
+                                attachThreeAccess(mv);
+                                const root = mv.getThreeModel?.();
+                                if (root) {
+                                  root.traverse((obj: any) => {
+                                    if (!obj?.isMesh) return;
+                                    const name = typeof obj.name === 'string' && obj.name.length > 0 ? obj.name : '(unnamed)';
+                                    const visible = next[name] !== false;
+                                    if (obj.visible !== visible) obj.visible = visible;
+                                  });
+                                  try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch {}
+                                  mv.requestRender?.();
+                                  forceModelViewerRender(mv);
+                                }
+                              }
+                            } catch {}
+                            return next;
+                          });
+                        }}
+                      />
+                      <span className="truncate" title={nm}>{nm}</span>
+                    </label>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
           </div>

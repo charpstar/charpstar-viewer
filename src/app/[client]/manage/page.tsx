@@ -16,6 +16,22 @@ import DeleteModelDialog from '@/components/DeleteModelDialog';
 import { Search, X } from 'lucide-react';
 import SimpleUploadDialog from '@/components/SimpleUploadDialog';
 
+// Force a render on the <model-viewer> element by nudging a numeric property
+function forceModelViewerRender(modelViewerEl: any) {
+  try {
+    if (typeof modelViewerEl.requestUpdate === 'function') {
+      modelViewerEl.requestUpdate();
+    }
+    const original = Number(modelViewerEl.exposure ?? 1.0);
+    const epsilon = 1e-6;
+    const next = original + epsilon;
+    modelViewerEl.exposure = next;
+    requestAnimationFrame(() => {
+      try { modelViewerEl.exposure = original; } catch {}
+    });
+  } catch {}
+}
+
 interface ModelFile {
   filename: string;
   size: number;
@@ -47,6 +63,7 @@ export default function ManageModelsPage() {
   const [isModelLoading, setIsModelLoading] = useState(false);
   const modelViewerRef = useRef<any>(null);
   const [sceneMeshNames, setSceneMeshNames] = useState<string[]>([]);
+  const [meshVisibility, setMeshVisibility] = useState<Record<string, boolean>>({});
 
   // Upload dialog state
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -180,6 +197,29 @@ export default function ManageModelsPage() {
     try {
       const mv = modelViewerRef.current as any;
       if (!mv) return;
+      // Helper to apply current visibility map to all meshes
+      const applyVisibility = (visibilityMap: Record<string, boolean>) => {
+        try {
+          // Ensure accessors are present
+          const sceneSymbol = Object.getOwnPropertySymbols(mv).find((s: any) => {
+            try { const v: any = (mv as any)[s as any]; return v && (v.model || v.scene); } catch { return false; }
+          });
+          const container: any = sceneSymbol ? (mv as any)[sceneSymbol as any] : null;
+          const root = container?.scene || container?.model;
+          if (!root) return;
+          root.traverse((obj: any) => {
+            if (!obj?.isMesh) return;
+            const nm = typeof obj.name === 'string' && obj.name.length > 0 ? obj.name : '(unnamed)';
+            const shouldBeVisible = visibilityMap[nm] !== false; // default true
+            if (obj.visible !== shouldBeVisible) {
+              obj.visible = shouldBeVisible;
+            }
+          });
+          try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch {}
+          mv.requestRender?.();
+          forceModelViewerRender(mv);
+        } catch {}
+      };
       const collect = () => {
         try {
           // access three scene via initializer side effect
@@ -193,6 +233,30 @@ export default function ManageModelsPage() {
           root.traverse((obj: any) => { if (obj?.isMesh) names.push(obj.name || '(unnamed)'); });
           const unique = Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
           setSceneMeshNames(unique);
+          // Initialize or merge visibility map; default only one visible per numeric-suffix group
+          setMeshVisibility(prev => {
+            const groups: Record<string, string[]> = {};
+            const groupKey = (nm: string) => {
+              const m = nm.match(/^(.*)_\d+(?:mm|cm|m)?$/i);
+              return m ? m[1] : nm;
+            };
+            unique.forEach(nm => {
+              const key = groupKey(nm);
+              if (!groups[key]) groups[key] = [];
+              groups[key].push(nm);
+            });
+            const next: Record<string, boolean> = {};
+            Object.entries(groups).forEach(([_, group]) => {
+              const sorted = [...group].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+              const defaultVisible = sorted[0];
+              group.forEach(nm => {
+                next[nm] = prev.hasOwnProperty(nm) ? prev[nm] : nm === defaultVisible;
+              });
+            });
+            // Apply immediately
+            applyVisibility(next);
+            return next;
+          });
         } catch {}
       };
       mv.addEventListener?.('load', collect);
@@ -421,11 +485,47 @@ export default function ManageModelsPage() {
                       <div className="text-sm font-semibold text-gray-900">Scene Meshes</div>
                       <div className="text-xs text-gray-500">{sceneMeshNames.length}</div>
                     </div>
-                    <ul className="px-3 py-2 text-xs text-gray-800 space-y-1 list-disc list-inside">
+                    <div className="px-3 py-2 text-xs text-gray-800 space-y-1">
                       {sceneMeshNames.map((nm) => (
-                        <li key={nm} className="truncate" title={nm}>{nm}</li>
+                        <label key={nm} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="cursor-pointer"
+                            checked={meshVisibility[nm] !== false}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setMeshVisibility(prev => {
+                                const next = { ...prev, [nm]: checked } as Record<string, boolean>;
+                                // Apply immediately to the scene
+                                try {
+                                  const mv = modelViewerRef.current as any;
+                                  if (mv) {
+                                    const sceneSymbol = Object.getOwnPropertySymbols(mv).find((s: any) => {
+                                      try { const v: any = (mv as any)[s as any]; return v && (v.model || v.scene); } catch { return false; }
+                                    });
+                                    const container: any = sceneSymbol ? (mv as any)[sceneSymbol as any] : null;
+                                    const root = container?.scene || container?.model;
+                                    if (root) {
+                                      root.traverse((obj: any) => {
+                                        if (!obj?.isMesh) return;
+                                        const name = typeof obj.name === 'string' && obj.name.length > 0 ? obj.name : '(unnamed)';
+                                        const visible = next[name] !== false;
+                                        if (obj.visible !== visible) obj.visible = visible;
+                                      });
+                                  try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch {}
+                                  mv.requestRender?.();
+                                  forceModelViewerRender(mv);
+                                    }
+                                  }
+                                } catch {}
+                                return next;
+                              });
+                            }}
+                          />
+                          <span className="truncate" title={nm}>{nm}</span>
+                        </label>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
                 
