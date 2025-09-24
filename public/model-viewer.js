@@ -51103,7 +51103,8 @@ const ControlsMixin = (ModelViewerElement) => {
     }
 
     // Method to apply a texture to a material from an image URL
-    applyTexture(uuid, textureType, textureUrl) {
+    // repeat: optional { x: number, y: number } to force tiling on load
+    applyTexture(uuid, textureType, textureUrl, repeat) {
       const object = this.getObjectByUuid(uuid);
 
       if (!object || !object.material) {
@@ -51126,13 +51127,17 @@ const ControlsMixin = (ModelViewerElement) => {
           texture.wrapS = RepeatWrapping;
           texture.wrapT = RepeatWrapping;
 
-          // Preserve existing repeat from the current texture (if any)
-          const existingTex = object.material[textureType];
-          if (existingTex && existingTex.repeat) {
-            texture.repeat.copy(existingTex.repeat);
-          } else if (object.material.map && object.material.map.repeat) {
-            // Fallback: copy base color map repeat if present
-            texture.repeat.copy(object.material.map.repeat);
+          // If explicit repeat provided, use it; otherwise preserve from existing
+          if (repeat && typeof repeat.x === "number" && typeof repeat.y === "number") {
+            texture.repeat.set(repeat.x, repeat.y);
+          } else {
+            const existingTex = object.material[textureType];
+            if (existingTex && existingTex.repeat) {
+              texture.repeat.copy(existingTex.repeat);
+            } else if (object.material.map && object.material.map.repeat) {
+              // Fallback: copy base color map repeat if present
+              texture.repeat.copy(object.material.map.repeat);
+            }
           }
 
           // Set color space appropriately

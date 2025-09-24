@@ -292,10 +292,13 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
         console.log(`Applying ${textureType} texture from file:`, file.name);
 
         if (typeof modelViewerRef.current.applyTexture === "function") {
+          // Pass current tiling so the new texture inherits the same repeat
+          const repeat = material?.textureRepeat || { x: 1, y: 1 };
           modelViewerRef.current.applyTexture(
             selectedNode.uuid,
             textureType,
-            textureUrl
+            textureUrl,
+            repeat
           );
 
           setMaterial((prev) => {
