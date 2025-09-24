@@ -432,6 +432,26 @@ export default function MaterialEditorPage() {
               setEditingModelName(filename.replace(/\.(gltf|glb)$/i, ''));
             }
           }
+          // Fallback: if no stored selection, auto-pick first available model
+          if (!raw) {
+            try {
+              const listRes = await fetch(`/api/list-models?client=${clientName}`, { cache: 'no-store' });
+              const listJson = await listRes.json().catch(() => ({ models: [] }));
+              const models: Array<{ filename: string; size?: number }> = Array.isArray(listJson?.models) ? listJson.models : [];
+              const first = models
+                .map((m) => (typeof m.filename === 'string' ? m.filename : ''))
+                .find((fn) => typeof fn === 'string' && (fn.toLowerCase().endsWith('.gltf') || fn.toLowerCase().endsWith('.glb')));
+              if (first) {
+                const cfg = clients[clientName];
+                const base = cfg?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
+                const modelRoot = cfg?.bunnyCdn?.modelPath?.replace(/\/$/, '') || '';
+                const modelUrl = `${base}/${modelRoot}/${first}`;
+                setEditingModelUrl(modelUrl);
+                setEditingModelName(first.replace(/\.(gltf|glb)$/i, ''));
+                try { localStorage.setItem(key, JSON.stringify({ filename: first })); } catch {}
+              }
+            } catch {}
+          }
         } catch {}
       })
       .catch((err) => setError(err.message || 'Failed to initialize viewer'));
