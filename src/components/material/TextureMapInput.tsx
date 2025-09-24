@@ -46,13 +46,28 @@ const TextureMapInput: React.FC<TextureMapInputProps> = ({
               id={inputId}
               accept="image/*"
               className="sr-only"
-              onChange={(e) => onTextureUpload(e, textureType)}
+              onClick={(e) => {
+                // Allow selecting the same file twice by resetting the value before opening
+                (e.currentTarget as HTMLInputElement).value = "";
+              }}
+              onChange={(e) => {
+                onTextureUpload(e, textureType);
+                // Ensure input resets after selection so subsequent picks (even same file) fire onChange
+                if (e.currentTarget) {
+                  e.currentTarget.value = "";
+                }
+              }}
             />
           </label>
           {hasTexture && (
             <button
               className="bg-gray-200 hover:bg-gray-300 text-xs p-1 rounded ml-1"
-              onClick={() => onTextureClear(textureType)}
+              onClick={() => {
+                onTextureClear(textureType);
+                // Also reset the file input after clearing
+                const input = document.getElementById(inputId) as HTMLInputElement | null;
+                if (input) input.value = "";
+              }}
             >
               Clear
             </button>

@@ -327,6 +327,11 @@ const MaterialProperties: React.FC<MaterialPropertiesProps> = ({
           if (!prev) return null;
           return { ...prev, [textureType]: null };
         });
+
+        // Request a render update so the cleared state is visible immediately
+        if (typeof modelViewerRef.current.requestRender === "function") {
+          modelViewerRef.current.requestRender();
+        }
       }
     } catch (error) {
       console.error(`Error clearing ${textureType} texture:`, error);

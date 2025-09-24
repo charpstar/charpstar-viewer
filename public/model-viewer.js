@@ -51118,6 +51118,28 @@ const ControlsMixin = (ModelViewerElement) => {
       textureLoader.load(
         textureUrl,
         (texture) => {
+          // Configure texture for glTF-style materials and tiling
+          // Ensure correct orientation for glTF
+          texture.flipY = false;
+
+          // Enable tiling (avoid ClampToEdge smear when UVs go out of 0..1)
+          texture.wrapS = RepeatWrapping;
+          texture.wrapT = RepeatWrapping;
+
+          // Preserve existing repeat from the current texture (if any)
+          const existingTex = object.material[textureType];
+          if (existingTex && existingTex.repeat) {
+            texture.repeat.copy(existingTex.repeat);
+          } else if (object.material.map && object.material.map.repeat) {
+            // Fallback: copy base color map repeat if present
+            texture.repeat.copy(object.material.map.repeat);
+          }
+
+          // Set color space appropriately
+          const isColorMap =
+            textureType === "map" || textureType === "sheenColorMap" || textureType === "emissiveMap";
+          texture.colorSpace = isColorMap ? SRGBColorSpace : NoColorSpace;
+
           // Apply texture to the material property
           object.material[textureType] = texture;
 
