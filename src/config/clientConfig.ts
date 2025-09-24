@@ -82,16 +82,32 @@ export const clients: Record<string, ClientConfig> = {
   Georgesmith: {
     name: "Georgesmith",
     description: "GeorgeSmith Editor",
-    hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
+    hdrPath: "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr",
     resourcesPath: "Georgesmith",
     livePassword: "gs2024",
-    exposure: 1.4,
+    exposure: 1.2,
     toneMapping: "aces",
     bunnyCdn: {
       modelPath: "Client-Editor/Georgesmith",
       imagesPath: "Client-Editor/Georgesmith/images",
       referencePath: "Client-Editor/Georgesmith/reference/reference.gltf",
       backupsPath: "Client-Editor/Georgesmith/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
+    }
+  },
+  NordicNest: {
+    name: "NordicNest",
+    description: "NordicNest Editor",
+    hdrPath: "https://cdn.charpstar.net/Demos/warm.hdr",
+    resourcesPath: "NordicNest",
+    livePassword: "ns2024",
+    exposure: 1.3,
+    toneMapping: "commerce",
+    bunnyCdn: {
+      modelPath: "Client-Editor/NordicNest",
+      imagesPath: "Client-Editor/NordicNest/images",
+      referencePath: "Client-Editor/NordicNest/reference/reference.gltf",
+      backupsPath: "Client-Editor/NordicNest/reference/backup",
       publicBaseUrl: "https://cdn.charpstar.net"
     }
   },

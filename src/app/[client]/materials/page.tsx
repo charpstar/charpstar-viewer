@@ -92,6 +92,20 @@ function ensureModelViewerModuleLoaded(): Promise<void> {
   });
 }
 
+// Resolve a texture name or URI to a loadable URL. Leaves data/blob/http(s) URIs untouched.
+function resolveTextureUrl(clientName: string, name?: string): string | undefined {
+  if (!name) return undefined;
+  const raw = String(name).trim();
+  if (!raw) return undefined;
+  // If already an absolute or data/blob URI, return as-is
+  if (/^(data:|blob:|https?:\/\/)/i.test(raw)) return raw;
+  const cfg = clients[clientName];
+  const base = cfg?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
+  const imagesRoot = (cfg?.bunnyCdn?.imagesPath || '').replace(/^\/+|\/+$/g, '');
+  const cleaned = raw.startsWith('images/') ? raw : (imagesRoot ? `${imagesRoot}/${raw}` : raw);
+  return `${base}/${cleaned}`;
+}
+
 // Helper: expose three model access on the element
 function attachThreeAccess(modelViewerEl: any) {
   if (!modelViewerEl || typeof modelViewerEl !== 'object') return;
@@ -659,13 +673,7 @@ export default function MaterialEditorPage() {
           const bc = active.baseColor || [1,1,1,1];
 
           const loader = new THREE.TextureLoader();
-          const toUrl = (name?: string) => {
-            if (!name) return undefined;
-            const cfg = clients[clientName];
-            const base = cfg?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
-            const imagesRoot = cfg?.bunnyCdn?.imagesPath?.replace(/\/$/, '') || '';
-            return `${base}/${imagesRoot}/${name}`;
-          };
+          const toUrl = (name?: string) => resolveTextureUrl(clientName, name);
           const loadTex = (url?: string) => new Promise<any>((resolve) => {
             if (!url) return resolve(null);
             loader.load(
@@ -936,13 +944,7 @@ export default function MaterialEditorPage() {
             // @ts-expect-error: Resolved at runtime via public ESM; types shimmed in types/three-module.d.ts
             const THREE = await import(/* webpackIgnore: true */ '/three.module.js');
             const loader = new THREE.TextureLoader();
-            const toUrl = (name?: string) => {
-              if (!name) return undefined;
-              const cfg = clients[clientName];
-              const base = cfg?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
-              const imagesRoot = cfg?.bunnyCdn?.imagesPath?.replace(/\/$/, '') || '';
-              return `${base}/${imagesRoot}/${name}`;
-            };
+            const toUrl = (name?: string) => resolveTextureUrl(clientName, name);
             const url = toUrl(value);
             if (!url) return;
             const tex = await new Promise<any>((resolve) => {
@@ -1225,12 +1227,7 @@ export default function MaterialEditorPage() {
   // MapSlot component (simple image cell)
   const MapSlot = React.memo(
     ({ texture, onPick, onRemove, alt }: { texture?: string; onPick: () => void; onRemove: () => void; alt: string }) => {
-      const src = texture ? (() => {
-        const cfg = clients[clientName];
-        const base = cfg?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
-        const imagesRoot = cfg?.bunnyCdn?.imagesPath?.replace(/\/$/, '') || '';
-        return `${base}/${imagesRoot}/${texture}`;
-      })() : null;
+      const src = texture ? resolveTextureUrl(clientName, texture) || null : null;
       return (
         <div className="relative w-6 h-6 rounded overflow-hidden group border border-gray-300 bg-white">
           {src ? (
@@ -2194,12 +2191,7 @@ export default function MaterialEditorPage() {
                   return name.toLowerCase().includes(q);
                 })
                 .map((clean, idx) => {
-                  const originalSrc = (() => {
-                    const cfg = clients[clientName];
-                    const base = cfg?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
-                    const imagesRoot = cfg?.bunnyCdn?.imagesPath?.replace(/\/$/, '') || '';
-                    return `${base}/${imagesRoot}/${clean}`;
-                  })();
+                  const originalSrc = resolveTextureUrl(clientName, clean) as string;
                   const webpThumb = `${originalSrc}?format=webp&width=384&height=384&quality=60`;
                   return (
                     <button key={`${clean}-${idx}`} className="border rounded p-2 hover:border-blue-500 text-left" onClick={() => {
@@ -2323,10 +2315,7 @@ const TextureRows = memo(
   }) => {
     const toSrc = (tex?: string) => {
       if (!tex) return undefined;
-      const cfg = clients[clientName];
-      const base = cfg?.bunnyCdn?.publicBaseUrl?.replace(/\/$/, '') || 'https://cdn.charpstar.net';
-      const imagesRoot = cfg?.bunnyCdn?.imagesPath?.replace(/\/$/, '') || '';
-      return `${base}/${imagesRoot}/${tex}`;
+      return resolveTextureUrl(clientName, tex);
     };
     return (
       <>
