@@ -98,11 +98,11 @@ export const clients: Record<string, ClientConfig> = {
   NordicNest: {
     name: "NordicNest",
     description: "NordicNest Editor",
-    hdrPath: "https://cdn.charpstar.net/Demos/warm.hdr",
+    hdrPath: "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr",
     resourcesPath: "NordicNest",
     livePassword: "ns2024",
-    exposure: 1.3,
-    toneMapping: "commerce",
+    exposure: 1.2,
+    toneMapping: "aces",
     bunnyCdn: {
       modelPath: "Client-Editor/NordicNest",
       imagesPath: "Client-Editor/NordicNest/images",
