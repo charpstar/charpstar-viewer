@@ -86,7 +86,7 @@ export const clients: Record<string, ClientConfig> = {
     resourcesPath: "Georgesmith",
     livePassword: "gs2024",
     exposure: 1.2,
-    toneMapping: "aces",
+    toneMapping: "commerce",
     bunnyCdn: {
       modelPath: "Client-Editor/Georgesmith",
       imagesPath: "Client-Editor/Georgesmith/images",
