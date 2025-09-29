@@ -322,6 +322,15 @@ export async function POST(request: NextRequest) {
           const newSheenRoughTex = ensureTextureForImageKey(m.sheenRoughnessTexture || (m as any).sheenTexture);
           if (newSheenRoughTex) {
             setSlot(newSheenRoughTex, () => sheenExt.getSheenRoughnessTextureInfo?.(), (t) => sheenExt.setSheenRoughnessTexture(t));
+            // Persist sheen roughness texCoord on TextureInfo if provided
+            try {
+              const info = sheenExt.getSheenRoughnessTextureInfo?.();
+              const tc = (m as any).sheenRoughnessTextureTexCoord;
+              if (info && typeof tc === 'number') {
+                if (typeof (info as any).setTexCoord === 'function') (info as any).setTexCoord(tc);
+                else (info as any).texCoord = tc;
+              }
+            } catch {}
           }
         }
         if (Object.prototype.hasOwnProperty.call(m as any, 'sheenColorTexture') && (m as any).sheenColorTexture === null) {
@@ -330,6 +339,15 @@ export async function POST(request: NextRequest) {
           const newSheenColorTex = ensureTextureForImageKey(m.sheenColorTexture);
           if (newSheenColorTex) {
             setSlot(newSheenColorTex, () => sheenExt.getSheenColorTextureInfo?.(), (t) => sheenExt.setSheenColorTexture(t));
+            // Persist sheen color texCoord on TextureInfo if provided
+            try {
+              const info = sheenExt.getSheenColorTextureInfo?.();
+              const tc = (m as any).sheenColorTextureTexCoord;
+              if (info && typeof tc === 'number') {
+                if (typeof (info as any).setTexCoord === 'function') (info as any).setTexCoord(tc);
+                else (info as any).texCoord = tc;
+              }
+            } catch {}
           }
         }
       } else {
@@ -682,10 +700,22 @@ export async function POST(request: NextRequest) {
             outMat.extensions = outMat.extensions || {};
             outMat.extensions.KHR_materials_sheen = outMat.extensions.KHR_materials_sheen || {};
             if (m.sheenRoughnessTexture || (m as any).sheenTexture) {
-              applySlot(outMat.extensions.KHR_materials_sheen, ['sheenRoughnessTexture'], m.sheenRoughnessTexture || (m as any).sheenTexture);
+              applySlot(outMat.extensions.KHR_materials_sheen, ['sheenRoughnessTexture'], m.sheenRoughnessTexture || (m as any).sheenTexture, (m as any).sheenRoughnessTextureScale);
+              const tc = (m as any).sheenRoughnessTextureTexCoord;
+              if (typeof tc === 'number') {
+                const tgt = outMat.extensions.KHR_materials_sheen;
+                tgt.sheenRoughnessTexture = tgt.sheenRoughnessTexture || {};
+                tgt.sheenRoughnessTexture.texCoord = tc;
+              }
             }
             if (m.sheenColorTexture) {
-              applySlot(outMat.extensions.KHR_materials_sheen, ['sheenColorTexture'], m.sheenColorTexture);
+              applySlot(outMat.extensions.KHR_materials_sheen, ['sheenColorTexture'], m.sheenColorTexture, (m as any).sheenColorTextureScale);
+              const tc = (m as any).sheenColorTextureTexCoord;
+              if (typeof tc === 'number') {
+                const tgt = outMat.extensions.KHR_materials_sheen;
+                tgt.sheenColorTexture = tgt.sheenColorTexture || {};
+                tgt.sheenColorTexture.texCoord = tc;
+              }
             }
           }
         }

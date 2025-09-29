@@ -40,6 +40,9 @@ interface Material {
   normalTextureScale?: [number, number];
   sheenColorTextureScale?: [number, number];
   sheenRoughnessTextureScale?: [number, number];
+  // Sheen texCoord (UV set)
+  sheenColorTextureTexCoord?: number;
+  sheenRoughnessTextureTexCoord?: number;
 }
 
 interface ReferenceGltf {
@@ -608,6 +611,9 @@ export default function MaterialEditorPage() {
       normalTextureScale: (material as any).normalTextureScale || [1, 1],
       sheenColorTextureScale: (material as any).sheenColorTextureScale || [1, 1],
       sheenRoughnessTextureScale: (material as any).sheenRoughnessTextureScale || [1, 1],
+        // Sheen texCoord (UV set) passthrough
+        sheenColorTextureTexCoord: (material as any).sheenColorTextureTexCoord,
+        sheenRoughnessTextureTexCoord: (material as any).sheenRoughnessTextureTexCoord,
       // Variant mesh usage (for sidebar tooltip and viewer overlay)
       variantMeshes: (material as any).variantMeshes || [],
     };
@@ -681,7 +687,7 @@ export default function MaterialEditorPage() {
           });
           if (!firstMesh) return;
           try { originalAoMapRef.current = firstMesh?.material?.aoMap ?? null; } catch {}
-          const hasSheen = (
+      const hasSheen = (
             (active as any).sheenRoughnessFactor != null ||
             Array.isArray((active as any).sheenColor) ||
             (active as any).sheenColorTexture ||
@@ -717,13 +723,14 @@ export default function MaterialEditorPage() {
             loadTex(toUrl((active as any).sheenRoughnessTexture || (active as any).sheenTexture)),
           ]);
 
-          // Keep normal map default flip; enforce flipY=false for non-normal, excluding sheen maps
+          // Keep normal map default flip; enforce flipY=false for non-normal. Also apply to sheen maps.
           try {
             if (mapTex) mapTex.flipY = false;
             if (mrTex) mrTex.flipY = false;
             if (aoTex) aoTex.flipY = false;
             if (emisTex) emisTex.flipY = false;
-            // Do not force flip for sheen maps
+            if (sheenColorTex) (sheenColorTex as any).flipY = false;
+            if (sheenRoughTex) (sheenRoughTex as any).flipY = false;
           } catch {}
 
           // Ensure correct color space: base color, emissive and sheen color maps should be sRGB
@@ -740,7 +747,8 @@ export default function MaterialEditorPage() {
           };
           setSRGB(mapTex);
           setSRGB(emisTex);
-          // Do not force sRGB for sheen color map
+          // Sheen color map is a color texture — use sRGB
+          setSRGB(sheenColorTex);
 
           // Per-mesh application happens below
 
@@ -868,6 +876,15 @@ export default function MaterialEditorPage() {
                   sheenColorTex.wrapT = (THREE as any).RepeatWrapping;
                   if (sheenColorTex.repeat?.set) sheenColorTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
                 }
+                // Apply UV channel (texCoord) if provided
+                try {
+                  const tc = (active as any).sheenColorTextureTexCoord;
+                  // model-viewer/three use channel=1 for UV1, channel=0 for UV0; texCoord maps 0->0,1->1 etc.
+                  if (typeof tc === 'number') {
+                    if ((m as any).sheenColorMap) (m as any).sheenColorMap.channel = tc;
+                    if (typeof (m as any).sheenColorMap?.setUvChannel === 'function') (m as any).sheenColorMap.setUvChannel(tc);
+                  }
+                } catch {}
               }
               if (isTarget && 'sheenRoughnessMap' in m) {
                 (m as any).sheenRoughnessMap = sheenRoughTex || null;
@@ -877,6 +894,14 @@ export default function MaterialEditorPage() {
                   sheenRoughTex.wrapT = (THREE as any).RepeatWrapping;
                   if (sheenRoughTex.repeat?.set) sheenRoughTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
                 }
+                // Apply UV channel (texCoord) if provided
+                try {
+                  const tc = (active as any).sheenRoughnessTextureTexCoord;
+                  if (typeof tc === 'number') {
+                    if ((m as any).sheenRoughnessMap) (m as any).sheenRoughnessMap.channel = tc;
+                    if (typeof (m as any).sheenRoughnessMap?.setUvChannel === 'function') (m as any).sheenRoughnessMap.setUvChannel(tc);
+                  }
+                } catch {}
               }
             }
 

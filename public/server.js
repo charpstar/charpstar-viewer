@@ -200,6 +200,14 @@ function applySlotRaw(outObj, outMat, slotPath, texKey, transformSrc, usedTextur
   if (typeof target[lastKey] !== 'object' || target[lastKey] === null) target[lastKey] = { index: texIndex };
   else target[lastKey].index = texIndex;
 
+  // Preserve texCoord (UV set) from reference slot when present
+  try {
+    const tc = transformSrc && typeof transformSrc.texCoord === 'number' ? transformSrc.texCoord : undefined;
+    if (tc !== undefined) {
+      target[lastKey].texCoord = tc;
+    }
+  } catch {}
+
   // Preserve transform info from reference
   try {
     const xform = transformSrc?.extensions?.KHR_texture_transform;
