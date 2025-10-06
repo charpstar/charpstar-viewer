@@ -91,27 +91,24 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
         const customFilename = filenameInput?.value?.trim() || '';
         
         const file = uploadFile.file;
-        // 1) Ask server for a Vercel Blob client token
-        const tokenRes = await fetch('/api/blob/generate-upload-token', {
+        // 1) Upload directly with Vercel Blob client helper
+        const uploadResp = await fetch('/api/blob/generate-upload-token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pathname: file.name, contentType: file.type || 'application/octet-stream', contentLength: file.size, addRandomSuffix: true })
+          body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size })
         });
-        if (!tokenRes.ok) throw new Error('Failed to initialize upload');
-        const tokenJson = await tokenRes.json();
-        const token = tokenJson?.token as string;
-        const uploadUrl = tokenJson?.uploadUrl as string;
-        if (!token || !uploadUrl) throw new Error('Invalid upload token');
-
-        // 2) Upload the file directly to Vercel Blob
-        const blobRes = await fetch(uploadUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': file.type || 'application/octet-stream', Authorization: `Bearer ${token}` },
-          body: file,
-        });
+        if (!uploadResp.ok) throw new Error('Failed to initialize upload');
+        // The route expects the client to call `upload()` from @vercel/blob/client,
+        // but we are using the low-level fetch. Build the upload using the returned signature.
+        const sig = await uploadResp.json();
+        // Minimal compatibility: expect `url` and `headers` to PUT the file
+        const putUrl = sig?.url || sig?.uploadUrl || sig?.pathname && `https://blob.vercel-storage.com/${sig.pathname}`;
+        const putHeaders = sig?.headers || sig?.authorization ? { Authorization: sig.authorization, 'Content-Type': file.type || 'application/octet-stream' } : { 'Content-Type': file.type || 'application/octet-stream' };
+        if (!putUrl) throw new Error('Invalid upload response');
+        const blobRes = await fetch(putUrl, { method: 'PUT', headers: putHeaders, body: file });
         if (!blobRes.ok) throw new Error(`Blob upload failed: ${blobRes.status}`);
         const blobInfo = await blobRes.json().catch(() => ({} as any));
-        const blobUrl = blobInfo?.url || uploadUrl; // prefer returned url
+        const blobUrl = blobInfo?.url || sig?.url || putUrl;
 
         setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 50 } : f));
 
