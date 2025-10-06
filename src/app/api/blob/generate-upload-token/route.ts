@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateClientTokenFromReadWriteToken } from '@vercel/blob';
+import { generateClientToken } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,14 +19,14 @@ export async function POST(request: NextRequest) {
 
     const pathname = pathnameRaw.replace(/^\/+/, '');
 
-    const token = generateClientTokenFromReadWriteToken({
+    const token = await generateClientToken({
       pathname,
       contentType,
       contentLength,
       addRandomSuffix,
       // 15 minutes expiry window
-      expiresAt: Date.now() + 15 * 60 * 1000,
-      ...(maxSize ? { maxSize } : {}),
+      expiresIn: '15m',
+      ...(maxSize ? { maximumSize: maxSize } : {}),
     });
 
     const uploadUrl = `https://blob.vercel-storage.com/${pathname}`;
