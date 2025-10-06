@@ -35,14 +35,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
     }
     
-    if (!requestBody || !requestBody.data || !requestBody.filename) {
+    const { data, blobUrl, filename } = requestBody || {};
+    if ((!data && !blobUrl) || !filename) {
       console.error("Missing required fields in request body");
-      return NextResponse.json({ error: 'Invalid request data - missing data or filename' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid request data - missing (data or blobUrl) or filename' }, { status: 400 });
     }
     
     // Extract the data and filename
-    const resourceData = requestBody.data;
-    const filename = requestBody.filename;
+    const resourceData = data;
     const customTargetFolder = requestBody.targetFolder; // Optional: specify target folder
     const isGlbFile = requestBody.isGlbFile || false; // Flag to indicate if it's a GLB file
     
@@ -61,7 +61,17 @@ export async function POST(request: NextRequest) {
     let contentType: string;
     
     try {
-      if (isGlbBinaryFile) {
+      if (blobUrl && typeof blobUrl === 'string') {
+        // Load raw bytes from Blob URL
+        const res = await fetch(blobUrl);
+        if (!res.ok) {
+          return NextResponse.json({ error: `Failed to fetch blobUrl: ${res.status}` }, { status: 400 });
+        }
+        const ab = await res.arrayBuffer();
+        buffer = Buffer.from(new Uint8Array(ab));
+        contentType = isGlbBinaryFile ? 'model/gltf-binary' : (isGltfFile ? 'model/gltf+json' : 'application/octet-stream');
+        console.log(`Fetched from blobUrl ${blobUrl}, size: ${buffer.length} bytes`);
+      } else if (isGlbBinaryFile) {
         // For GLB files, data is base64 encoded binary
         if (typeof resourceData === 'string') {
           buffer = Buffer.from(resourceData, 'base64');

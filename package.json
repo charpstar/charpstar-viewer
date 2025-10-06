@@ -30,6 +30,7 @@
     "draco3dgltf": "^1.5.7",
     "formidable": "^3.5.1",
     "lucide-react": "^0.479.0",
+    "@vercel/blob": "^0.25.1",
     "next": "15.2.2",
     "node-fetch": "^3.3.2",
     "react": "^19.0.0",

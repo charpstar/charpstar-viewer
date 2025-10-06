@@ -91,73 +91,61 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
         const customFilename = filenameInput?.value?.trim() || '';
         
         const file = uploadFile.file;
-        const reader = new FileReader();
-        
-        reader.onload = async (e) => {
-          try {
-            setUploadFiles(prev => prev.map(f => 
-              f.id === uploadFile.id ? { ...f, progress: 50 } : f
-            ));
+        // 1) Ask server for a Vercel Blob client token
+        const tokenRes = await fetch('/api/blob/generate-upload-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pathname: file.name, contentType: file.type || 'application/octet-stream', contentLength: file.size, addRandomSuffix: true })
+        });
+        if (!tokenRes.ok) throw new Error('Failed to initialize upload');
+        const tokenJson = await tokenRes.json();
+        const token = tokenJson?.token as string;
+        const uploadUrl = tokenJson?.uploadUrl as string;
+        if (!token || !uploadUrl) throw new Error('Invalid upload token');
 
-            // Process GLTF with reference system and upload to CDN
-            const finalFilename = customFilename 
-              ? (customFilename.endsWith('.gltf') ? customFilename : `${customFilename}.gltf`)
-              : file.name;
-              
-            const convertResponse = await fetch('/api/convert-gltf', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                gltfContent: e.target?.result,
-                filename: finalFilename,
-                client: clientName,
-                customFilename: finalFilename
-              }),
-            });
+        // 2) Upload the file directly to Vercel Blob
+        const blobRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type || 'application/octet-stream', Authorization: `Bearer ${token}` },
+          body: file,
+        });
+        if (!blobRes.ok) throw new Error(`Blob upload failed: ${blobRes.status}`);
+        const blobInfo = await blobRes.json().catch(() => ({} as any));
+        const blobUrl = blobInfo?.url || uploadUrl; // prefer returned url
 
-            if (!convertResponse.ok) {
-              throw new Error(`Upload failed: ${convertResponse.statusText}`);
-            }
+        setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 50 } : f));
 
-            const result = await convertResponse.json();
-            
-            if (!result.success) {
-              throw new Error(result.error || 'Upload failed');
-            }
+        // 3) Ask server to process and upload to Bunny from blobUrl
+        const finalFilename = customFilename 
+          ? (customFilename.endsWith('.gltf') || customFilename.endsWith('.glb') ? customFilename : (file.name.toLowerCase().endsWith('.glb') ? `${customFilename}.glb` : `${customFilename}.gltf`))
+          : file.name;
 
-            // Success
-            setUploadFiles(prev => prev.map(f => 
-              f.id === uploadFile.id 
-                ? { ...f, status: 'success' as const, progress: 100, uploadedUrl: result.filename }
-                : f
-            ));
+        const isGlb = file.name.toLowerCase().endsWith('.glb');
+        if (isGlb) {
+          const upRes = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ blobUrl, filename: finalFilename, client: clientName, isGlbFile: true })
+          });
+          if (!upRes.ok) throw new Error(`Upload proxy failed: ${upRes.statusText}`);
+          await upRes.json().catch(() => ({}));
+        } else {
+          const convertResponse = await fetch('/api/convert-gltf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ blobUrl, filename: finalFilename, client: clientName, customFilename: finalFilename })
+          });
+          if (!convertResponse.ok) throw new Error(`Convert failed: ${convertResponse.statusText}`);
+          const result = await convertResponse.json();
+          if (!result?.success) throw new Error(result?.error || 'Convert failed');
+        }
 
-          } catch (error) {
-            console.error('Upload error:', error);
-            setUploadFiles(prev => prev.map(f => 
-              f.id === uploadFile.id 
-                ? { 
-                    ...f, 
-                    status: 'error' as const, 
-                    progress: 0, 
-                    error: error instanceof Error ? error.message : 'Upload failed' 
-                  }
-                : f
-            ));
-          }
-        };
-
-        reader.onerror = () => {
-          setUploadFiles(prev => prev.map(f => 
-            f.id === uploadFile.id 
-              ? { ...f, status: 'error' as const, error: 'Failed to read file' }
-              : f
-          ));
-        };
-
-        reader.readAsText(file);
+        // Success
+        setUploadFiles(prev => prev.map(f => 
+          f.id === uploadFile.id 
+            ? { ...f, status: 'success' as const, progress: 100, uploadedUrl: finalFilename }
+            : f
+        ));
 
       } catch (error) {
         console.error('Upload error:', error);

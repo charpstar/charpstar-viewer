@@ -461,14 +461,11 @@ function cloneDeep<T>(obj: T): T {
 export async function POST(request: NextRequest) {
   try {
     const requestBody = await request.json();
-    
-    if (!requestBody || !requestBody.gltfContent || !requestBody.filename || !requestBody.client) {
-      return NextResponse.json({ 
-        error: 'Missing required fields: gltfContent, filename, and client' 
-      }, { status: 400 });
+    const { gltfContent, blobUrl, filename, client, customFilename } = requestBody || {};
+
+    if ((!gltfContent && !blobUrl) || !filename || !client) {
+      return NextResponse.json({ error: 'Missing required fields: (gltfContent or blobUrl), filename, client' }, { status: 400 });
     }
-    
-    const { gltfContent, filename, client, customFilename } = requestBody;
     const clientConfig = getClientConfig(client);
     
     console.log(`Enhanced GLTF processing: ${filename} for client: ${client}`);
@@ -476,11 +473,18 @@ export async function POST(request: NextRequest) {
     // Parse the uploaded GLTF content (target)
     let targetData: GltfData;
     try {
-      targetData = typeof gltfContent === 'string' ? JSON.parse(gltfContent) : gltfContent;
+      if (blobUrl && typeof blobUrl === 'string') {
+        const res = await fetch(blobUrl);
+        if (!res.ok) {
+          return NextResponse.json({ error: `Failed to fetch blobUrl: ${res.status}` }, { status: 400 });
+        }
+        const text = await res.text();
+        targetData = JSON.parse(text);
+      } else {
+        targetData = typeof gltfContent === 'string' ? JSON.parse(gltfContent) : gltfContent;
+      }
     } catch (parseError) {
-      return NextResponse.json({ 
-        error: 'Invalid GLTF JSON format' 
-      }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid GLTF JSON format' }, { status: 400 });
     }
 
     // Fetch the reference GLTF file from client's reference folder
