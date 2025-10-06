@@ -93,11 +93,31 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
         
         const file = uploadFile.file;
         // 1) Upload directly via Vercel Blob client helper
+        const safeErrorMessage = (e: unknown): string => {
+          if (e instanceof Error && e.message) return e.message;
+          if (typeof e === 'string') return e;
+          try { return JSON.stringify(e); } catch { return 'Unknown error'; }
+        };
+
+        async function readServerError(res: Response): Promise<string> {
+          try {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+              const j = await res.json().catch(() => ({}));
+              if (j && (j.error || j.message)) return String(j.error || j.message);
+            }
+            const t = await res.text().catch(() => '');
+            return t || `${res.status} ${res.statusText}`;
+          } catch {
+            return `${res.status} ${res.statusText}`;
+          }
+        }
+
         const { url: blobUrl } = await blobUpload(file.name, file, {
           handleUploadUrl: '/api/blob/generate-upload-token',
           access: 'public',
           contentType: file.type || 'application/octet-stream',
-        });
+        }).catch((e) => { throw new Error(`Cloud upload failed: ${safeErrorMessage(e)}`); });
 
         setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 50 } : f));
 
@@ -113,7 +133,10 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ blobUrl, filename: finalFilename, client: clientName, isGlbFile: true })
           });
-          if (!upRes.ok) throw new Error(`Upload proxy failed: ${upRes.statusText}`);
+          if (!upRes.ok) {
+            const msg = await readServerError(upRes);
+            throw new Error(`Upload failed: ${msg}`);
+          }
           await upRes.json().catch(() => ({}));
         } else {
           const convertResponse = await fetch('/api/convert-gltf', {
@@ -121,8 +144,11 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ blobUrl, filename: finalFilename, client: clientName, customFilename: finalFilename })
           });
-          if (!convertResponse.ok) throw new Error(`Convert failed: ${convertResponse.statusText}`);
-          const result = await convertResponse.json();
+          if (!convertResponse.ok) {
+            const msg = await readServerError(convertResponse);
+            throw new Error(`Convert failed: ${msg}`);
+          }
+          const result = await convertResponse.json().catch(() => ({} as any));
           if (!result?.success) throw new Error(result?.error || 'Convert failed');
         }
 
@@ -140,7 +166,7 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
             ? { 
                 ...f, 
                 status: 'error' as const, 
-                error: error instanceof Error ? error.message : 'Upload failed' 
+                error: error instanceof Error && error.message ? error.message : 'Upload failed' 
               }
             : f
         ));
