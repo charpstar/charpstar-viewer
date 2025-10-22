@@ -299,7 +299,21 @@ export default function MaterialEditorPage() {
     const readLock = () => {
       try {
         const raw = localStorage.getItem(lockKey);
-        setGlobalLock(raw ? JSON.parse(raw) : null);
+        const parsed = raw ? JSON.parse(raw) : null;
+        // Enforce TTL: auto-clear locks older than 60 minutes or missing timestamp
+        const MAX_AGE_MS = 60 * 60 * 1000;
+        const now = Date.now();
+        const startedAt = typeof parsed?.startedAt === 'number' ? parsed.startedAt : undefined;
+        const isActive = !!parsed?.active;
+        const isStale = isActive && (!startedAt || (now - startedAt > MAX_AGE_MS));
+        if (isStale) {
+          try { localStorage.removeItem(lockKey); } catch {}
+          try { localStorage.removeItem(`charpstar:applyJob:${clientName}`); } catch {}
+          setGlobalLock(null);
+          setIsApplyingLive(false);
+        } else {
+          setGlobalLock(parsed);
+        }
       } catch { setGlobalLock(null); }
     };
     readLock();
@@ -1327,6 +1341,35 @@ export default function MaterialEditorPage() {
         title={editingModelName || undefined}
         titlePrefix="Displaying"
         onOpenBackups={() => setBackupDialogOpen(true)}
+        onStopApply={() => {
+          (async () => {
+            try {
+              // Try to cancel on the server first
+              const jobId = (() => { try { return localStorage.getItem(`charpstar:applyJob:${clientName}`); } catch { return null; } })();
+              if (jobId) {
+                const res = await fetch('/api/apply/cancel', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ jobId })
+                });
+                // Optional: read logUrl for future use
+                await res.json().catch(() => ({} as any));
+              }
+              addToast('Apply cancelled', 'success');
+            } catch {
+              addToast('Failed to cancel on server; clearing local state', 'error');
+            } finally {
+              // Always clear local state so UI unsticks
+              try { localStorage.removeItem(lockKey); } catch {}
+              try { localStorage.removeItem(`charpstar:applyJob:${clientName}`); } catch {}
+              setIsApplyingLive(false);
+              setApplyProgress(null);
+              setApplySummary(null);
+              setGlobalLock(null);
+              try { window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName, status: 'cancelled' } })); } catch {}
+            }
+          })();
+        }}
         onApplyToLiveModels={async () => {
           try {
             // Prevent re-entry if another tab is already applying
@@ -1373,7 +1416,7 @@ export default function MaterialEditorPage() {
 
             // Persist a lightweight lock and job id for cross-tab/refresh awareness
             try {
-              localStorage.setItem(lockKey, JSON.stringify({ owner: tabId, active: true, total, done: 0, failed: 0, failedFiles: [], jobId }));
+              localStorage.setItem(lockKey, JSON.stringify({ owner: tabId, active: true, total, done: 0, failed: 0, failedFiles: [], jobId, startedAt: Date.now() }));
               localStorage.setItem(`charpstar:applyJob:${clientName}`, jobId);
               
               // Dispatch custom event for same-tab communication

@@ -26,6 +26,7 @@ interface HeaderProps {
   onRefreshModels?: () => void; // For manage page
   onUploadModels?: () => void; // For manage page upload dialog
   onOpenBackups?: () => void; // For materials page: open backups dialog
+  onStopApply?: () => void; // Always-active local stop apply state
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -45,6 +46,7 @@ const Header: React.FC<HeaderProps> = ({
   onRefreshModels,
   onUploadModels,
   onOpenBackups,
+  onStopApply,
 }) => {
   const params = useParams();
   const pathname = usePathname();
@@ -213,6 +215,17 @@ const Header: React.FC<HeaderProps> = ({
             className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {isApplyingToLiveModels ? 'Applying…' : 'Apply to Live Models'}
+          </Button>
+        )}
+        {currentPage === 'materials' && onStopApply && (isApplyingToLiveModels || externalJobActive) && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onStopApply}
+            className="text-xs h-7 px-3 cursor-pointer hover:scale-105 transition-transform duration-200"
+            title="Clear local apply state (does not cancel server job)"
+          >
+            Stop apply
           </Button>
         )}
         
