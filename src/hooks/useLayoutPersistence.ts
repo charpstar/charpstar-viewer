@@ -7,7 +7,7 @@ import { Model, IJsonModel } from 'flexlayout-react';
 const LAYOUT_STORAGE_KEY = 'charpstar-layout-config';
 
 export const useLayoutPersistence = (defaultLayout: IJsonModel) => {
-  const [model, setModel] = useState<Model | null>(null);
+  const [model, setModel] = useState<Model | null>(null); // Initialize with null to indicate no model is loaded yet
 
   // Load saved layout or use default
   useEffect(() => {
