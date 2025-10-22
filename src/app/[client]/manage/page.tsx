@@ -11,6 +11,7 @@ import ModelViewer from '@/components/ModelViewer';
 import VariantSelector from '@/components/demo/VariantSelector';
 import CompactModelStats from '@/components/demo/ModelStats';
 import CameraControlsPanel from '@/components/demo/CameraControlsPanel';
+import RenderPanel from '@/components/render/RenderPanel';
 
 import DeleteModelDialog from '@/components/DeleteModelDialog';
 import { Search, X } from 'lucide-react';
@@ -477,6 +478,14 @@ export default function ManageModelsPage() {
                   <CameraControlsPanel
                     modelViewerRef={modelViewerRef}
                   />
+                )}
+                {!modelLoadError && !isModelLoading && (
+                  <div className="absolute top-4 left-4 w-[420px] z-20">
+                    <RenderPanel
+                      modelViewerRef={modelViewerRef}
+                      modelFilename={selectedModel}
+                    />
+                  </div>
                 )}
 
                 {sceneMeshNames.length > 0 && (

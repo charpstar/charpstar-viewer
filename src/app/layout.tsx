@@ -5,6 +5,7 @@ import { Jost } from 'next/font/google';
 import { ReactNode } from 'react';
 import SimpleClientViewerScript from '@/components/SimpleClientViewerScript';
 import GlobalJobNotifications from '@/components/GlobalJobNotifications';
+import GlobalRenderNotifications from '@/components/GlobalRenderNotifications';
 
 const jost = Jost({ 
   subsets: ['latin'],
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <SimpleClientViewerScript />
         {/* Global job notifications */}
         <GlobalJobNotifications />
+        <GlobalRenderNotifications />
         {children}
       </body>
     </html>
