@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import https from 'https';
 import { clients, getClientConfig } from '@/config/clientConfig';
 import { NodeIO } from '@gltf-transform/core';
-import { KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen } from '@gltf-transform/extensions';
+import { KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission } from '@gltf-transform/extensions';
 import draco3d from 'draco3dgltf';
 import path from 'path';
 import fs from 'fs';
@@ -227,11 +227,11 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
   }
 
   const readIO = new NodeIO()
-    .registerExtensions([KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen])
+    .registerExtensions([KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission])
     .registerDependencies(decoderModule ? { 'draco3d.decoder': decoderModule } : {} as any);
 
   const writeIO = new NodeIO()
-    .registerExtensions([KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen]); // exclude Draco
+    .registerExtensions([KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission]); // exclude Draco
 
   let doc;
   if (isGlb) {
