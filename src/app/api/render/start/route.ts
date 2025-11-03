@@ -3,8 +3,7 @@ import https from 'https';
 import { clients, getClientConfig } from '@/config/clientConfig';
 import { NodeIO } from '@gltf-transform/core';
 import { KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen } from '@gltf-transform/extensions';
-// Use the NodeJS-friendly Draco factory to avoid WASM locateFile issues in serverless
-import draco3d from 'draco3d/draco3d_nodejs';
+import draco3d from 'draco3d';
 import path from 'path';
 import fs from 'fs';
 
@@ -215,8 +214,15 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
   // Build separate IOs: one for reading (with Draco decoder), one for writing (no Draco encoder required).
   let decoderModule: any = undefined;
   try {
+    const locateFile = (file: string) => {
+      const p1 = path.join(process.cwd(), 'node_modules', 'draco3d', file);
+      if (fs.existsSync(p1)) return p1;
+      const p2 = path.join(path.dirname(require.resolve('draco3d/package.json')), file);
+      if (fs.existsSync(p2)) return p2;
+      return file;
+    };
     const factory = (draco3d as any).createDecoderModule || (draco3d as any);
-    decoderModule = await factory({});
+    decoderModule = await factory({ locateFile });
   } catch (e) {
     console.error('Draco decoder initialization failed:', e);
   }
