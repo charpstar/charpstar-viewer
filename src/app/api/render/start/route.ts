@@ -3,7 +3,7 @@ import https from 'https';
 import { clients, getClientConfig } from '@/config/clientConfig';
 import { NodeIO } from '@gltf-transform/core';
 import { KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen } from '@gltf-transform/extensions';
-import draco3d from 'draco3dgltf';
+import draco3d from 'draco3d';
 import path from 'path';
 import fs from 'fs';
 
@@ -216,9 +216,9 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
   if ((draco3d as any)?.createDecoderModule) {
     try {
       const locateFile = (file: string) => {
-        const p1 = path.join(process.cwd(), 'node_modules', 'draco3dgltf', file);
+        const p1 = path.join(process.cwd(), 'node_modules', 'draco3d', file);
         if (fs.existsSync(p1)) return p1;
-        const p2 = path.join(path.dirname(require.resolve('draco3dgltf/package.json')), file);
+        const p2 = path.join(path.dirname(require.resolve('draco3d/package.json')), file);
         if (fs.existsSync(p2)) return p2;
         return file;
       };
