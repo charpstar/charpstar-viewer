@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import https from 'https';
 import { clients, getClientConfig } from '@/config/clientConfig';
 import { NodeIO } from '@gltf-transform/core';
-import { KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission } from '@gltf-transform/extensions';
-import draco3d from 'draco3dgltf';
-import path from 'path';
-import fs from 'fs';
+import { KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission } from '@gltf-transform/extensions';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60; // Vercel Pro: 60 seconds
@@ -211,34 +208,12 @@ function filterResourcesForImages(resources: Record<string, Uint8Array>, gltf: a
 }
 
 async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, variantName?: string | null): Promise<Buffer> {
-  // Build separate IOs: one for reading (with Draco decoder), one for writing (no Draco encoder required).
-  let decoderModule: any = undefined;
-  let hasDraco = false;
-  if ((draco3d as any)?.createDecoderModule) {
-    try {
-      const locateFile = (file: string) => {
-        const p1 = path.join(process.cwd(), 'node_modules', 'draco3dgltf', file);
-        if (fs.existsSync(p1)) return p1;
-        const p2 = path.join(path.dirname(require.resolve('draco3dgltf/package.json')), file);
-        if (fs.existsSync(p2)) return p2;
-        return file;
-      };
-      decoderModule = await (draco3d as any).createDecoderModule({ locateFile });
-      hasDraco = true;
-    } catch (e) {
-      console.warn('Draco decoder initialization failed:', e);
-    }
-  }
-
-  const baseExtensions: any[] = [KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission];
-  if (hasDraco) baseExtensions.push(KHRDracoMeshCompression);
-
+  // Skip Draco entirely - models don't use it and decoder fails in Vercel serverless
   const readIO = new NodeIO()
-    .registerExtensions(baseExtensions)
-    .registerDependencies(hasDraco && decoderModule ? { 'draco3d.decoder': decoderModule } : {});
+    .registerExtensions([KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission]);
 
   const writeIO = new NodeIO()
-    .registerExtensions([KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission]); // exclude Draco
+    .registerExtensions([KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission]);
 
   let doc;
   if (isGlb) {
