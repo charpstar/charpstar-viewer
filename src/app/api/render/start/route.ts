@@ -213,6 +213,7 @@ function filterResourcesForImages(resources: Record<string, Uint8Array>, gltf: a
 async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, variantName?: string | null): Promise<Buffer> {
   // Build separate IOs: one for reading (with Draco decoder), one for writing (no Draco encoder required).
   let decoderModule: any = undefined;
+  let hasDraco = false;
   if ((draco3d as any)?.createDecoderModule) {
     try {
       const locateFile = (file: string) => {
@@ -223,12 +224,18 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
         return file;
       };
       decoderModule = await (draco3d as any).createDecoderModule({ locateFile });
-    } catch {}
+      hasDraco = true;
+    } catch (e) {
+      console.warn('Draco decoder initialization failed:', e);
+    }
   }
 
+  const baseExtensions: any[] = [KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission];
+  if (hasDraco) baseExtensions.push(KHRDracoMeshCompression);
+
   const readIO = new NodeIO()
-    .registerExtensions([KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission])
-    .registerDependencies(decoderModule ? { 'draco3d.decoder': decoderModule } : {} as any);
+    .registerExtensions(baseExtensions)
+    .registerDependencies(hasDraco && decoderModule ? { 'draco3d.decoder': decoderModule } : {});
 
   const writeIO = new NodeIO()
     .registerExtensions([KHRMaterialsVariants, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission]); // exclude Draco
