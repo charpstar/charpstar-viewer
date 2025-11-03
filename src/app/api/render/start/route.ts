@@ -63,9 +63,10 @@ async function convertAndBakeWithCLI(
   }
 
   return new Promise((resolve, reject) => {
-    // Use the installed CLI from node_modules
-    const cliPath = require.resolve('@gltf-transform/cli/bin/cli.js');
-    const proc = spawn('node', [cliPath, ...args], { cwd: tmpDir, stdio: ['ignore', 'pipe', 'pipe'] });
+    // Use the installed CLI binary
+    const { join: pathJoin } = require('path');
+    const cliPath = pathJoin(process.cwd(), 'node_modules', '.bin', 'gltf-transform');
+    const proc = spawn(cliPath, args, { cwd: tmpDir, stdio: ['ignore', 'pipe', 'pipe'] });
     let stderr = '';
     proc.stderr.on('data', (d) => { stderr += d; });
     proc.on('close', async (code) => {
