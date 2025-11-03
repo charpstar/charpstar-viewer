@@ -56,14 +56,16 @@ async function convertAndBakeWithCLI(
   const outputPath = join(tmpDir, 'output.glb');
   await writeFile(inputPath, srcBuf);
 
-  // Use gltf-transform CLI (bundles Draco decoder, no WASM issues)
-  const args = ['--yes', '@gltf-transform/cli@latest', 'copy', inputPath, outputPath];
+  // Use gltf-transform CLI (installed as dev dep, bundles Draco decoder)
+  const args = ['copy', inputPath, outputPath];
   if (variantName) {
     args.push('--', '--variant', variantName);
   }
 
   return new Promise((resolve, reject) => {
-    const proc = spawn('npx', args, { cwd: tmpDir, stdio: ['ignore', 'pipe', 'pipe'] });
+    // Use the installed CLI from node_modules
+    const cliPath = require.resolve('@gltf-transform/cli/bin/cli.js');
+    const proc = spawn('node', [cliPath, ...args], { cwd: tmpDir, stdio: ['ignore', 'pipe', 'pipe'] });
     let stderr = '';
     proc.stderr.on('data', (d) => { stderr += d; });
     proc.on('close', async (code) => {
