@@ -210,6 +210,12 @@ function filterResourcesForImages(resources: Record<string, Uint8Array>, gltf: a
 }
 
 async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, variantName?: string | null): Promise<Buffer> {
+  // Fast path: if source is already GLB, pass through to worker (avoid Draco in serverless)
+  if (isGlb) {
+    console.warn('convertToGlb: Source is GLB; skipping transform and returning original buffer');
+    return buffer;
+  }
+
   // Build separate IOs: one for reading (with Draco decoder), one for writing (no Draco encoder required).
   let decoderModule: any = undefined;
   try {
