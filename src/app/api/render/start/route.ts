@@ -213,23 +213,25 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
   // Build separate IOs: one for reading (with Draco decoder), one for writing (no Draco encoder required).
   let decoderModule: any = undefined;
   try {
-    const tryInit = async (pkg: string) => {
-      const m = (await import(/* webpackIgnore: true */ pkg)).default as any;
+    try {
+      const m = (await import('draco3d')).default as any;
       const locateFile = (file: string) => {
-        const np = path.join(path.dirname(require.resolve(`${pkg}/package.json`)), file);
-        if (fs.existsSync(np)) return np;
-        const p1 = path.join(process.cwd(), 'node_modules', pkg, file);
-        if (fs.existsSync(p1)) return p1;
-        return file;
+        const base = path.dirname(require.resolve('draco3d/package.json'));
+        const p = path.join(base, file);
+        return fs.existsSync(p) ? p : file;
       };
       const factory = m?.createDecoderModule || m;
-      return await factory({ locateFile });
-    };
-    try {
-      decoderModule = await tryInit('draco3d');
+      decoderModule = await factory({ locateFile });
     } catch (e1) {
       try {
-        decoderModule = await tryInit('draco3dgltf');
+        const m2 = (await import('draco3dgltf')).default as any;
+        const locateFile2 = (file: string) => {
+          const base = path.dirname(require.resolve('draco3dgltf/package.json'));
+          const p = path.join(base, file);
+          return fs.existsSync(p) ? p : file;
+        };
+        const factory2 = m2?.createDecoderModule || m2;
+        decoderModule = await factory2({ locateFile: locateFile2 });
       } catch (e2) {
         console.error('Draco init failed (draco3d, draco3dgltf):', e1, e2);
       }
@@ -245,6 +247,10 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
 
   let doc;
   if (isGlb) {
+    if (!decoderModule) {
+      console.warn('No Draco decoder available; skipping GLB transform and returning original buffer');
+      return buffer;
+    }
     try {
       doc = await readIO.readBinary(new Uint8Array(buffer));
       // Convert to JSON for variant baking/pruning
