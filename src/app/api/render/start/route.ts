@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60; // Vercel Pro: 60 seconds
 
 interface StartBody {
   client: string;
