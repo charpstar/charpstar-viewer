@@ -41,7 +41,6 @@
     "three": "^0.179.1"
   },
   "devDependencies": {
-    "@gltf-transform/cli": "^4.2.1",
     "@tailwindcss/postcss": "^4",
     "@types/formidable": "^3.4.5",
     "@types/node": "^20",
