@@ -3,7 +3,6 @@ import https from 'https';
 import { clients, getClientConfig } from '@/config/clientConfig';
 import { NodeIO } from '@gltf-transform/core';
 import { KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen } from '@gltf-transform/extensions';
-import draco3d from 'draco3d';
 import path from 'path';
 import fs from 'fs';
 
@@ -214,18 +213,28 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
   // Build separate IOs: one for reading (with Draco decoder), one for writing (no Draco encoder required).
   let decoderModule: any = undefined;
   try {
-    const locateFile = (file: string) => {
-      const p1 = path.join(process.cwd(), 'node_modules', 'draco3d', file);
-      if (fs.existsSync(p1)) return p1;
-      const p2 = path.join(path.dirname(require.resolve('draco3d/package.json')), file);
-      if (fs.existsSync(p2)) return p2;
-      return file;
+    const tryInit = async (pkg: string) => {
+      const m = (await import(/* webpackIgnore: true */ pkg)).default as any;
+      const locateFile = (file: string) => {
+        const np = path.join(path.dirname(require.resolve(`${pkg}/package.json`)), file);
+        if (fs.existsSync(np)) return np;
+        const p1 = path.join(process.cwd(), 'node_modules', pkg, file);
+        if (fs.existsSync(p1)) return p1;
+        return file;
+      };
+      const factory = m?.createDecoderModule || m;
+      return await factory({ locateFile });
     };
-    const factory = (draco3d as any).createDecoderModule || (draco3d as any);
-    decoderModule = await factory({ locateFile });
-  } catch (e) {
-    console.error('Draco decoder initialization failed:', e);
-  }
+    try {
+      decoderModule = await tryInit('draco3d');
+    } catch (e1) {
+      try {
+        decoderModule = await tryInit('draco3dgltf');
+      } catch (e2) {
+        console.error('Draco init failed (draco3d, draco3dgltf):', e1, e2);
+      }
+    }
+  } catch {}
 
   const readIO = new NodeIO()
     .registerExtensions([KHRMaterialsVariants, KHRDracoMeshCompression, KHRTextureBasisu, KHRTextureTransform, KHRMaterialsSheen])
@@ -236,15 +245,20 @@ async function convertToGlb(buffer: Buffer, sourceUrl: string, isGlb: boolean, v
 
   let doc;
   if (isGlb) {
-    doc = await readIO.readBinary(new Uint8Array(buffer));
-    // Convert to JSON for variant baking/pruning
-    const jsonOut: any = await readIO.writeJSON(doc as any);
-    const gltf = (jsonOut as any).json || {};
-    const resMap: Record<string, Uint8Array> = (jsonOut as any).resources || {};
-    bakeActiveVariantInGltf(gltf, variantName);
-    removeBasisUAndPrune(gltf);
-    const filteredRes = filterResourcesForImages(resMap, gltf);
-    doc = await readIO.readJSON({ json: gltf, resources: filteredRes } as any);
+    try {
+      doc = await readIO.readBinary(new Uint8Array(buffer));
+      // Convert to JSON for variant baking/pruning
+      const jsonOut: any = await readIO.writeJSON(doc as any);
+      const gltf = (jsonOut as any).json || {};
+      const resMap: Record<string, Uint8Array> = (jsonOut as any).resources || {};
+      bakeActiveVariantInGltf(gltf, variantName);
+      removeBasisUAndPrune(gltf);
+      const filteredRes = filterResourcesForImages(resMap, gltf);
+      doc = await readIO.readJSON({ json: gltf, resources: filteredRes } as any);
+    } catch (e) {
+      console.error('GLB read failed — falling back to original buffer:', e);
+      return buffer; // fallback: let Blender handle Draco directly
+    }
   } else {
     // GLTF JSON with external resources → fetch and pack into GLB
     const jsonText = buffer.toString('utf8');

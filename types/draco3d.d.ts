@@ -8,4 +8,9 @@ declare module 'draco3d/draco3d_nodejs' {
   export default mod;
 }
 
+declare module 'draco3dgltf' {
+  const mod: any;
+  export default mod;
+}
+
 
