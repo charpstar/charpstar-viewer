@@ -53,32 +53,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const client = searchParams.get('client') || undefined;
-    const modelName = searchParams.get('modelName') || undefined;
-    const variantName = searchParams.get('variantName') || undefined;
-    const view = searchParams.get('view') || 'Default';
-    const background = searchParams.get('background') || 'white';
-    const resolution = searchParams.get('resolution') || '2048';
+    // RunPod now uploads directly to BunnyCDN and just sends us the URL
+    const body = await request.json();
+    const { imageUrl, client, modelName, variantName, view, background, resolution } = body || {};
+
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return NextResponse.json({ error: 'imageUrl is required' }, { status: 400 });
+    }
 
     if (!client || !modelName) {
       return NextResponse.json({ error: 'client and modelName are required' }, { status: 400 });
     }
 
-    const arrayBuffer = await request.arrayBuffer();
-    const imageBuffer = Buffer.from(new Uint8Array(arrayBuffer));
+    console.log(`[CALLBACK] Render complete: ${modelName} (${variantName || 'default'}) -> ${imageUrl}`);
 
-    const clientConfig = getClientConfig(client);
-    const base = clientConfig.bunnyCdn.modelPath.replace(/\/$/, '');
-    const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
-    const safeVariant = (variantName && variantName.length > 0) ? variantName : 'default';
-    const filePath = `${base}/Renders/${encodeURIComponent(modelName)}/${encodeURIComponent(safeVariant)}/${stamp}/${view}_${resolution}_${background}.png`;
-
-    await uploadToBunny(filePath, imageBuffer);
-
-    const publicUrl = `https://${BUNNY_PULL_ZONE_URL}/${filePath}`;
-
-    return NextResponse.json({ success: true, url: publicUrl });
+    return NextResponse.json({ success: true, url: imageUrl });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to handle image callback';
     return NextResponse.json({ error: msg }, { status: 500 });

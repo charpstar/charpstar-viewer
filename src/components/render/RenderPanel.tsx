@@ -27,7 +27,7 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
   ]), []);
 
   const [selectedView, setSelectedView] = useState<string>('Default');
-  const [resolution, setResolution] = useState<string>('2048');
+  const [resolution, setResolution] = useState<string>('1024');  
   const [background, setBackground] = useState<BackgroundOption>('white');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
