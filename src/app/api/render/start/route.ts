@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClientConfig } from '@/config/clientConfig';
 
 export const runtime = 'nodejs';
 
@@ -58,16 +57,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2: Call render worker with the staged GLB
-    const clientConfig = getClientConfig(client);
     const publicBase = process.env.RENDER_PUBLIC_BASE_URL;
     const callbackUrl = `${(publicBase ? publicBase.replace(/\/$/, '') : new URL(request.url).origin)}/api/render/callback/image`;
-    
-    // Derive hdr file name from client config (basename of hdrPath)
-    let hdrFile: string | null = null;
-    try {
-      const u = new URL(clientConfig.hdrPath);
-      hdrFile = u.pathname.split('/').pop() || null;
-    } catch {}
 
     const renderPayload = {
       jobId,
@@ -80,7 +71,6 @@ export async function POST(request: NextRequest) {
       client,
       modelName,
       variantName: variantName || null,
-      hdrFile,
     };
 
     const renderRes = await fetch(`${renderWorkerBase.replace(/\/$/, '')}/jobs/render/start`, {

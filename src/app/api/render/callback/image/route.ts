@@ -1,49 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import https from 'https';
-import { getClientConfig } from '@/config/clientConfig';
 
 export const runtime = 'nodejs';
-
-const REGION = process.env.BUNNY_REGION || '';
-const BASE_HOSTNAME = 'storage.bunnycdn.com';
-const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
-const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
-const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || '';
-const BUNNY_PULL_ZONE_URL = process.env.BUNNY_PULL_ZONE_URL || 'cdn.charpstar.net';
-
-const getStorageZoneDetails = () => {
-  const parts = STORAGE_ZONE_PATH.split('/');
-  const zoneName = parts[0];
-  const basePath = parts.slice(1).join('/');
-  return { zoneName, basePath };
-};
-
-async function uploadToBunny(filePath: string, buffer: Buffer): Promise<void> {
-  const { zoneName } = getStorageZoneDetails();
-  await new Promise<void>((resolve, reject) => {
-    const options = {
-      method: 'PUT',
-      host: HOSTNAME,
-      path: `/${zoneName}/${filePath}`,
-      headers: {
-        AccessKey: ACCESS_KEY,
-        'Content-Type': 'image/png',
-        'Content-Length': buffer.length,
-      },
-    };
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (c) => { data += c; });
-      res.on('end', () => {
-        if (res.statusCode === 200 || res.statusCode === 201) resolve();
-        else reject(new Error(`Upload failed ${res.statusCode}: ${data}`));
-      });
-    });
-    req.on('error', reject);
-    req.write(buffer);
-    req.end();
-  });
-}
 
 export async function POST(request: NextRequest) {
   try {
