@@ -7,12 +7,13 @@ import { Loader2, CheckCircle, XCircle, X } from 'lucide-react';
 import { isValidClient } from '@/config/clientConfig';
 import { useParams } from 'next/navigation';
 
-interface RenderStatusResponse {
-  status?: 'pending' | 'running' | 'completed' | 'failed';
-  total?: number;
-  done?: number;
-  failed?: number;
+interface CombinedStatusResponse {
+  stage?: 'preparing' | 'rendering';
+  status?: 'queued' | 'running' | 'pending' | 'completed' | 'failed' | 'unknown';
+  progress?: number;
+  queuePosition?: number;
   imageUrl?: string;
+  error?: string;
 }
 
 const GlobalRenderNotifications: React.FC = () => {
@@ -20,7 +21,7 @@ const GlobalRenderNotifications: React.FC = () => {
   const clientName = params?.client as string;
   const isClientView = isValidClient(clientName);
   const [jobId, setJobId] = useState<string | null>(null);
-  const [status, setStatus] = useState<RenderStatusResponse | null>(null);
+  const [status, setStatus] = useState<CombinedStatusResponse | null>(null);
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<any>(null);
 
@@ -51,13 +52,13 @@ const GlobalRenderNotifications: React.FC = () => {
     if (!jobId) return;
     const poll = async () => {
       try {
-        const res = await fetch(`/api/render/status?jobId=${encodeURIComponent(jobId)}`, { cache: 'no-store' });
+        const res = await fetch(`/api/render/combined-status?jobId=${encodeURIComponent(jobId)}`, { cache: 'no-store' });
         const json = await res.json().catch(() => ({}));
         if (!res.ok) {
           setStatus({ status: 'failed' });
           return;
         }
-        setStatus(json as RenderStatusResponse);
+        setStatus(json as CombinedStatusResponse);
         if (json?.status === 'completed' || json?.status === 'failed') {
           clearInterval(timerRef.current);
           timerRef.current = null;
@@ -72,7 +73,21 @@ const GlobalRenderNotifications: React.FC = () => {
 
   if (!visible || !jobId) return null;
   const isComplete = status?.status === 'completed' || status?.status === 'failed';
-  const progressText = status?.status === 'running' ? 'Rendering...' : (status?.status === 'pending' ? 'Queued...' : (status?.status === 'completed' ? 'Render complete' : 'Render failed'));
+  const pct = Math.max(0, Math.min(100, Number(status?.progress || 0)));
+  let progressText = '';
+  if (status?.stage === 'preparing') {
+    progressText = status?.status === 'queued' ? `Preparing (queued #${status?.queuePosition || 0})` : `Preparing... ${pct}%`;
+  } else if (status?.stage === 'rendering') {
+    if (status?.status === 'queued' || status?.status === 'pending') {
+      progressText = `Rendering (queued #${status?.queuePosition || 0})`;
+    } else if (status?.status === 'running') {
+      progressText = `Rendering... ${pct}%`;
+    } else if (status?.status === 'completed') {
+      progressText = 'Render complete';
+    } else if (status?.status === 'failed') {
+      progressText = 'Render failed';
+    }
+  }
 
   return (
     <div className="fixed left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4" style={{ top: '16px' }}>
@@ -106,6 +121,16 @@ const GlobalRenderNotifications: React.FC = () => {
               <a href={(status as any).imageUrl as string} target="_blank" rel="noreferrer">
                 <Button variant="outline" size="sm" className="h-7 px-2 text-xs">Open image</Button>
               </a>
+            </div>
+          )}
+          {!isComplete && (
+            <div className="mt-3">
+              <div className="w-full bg-gray-200 rounded h-2 overflow-hidden">
+                <div className="bg-purple-500 h-2" style={{ width: `${pct}%` }} />
+              </div>
+              {typeof status?.queuePosition === 'number' && status.queuePosition > 0 && (
+                <div className="mt-1 text-xs text-gray-600">In queue: #{status.queuePosition}</div>
+              )}
             </div>
           )}
         </CardContent>

@@ -22,18 +22,16 @@ export async function POST(request: NextRequest) {
 
     const prepWorkerBase = process.env.RENDER_PREP_WORKER_URL;
     const prepWorkerToken = process.env.WORKER_API_TOKEN;
-    const renderWorkerBase = process.env.RENDER_WORKER_BASE_URL;
-    const renderWorkerToken = process.env.RENDER_WORKER_API_TOKEN;
     const callbackToken = process.env.RENDER_CALLBACK_TOKEN;
     
     if (!prepWorkerBase || !prepWorkerToken) {
       return NextResponse.json({ error: 'Server not configured: missing RENDER_PREP_WORKER_URL or WORKER_API_TOKEN' }, { status: 500 });
     }
-    if (!renderWorkerBase || !renderWorkerToken || !callbackToken) {
-      return NextResponse.json({ error: 'Server not configured: missing RENDER_* envs' }, { status: 500 });
+    if (!callbackToken) {
+      return NextResponse.json({ error: 'Server not configured: missing RENDER_CALLBACK_TOKEN' }, { status: 500 });
     }
 
-    // Step 1: Call prep worker to convert GLTF to GLB and stage it
+    // Enqueue prep job and return jobId immediately (render will auto-start via combined-status)
     const prepRes = await fetch(`${prepWorkerBase.replace(/\/$/, '')}/jobs/render/prepare`, {
       method: 'POST',
       headers: {
@@ -44,48 +42,21 @@ export async function POST(request: NextRequest) {
         client,
         modelFilename,
         variantName: variantName || null,
+        modelName,
+        view,
+        background,
+        resolution,
       }),
     });
     const prepJson = await prepRes.json().catch(() => ({}));
     if (!prepRes.ok) {
-      return NextResponse.json({ error: prepJson?.error || 'Failed to prepare GLB' }, { status: prepRes.status });
+      return NextResponse.json({ error: prepJson?.error || 'Failed to enqueue prep' }, { status: prepRes.status });
     }
 
-    const { jobId, stagingUrl } = prepJson as { jobId: string; stagingUrl: string };
-    if (!jobId || !stagingUrl) {
+    const { jobId } = prepJson as { jobId: string };
+    if (!jobId) {
       return NextResponse.json({ error: 'Prep worker returned invalid response' }, { status: 500 });
     }
-
-    // Step 2: Call render worker with the staged GLB
-    const publicBase = process.env.RENDER_PUBLIC_BASE_URL;
-    const callbackUrl = `${(publicBase ? publicBase.replace(/\/$/, '') : new URL(request.url).origin)}/api/render/callback/image`;
-
-    const renderPayload = {
-      jobId,
-      glbUrl: stagingUrl,
-      view,
-      background,
-      resolution,
-      callbackUrl,
-      callbackToken,
-      client,
-      modelName,
-      variantName: variantName || null,
-    };
-
-    const renderRes = await fetch(`${renderWorkerBase.replace(/\/$/, '')}/jobs/render/start`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${renderWorkerToken}`,
-      },
-      body: JSON.stringify(renderPayload),
-    });
-    const renderJson = await renderRes.json().catch(() => ({}));
-    if (!renderRes.ok) {
-      return NextResponse.json({ error: renderJson?.error || 'Failed to start render worker' }, { status: renderRes.status });
-    }
-
     return NextResponse.json({ jobId });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start render';
