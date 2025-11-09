@@ -40,24 +40,29 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
     try {
       const modelName = modelFilename ? modelFilename.replace(/\.(gltf|glb)$/i, '') : '';
       const currentVariant = (modelViewerRef.current as any)?.variantName || null;
-      const res = await fetch(`/api/render/jobs/blocked?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}&variant=${encodeURIComponent(currentVariant || '')}`, { cache: 'no-store' });
-      const json = await res.json().catch(() => ({}));
-      return !!json?.blocked;
-    } catch { return false; }
+      const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
+      const json = await res.json().catch(() => ({} as any));
+      const items = Array.isArray(json?.items) ? json.items : [];
+      const active = items.some((it: any) => {
+        if (!it) return false;
+        const sameModel = String(it.modelName || '') === modelName;
+        const sameVariant = (it.variantName || null) === (currentVariant || null);
+        const st = String(it.status || 'unknown');
+        return sameModel && sameVariant && st !== 'completed' && st !== 'failed';
+      });
+      return active;
+    } catch {
+      return false;
+    }
   };
 
   React.useEffect(() => {
     const update = async () => setIsBlocked(await computeBlocked());
     update();
-    const onStorage = (e: StorageEvent) => {
-      if (e && typeof e.key === 'string' && e.key === `charpstar:renderJobs:${clientName}`) update();
-    };
     const onStarted = () => update();
-    try { window.addEventListener('storage', onStorage as any); } catch {}
     try { window.addEventListener('charpstar:renderJobStarted', onStarted as any); } catch {}
-    const t = setInterval(update, 1500);
+    const t = setInterval(update, 2000);
     return () => {
-      try { window.removeEventListener('storage', onStorage as any); } catch {}
       try { window.removeEventListener('charpstar:renderJobStarted', onStarted as any); } catch {}
       clearInterval(t);
     };
