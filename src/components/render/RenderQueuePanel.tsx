@@ -118,15 +118,7 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
             const effectiveQueuePos = (() => {
               const qp = (st as any)?.queuePosition;
               if (typeof qp === 'number' && qp > 0) return qp;
-              // Fallback: compute order among queued items in this snapshot
-              const queuedIds = items
-                .filter(i => {
-                  const s = statuses[i.jobId] || {};
-                  return s.status === 'queued' || String((s as any).stage) === 'queued';
-                })
-                .map(i => i.jobId);
-              const idxInQueue = queuedIds.indexOf(it.jobId);
-              return idxInQueue >= 0 ? idxInQueue + 1 : undefined;
+              return undefined;
             })();
             const isDone = st.status === 'completed' || st.status === 'failed';
             const isQueued = st.status === 'queued' || st.status === 'pending';
