@@ -116,7 +116,11 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
             })();
             const isDone = st.status === 'completed' || st.status === 'failed';
             const isQueued = st.status === 'queued' || st.status === 'pending';
-            const stageLabel = st.stage === 'preparing' ? 'Preparing' : (st.stage === 'rendering' ? 'Rendering' : undefined);
+            const stageLabel = st.stage === 'preparing'
+              ? 'Preparing'
+              : (st.stage === 'rendering'
+                ? 'Rendering'
+                : (st.stage === 'queued' ? 'Queued' : undefined));
             return (
               <div key={`${it.jobId}-${idx}`} className="p-2">
                 <div className="flex items-center justify-between gap-2">
