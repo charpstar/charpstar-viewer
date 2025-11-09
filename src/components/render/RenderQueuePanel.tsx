@@ -110,9 +110,23 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
               const cp = (st as any)?.combinedProgress;
               if (typeof cp === 'number') return Math.max(0, Math.min(100, cp));
               // Fallback client-side mapping
+              if (String((st as any).stage) === 'queued') return 0;
               if (st.stage === 'preparing') return Math.round(rawPct * 0.25);
               if (st.stage === 'rendering') return 25 + Math.round(rawPct * 0.75);
               return rawPct;
+            })();
+            const effectiveQueuePos = (() => {
+              const qp = (st as any)?.queuePosition;
+              if (typeof qp === 'number' && qp > 0) return qp;
+              // Fallback: compute order among queued items in this snapshot
+              const queuedIds = items
+                .filter(i => {
+                  const s = statuses[i.jobId] || {};
+                  return s.status === 'queued' || String((s as any).stage) === 'queued';
+                })
+                .map(i => i.jobId);
+              const idxInQueue = queuedIds.indexOf(it.jobId);
+              return idxInQueue >= 0 ? idxInQueue + 1 : undefined;
             })();
             const isDone = st.status === 'completed' || st.status === 'failed';
             const isQueued = st.status === 'queued' || st.status === 'pending';
@@ -120,14 +134,14 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
               ? 'Preparing'
               : (st.stage === 'rendering'
                 ? 'Rendering'
-                : (st.stage === 'queued' ? 'Queued' : undefined));
+                : (String((st as any).stage) === 'queued' ? 'Queued' : undefined));
             return (
               <div key={`${it.jobId}-${idx}`} className="p-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-xs font-medium text-gray-900 truncate">
                     {it.modelName || 'Model'} {it.variantName ? `(${it.variantName})` : ''}
                     {!isDone && stageLabel && (
-                      <span className="text-[11px] text-gray-600"> {`– ${stageLabel}${isQueued ? (typeof st.queuePosition === 'number' && st.queuePosition > 0 ? ` #${st.queuePosition}` : '') : ` ${combinedPct}%`}`}</span>
+                      <span className="text-[11px] text-gray-600"> {`– ${stageLabel}${isQueued ? (effectiveQueuePos ? ` #${effectiveQueuePos}` : '') : ` ${combinedPct}%`}`}</span>
                     )}
                   </div>
                   <div className="flex items-center space-x-2">
