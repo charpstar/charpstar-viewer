@@ -123,7 +123,7 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
                   <div className="text-xs font-medium text-gray-900 truncate">
                     {it.modelName || 'Model'} {it.variantName ? `(${it.variantName})` : ''}
                     {!isDone && stageLabel && (
-                      <span className="text-[11px] text-gray-600"> {`– ${stageLabel}${isQueued ? (typeof st.queuePosition === 'number' && st.queuePosition > 0 ? ` #${st.queuePosition}` : '') : ` ${pct}%`}`}</span>
+                      <span className="text-[11px] text-gray-600"> {`– ${stageLabel}${isQueued ? (typeof st.queuePosition === 'number' && st.queuePosition > 0 ? ` #${st.queuePosition}` : '') : ` ${combinedPct}%`}`}</span>
                     )}
                   </div>
                   <div className="flex items-center space-x-2">
