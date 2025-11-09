@@ -57,6 +57,24 @@ export async function POST(request: NextRequest) {
     if (!jobId) {
       return NextResponse.json({ error: 'Prep worker returned invalid response' }, { status: 500 });
     }
+
+    // Register job in server-side registry
+    try {
+      await fetch(`${new URL(request.url).origin}/api/render/jobs/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+      jobId,
+          client,
+          modelName,
+          variantName: variantName || null,
+      view,
+      background,
+      resolution,
+          createdAt: new Date().toISOString(),
+        })
+      }).catch(() => null);
+    } catch {}
     return NextResponse.json({ jobId });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to start render';

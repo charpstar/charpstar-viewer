@@ -59,6 +59,9 @@ const GlobalRenderNotifications: React.FC = () => {
           return;
         }
         setStatus(json as CombinedStatusResponse);
+        if (json?.status === 'failed' && json?.error) {
+          try { console.error('[Render] Job failed:', json?.error); } catch {}
+        }
         if (json?.status === 'completed' || json?.status === 'failed') {
           clearInterval(timerRef.current);
           timerRef.current = null;
@@ -105,6 +108,9 @@ const GlobalRenderNotifications: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-900">{progressText}</div>
                 <div className="text-xs text-gray-600">{clientName}</div>
+                {status?.status === 'failed' && status?.error && (
+                  <div className="text-[11px] text-red-600 truncate" title={status.error as any}>{status.error}</div>
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-2">

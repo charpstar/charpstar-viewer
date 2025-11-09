@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Camera } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import RenderQueuePanel from '@/components/render/RenderQueuePanel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import RenderHistoryPanel from '@/components/render/RenderHistoryPanel';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RenderPanelProps {
   modelViewerRef: React.RefObject<any>;
@@ -30,6 +34,34 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
   const [resolution, setResolution] = useState<string>('1024');  
   const [background, setBackground] = useState<BackgroundOption>('white');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  const computeBlocked = async () => {
+    try {
+      const modelName = modelFilename ? modelFilename.replace(/\.(gltf|glb)$/i, '') : '';
+      const currentVariant = (modelViewerRef.current as any)?.variantName || null;
+      const res = await fetch(`/api/render/jobs/blocked?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}&variant=${encodeURIComponent(currentVariant || '')}`, { cache: 'no-store' });
+      const json = await res.json().catch(() => ({}));
+      return !!json?.blocked;
+    } catch { return false; }
+  };
+
+  React.useEffect(() => {
+    const update = async () => setIsBlocked(await computeBlocked());
+    update();
+    const onStorage = (e: StorageEvent) => {
+      if (e && typeof e.key === 'string' && e.key === `charpstar:renderJobs:${clientName}`) update();
+    };
+    const onStarted = () => update();
+    try { window.addEventListener('storage', onStorage as any); } catch {}
+    try { window.addEventListener('charpstar:renderJobStarted', onStarted as any); } catch {}
+    const t = setInterval(update, 1500);
+    return () => {
+      try { window.removeEventListener('storage', onStorage as any); } catch {}
+      try { window.removeEventListener('charpstar:renderJobStarted', onStarted as any); } catch {}
+      clearInterval(t);
+    };
+  }, [clientName, modelFilename]);
 
   const handleStartRender = async () => {
     if (!clientName || !modelFilename) return;
@@ -57,7 +89,6 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
       if (!res.ok) throw new Error(json?.error || 'Failed to start render');
       const jobId = json?.jobId as string | undefined;
       if (jobId) {
-        try { localStorage.setItem(`charpstar:renderJob:${clientName}`, jobId); } catch {}
         try { window.dispatchEvent(new CustomEvent('charpstar:renderJobStarted', { detail: { clientName, jobId } })); } catch {}
       }
     } catch (e) {
@@ -76,64 +107,85 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
             <Camera className="w-4 h-4 text-gray-700" />
             <div className="text-xs font-semibold text-gray-800">Photoreal Render</div>
           </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  onClick={handleStartRender}
+                  disabled={!modelFilename || isSubmitting || isBlocked}
+                  className="h-7 text-xs"
+                >
+                  {isSubmitting ? (<><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Render</>) : 'Render'}
+                </Button>
+              </TooltipTrigger>
+              {isBlocked && (
+                <TooltipContent>
+                  <div className="text-xs">Render already in progress for this model/variant</div>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 items-end">
-          <div>
-            <div className="text-[10px] uppercase text-gray-500 mb-1">View</div>
-            <div className="relative">
-              <select
-                value={selectedView}
-                onChange={e => setSelectedView(e.target.value)}
-                className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
-              >
-                {cameraPresets.map(p => (
-                  <option key={p.name} value={p.name}>{p.name}</option>
-                ))}
-              </select>
+        <Tabs defaultValue="options">
+          <TabsList className="h-7">
+            <TabsTrigger value="options" className="text-xs">Options</TabsTrigger>
+            <TabsTrigger value="history" className="text-xs">Model History</TabsTrigger>
+          </TabsList>
+          <TabsContent value="options" className="mt-2">
+            <div className="grid grid-cols-3 gap-2 items-end">
+              <div>
+                <div className="text-[10px] uppercase text-gray-500 mb-1">View</div>
+                <div className="relative">
+                  <select
+                    value={selectedView}
+                    onChange={e => setSelectedView(e.target.value)}
+                    className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+                  >
+                    {cameraPresets.map(p => (
+                      <option key={p.name} value={p.name}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-gray-500 mb-1">Background</div>
+                <div className="relative">
+                  <select
+                    value={background}
+                    onChange={e => setBackground(e.target.value as BackgroundOption)}
+                    className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+                  >
+                    <option value="white">White</option>
+                    <option value="transparent">Transparent</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-gray-500 mb-1">Resolution</div>
+                <div className="relative">
+                  <select
+                    value={resolution}
+                    onChange={e => setResolution(e.target.value)}
+                    className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+                  >
+                    <option value="1024">1024</option>
+                    <option value="2048">2048</option>
+                    <option value="4096">4096</option>
+                  </select>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <div className="text-[10px] uppercase text-gray-500 mb-1">Background</div>
-            <div className="relative">
-              <select
-                value={background}
-                onChange={e => setBackground(e.target.value as BackgroundOption)}
-                className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
-              >
-                <option value="white">White</option>
-                <option value="transparent">Transparent</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-[10px] uppercase text-gray-500 mb-1">Resolution</div>
-            <div className="relative">
-              <select
-                value={resolution}
-                onChange={e => setResolution(e.target.value)}
-                className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
-              >
-                <option value="1024">1024</option>
-                <option value="2048">2048</option>
-                <option value="4096">4096</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-3 flex justify-end">
-          <Button
-            size="sm"
-            onClick={handleStartRender}
-            disabled={!modelFilename || isSubmitting}
-            className="h-8 text-xs"
-          >
-            {isSubmitting ? (<><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Rendering...</>) : 'Render'}
-          </Button>
-        </div>
+            {/* Render button moved to header to save space */}
+            <RenderQueuePanel clientName={clientName} />
+          </TabsContent>
+          <TabsContent value="history" className="mt-2">
+            {modelFilename && (
+              <RenderHistoryPanel clientName={clientName} modelName={modelFilename.replace(/\.(gltf|glb)$/i, '')} />
+            )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
