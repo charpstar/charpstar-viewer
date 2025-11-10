@@ -31,13 +31,91 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
     { name: 'top', label: 'Top', orbit: '0deg -200deg 80%' },
   ]), []);
 
-  const [selectedViews, setSelectedViews] = useState<string[]>(['front']);
-  const [resolution, setResolution] = useState<string>('1024');  
-  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('color');
-  const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
-  const [outputFormat, setOutputFormat] = useState<OutputFormat>('png');
+  // Load settings from localStorage with defaults
+  const [selectedViews, setSelectedViews] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return ['front'];
+    try {
+      const saved = localStorage.getItem('charpstar:renderSettings:views');
+      return saved ? JSON.parse(saved) : ['front'];
+    } catch {
+      return ['front'];
+    }
+  });
+  
+  const [resolution, setResolution] = useState<string>(() => {
+    if (typeof window === 'undefined') return '1024';
+    try {
+      return localStorage.getItem('charpstar:renderSettings:resolution') || '1024';
+    } catch {
+      return '1024';
+    }
+  });
+  
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>(() => {
+    if (typeof window === 'undefined') return 'color';
+    try {
+      return (localStorage.getItem('charpstar:renderSettings:backgroundMode') as BackgroundMode) || 'color';
+    } catch {
+      return 'color';
+    }
+  });
+  
+  const [backgroundColor, setBackgroundColor] = useState<string>(() => {
+    if (typeof window === 'undefined') return '#ffffff';
+    try {
+      return localStorage.getItem('charpstar:renderSettings:backgroundColor') || '#ffffff';
+    } catch {
+      return '#ffffff';
+    }
+  });
+  
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>(() => {
+    if (typeof window === 'undefined') return 'png';
+    try {
+      return (localStorage.getItem('charpstar:renderSettings:format') as OutputFormat) || 'png';
+    } catch {
+      return 'png';
+    }
+  });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+
+  // Save settings to localStorage whenever they change
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:views', JSON.stringify(selectedViews));
+    } catch {}
+  }, [selectedViews]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:resolution', resolution);
+    } catch {}
+  }, [resolution]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:backgroundMode', backgroundMode);
+    } catch {}
+  }, [backgroundMode]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:backgroundColor', backgroundColor);
+    } catch {}
+  }, [backgroundColor]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:format', outputFormat);
+    } catch {}
+  }, [outputFormat]);
 
   const computeBlocked = async () => {
     try {
