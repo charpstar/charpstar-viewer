@@ -249,7 +249,6 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
       }
     } catch (e) {
       console.error('Failed to start render:', e);
-      alert('Failed to start render. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -320,11 +319,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
           console.error(`Failed to queue render for variant ${variantName}:`, e);
         }
       }
-      
-      alert(`Queued ${variantsToRender.length} render(s) for all variants`);
     } catch (e) {
       console.error('Failed to render all:', e);
-      alert('Failed to queue renders. Please try again.');
     } finally {
       setIsRenderingAll(false);
     }
@@ -382,11 +378,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
           console.error(`Failed to queue render for variant ${variantName}:`, e);
         }
       }
-      
-      alert(`Queued ${selectedVariants.length} render(s) for selected variants`);
     } catch (e) {
       console.error('Failed to render selected variants:', e);
-      alert('Failed to queue renders. Please try again.');
     } finally {
       setIsRenderingSelected(false);
     }

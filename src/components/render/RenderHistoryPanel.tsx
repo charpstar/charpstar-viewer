@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 type Item = { url: string; variant?: string; view?: string; resolution?: number; background?: string; timestamp?: string; filename: string; format?: string };
 type GroupedRender = { timestamp: string; variant?: string; resolution?: number; background?: string; format?: string; images: Item[] };
@@ -30,7 +31,12 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
     }
   };
 
-  useEffect(() => { fetchHistory(); }, [clientName, modelName]);
+  useEffect(() => { 
+    // Clear items immediately when model changes
+    setItems([]);
+    setPage(1);
+    fetchHistory(); 
+  }, [clientName, modelName]);
 
   // Auto-refresh when render completes
   useEffect(() => {
@@ -103,7 +109,10 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
   if (loading && items.length === 0) {
     return (
       <div className="flex items-center justify-center h-full p-6">
-        <div className="text-sm text-gray-500">Loading history…</div>
+        <div className="text-center">
+          <Loader2 className="w-6 h-6 animate-spin text-gray-400 mx-auto mb-2" />
+          <div className="text-sm text-gray-500">Loading history...</div>
+        </div>
       </div>
     );
   }
