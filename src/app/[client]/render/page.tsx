@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, FolderOpen, Eye, Palette } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import ModelViewer from '@/components/ModelViewer';
-import VariantSelector from '@/components/demo/VariantSelector';
+import RenderVariantSelector from '@/components/render/RenderVariantSelector';
 import RenderOptionsPanel from '@/components/render/RenderOptionsPanel';
 import CollapsibleRenderQueue from '@/components/render/CollapsibleRenderQueue';
 import { Search, X } from 'lucide-react';
@@ -37,6 +37,7 @@ export default function RenderPage() {
   const [currentModelUrl, setCurrentModelUrl] = useState<string | null>(null);
   const [modelLoadError, setModelLoadError] = useState(false);
   const [isModelLoading, setIsModelLoading] = useState(false);
+  const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
   const modelViewerRef = useRef<any>(null);
 
   // Get model URL
@@ -105,6 +106,7 @@ export default function RenderPage() {
     setCurrentModelUrl(getModelUrl(filename));
     setModelLoadError(false);
     setIsModelLoading(true);
+    setSelectedVariants([]); // Clear variant selections when model changes
     try {
       const key = `charpstar:lastSelectedModel:${clientName}`;
       localStorage.setItem(key, JSON.stringify({ filename }));
@@ -314,6 +316,7 @@ export default function RenderPage() {
             <RenderOptionsPanel
               modelViewerRef={modelViewerRef}
               modelFilename={selectedModel}
+              selectedVariants={selectedVariants}
             />
           </div>
         </div>
@@ -334,9 +337,11 @@ export default function RenderPage() {
               
               <div className="flex-1 p-4 overflow-y-auto">
                 {!modelLoadError ? (
-                  <VariantSelector 
+                  <RenderVariantSelector 
                     modelViewerRef={modelViewerRef}
                     modelName={selectedModel}
+                    selectedVariants={selectedVariants}
+                    onSelectionChange={setSelectedVariants}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">

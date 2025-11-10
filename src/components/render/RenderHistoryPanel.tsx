@@ -141,28 +141,33 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
                 {/* Thumbnails - Fixed size for consistency (sized for 5) */}
                 <div className="mb-2">
                   <div className="flex gap-1">
-                    {group.images.map((img, i) => (
-                      <div key={img.url + i} className="relative flex-shrink-0 w-[calc(20%-0.2rem)]">
-                        <a 
-                          href={img.url} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          className="block"
-                        >
-                          <img
-                            src={img.url}
-                            alt={`${img.view || 'render'} thumbnail`}
-                            className="w-full aspect-square object-cover rounded border border-gray-300 hover:border-black transition-colors"
-                            loading="lazy"
-                          />
-                        </a>
-                        {img.view && (
-                          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 px-1 py-0.5 bg-black/90 text-white text-[7px] font-medium rounded-sm whitespace-nowrap leading-none">
-                            {img.view}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                    {group.images.map((img, i) => {
+                      const thumbnailUrl = img.url.includes('?') 
+                        ? `${img.url}&width=128&height=128` 
+                        : `${img.url}?width=128&height=128`;
+                      return (
+                        <div key={img.url + i} className="relative flex-shrink-0 w-[calc(20%-0.2rem)]">
+                          <a 
+                            href={img.url} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="block"
+                          >
+                            <img
+                              src={thumbnailUrl}
+                              alt={`${img.view || 'render'} thumbnail`}
+                              className="w-full aspect-square object-cover rounded border border-gray-300 hover:border-black transition-colors"
+                              loading="lazy"
+                            />
+                          </a>
+                          {img.view && (
+                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 px-1 py-0.5 bg-black/90 text-white text-[7px] font-medium rounded-sm whitespace-nowrap leading-none">
+                              {img.view}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 

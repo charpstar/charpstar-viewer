@@ -115,7 +115,7 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
   }).length;
 
   return (
-    <div className="fixed bottom-4 right-4 w-[420px] bg-white border border-gray-300 rounded-t-lg shadow-2xl z-40" style={{maxHeight: '45vh'}}>
+    <div className="fixed bottom-4 right-4 w-72 bg-white border border-gray-300 rounded-t-lg shadow-2xl z-40" style={{maxHeight: '45vh'}}>
       {/* Header */}
       <div 
         className="flex items-center justify-between px-4 py-2.5 bg-black text-white cursor-pointer rounded-t-lg"
@@ -159,7 +159,7 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
 
       {/* Queue Content */}
       {!isCollapsed && (
-        <div className="max-h-[calc(45vh-55px)] overflow-auto p-3 space-y-2">
+        <div className="max-h-[calc(45vh-55px)] overflow-auto p-2 space-y-1.5">
           {items.map((it, idx) => {
             const st = statuses[it.jobId] || {};
             const rawPct = Math.max(0, Math.min(100, Number(st.progress || 0)));
@@ -185,25 +185,25 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
                 : (String((st as any).stage) === 'queued' ? 'Queued' : undefined));
             
             return (
-              <div key={`${it.jobId}-${idx}`} className="p-2.5 rounded-lg bg-gray-50 border border-gray-200">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-xs font-medium text-gray-900 truncate flex-1">
+              <div key={`${it.jobId}-${idx}`} className="p-2 rounded bg-gray-50 border border-gray-200">
+                <div className="flex items-center justify-between gap-1.5">
+                  <div className="text-[11px] font-medium text-gray-900 truncate flex-1">
                     {it.modelName || 'Model'} {it.variantName ? `(${it.variantName})` : ''}
                     {!isDone && stageLabel && (
-                      <span className="text-[10px] text-gray-500 font-normal"> • {`${stageLabel}${isQueued ? (effectiveQueuePos ? ` #${effectiveQueuePos}` : '') : ` ${combinedPct}%`}`}</span>
+                      <span className="text-[9px] text-gray-500 font-normal"> • {`${stageLabel}${isQueued ? (effectiveQueuePos ? ` #${effectiveQueuePos}` : '') : ` ${combinedPct}%`}`}</span>
                     )}
                   </div>
-                  <div className="flex items-center space-x-2 flex-shrink-0">
+                  <div className="flex items-center flex-shrink-0">
                     {st.status === 'completed' ? (
-                      <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                      <CheckCircle className="w-3 h-3 text-green-500" />
                     ) : st.status === 'failed' ? (
-                      <XCircle className="w-3.5 h-3.5 text-red-500" />
+                      <XCircle className="w-3 h-3 text-red-500" />
                     ) : (
-                      <Loader2 className="w-3.5 h-3.5 text-black animate-spin" />
+                      <Loader2 className="w-3 h-3 text-black animate-spin" />
                     )}
                   </div>
                 </div>
-                <div className="mt-1 text-[10px] text-gray-500">
+                <div className="mt-0.5 text-[9px] text-gray-500">
                   {(() => {
                     const bg = it.background === 'transparent' ? 'Transparent' : `#${it.background}`;
                     const fmt = it.format ? it.format.toUpperCase() : 'PNG';
@@ -211,14 +211,14 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
                   })()}
                 </div>
                 {!isDone && (
-                  <div className="mt-2">
-                    <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
-                      <div className="bg-black h-1 transition-all duration-300" style={{ width: `${combinedPct}%` }} />
+                  <div className="mt-1.5">
+                    <div className="w-full bg-gray-200 rounded-full h-0.5 overflow-hidden">
+                      <div className="bg-black h-0.5 transition-all duration-300" style={{ width: `${combinedPct}%` }} />
                     </div>
                   </div>
                 )}
                 {st.status === 'failed' && st.error && (
-                  <div className="mt-2 text-[10px] text-red-600 truncate" title={st.error as any}>{st.error}</div>
+                  <div className="mt-1 text-[9px] text-red-600 truncate" title={st.error as any}>{st.error}</div>
                 )}
                 {(() => {
                   const isCompleted = st.status === 'completed';
@@ -237,32 +237,37 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
                   
                   if (images.length > 0 || showPlaceholders) {
                     return (
-                      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                        {isCompleted && images.slice(0, 8).map((img, i) => (
-                          <div key={`${it.jobId}-img-${i}`} className="group relative">
-                            <a href={img.url} target="_blank" rel="noreferrer" className="block">
-                              <img 
-                                src={img.url} 
-                                alt={`${img.view || 'render'} thumbnail`} 
-                                width={36} 
-                                height={36} 
-                                className="w-9 h-9 object-cover rounded border border-gray-300 hover:border-black hover:scale-105 transition-all" 
-                                loading="lazy" 
-                              />
-                            </a>
-                            {img.view && (
-                              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1 py-0.5 bg-black text-white text-[7px] font-medium rounded whitespace-nowrap">
-                                {img.view}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                      <div className="mt-1.5 flex items-center gap-1 flex-wrap">
+                        {isCompleted && images.slice(0, 8).map((img, i) => {
+                          const thumbnailUrl = img.url.includes('?') 
+                            ? `${img.url}&width=56&height=56` 
+                            : `${img.url}?width=56&height=56`;
+                          return (
+                            <div key={`${it.jobId}-img-${i}`} className="group relative">
+                              <a href={img.url} target="_blank" rel="noreferrer" className="block">
+                                <img 
+                                  src={thumbnailUrl} 
+                                  alt={`${img.view || 'render'} thumbnail`} 
+                                  width={28} 
+                                  height={28} 
+                                  className="w-7 h-7 object-cover rounded border border-gray-300 hover:border-black hover:scale-105 transition-all" 
+                                  loading="lazy" 
+                                />
+                              </a>
+                              {img.view && (
+                                <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 px-0.5 py-0.5 bg-black text-white text-[7px] font-medium rounded whitespace-nowrap leading-none">
+                                  {img.view}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                         {showPlaceholders && viewsArray.map((view, i) => (
                           <div key={`${it.jobId}-placeholder-${i}`} className="relative">
-                            <div className="w-9 h-9 rounded border border-dashed border-gray-300 bg-white flex items-center justify-center">
-                              <Loader2 className="w-3 h-3 text-gray-400 animate-spin" />
+                            <div className="w-7 h-7 rounded border border-dashed border-gray-300 bg-white flex items-center justify-center">
+                              <Loader2 className="w-2.5 h-2.5 text-gray-400 animate-spin" />
                             </div>
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1 py-0.5 bg-gray-700 text-white text-[7px] font-medium rounded whitespace-nowrap">
+                            <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 px-0.5 py-0.5 bg-gray-700 text-white text-[7px] font-medium rounded whitespace-nowrap leading-none">
                               {view.name}
                             </div>
                           </div>
