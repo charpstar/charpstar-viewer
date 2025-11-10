@@ -29,16 +29,16 @@ export async function GET(request: NextRequest) {
     const items = Array.isArray(json?.items) ? json.items : [];
     
     // Separate active from finished
-    const activeJobs = items.filter(it => 
+    const activeJobs = items.filter((it: any) => 
       it.status !== 'completed' && it.status !== 'failed'
     );
-    const finishedJobs = items.filter(it => 
+    const finishedJobs = items.filter((it: any) => 
       it.status === 'completed' || it.status === 'failed'
     );
     
     // Sort active jobs by queue position (FIFO - lowest queue numbers first)
     // If no queue position, sort by creation time (oldest first)
-    activeJobs.sort((a, b) => {
+    activeJobs.sort((a: any, b: any) => {
       const queueA = typeof a.queuePosition === 'number' ? a.queuePosition : 999999;
       const queueB = typeof b.queuePosition === 'number' ? b.queuePosition : 999999;
       if (queueA !== queueB) return queueA - queueB;
