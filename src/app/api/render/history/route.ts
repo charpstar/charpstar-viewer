@@ -53,7 +53,9 @@ export async function GET(request: NextRequest) {
     const client = searchParams.get('client');
     const modelName = searchParams.get('model');
     const limitParam = searchParams.get('limit');
-    const limit = limitParam ? parseInt(limitParam, 10) : 200; // Default limit of 200 items (10 pages)
+    const offsetParam = searchParams.get('offset');
+    const limit = limitParam ? parseInt(limitParam, 10) : 100; // Default limit of 100 items (5 pages)
+    const offset = offsetParam ? parseInt(offsetParam, 10) : 0; // Pagination offset
     
     if (!client || !modelName) {
       return NextResponse.json({ error: 'client and model are required' }, { status: 400 });
@@ -90,16 +92,18 @@ export async function GET(request: NextRequest) {
     // Step 2: Sort by timestamp DESC to get newest first
     variantTimestamps.sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
     
-    // Step 3: Only fetch files from the most recent timestamp folders (limit traversal)
-    // Aggressively limit to reduce latency in production
-    // ~5 images per timestamp folder, so we need limit/5 folders
-    const timestampsToFetch = Math.min(
-      Math.max(limit > 0 ? Math.ceil(limit / 5) : 20, 15),
-      30  // Never fetch more than 30 timestamp folders
+    // Step 3: Calculate how many timestamp folders to fetch
+    // Each folder has ~5 images on average
+    // We need to fetch enough to cover offset + limit
+    const totalItemsNeeded = offset + limit;
+    const avgImagesPerFolder = 5;
+    const timestampsToFetch = Math.max(
+      Math.ceil(totalItemsNeeded / avgImagesPerFolder) + 5, // +5 buffer
+      20 // Minimum 20 folders
     );
-    const recentTimestamps = variantTimestamps.slice(0, timestampsToFetch);
+    const recentTimestamps = variantTimestamps.slice(0, Math.min(timestampsToFetch, variantTimestamps.length));
     
-    console.log(`[History API] Fetching from ${timestampsToFetch} of ${variantTimestamps.length} timestamp folders for limit ${limit}`);
+    console.log(`[History API] Fetching from ${recentTimestamps.length} of ${variantTimestamps.length} timestamp folders (offset: ${offset}, limit: ${limit})`);
     
     const out: Array<{ url: string; variant: string; view?: string; resolution?: number; background?: string; timestamp?: string; filename: string; format?: string; }>= [];
     
@@ -144,27 +148,30 @@ export async function GET(request: NextRequest) {
     const allResults = await Promise.all(fetchPromises);
     console.log(`[History API] Step 3: Fetched ${fetchPromises.length} folders in parallel in ${Date.now() - fetchStartTime}ms`);
     
-    // Flatten results
+    // Flatten all results
     for (const results of allResults) {
       out.push(...results);
-      // Early exit if we have enough items
-      if (limit > 0 && out.length >= limit * 2) break;
     }
 
-    // Step 5: Final sort and limit
+    // Step 5: Final sort, then apply offset and limit
     out.sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
-    const limitedItems = limit > 0 ? out.slice(0, limit) : out;
+    
+    const paginatedItems = out.slice(offset, offset + limit);
+    const hasMore = offset + limit < out.length;
+    const moreAvailable = variantTimestamps.length > recentTimestamps.length;
     
     const totalTime = Date.now() - startTime;
-    console.log(`[History API] Total: ${limitedItems.length} items returned in ${totalTime}ms`);
+    console.log(`[History API] Total: ${paginatedItems.length} items returned (${out.length} scanned, offset: ${offset}) in ${totalTime}ms`);
     
     return NextResponse.json({ 
-      items: limitedItems, 
-      total: out.length, 
-      limited: out.length > limitedItems.length,
+      items: paginatedItems,
+      total: out.length, // Total items scanned so far
+      hasMore: hasMore || moreAvailable, // Can load more
       scannedTimestamps: recentTimestamps.length,
       totalTimestamps: variantTimestamps.length,
-      performanceMs: totalTime
+      performanceMs: totalTime,
+      offset,
+      limit
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to list history';
