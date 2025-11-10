@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 
 interface QueueItemMeta {
@@ -30,8 +29,6 @@ interface CombinedStatusResponse {
   error?: string;
 }
 
-// localStorage removed; using server registry
-
 const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
   const [items, setItems] = useState<QueueItemMeta[]>([]);
   const [statuses, setStatuses] = useState<Record<string, CombinedStatusResponse>>({});
@@ -52,7 +49,6 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
     load();
   }, [clientName]);
 
-  // React to new jobs being started and storage updates
   useEffect(() => {
     const onStarted = () => { setVisible(true); };
     try { window.addEventListener('charpstar:renderJobStarted', onStarted as EventListener); } catch {}
@@ -98,144 +94,158 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
   if (!visible) return null;
 
   return (
-    <div className="mt-3">
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-xs font-semibold text-gray-800">Render queue</div>
-        <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={clearFinished}>
-          <Trash2 className="w-3 h-3 mr-1" /> Clear finished
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[10px] uppercase tracking-wide text-gray-500">Queue</div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-7 px-2 text-xs text-gray-600 hover:text-gray-900" 
+          onClick={clearFinished}
+        >
+          <Trash2 className="w-3 h-3 mr-1" /> Clear
         </Button>
       </div>
-      <Card className="bg-white/95 border border-gray-200">
-        <div className="max-h-60 overflow-auto divide-y">
-          {items.map((it, idx) => {
-            const st = statuses[it.jobId] || {};
-            const rawPct = Math.max(0, Math.min(100, Number(st.progress || 0)));
-            const combinedPct = (() => {
-              const cp = (st as any)?.combinedProgress;
-              if (typeof cp === 'number') return Math.max(0, Math.min(100, cp));
-              // Fallback client-side mapping
-              if (String((st as any).stage) === 'queued') return 0;
-              if (st.stage === 'preparing') return Math.round(rawPct * 0.25);
-              if (st.stage === 'rendering') return 25 + Math.round(rawPct * 0.75);
-              return rawPct;
-            })();
-            const effectiveQueuePos = (() => {
-              const qp = (st as any)?.queuePosition;
-              if (typeof qp === 'number' && qp > 0) return qp;
-              return undefined;
-            })();
-            const isDone = st.status === 'completed' || st.status === 'failed';
-            const isQueued = st.status === 'queued' || st.status === 'pending';
-            const stageLabel = st.stage === 'preparing'
-              ? 'Preparing'
-              : (st.stage === 'rendering'
-                ? 'Rendering'
-                : (String((st as any).stage) === 'queued' ? 'Queued' : undefined));
-            return (
-              <div key={`${it.jobId}-${idx}`} className="p-2">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-xs font-medium text-gray-900 truncate">
-                    {it.modelName || 'Model'} {it.variantName ? `(${it.variantName})` : ''}
-                    {!isDone && stageLabel && (
-                      <span className="text-[11px] text-gray-600"> {`– ${stageLabel}${isQueued ? (effectiveQueuePos ? ` #${effectiveQueuePos}` : '') : ` ${combinedPct}%`}`}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {st.status === 'completed' ? (
-                      <CheckCircle className="w-3 h-3 text-green-500" />
-                    ) : st.status === 'failed' ? (
-                      <XCircle className="w-3 h-3 text-red-500" />
-                    ) : (
-                      <Loader2 className="w-3 h-3 text-purple-500 animate-spin" />
-                    )}
-                  </div>
+      <div className="space-y-3 max-h-80 overflow-auto">
+        {items.map((it, idx) => {
+          const st = statuses[it.jobId] || {};
+          const rawPct = Math.max(0, Math.min(100, Number(st.progress || 0)));
+          const combinedPct = (() => {
+            const cp = (st as any)?.combinedProgress;
+            if (typeof cp === 'number') return Math.max(0, Math.min(100, cp));
+            if (String((st as any).stage) === 'queued') return 0;
+            if (st.stage === 'preparing') return Math.round(rawPct * 0.25);
+            if (st.stage === 'rendering') return 25 + Math.round(rawPct * 0.75);
+            return rawPct;
+          })();
+          const effectiveQueuePos = (() => {
+            const qp = (st as any)?.queuePosition;
+            if (typeof qp === 'number' && qp > 0) return qp;
+            return undefined;
+          })();
+          const isDone = st.status === 'completed' || st.status === 'failed';
+          const isQueued = st.status === 'queued' || st.status === 'pending';
+          const stageLabel = st.stage === 'preparing'
+            ? 'Preparing'
+            : (st.stage === 'rendering'
+              ? 'Rendering'
+              : (String((st as any).stage) === 'queued' ? 'Queued' : undefined));
+          
+          return (
+            <div key={`${it.jobId}-${idx}`} className="p-3 rounded-lg bg-gray-50/50 hover:bg-gray-50 transition-colors">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs font-medium text-gray-900 truncate">
+                  {it.modelName || 'Model'} {it.variantName ? `(${it.variantName})` : ''}
+                  {!isDone && stageLabel && (
+                    <span className="text-[11px] text-gray-500 font-normal"> • {`${stageLabel}${isQueued ? (effectiveQueuePos ? ` #${effectiveQueuePos}` : '') : ` ${combinedPct}%`}`}</span>
+                  )}
                 </div>
-                <div className="mt-1 text-[11px] text-gray-600 truncate">
-                  {(() => {
-                    const viewsArray = it.views || (it.view ? [it.view] : []);
-                    const viewNames = viewsArray.map(v => v.name).join(', ');
-                    const bg = it.background === 'transparent' ? 'Transparent' : `#${it.background}`;
-                    const fmt = it.format ? it.format.toUpperCase() : 'PNG';
-                    return `${viewNames} • ${bg} • ${it.resolution}px • ${fmt}`;
-                  })()}
+                <div className="flex items-center space-x-2 flex-shrink-0">
+                  {st.status === 'completed' ? (
+                    <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                  ) : st.status === 'failed' ? (
+                    <XCircle className="w-3.5 h-3.5 text-red-500" />
+                  ) : (
+                    <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+                  )}
                 </div>
-                {!isDone && (
-                  <div className="mt-1">
-                    <div className="w-full bg-gray-200 rounded h-1 overflow-hidden">
-                      <div className="bg-purple-500 h-1" style={{ width: `${combinedPct}%` }} />
-                    </div>
-                    {typeof st.queuePosition === 'number' && st.queuePosition > 0 && (
-                      <div className="mt-1 text-[11px] text-gray-500">In queue: #{st.queuePosition}</div>
-                    )}
-                    <div className="mt-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-[11px]"
-                        onClick={async () => {
-                          // Optimistic remove
-                          setItems(prev => prev.filter(x => x.jobId !== it.jobId));
-                          setStatuses(prev => { const n = { ...prev }; delete (n as any)[it.jobId]; return n; });
-                          try {
-                            const res = await fetch('/api/render/cancel', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ jobId: it.jobId, client: clientName })
-                            });
-                            await res.json().catch(() => ({}));
-                          } catch {}
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
+              </div>
+              <div className="mt-1.5 text-[10px] text-gray-500">
+                {(() => {
+                  const viewsArray = it.views || (it.view ? [it.view] : []);
+                  const viewNames = viewsArray.map(v => v.name).join(', ');
+                  const bg = it.background === 'transparent' ? 'Transparent' : `#${it.background}`;
+                  const fmt = it.format ? it.format.toUpperCase() : 'PNG';
+                  return `${viewNames} • ${bg} • ${it.resolution}px • ${fmt}`;
+                })()}
+              </div>
+              {!isDone && (
+                <div className="mt-2 space-y-2">
+                  <div className="w-full bg-gray-200/50 rounded-full h-1 overflow-hidden">
+                    <div className="bg-blue-500 h-1 transition-all duration-300" style={{ width: `${combinedPct}%` }} />
                   </div>
-                )}
-                {st.status === 'failed' && st.error && (
-                  <div className="mt-1 text-[11px] text-red-600 truncate" title={st.error as any}>{st.error}</div>
-                )}
-                {st.status === 'completed' && (st as any) && ((st as any).images || (st as any).imageUrls || (st as any).imageUrl) && (
-                  <div className="mt-2 space-y-1">
-                    {(() => {
-                      // Prefer images array with metadata, fallback to imageUrls, then imageUrl
-                      const images: Array<{ url: string; view?: string; format?: string }> = Array.isArray((st as any).images)
-                        ? (st as any).images
-                        : (Array.isArray((st as any).imageUrls)
-                          ? (st as any).imageUrls.map((url: string) => ({ url }))
-                          : (typeof (st as any).imageUrl === 'string' ? [{ url: (st as any).imageUrl }] : []));
-                      
-                      return images.slice(0, 8).map((img, i) => (
-                        <div key={`${it.jobId}-img-${i}`} className="flex items-center gap-2">
-                          <a href={img.url} target="_blank" rel="noreferrer" className="shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-[10px] text-gray-600 hover:text-gray-900"
+                    onClick={async () => {
+                      setItems(prev => prev.filter(x => x.jobId !== it.jobId));
+                      setStatuses(prev => { const n = { ...prev }; delete (n as any)[it.jobId]; return n; });
+                      try {
+                        const res = await fetch('/api/render/cancel', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ jobId: it.jobId, client: clientName })
+                        });
+                        await res.json().catch(() => ({}));
+                      } catch {}
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+              {st.status === 'failed' && st.error && (
+                <div className="mt-2 text-[10px] text-red-600 truncate" title={st.error as any}>{st.error}</div>
+              )}
+              {(() => {
+                const isCompleted = st.status === 'completed';
+                const isRendering = st.status === 'running' || st.status === 'pending';
+                
+                const images: Array<{ url: string; view?: string; format?: string }> = isCompleted && (st as any)
+                  ? (Array.isArray((st as any).images)
+                    ? (st as any).images
+                    : (Array.isArray((st as any).imageUrls)
+                      ? (st as any).imageUrls.map((url: string) => ({ url }))
+                      : (typeof (st as any).imageUrl === 'string' ? [{ url: (st as any).imageUrl }] : [])))
+                  : [];
+                
+                const viewsArray = it.views || (it.view ? [it.view] : []);
+                const showPlaceholders = isRendering && viewsArray.length > 0;
+                
+                if (images.length > 0 || showPlaceholders) {
+                  return (
+                    <div className="mt-3 flex items-center gap-2 flex-wrap">
+                      {isCompleted && images.slice(0, 8).map((img, i) => (
+                        <div key={`${it.jobId}-img-${i}`} className="group relative">
+                          <a href={img.url} target="_blank" rel="noreferrer" className="block">
                             <img 
                               src={img.url} 
                               alt={`${img.view || 'render'} thumbnail`} 
-                              width={48} 
-                              height={48} 
-                              className="w-12 h-12 object-cover rounded border border-gray-200" 
+                              width={56} 
+                              height={56} 
+                              className="w-14 h-14 object-cover rounded-md border border-gray-200 hover:border-blue-400 hover:scale-105 transition-all" 
                               loading="lazy" 
                             />
                           </a>
                           {img.view && (
-                            <div className="text-[11px] text-gray-600">
-                              <span className="font-medium capitalize">{img.view}</span>
-                              {img.format && <span className="text-gray-400"> • {img.format.toUpperCase()}</span>}
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-gray-900/90 text-white text-[9px] font-medium rounded whitespace-nowrap">
+                              {img.view}
                             </div>
                           )}
                         </div>
-                      ));
-                    })()}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </Card>
+                      ))}
+                      {showPlaceholders && viewsArray.map((view, i) => (
+                        <div key={`${it.jobId}-placeholder-${i}`} className="relative">
+                          <div className="w-14 h-14 rounded-md border border-dashed border-gray-300 bg-white flex items-center justify-center">
+                            <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                          </div>
+                          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-gray-700/90 text-white text-[9px] font-medium rounded whitespace-nowrap">
+                            {view.name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
 
 export default RenderQueuePanel;
-
-

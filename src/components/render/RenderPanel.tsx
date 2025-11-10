@@ -9,7 +9,7 @@ import RenderQueuePanel from '@/components/render/RenderQueuePanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RenderHistoryPanel from '@/components/render/RenderHistoryPanel';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import DebouncedColorPicker from '@/components/material/DebouncedColorPicker';
+import AlwaysOpenColorPicker from '@/components/material/AlwaysOpenColorPicker';
 
 interface RenderPanelProps {
   modelViewerRef: React.RefObject<any>;
@@ -204,12 +204,12 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
   };
 
   return (
-    <Card className="bg-white/95 border border-gray-200 shadow-md">
-      <CardContent className="p-3">
-        <div className="flex items-center justify-between mb-2">
+    <div className="bg-white/95 rounded-lg">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <Camera className="w-4 h-4 text-gray-700" />
-            <div className="text-xs font-semibold text-gray-800">Photoreal Render</div>
+            <Camera className="w-4 h-4 text-gray-600" />
+            <div className="text-sm font-medium text-gray-900">Photoreal Render</div>
           </div>
           <TooltipProvider>
             <Tooltip>
@@ -218,7 +218,7 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
                   size="sm"
                   onClick={handleStartRender}
                   disabled={!modelFilename || isSubmitting || isBlocked}
-                  className="h-7 text-xs"
+                  className="h-8 text-xs px-4"
                 >
                   {isSubmitting ? (<><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Render</>) : 'Render'}
                 </Button>
@@ -233,43 +233,43 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
         </div>
 
         <Tabs defaultValue="options">
-          <TabsList className="h-7">
+          <TabsList className="h-8 bg-gray-100/50">
             <TabsTrigger value="options" className="text-xs">Options</TabsTrigger>
-            <TabsTrigger value="history" className="text-xs">Model History</TabsTrigger>
+            <TabsTrigger value="history" className="text-xs">History</TabsTrigger>
           </TabsList>
-          <TabsContent value="options" className="mt-2">
+          <TabsContent value="options" className="mt-4 space-y-4">
             {/* Views Selection */}
-            <div className="mb-3">
-              <div className="text-[10px] uppercase text-gray-500 mb-1.5">Views to Render</div>
-              <div className="flex flex-wrap gap-1.5">
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-gray-500 mb-2 flex items-center justify-between">
+                <span>Camera Angles</span>
+                <span className="text-blue-600 font-medium">{selectedViews.length} selected</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
                 {cameraPresets.map(preset => (
                   <button
                     key={preset.name}
                     onClick={() => toggleView(preset.name)}
-                    className={`px-2.5 py-1 text-xs rounded transition-colors ${
+                    className={`px-3 py-2 text-xs rounded-md transition-all font-medium ${
                       selectedViews.includes(preset.name)
                         ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     {preset.label}
                   </button>
                 ))}
               </div>
-              <div className="text-[10px] text-gray-400 mt-1">
-                {selectedViews.length} view{selectedViews.length !== 1 ? 's' : ''} selected
-              </div>
             </div>
 
             {/* Settings Grid */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="grid grid-cols-2 gap-3">
               {/* Resolution */}
               <div>
-                <div className="text-[10px] uppercase text-gray-500 mb-1">Resolution</div>
+                <div className="text-[10px] uppercase tracking-wide text-gray-500 mb-2">Resolution</div>
                 <select
                   value={resolution}
                   onChange={e => setResolution(e.target.value)}
-                  className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+                  className="w-full h-9 text-xs bg-gray-50 border-0 rounded-md px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="1024">1024px</option>
                   <option value="2048">2048px</option>
@@ -279,11 +279,11 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
 
               {/* Output Format */}
               <div>
-                <div className="text-[10px] uppercase text-gray-500 mb-1">Format</div>
+                <div className="text-[10px] uppercase tracking-wide text-gray-500 mb-2">Format</div>
                 <select
                   value={outputFormat}
                   onChange={e => setOutputFormat(e.target.value as OutputFormat)}
-                  className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+                  className="w-full h-9 text-xs bg-gray-50 border-0 rounded-md px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="png">PNG</option>
                   <option value="jpg">JPG</option>
@@ -293,34 +293,33 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
             </div>
 
             {/* Background Settings */}
-            <div className="mb-3">
-              <div className="text-[10px] uppercase text-gray-500 mb-1.5">Background</div>
-              <div className="flex gap-2 mb-2">
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-gray-500 mb-2">Background</div>
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setBackgroundMode('transparent')}
-                  className={`flex-1 px-2.5 py-1.5 text-xs rounded transition-colors ${
+                  className={`px-3 py-2 text-xs rounded-md transition-all font-medium ${
                     backgroundMode === 'transparent'
                       ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   Transparent
                 </button>
                 <button
                   onClick={() => setBackgroundMode('color')}
-                  className={`flex-1 px-2.5 py-1.5 text-xs rounded transition-colors ${
+                  className={`px-3 py-2 text-xs rounded-md transition-all font-medium ${
                     backgroundMode === 'color'
                       ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  Color
+                  Custom Color
                 </button>
               </div>
               {backgroundMode === 'color' && (
-                <div className="bg-gray-50 rounded p-2">
-                  <DebouncedColorPicker
-                    label="Background Color"
+                <div className="mt-2">
+                  <AlwaysOpenColorPicker
                     value={backgroundColor}
                     onChange={setBackgroundColor}
                     debounceTime={100}
@@ -331,14 +330,14 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
 
             <RenderQueuePanel clientName={clientName} />
           </TabsContent>
-          <TabsContent value="history" className="mt-2">
+          <TabsContent value="history" className="mt-4">
             {modelFilename && (
               <RenderHistoryPanel clientName={clientName} modelName={modelFilename.replace(/\.(gltf|glb)$/i, '')} />
             )}
           </TabsContent>
         </Tabs>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

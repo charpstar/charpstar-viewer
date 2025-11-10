@@ -1434,7 +1434,7 @@ export default function MaterialEditorPage() {
       </Dialog>
       
       {error ? (
-        <div className="flex h-[calc(100vh-48px)] items-center justify-center">
+        <div className="flex h-[calc(100vh-56px)] items-center justify-center">
           <div className="text-center">
             <div className="text-red-500 mb-4">Error: {error}</div>
             <Button onClick={() => loadReferenceGltf(true)} variant="outline">
@@ -1444,7 +1444,7 @@ export default function MaterialEditorPage() {
           </div>
         </div>
       ) : isLoading ? (
-        <div className="flex h-[calc(100vh-48px)]">
+        <div className="flex h-[calc(100vh-56px)]">
           {/* Left Sidebar Skeleton */}
           <div className="w-80 bg-white border-r border-gray-200 p-4">
             <div className="animate-pulse space-y-3">
@@ -1476,7 +1476,7 @@ export default function MaterialEditorPage() {
           </div>
         </div>
       ) : (
-      <div className="flex h-[calc(100vh-48px)]">
+      <div className="flex h-[calc(100vh-56px)]">
 
         {/* Left Sidebar - Material List */}
         <div className="w-80 bg-white border-r border-gray-200 flex flex-col min-h-0">

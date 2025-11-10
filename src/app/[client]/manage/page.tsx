@@ -11,7 +11,6 @@ import ModelViewer from '@/components/ModelViewer';
 import VariantSelector from '@/components/demo/VariantSelector';
 import CompactModelStats from '@/components/demo/ModelStats';
 import CameraControlsPanel from '@/components/demo/CameraControlsPanel';
-import RenderPanel from '@/components/render/RenderPanel';
 
 import DeleteModelDialog from '@/components/DeleteModelDialog';
 import { Search, X } from 'lucide-react';
@@ -330,7 +329,7 @@ export default function ManageModelsPage() {
         onUploadModels={openUploadDialog}
       />
       
-      <div className="flex h-[calc(100vh-48px)]">
+      <div className="flex h-[calc(100vh-56px)]">
         {/* Left Sidebar - Existing Models */}
         <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200 flex-shrink-0">
@@ -478,14 +477,6 @@ export default function ManageModelsPage() {
                   <CameraControlsPanel
                     modelViewerRef={modelViewerRef}
                   />
-                )}
-                {!modelLoadError && !isModelLoading && (
-                  <div className="absolute top-4 left-4 w-[420px] z-20">
-                    <RenderPanel
-                      modelViewerRef={modelViewerRef}
-                      modelFilename={selectedModel}
-                    />
-                  </div>
                 )}
 
                 {sceneMeshNames.length > 0 && (

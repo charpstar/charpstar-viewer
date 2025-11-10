@@ -52,6 +52,7 @@ const Header: React.FC<HeaderProps> = ({
   const isClientView = isValidClient(clientName);
   const isManageView = pathname?.includes('/manage');
   const isTexturesView = pathname?.includes('/textures');
+  const isRenderView = pathname?.includes('/render');
   const [editingName, setEditingName] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -77,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({
   
   // Determine current page (Editor, Manage, and Materials)
   const isMaterialsView = pathname?.includes('/materials');
-  const currentPage = isMaterialsView ? 'materials' : isTexturesView ? 'textures' : isManageView ? 'manage' : 'editor';
+  const currentPage = isMaterialsView ? 'materials' : isTexturesView ? 'textures' : isRenderView ? 'render' : isManageView ? 'manage' : 'editor';
 
   // Track if a background apply job is active for the current client (from localStorage)
   const [externalJobActive, setExternalJobActive] = React.useState(false);
@@ -132,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({
   const topActionsDisabled = isApplyingToLiveModels || externalJobActive;
 
   return (
-    <header className="h-12 bg-white text-[#111827] flex items-center justify-between px-6 border-b border-gray-200 shadow-sm w-full">
+    <header className="h-14 bg-white text-[#111827] flex items-center justify-between px-6 py-3 border-b border-gray-200 shadow-sm w-full">
       <div className="flex items-center">
         <Image
           src="/logo.svg"
@@ -145,7 +146,6 @@ const Header: React.FC<HeaderProps> = ({
         {isClientView && (
           <nav className="ml-8">
             <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-              {/* Viewer tab removed */}
               <Link href={`/${clientName}/manage`}>
                 <button
                   className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
@@ -177,6 +177,17 @@ const Header: React.FC<HeaderProps> = ({
                   }`}
                 >
                   Textures
+                </button>
+              </Link>
+              <Link href={`/${clientName}/render`}>
+                <button
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
+                    currentPage === 'render'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  }`}
+                >
+                  Render Studio
                 </button>
               </Link>
             </div>
@@ -256,7 +267,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </>
         )}
-        
+
         {/* Export buttons only shown for non-client views */}
         {!isClientView && (
           <>
