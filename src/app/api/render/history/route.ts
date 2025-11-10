@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import https from 'https';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 function getStorageZoneDetails() {
   const path = process.env.BUNNY_STORAGE_ZONE_NAME || '';
@@ -66,9 +68,12 @@ export async function GET(request: NextRequest) {
     // Directory layout: <basePath>/<client>/Renders/<modelName>/<variant>/<timestamp>/<view>_<resolution>_<background>.png
     const rootDir = `${basePath ? basePath.replace(/\/+$/,'') + '/' : ''}${client}/Renders/${encodeURIComponent(modelName)}/`;
 
+    const startTime = Date.now();
     const variants = await listDirectory(zoneName, rootDir).catch(() => []);
+    console.log(`[History API] Step 1: Listed ${variants?.length || 0} variants in ${Date.now() - startTime}ms`);
     
     // Step 1: Collect all variant/timestamp pairs
+    const step1Time = Date.now();
     const variantTimestamps: Array<{ variant: string; timestamp: string }> = [];
     for (const v of variants || []) {
       if (!v || !v.IsDirectory) continue;
@@ -80,21 +85,29 @@ export async function GET(request: NextRequest) {
         variantTimestamps.push({ variant, timestamp });
       }
     }
+    console.log(`[History API] Step 2: Collected ${variantTimestamps.length} timestamps in ${Date.now() - step1Time}ms`);
     
     // Step 2: Sort by timestamp DESC to get newest first
     variantTimestamps.sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
     
     // Step 3: Only fetch files from the most recent timestamp folders (limit traversal)
-    // We need to fetch more than 'limit' timestamp folders because each folder has multiple images
-    // Estimate: ~5 images per timestamp folder, so fetch ceil(limit / 3) folders to be safe
-    const timestampsToFetch = Math.max(limit > 0 ? Math.ceil(limit / 3) : 100, 20);
+    // Aggressively limit to reduce latency in production
+    // ~5 images per timestamp folder, so we need limit/5 folders
+    const timestampsToFetch = Math.min(
+      Math.max(limit > 0 ? Math.ceil(limit / 5) : 20, 15),
+      30  // Never fetch more than 30 timestamp folders
+    );
     const recentTimestamps = variantTimestamps.slice(0, timestampsToFetch);
+    
+    console.log(`[History API] Fetching from ${timestampsToFetch} of ${variantTimestamps.length} timestamp folders for limit ${limit}`);
     
     const out: Array<{ url: string; variant: string; view?: string; resolution?: number; background?: string; timestamp?: string; filename: string; format?: string; }>= [];
     
-    // Step 4: Fetch files only from recent timestamps
-    for (const vt of recentTimestamps) {
+    // Step 4: Fetch files from recent timestamps IN PARALLEL for speed
+    const fetchPromises = recentTimestamps.map(async (vt) => {
       const files = await listDirectory(zoneName, rootDir + vt.variant + '/' + vt.timestamp + '/').catch(() => []);
+      const results: typeof out = [];
+      
       for (const f of files || []) {
         if (!f || f.IsDirectory) continue;
         const filename: string = f.ObjectName || '';
@@ -120,9 +133,20 @@ export async function GET(request: NextRequest) {
         
         const storagePath = `${rootDir}${vt.variant}/${vt.timestamp}/${filename}`.replace(/\/+/, '/');
         const url = `https://${PULL}/${storagePath}`;
-        out.push({ url, variant: vt.variant, view, resolution, background, timestamp: vt.timestamp, filename, format });
+        results.push({ url, variant: vt.variant, view, resolution, background, timestamp: vt.timestamp, filename, format });
       }
       
+      return results;
+    });
+    
+    // Wait for all fetches to complete in parallel
+    const fetchStartTime = Date.now();
+    const allResults = await Promise.all(fetchPromises);
+    console.log(`[History API] Step 3: Fetched ${fetchPromises.length} folders in parallel in ${Date.now() - fetchStartTime}ms`);
+    
+    // Flatten results
+    for (const results of allResults) {
+      out.push(...results);
       // Early exit if we have enough items
       if (limit > 0 && out.length >= limit * 2) break;
     }
@@ -131,12 +155,16 @@ export async function GET(request: NextRequest) {
     out.sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
     const limitedItems = limit > 0 ? out.slice(0, limit) : out;
     
+    const totalTime = Date.now() - startTime;
+    console.log(`[History API] Total: ${limitedItems.length} items returned in ${totalTime}ms`);
+    
     return NextResponse.json({ 
       items: limitedItems, 
       total: out.length, 
       limited: out.length > limitedItems.length,
       scannedTimestamps: recentTimestamps.length,
-      totalTimestamps: variantTimestamps.length
+      totalTimestamps: variantTimestamps.length,
+      performanceMs: totalTime
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to list history';
