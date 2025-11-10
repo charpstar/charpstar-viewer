@@ -4,14 +4,18 @@ export type RenderJobMeta = {
   modelName: string;
   variantName: string | null;
   view?: { name: string } | null;
+  views?: Array<{ name: string }>;
   background?: string;
   resolution?: number;
+  format?: string;
   createdAt: string; // ISO
   // Cached status fields (optional, updated by list endpoint)
   status?: 'queued' | 'running' | 'pending' | 'completed' | 'failed' | 'unknown';
   progress?: number;
   queuePosition?: number;
   imageUrl?: string;
+  imageUrls?: string[];
+  images?: Array<{ url: string; view: string; format: string }>;
   stage?: 'preparing' | 'rendering';
 };
 
