@@ -395,6 +395,37 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
   const canUseTransparent = outputFormat !== 'jpg';
   const isColorPickerDisabled = backgroundMode === 'transparent';
 
+  // Get current variant name
+  const [currentVariantName, setCurrentVariantName] = useState('Default');
+
+  // Update current variant name when it changes
+  React.useEffect(() => {
+    const updateVariantName = () => {
+      try {
+        const mv = modelViewerRef.current;
+        if (!mv) {
+          setCurrentVariantName('Default');
+          return;
+        }
+        setCurrentVariantName(mv.variantName || 'Default');
+      } catch {
+        setCurrentVariantName('Default');
+      }
+    };
+
+    // Initial update
+    updateVariantName();
+
+    // Listen for variant changes
+    const viewer = modelViewerRef.current;
+    if (viewer) {
+      viewer.addEventListener('variant-applied', updateVariantName);
+      return () => {
+        viewer.removeEventListener('variant-applied', updateVariantName);
+      };
+    }
+  }, [modelViewerRef.current, modelFilename]);
+
   return (
     <div className="h-full flex bg-gray-50">
       {/* Left Section - Render Settings (exactly 50%) */}
@@ -412,7 +443,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
               {/* Camera Angles */}
               <div>
                 <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 block">
-                  Camera Angles ({selectedViews.length})
+                  Camera Angles (<span suppressHydrationWarning>{selectedViews.length}</span>)
                 </label>
                 <div className="space-y-2">
                   {cameraPresets.map(preset => (
@@ -564,19 +595,23 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Starting...
+                        Rendering...
                       </>
                     ) : (
                       <>
                         <Camera className="w-5 h-5 mr-2" />
-                        Start Render
+                        Render ({currentVariantName})
                       </>
                     )}
                   </Button>
                 </TooltipTrigger>
-                {isBlocked && (
+                {isBlocked ? (
                   <TooltipContent>
                     <div className="text-sm">Render already in progress for this model</div>
+                  </TooltipContent>
+                ) : (
+                  <TooltipContent>
+                    <div className="text-sm">Render the current variant with selected settings</div>
                   </TooltipContent>
                 )}
               </Tooltip>
