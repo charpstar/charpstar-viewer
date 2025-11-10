@@ -21,7 +21,8 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/render/history?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}&limit=50`, { 
+      // Fetch 200 items (enough for 10 pages of 20 items each)
+      const res = await fetch(`/api/render/history?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}&limit=200`, { 
         cache: 'no-store',
         signal 
       });
@@ -283,7 +284,7 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
           {/* Limited items notice */}
           {isLimited && (
             <div className="px-2 pb-2 pt-1 text-center text-[10px] text-gray-500">
-              Showing latest {items.length} of {totalCount} renders
+              Showing latest {items.length} of {totalCount}+ renders (recent history only)
             </div>
           )}
         </div>

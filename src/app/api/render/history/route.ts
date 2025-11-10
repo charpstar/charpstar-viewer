@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     const client = searchParams.get('client');
     const modelName = searchParams.get('model');
     const limitParam = searchParams.get('limit');
-    const limit = limitParam ? parseInt(limitParam, 10) : 50; // Default limit of 50 items
+    const limit = limitParam ? parseInt(limitParam, 10) : 200; // Default limit of 200 items (10 pages)
     
     if (!client || !modelName) {
       return NextResponse.json({ error: 'client and model are required' }, { status: 400 });
