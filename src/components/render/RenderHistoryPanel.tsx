@@ -10,26 +10,19 @@ type GroupedRender = { timestamp: string; variant?: string; resolution?: number;
 const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= ({ clientName, modelName }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [totalScanned, setTotalScanned] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLimited, setIsLimited] = useState(false);
   const pageSize = 20;
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
-  const fetchHistory = React.useCallback(async (signal?: AbortSignal, append = false) => {
+  const fetchHistory = React.useCallback(async (signal?: AbortSignal) => {
     try {
-      if (append) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
       setError(null);
-      
-      const offset = append ? items.length : 0;
-      // Fetch 100 items at a time for good balance between speed and data
-      const res = await fetch(`/api/render/history?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}&limit=100&offset=${offset}`, { 
+      // Fetch 200 items (enough for 10 pages of 20 items each)
+      const res = await fetch(`/api/render/history?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}&limit=200`, { 
         cache: 'no-store',
         signal 
       });
@@ -40,19 +33,15 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error || 'Failed to load history');
       const list = Array.isArray(json?.items) ? (json.items as Item[]) : [];
-      const hasMoreData = json?.hasMore === true;
-      const totalScanned = typeof json?.total === 'number' ? json.total : list.length;
+      const total = typeof json?.total === 'number' ? json.total : list.length;
+      const limited = json?.limited === true;
       
       // Double check we're still on the same model
       if (!signal?.aborted) {
-        if (append) {
-          setItems(prev => [...prev, ...list]);
-        } else {
-          setItems(list);
-          setPage(1);
-        }
-        setHasMore(hasMoreData);
-        setTotalScanned(totalScanned);
+        setItems(list);
+        setTotalCount(total);
+        setIsLimited(limited);
+        setPage(1);
       }
     } catch (e: any) {
       // Don't set error if request was aborted
@@ -63,10 +52,9 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
     } finally {
       if (!signal?.aborted) {
         setLoading(false);
-        setLoadingMore(false);
       }
     }
-  }, [clientName, modelName, items.length]);
+  }, [clientName, modelName]);
 
   useEffect(() => { 
     // Abort any pending requests
@@ -265,12 +253,12 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
       </div>
       
       {/* Footer */}
-      {(pageCount > 1 || hasMore) && (
+      {(pageCount > 1 || isLimited) && (
         <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50">
           {/* Pagination */}
           {pageCount > 1 && (
             <div className="flex items-center justify-between p-2">
-              <div className="text-[10px] text-gray-600">Page {current} of {pageCount} • {items.length} renders</div>
+              <div className="text-[10px] text-gray-600">Page {current} of {pageCount}</div>
               <div className="flex gap-1">
                 <Button 
                   variant="outline" 
@@ -293,32 +281,10 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
               </div>
             </div>
           )}
-          {/* Load More Button */}
-          {hasMore && (
-            <div className="px-2 pb-2 pt-1 text-center">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-7 px-3 text-xs"
-                disabled={loadingMore}
-                onClick={() => {
-                  const controller = new AbortController();
-                  abortControllerRef.current = controller;
-                  fetchHistory(controller.signal, true);
-                }}
-              >
-                {loadingMore ? (
-                  <>
-                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                    Loading...
-                  </>
-                ) : (
-                  'Load More'
-                )}
-              </Button>
-              <div className="text-[10px] text-gray-500 mt-1">
-                Showing {items.length} renders • More available
-              </div>
+          {/* Limited items notice */}
+          {isLimited && (
+            <div className="px-2 pb-2 pt-1 text-center text-[10px] text-gray-500">
+              Showing latest {items.length} of {totalCount}+ renders (recent history only)
             </div>
           )}
         </div>
