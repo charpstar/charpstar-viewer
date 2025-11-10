@@ -7,16 +7,17 @@ interface StartBody {
   modelFilename: string;
   modelName: string;
   variantName?: string | null;
-  view: { name: string };
-  background: 'white' | 'transparent' | 'studio';
+  views: Array<{ name: string; orbit?: string }>;
+  background: string; // 'transparent' or hex color (without #)
   resolution: number;
+  format?: 'png' | 'jpg' | 'webp';
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as StartBody;
-    const { client, modelFilename, modelName, variantName, view, background, resolution } = body || ({} as StartBody);
-    if (!client || !modelFilename || !modelName || !view?.name || !background || !resolution) {
+    const { client, modelFilename, modelName, variantName, views, background, resolution, format } = body || ({} as StartBody);
+    if (!client || !modelFilename || !modelName || !views || !Array.isArray(views) || views.length === 0 || !background || !resolution) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -43,9 +44,10 @@ export async function POST(request: NextRequest) {
         modelFilename,
         variantName: variantName || null,
         modelName,
-        view,
+        views,
         background,
         resolution,
+        format: format || 'png',
       }),
     });
     const prepJson = await prepRes.json().catch(() => ({}));
@@ -64,13 +66,14 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-      jobId,
+          jobId,
           client,
           modelName,
           variantName: variantName || null,
-      view,
-      background,
-      resolution,
+          views,
+          background,
+          resolution,
+          format: format || 'png',
           createdAt: new Date().toISOString(),
         })
       }).catch(() => null);

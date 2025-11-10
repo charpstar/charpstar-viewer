@@ -82,9 +82,10 @@ export async function GET(request: NextRequest) {
         const renderPayload = {
           jobId,
           glbUrl: stagingUrl,
-          view: meta?.view,
+          views: meta?.views || [meta?.view].filter(Boolean),
           background: meta?.background,
           resolution: meta?.resolution,
+          format: meta?.format || 'png',
           callbackUrl,
           callbackToken,
           client: meta?.client,
@@ -112,9 +113,10 @@ export async function GET(request: NextRequest) {
           const renderPayload = {
             jobId,
             glbUrl: stagingUrl,
-            view: meta?.view,
+            views: meta?.views || [meta?.view].filter(Boolean),
             background: meta?.background,
             resolution: meta?.resolution,
+            format: meta?.format || 'png',
             callbackUrl,
             callbackToken,
             client: meta?.client,

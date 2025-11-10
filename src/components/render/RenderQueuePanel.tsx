@@ -11,8 +11,10 @@ interface QueueItemMeta {
   modelName?: string;
   variantName?: string | null;
   view?: { name: string };
+  views?: Array<{ name: string }>;
   background?: string;
   resolution?: number;
+  format?: string;
   createdAt: string;
   status?: 'queued' | 'running' | 'pending' | 'completed' | 'failed' | 'unknown';
 }
@@ -23,6 +25,8 @@ interface CombinedStatusResponse {
   progress?: number;
   queuePosition?: number;
   imageUrl?: string;
+  imageUrls?: string[];
+  images?: Array<{ url: string; view: string; format: string }>;
   error?: string;
 }
 
@@ -146,7 +150,15 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
                     )}
                   </div>
                 </div>
-                <div className="mt-1 text-[11px] text-gray-600 truncate">{it.view?.name} • {it.background} • {it.resolution}px</div>
+                <div className="mt-1 text-[11px] text-gray-600 truncate">
+                  {(() => {
+                    const viewsArray = it.views || (it.view ? [it.view] : []);
+                    const viewNames = viewsArray.map(v => v.name).join(', ');
+                    const bg = it.background === 'transparent' ? 'Transparent' : `#${it.background}`;
+                    const fmt = it.format ? it.format.toUpperCase() : 'PNG';
+                    return `${viewNames} • ${bg} • ${it.resolution}px • ${fmt}`;
+                  })()}
+                </div>
                 {!isDone && (
                   <div className="mt-1">
                     <div className="w-full bg-gray-200 rounded h-1 overflow-hidden">
@@ -182,16 +194,35 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
                 {st.status === 'failed' && st.error && (
                   <div className="mt-1 text-[11px] text-red-600 truncate" title={st.error as any}>{st.error}</div>
                 )}
-                {st.status === 'completed' && (st as any) && ((st as any).imageUrl || (st as any).imageUrls) && (
-                  <div className="mt-2 flex items-center gap-2 flex-wrap">
+                {st.status === 'completed' && (st as any) && ((st as any).images || (st as any).imageUrls || (st as any).imageUrl) && (
+                  <div className="mt-2 space-y-1">
                     {(() => {
-                      const urls: string[] = Array.isArray((st as any).imageUrls)
-                        ? (st as any).imageUrls as string[]
-                        : (typeof (st as any).imageUrl === 'string' ? [(st as any).imageUrl as string] : []);
-                      return urls.slice(0, 8).map((u, i) => (
-                        <a key={`${it.jobId}-img-${i}`} href={u} target="_blank" rel="noreferrer" className="shrink-0">
-                          <img src={u} alt="render thumbnail" width={48} height={48} className="w-12 h-12 object-cover rounded border border-gray-200" loading="lazy" />
-                        </a>
+                      // Prefer images array with metadata, fallback to imageUrls, then imageUrl
+                      const images: Array<{ url: string; view?: string; format?: string }> = Array.isArray((st as any).images)
+                        ? (st as any).images
+                        : (Array.isArray((st as any).imageUrls)
+                          ? (st as any).imageUrls.map((url: string) => ({ url }))
+                          : (typeof (st as any).imageUrl === 'string' ? [{ url: (st as any).imageUrl }] : []));
+                      
+                      return images.slice(0, 8).map((img, i) => (
+                        <div key={`${it.jobId}-img-${i}`} className="flex items-center gap-2">
+                          <a href={img.url} target="_blank" rel="noreferrer" className="shrink-0">
+                            <img 
+                              src={img.url} 
+                              alt={`${img.view || 'render'} thumbnail`} 
+                              width={48} 
+                              height={48} 
+                              className="w-12 h-12 object-cover rounded border border-gray-200" 
+                              loading="lazy" 
+                            />
+                          </a>
+                          {img.view && (
+                            <div className="text-[11px] text-gray-600">
+                              <span className="font-medium capitalize">{img.view}</span>
+                              {img.format && <span className="text-gray-400"> • {img.format.toUpperCase()}</span>}
+                            </div>
+                          )}
+                        </div>
                       ));
                     })()}
                   </div>

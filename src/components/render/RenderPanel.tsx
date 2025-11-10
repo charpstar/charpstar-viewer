@@ -9,30 +9,33 @@ import RenderQueuePanel from '@/components/render/RenderQueuePanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RenderHistoryPanel from '@/components/render/RenderHistoryPanel';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import DebouncedColorPicker from '@/components/material/DebouncedColorPicker';
 
 interface RenderPanelProps {
   modelViewerRef: React.RefObject<any>;
   modelFilename: string | null;
 }
 
-type BackgroundOption = 'white' | 'transparent';
+type BackgroundMode = 'transparent' | 'color';
+type OutputFormat = 'png' | 'jpg' | 'webp';
 
 const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename }) => {
   const params = useParams();
   const clientName = (params?.client as string) || '';
 
   const cameraPresets = useMemo(() => ([
-    { name: 'Default', orbit: '-25deg 80deg 80%' },
-    { name: 'Front', orbit: '0deg 88deg 80%' },
-    { name: 'Back', orbit: '180deg 90deg 80%' },
-    { name: 'Side', orbit: '90deg 91deg 80%' },
-    { name: 'Top', orbit: '0deg -200deg 80%' },
-    { name: 'Table', orbit: '-35deg 71deg 80%' },
+    { name: 'default', label: 'Default', orbit: '-25deg 80deg 80%' },
+    { name: 'front', label: 'Front', orbit: '0deg 88deg 80%' },
+    { name: 'back', label: 'Back', orbit: '180deg 90deg 80%' },
+    { name: 'side', label: 'Side', orbit: '90deg 91deg 80%' },
+    { name: 'top', label: 'Top', orbit: '0deg -200deg 80%' },
   ]), []);
 
-  const [selectedView, setSelectedView] = useState<string>('Default');
+  const [selectedViews, setSelectedViews] = useState<string[]>(['front']);
   const [resolution, setResolution] = useState<string>('1024');  
-  const [background, setBackground] = useState<BackgroundOption>('white');
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('color');
+  const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('png');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
 
@@ -68,12 +71,29 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
     };
   }, [clientName, modelFilename]);
 
+  const toggleView = (viewName: string) => {
+    setSelectedViews(prev => {
+      if (prev.includes(viewName)) {
+        // Don't allow deselecting if it's the last one
+        return prev.length > 1 ? prev.filter(v => v !== viewName) : prev;
+      }
+      return [...prev, viewName];
+    });
+  };
+
   const handleStartRender = async () => {
-    if (!clientName || !modelFilename) return;
+    if (!clientName || !modelFilename || selectedViews.length === 0) return;
     const mv = modelViewerRef.current as any | null;
     const variantName: string | null = mv?.variantName || null;
-    const preset = cameraPresets.find(p => p.name === selectedView) || cameraPresets[0];
-    const view = { name: preset.name, orbit: preset.orbit };
+    
+    // Build views array with orbit data
+    const views = selectedViews.map(viewName => {
+      const preset = cameraPresets.find(p => p.name === viewName) || cameraPresets[0];
+      return { name: preset.name, orbit: preset.orbit };
+    });
+
+    // Build background string: 'transparent' or hex color
+    const backgroundValue = backgroundMode === 'transparent' ? 'transparent' : backgroundColor.replace('#', '');
 
     try {
       setIsSubmitting(true);
@@ -85,9 +105,10 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
           modelFilename,
           modelName: modelFilename.replace(/\.(gltf|glb)$/i, ''),
           variantName,
-          view,
-          background,
-          resolution: Number(resolution)
+          views,
+          background: backgroundValue,
+          resolution: Number(resolution),
+          format: outputFormat
         })
       });
       const json = await res.json().catch(() => ({}));
@@ -139,50 +160,97 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
             <TabsTrigger value="history" className="text-xs">Model History</TabsTrigger>
           </TabsList>
           <TabsContent value="options" className="mt-2">
-            <div className="grid grid-cols-3 gap-2 items-end">
-              <div>
-                <div className="text-[10px] uppercase text-gray-500 mb-1">View</div>
-                <div className="relative">
-                  <select
-                    value={selectedView}
-                    onChange={e => setSelectedView(e.target.value)}
-                    className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+            {/* Views Selection */}
+            <div className="mb-3">
+              <div className="text-[10px] uppercase text-gray-500 mb-1.5">Views to Render</div>
+              <div className="flex flex-wrap gap-1.5">
+                {cameraPresets.map(preset => (
+                  <button
+                    key={preset.name}
+                    onClick={() => toggleView(preset.name)}
+                    className={`px-2.5 py-1 text-xs rounded transition-colors ${
+                      selectedViews.includes(preset.name)
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                   >
-                    {cameraPresets.map(p => (
-                      <option key={p.name} value={p.name}>{p.name}</option>
-                    ))}
-                  </select>
-                </div>
+                    {preset.label}
+                  </button>
+                ))}
               </div>
-              <div>
-                <div className="text-[10px] uppercase text-gray-500 mb-1">Background</div>
-                <div className="relative">
-                  <select
-                    value={background}
-                    onChange={e => setBackground(e.target.value as BackgroundOption)}
-                    className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
-                  >
-                    <option value="white">White</option>
-                    <option value="transparent">Transparent</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase text-gray-500 mb-1">Resolution</div>
-                <div className="relative">
-                  <select
-                    value={resolution}
-                    onChange={e => setResolution(e.target.value)}
-                    className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
-                  >
-                    <option value="1024">1024</option>
-                    <option value="2048">2048</option>
-                    <option value="4096">4096</option>
-                  </select>
-                </div>
+              <div className="text-[10px] text-gray-400 mt-1">
+                {selectedViews.length} view{selectedViews.length !== 1 ? 's' : ''} selected
               </div>
             </div>
-            {/* Render button moved to header to save space */}
+
+            {/* Settings Grid */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {/* Resolution */}
+              <div>
+                <div className="text-[10px] uppercase text-gray-500 mb-1">Resolution</div>
+                <select
+                  value={resolution}
+                  onChange={e => setResolution(e.target.value)}
+                  className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+                >
+                  <option value="1024">1024px</option>
+                  <option value="2048">2048px</option>
+                  <option value="4096">4096px</option>
+                </select>
+              </div>
+
+              {/* Output Format */}
+              <div>
+                <div className="text-[10px] uppercase text-gray-500 mb-1">Format</div>
+                <select
+                  value={outputFormat}
+                  onChange={e => setOutputFormat(e.target.value as OutputFormat)}
+                  className="w-full h-8 text-xs bg-white border border-gray-300 rounded px-2"
+                >
+                  <option value="png">PNG</option>
+                  <option value="jpg">JPG</option>
+                  <option value="webp">WebP</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Background Settings */}
+            <div className="mb-3">
+              <div className="text-[10px] uppercase text-gray-500 mb-1.5">Background</div>
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={() => setBackgroundMode('transparent')}
+                  className={`flex-1 px-2.5 py-1.5 text-xs rounded transition-colors ${
+                    backgroundMode === 'transparent'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Transparent
+                </button>
+                <button
+                  onClick={() => setBackgroundMode('color')}
+                  className={`flex-1 px-2.5 py-1.5 text-xs rounded transition-colors ${
+                    backgroundMode === 'color'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Color
+                </button>
+              </div>
+              {backgroundMode === 'color' && (
+                <div className="bg-gray-50 rounded p-2">
+                  <DebouncedColorPicker
+                    label="Background Color"
+                    value={backgroundColor}
+                    onChange={setBackgroundColor}
+                    debounceTime={100}
+                  />
+                </div>
+              )}
+            </div>
+
             <RenderQueuePanel clientName={clientName} />
           </TabsContent>
           <TabsContent value="history" className="mt-2">
