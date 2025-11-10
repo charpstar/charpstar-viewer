@@ -25,13 +25,45 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: json?.error || 'Failed to get queue' }, { status: res.status });
     }
     
-    // Apply limit to prevent sending too many items
+    // Apply smart limiting: prioritize active jobs
     const items = Array.isArray(json?.items) ? json.items : [];
-    const limitedItems = limit > 0 ? items.slice(0, limit) : items;
+    
+    // Separate active from finished
+    const activeJobs = items.filter(it => 
+      it.status !== 'completed' && it.status !== 'failed'
+    );
+    const finishedJobs = items.filter(it => 
+      it.status === 'completed' || it.status === 'failed'
+    );
+    
+    // Sort active jobs by queue position (FIFO - lowest queue numbers first)
+    // If no queue position, sort by creation time (oldest first)
+    activeJobs.sort((a, b) => {
+      const queueA = typeof a.queuePosition === 'number' ? a.queuePosition : 999999;
+      const queueB = typeof b.queuePosition === 'number' ? b.queuePosition : 999999;
+      if (queueA !== queueB) return queueA - queueB;
+      // Fallback to creation time
+      return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+    });
+    
+    // For active jobs: only send oldest 10 for progress tracking (FIFO)
+    // The rest are just counted, not tracked
+    const activeToTrack = activeJobs.slice(0, 10);
+    const activeQueuedOnly = activeJobs.slice(10);
+    
+    // For finished: keep last 10
+    const recentFinished = finishedJobs.slice(0, 10);
+    
+    // Combine: tracked active + recent finished
+    const limitedItems = [...activeToTrack, ...recentFinished];
     
     return NextResponse.json({ 
-      items: limitedItems, 
-      total: items.length, 
+      items: limitedItems,
+      total: items.length,
+      activeCount: activeJobs.length,
+      trackedActiveCount: activeToTrack.length,
+      queuedCount: activeQueuedOnly.length,
+      finishedCount: finishedJobs.length,
       limited: items.length > limitedItems.length 
     });
   } catch (e) {

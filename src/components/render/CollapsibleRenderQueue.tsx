@@ -33,6 +33,8 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
   const [items, setItems] = useState<QueueItemMeta[]>([]);
   const [statuses, setStatuses] = useState<Record<string, CombinedStatusResponse>>({});
   const [prevStatuses, setPrevStatuses] = useState<Record<string, CombinedStatusResponse>>({});
+  const [totalActiveCount, setTotalActiveCount] = useState(0);
+  const [queuedCount, setQueuedCount] = useState(0);
   const timerRef = useRef<any>(null);
   const [visible, setVisible] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -40,13 +42,14 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
   useEffect(() => {
     const load = async () => {
       try {
-        // Limit to 50 most recent jobs
-        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}&limit=50`, { cache: 'no-store' });
+        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
         const json = await res.json().catch(() => ({}));
         const arr = Array.isArray(json?.items) ? json.items as any[] : [];
         setItems(arr);
         setStatuses(arr.reduce((acc: any, it: any) => { acc[it.jobId] = it; return acc; }, {}));
-        if (arr.length > 0) setVisible(true);
+        setTotalActiveCount(typeof json?.activeCount === 'number' ? json.activeCount : 0);
+        setQueuedCount(typeof json?.queuedCount === 'number' ? json.queuedCount : 0);
+        if (arr.length > 0 || json?.activeCount > 0) setVisible(true);
       } catch {}
     };
     load();
@@ -63,24 +66,19 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
   useEffect(() => {
     const poll = async () => {
       try {
-        // Limit to 50 most recent jobs
-        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}&limit=50`, { cache: 'no-store' });
+        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
         const json = await res.json().catch(() => ({}));
         const arr = Array.isArray(json?.items) ? json.items as any[] : [];
         
-        // Filter: Keep only active jobs + recent completed/failed (last 10)
-        const activeJobs = arr.filter(it => 
-          it.status !== 'completed' && it.status !== 'failed'
-        );
-        const finishedJobs = arr.filter(it => 
-          it.status === 'completed' || it.status === 'failed'
-        ).slice(0, 10); // Keep only 10 most recent finished
+        // Update counts from API
+        setTotalActiveCount(typeof json?.activeCount === 'number' ? json.activeCount : 0);
+        setQueuedCount(typeof json?.queuedCount === 'number' ? json.queuedCount : 0);
         
-        const filteredArr = [...activeJobs, ...finishedJobs];
-        setItems(filteredArr);
+        // Items already filtered by API (oldest 10 active + recent 10 finished)
+        setItems(arr);
         
         const next: Record<string, CombinedStatusResponse> = {};
-        for (const it of filteredArr) next[it.jobId] = it;
+        for (const it of arr) next[it.jobId] = it;
         
         // Check for newly completed jobs
         for (const jobId of Object.keys(next)) {
@@ -96,29 +94,24 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
         
         setPrevStatuses(statuses);
         setStatuses(next);
-        setVisible(filteredArr.length > 0);
+        setVisible(arr.length > 0 || totalActiveCount > 0);
       } catch {}
     };
     poll();
     
-    // Adaptive polling interval based on active jobs
+    // Adaptive polling interval based on total active jobs count
     const getInterval = () => {
-      const activeCount = items.filter(it => {
-        const st = statuses[it.jobId];
-        return st && st.status !== 'completed' && st.status !== 'failed';
-      }).length;
-      
       // No active jobs: poll every 10s
       // 1-5 active: 3s
       // 6+ active: 5s (to reduce load)
-      if (activeCount === 0) return 10000;
-      if (activeCount <= 5) return 3000;
+      if (totalActiveCount === 0) return 10000;
+      if (totalActiveCount <= 5) return 3000;
       return 5000;
     };
     
     timerRef.current = setInterval(poll, getInterval());
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [clientName, statuses, prevStatuses, items]);
+  }, [clientName, statuses, prevStatuses, totalActiveCount]);
 
   const clearFinished = async () => {
     try {
@@ -127,22 +120,25 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client: clientName })
       });
-      // Limit to 50 most recent jobs
-      const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}&limit=50`, { cache: 'no-store' });
+      const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
       const json = await res.json().catch(() => ({}));
       const arr = Array.isArray(json?.items) ? json.items as any[] : [];
       setItems(arr);
       setStatuses(arr.reduce((acc: any, it: any) => { acc[it.jobId] = it; return acc; }, {}));
-      setVisible(arr.length > 0);
+      setTotalActiveCount(typeof json?.activeCount === 'number' ? json.activeCount : 0);
+      setQueuedCount(typeof json?.queuedCount === 'number' ? json.queuedCount : 0);
+      setVisible(arr.length > 0 || (typeof json?.activeCount === 'number' && json.activeCount > 0));
     } catch {}
   };
 
   if (!visible) return null;
 
-  const activeCount = items.filter(it => {
-    const st = statuses[it.jobId];
-    return st && st.status !== 'completed' && st.status !== 'failed';
-  }).length;
+  // Display total counts (accurate)
+  const displayText = totalActiveCount > 0 
+    ? queuedCount > 0 
+      ? `${totalActiveCount} in queue (tracking ${totalActiveCount - queuedCount})`
+      : `${totalActiveCount} in queue`
+    : 'No jobs in queue';
 
   return (
     <div className="fixed bottom-4 right-4 w-72 bg-white border border-gray-300 rounded-t-lg shadow-2xl z-40" style={{maxHeight: '45vh'}}>
@@ -153,17 +149,17 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
       >
         <div className="flex items-center space-x-2">
           <div className="relative">
-            {activeCount > 0 && (
+            {totalActiveCount > 0 && (
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-white text-black text-[9px] font-bold rounded-full flex items-center justify-center">
-                {activeCount}
+                {totalActiveCount > 99 ? '99+' : totalActiveCount}
               </div>
             )}
-            <Loader2 className={`w-4 h-4 ${activeCount > 0 ? 'animate-spin' : ''}`} />
+            <Loader2 className={`w-4 h-4 ${totalActiveCount > 0 ? 'animate-spin' : ''}`} />
           </div>
           <div>
             <div className="text-xs font-semibold">Render Queue</div>
             <div className="text-[10px] opacity-75">
-              {activeCount > 0 ? `${activeCount} active` : 'No active jobs'}
+              {displayText}
             </div>
           </div>
         </div>
