@@ -50,6 +50,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const client = searchParams.get('client');
     const modelName = searchParams.get('model');
+    const limitParam = searchParams.get('limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : 50; // Default limit of 50 items
+    
     if (!client || !modelName) {
       return NextResponse.json({ error: 'client and model are required' }, { status: 400 });
     }
@@ -95,7 +98,11 @@ export async function GET(request: NextRequest) {
 
     // Sort by timestamp desc (when equal, leave order)
     out.sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
-    return NextResponse.json({ items: out });
+    
+    // Apply limit to prevent loading too many items
+    const limitedItems = limit > 0 ? out.slice(0, limit) : out;
+    
+    return NextResponse.json({ items: limitedItems, total: out.length, limited: out.length > limitedItems.length });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to list history';
     return NextResponse.json({ error: msg }, { status: 500 });

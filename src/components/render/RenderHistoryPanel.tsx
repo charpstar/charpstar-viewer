@@ -12,37 +12,83 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLimited, setIsLimited] = useState(false);
   const pageSize = 20;
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
-  const fetchHistory = async () => {
+  const fetchHistory = React.useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/render/history?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}`, { cache: 'no-store' });
+      const res = await fetch(`/api/render/history?client=${encodeURIComponent(clientName)}&model=${encodeURIComponent(modelName)}&limit=50`, { 
+        cache: 'no-store',
+        signal 
+      });
+      
+      // If request was aborted, don't process
+      if (signal?.aborted) return;
+      
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error || 'Failed to load history');
       const list = Array.isArray(json?.items) ? (json.items as Item[]) : [];
-      setItems(list);
-      setPage(1);
+      const total = typeof json?.total === 'number' ? json.total : list.length;
+      const limited = json?.limited === true;
+      
+      // Double check we're still on the same model
+      if (!signal?.aborted) {
+        setItems(list);
+        setTotalCount(total);
+        setIsLimited(limited);
+        setPage(1);
+      }
     } catch (e: any) {
-      setError(String(e?.message || e));
+      // Don't set error if request was aborted
+      if (e.name === 'AbortError') return;
+      if (!signal?.aborted) {
+        setError(String(e?.message || e));
+      }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
-  };
+  }, [clientName, modelName]);
 
   useEffect(() => { 
+    // Abort any pending requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
     // Clear items immediately when model changes
     setItems([]);
     setPage(1);
-    fetchHistory(); 
-  }, [clientName, modelName]);
+    setError(null);
+    setLoading(true);
+    
+    // Create new abort controller for this request
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    
+    fetchHistory(controller.signal);
+    
+    // Cleanup: abort on unmount or model change
+    return () => {
+      controller.abort();
+    };
+  }, [clientName, modelName, fetchHistory]);
 
   // Auto-refresh when render completes
   useEffect(() => {
     const onRenderComplete = () => {
       // Wait a bit for the history to be saved before fetching
-      setTimeout(() => fetchHistory(), 1000);
+      setTimeout(() => {
+        // Create new controller for refresh
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+        fetchHistory(controller.signal);
+      }, 1000);
     };
     
     try { 
@@ -54,7 +100,7 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
         window.removeEventListener('charpstar:renderCompleted', onRenderComplete as EventListener);
       } catch {}
     };
-  }, [clientName, modelName]);
+  }, [fetchHistory]);
 
   // Group renders by timestamp (multi-view renders go together)
   const groupedRenders = useMemo(() => {
@@ -122,7 +168,17 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
       <div className="flex items-center justify-center h-full p-6">
         <div className="text-center">
           <div className="text-sm text-red-600 mb-2">{error}</div>
-          <Button variant="outline" size="sm" onClick={fetchHistory}>Retry</Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              const controller = new AbortController();
+              abortControllerRef.current = controller;
+              fetchHistory(controller.signal);
+            }}
+          >
+            Retry
+          </Button>
         </div>
       </div>
     );
@@ -195,32 +251,41 @@ const RenderHistoryPanel: React.FC<{ clientName: string; modelName: string }>= (
         </div>
       </div>
       
-      {/* Pagination Footer */}
-      {pageCount > 1 && (
-        <div className="flex-shrink-0 border-t border-gray-200 p-2 bg-gray-50">
-          <div className="flex items-center justify-between">
-            <div className="text-[10px] text-gray-600">Page {current} of {pageCount}</div>
-            <div className="flex gap-1">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-6 px-2 text-[10px]" 
-                disabled={current <= 1} 
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-              >
-                Prev
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-6 px-2 text-[10px]" 
-                disabled={current >= pageCount} 
-                onClick={() => setPage(p => Math.min(pageCount, p + 1))}
-              >
-                Next
-              </Button>
+      {/* Footer */}
+      {(pageCount > 1 || isLimited) && (
+        <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50">
+          {/* Pagination */}
+          {pageCount > 1 && (
+            <div className="flex items-center justify-between p-2">
+              <div className="text-[10px] text-gray-600">Page {current} of {pageCount}</div>
+              <div className="flex gap-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-6 px-2 text-[10px]" 
+                  disabled={current <= 1} 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                >
+                  Prev
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-6 px-2 text-[10px]" 
+                  disabled={current >= pageCount} 
+                  onClick={() => setPage(p => Math.min(pageCount, p + 1))}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
+          {/* Limited items notice */}
+          {isLimited && (
+            <div className="px-2 pb-2 pt-1 text-center text-[10px] text-gray-500">
+              Showing latest {items.length} of {totalCount} renders
+            </div>
+          )}
         </div>
       )}
     </div>

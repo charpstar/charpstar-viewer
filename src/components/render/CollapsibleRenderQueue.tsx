@@ -40,7 +40,8 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
+        // Limit to 50 most recent jobs
+        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}&limit=50`, { cache: 'no-store' });
         const json = await res.json().catch(() => ({}));
         const arr = Array.isArray(json?.items) ? json.items as any[] : [];
         setItems(arr);
@@ -62,12 +63,24 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
   useEffect(() => {
     const poll = async () => {
       try {
-        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
+        // Limit to 50 most recent jobs
+        const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}&limit=50`, { cache: 'no-store' });
         const json = await res.json().catch(() => ({}));
         const arr = Array.isArray(json?.items) ? json.items as any[] : [];
-        setItems(arr);
+        
+        // Filter: Keep only active jobs + recent completed/failed (last 10)
+        const activeJobs = arr.filter(it => 
+          it.status !== 'completed' && it.status !== 'failed'
+        );
+        const finishedJobs = arr.filter(it => 
+          it.status === 'completed' || it.status === 'failed'
+        ).slice(0, 10); // Keep only 10 most recent finished
+        
+        const filteredArr = [...activeJobs, ...finishedJobs];
+        setItems(filteredArr);
+        
         const next: Record<string, CombinedStatusResponse> = {};
-        for (const it of arr) next[it.jobId] = it;
+        for (const it of filteredArr) next[it.jobId] = it;
         
         // Check for newly completed jobs
         for (const jobId of Object.keys(next)) {
@@ -83,13 +96,29 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
         
         setPrevStatuses(statuses);
         setStatuses(next);
-        setVisible(arr.length > 0);
+        setVisible(filteredArr.length > 0);
       } catch {}
     };
     poll();
-    timerRef.current = setInterval(poll, 2000);
+    
+    // Adaptive polling interval based on active jobs
+    const getInterval = () => {
+      const activeCount = items.filter(it => {
+        const st = statuses[it.jobId];
+        return st && st.status !== 'completed' && st.status !== 'failed';
+      }).length;
+      
+      // No active jobs: poll every 10s
+      // 1-5 active: 3s
+      // 6+ active: 5s (to reduce load)
+      if (activeCount === 0) return 10000;
+      if (activeCount <= 5) return 3000;
+      return 5000;
+    };
+    
+    timerRef.current = setInterval(poll, getInterval());
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [clientName, statuses, prevStatuses]);
+  }, [clientName, statuses, prevStatuses, items]);
 
   const clearFinished = async () => {
     try {
@@ -98,7 +127,8 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client: clientName })
       });
-      const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
+      // Limit to 50 most recent jobs
+      const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}&limit=50`, { cache: 'no-store' });
       const json = await res.json().catch(() => ({}));
       const arr = Array.isArray(json?.items) ? json.items as any[] : [];
       setItems(arr);
