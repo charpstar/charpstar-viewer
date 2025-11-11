@@ -142,7 +142,7 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
     update();
     const onStarted = () => update();
     try { window.addEventListener('charpstar:renderJobStarted', onStarted as any); } catch {}
-    const t = setInterval(update, 2000);
+    const t = setInterval(update, 5000); // CRITICAL FIX: 5s instead of 2s (60% less load)
     return () => {
       try { window.removeEventListener('charpstar:renderJobStarted', onStarted as any); } catch {}
       clearInterval(t);

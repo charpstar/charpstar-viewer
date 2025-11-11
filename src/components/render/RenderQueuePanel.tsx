@@ -71,7 +71,7 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
       } catch {}
     };
     poll();
-    timerRef.current = setInterval(poll, 2000);
+    timerRef.current = setInterval(poll, 5000); // CRITICAL FIX: 5s instead of 2s (60% less load)
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [clientName]);
 
