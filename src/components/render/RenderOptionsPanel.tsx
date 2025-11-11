@@ -13,12 +13,22 @@ interface RenderOptionsPanelProps {
   modelViewerRef: React.RefObject<any>;
   modelFilename: string | null;
   selectedVariants: string[];
+  isModularMode?: boolean;
+  modularViewerRef?: React.RefObject<any>;
+  modularConfig?: string | null;
 }
 
 type BackgroundMode = 'transparent' | 'color';
 type OutputFormat = 'png' | 'jpg' | 'webp';
 
-const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef, modelFilename, selectedVariants }) => {
+const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ 
+  modelViewerRef, 
+  modelFilename, 
+  selectedVariants,
+  isModularMode = false,
+  modularViewerRef,
+  modularConfig
+}) => {
   const params = useParams();
   const clientName = (params?.client as string) || '';
 
@@ -173,8 +183,13 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
 
   const computeBlocked = async () => {
     try {
-      const modelName = modelFilename ? modelFilename.replace(/\.(gltf|glb)$/i, '') : '';
-      const currentVariant = (modelViewerRef.current as any)?.variantName || null;
+      // For modular mode, use modular config name; for regular mode, use model filename
+      const modelName = isModularMode 
+        ? `modular-${modularConfig}` 
+        : (modelFilename ? modelFilename.replace(/\.(gltf|glb)$/i, '') : '');
+      
+      const currentVariant = isModularMode ? null : ((modelViewerRef.current as any)?.variantName || null);
+      
       const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
       const json = await res.json().catch(() => ({} as any));
       const items = Array.isArray(json?.items) ? json.items : [];
@@ -213,9 +228,11 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
   };
 
   const handleStartRender = async () => {
-    if (!clientName || !modelFilename || selectedViews.length === 0) return;
-    const mv = modelViewerRef.current as any | null;
-    const variantName: string | null = mv?.variantName || null;
+    if (!clientName || selectedViews.length === 0) return;
+    
+    // Check if we have either a regular model or modular config
+    if (!isModularMode && !modelFilename) return;
+    if (isModularMode && !modularConfig) return;
     
     const views = selectedViews.map(viewName => {
       const preset = cameraPresets.find(p => p.name === viewName) || cameraPresets[0];
@@ -224,31 +241,101 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
 
     const backgroundValue = backgroundMode === 'transparent' ? 'transparent' : backgroundColor.replace('#', '');
 
-    // DEBUG: Log what we're actually sending
-    console.log('[RENDER DEBUG] Sending render request:', {
-      selectedViews,
-      views,
-      resolution,
-      outputFormat,
-      backgroundMode,
-      backgroundColor,
-      backgroundValue
-    });
-
     try {
       setIsSubmitting(true);
-      const payload = {
-        client: clientName,
-        modelFilename,
-        modelName: modelFilename.replace(/\.(gltf|glb)$/i, ''),
-        variantName,
-        views,
-        background: backgroundValue,
-        resolution: Number(resolution),
-        format: outputFormat
-      };
       
-      console.log('[RENDER DEBUG] Full payload:', payload);
+      let payload: any;
+      
+      if (isModularMode && modularViewerRef?.current) {
+        // Modular mode: Export GLB and upload to temp
+        console.log('[RENDER] Exporting modular scene...');
+        
+        const viewer = modularViewerRef.current;
+        if (typeof viewer.exportGLB !== 'function') {
+          throw new Error('Modular viewer exportGLB method not available');
+        }
+        
+        const glbBlob = await viewer.exportGLB();
+        console.log('[RENDER] Modular GLB exported, blob size:', glbBlob.size, 'type:', glbBlob.type);
+        
+        if (!glbBlob || glbBlob.size === 0) {
+          throw new Error('Exported GLB is empty (0 bytes)');
+        }
+        
+        // Convert blob to base64
+        console.log('[RENDER] Converting blob to base64...');
+        const glbBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            if (!result) {
+              reject(new Error('FileReader result is null'));
+              return;
+            }
+            const base64 = result.split(',')[1];
+            console.log('[RENDER] Base64 conversion complete, length:', base64?.length || 0);
+            if (!base64 || base64.length === 0) {
+              reject(new Error('Base64 conversion resulted in empty string'));
+              return;
+            }
+            resolve(base64);
+          };
+          reader.onerror = (e) => {
+            console.error('[RENDER] FileReader error:', e);
+            reject(new Error('FileReader failed'));
+          };
+          reader.readAsDataURL(glbBlob);
+        });
+        
+        console.log('[RENDER] Base64 string length:', glbBase64.length);
+        
+        // Upload to temp location
+        console.log('[RENDER] Uploading modular GLB to temp...');
+        const uploadRes = await fetch('/api/upload-temp-glb', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ client: clientName, glbBase64 })
+        });
+        
+        if (!uploadRes.ok) {
+          const uploadError = await uploadRes.json().catch(() => ({}));
+          throw new Error(uploadError?.error || 'Failed to upload temp GLB');
+        }
+        
+        const uploadData = await uploadRes.json();
+        console.log('[RENDER] Temp GLB uploaded:', uploadData.tempPath);
+        
+        // Build payload for modular render
+        payload = {
+          client: clientName,
+          modelFilename: uploadData.filename,
+          modelName: `modular-${modularConfig}`,
+          variantName: null,
+          views,
+          background: backgroundValue,
+          resolution: Number(resolution),
+          format: outputFormat,
+          isModularUpload: true,
+          tempGLBPath: uploadData.tempPath
+        };
+      } else {
+        // Regular model mode
+        const mv = modelViewerRef.current as any | null;
+        const variantName: string | null = mv?.variantName || null;
+        
+        payload = {
+          client: clientName,
+          modelFilename,
+          modelName: modelFilename!.replace(/\.(gltf|glb)$/i, ''),
+          variantName,
+          views,
+          background: backgroundValue,
+          resolution: Number(resolution),
+          format: outputFormat
+        };
+      }
+      
+      console.log('[RENDER] Sending render request:', payload);
       
       const res = await fetch('/api/render/start', {
         method: 'POST',
@@ -263,6 +350,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
       }
     } catch (e) {
       console.error('Failed to start render:', e);
+      alert('Failed to start render: ' + (e instanceof Error ? e.message : String(e)));
     } finally {
       setIsSubmitting(false);
     }
@@ -596,7 +684,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
                   <Button
                     size="lg"
                     onClick={handleStartRender}
-                    disabled={!modelFilename || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected}
+                    disabled={(isModularMode ? !modularConfig : !modelFilename) || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected}
                     className="flex-1 h-12 text-base font-semibold bg-black hover:bg-gray-800"
                   >
                     {isSubmitting ? (
@@ -631,7 +719,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
                     size="lg"
                     variant="outline"
                     onClick={handleRenderSelected}
-                    disabled={!modelFilename || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected || selectedVariants.length === 0}
+                    disabled={(isModularMode ? !modularConfig : !modelFilename) || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected || selectedVariants.length === 0}
                     className={`flex-1 h-12 text-base font-semibold border-2 hover:bg-gray-100 ${
                       selectedVariants.length === 0
                         ? 'border-gray-300 text-gray-400 cursor-not-allowed' 
@@ -669,7 +757,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
                     size="lg"
                     variant="outline"
                     onClick={handleRenderAll}
-                    disabled={!modelFilename || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected || resolution !== '1024'}
+                    disabled={(isModularMode ? !modularConfig : !modelFilename) || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected || resolution !== '1024'}
                     className={`flex-1 h-12 text-base font-semibold border-2 hover:bg-gray-100 ${
                       resolution !== '1024' 
                         ? 'border-gray-300 text-gray-400 cursor-not-allowed' 

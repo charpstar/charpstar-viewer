@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Increase body size limit for large GLB uploads
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb',
+    },
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       // Avoid bundling Draco so we can resolve files at runtime in serverless

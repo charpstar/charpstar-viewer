@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, FolderOpen, Eye, Palette } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import ModelViewer from '@/components/ModelViewer';
+import ModularViewer from '@/components/ModularViewer';
 import RenderVariantSelector from '@/components/render/RenderVariantSelector';
 import RenderOptionsPanel from '@/components/render/RenderOptionsPanel';
 import CollapsibleRenderQueue from '@/components/render/CollapsibleRenderQueue';
@@ -39,6 +40,12 @@ export default function RenderPage() {
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
   const modelViewerRef = useRef<any>(null);
+  
+  // Modular configurator state
+  const [activeTab, setActiveTab] = useState<'models' | 'modular'>('models');
+  const [modularConfig, setModularConfig] = useState<'mammuten' | null>(null);
+  const [modularViewerReady, setModularViewerReady] = useState(false);
+  const modularViewerRef = useRef<any>(null);
 
   // Get model URL
   const getModelUrl = (filename: string) => {
@@ -148,6 +155,35 @@ export default function RenderPage() {
     models: groupedModels[key].sort((a, b) => a.displayName.localeCompare(b.displayName))
   }));
 
+  // Modular configurator handlers
+  const handleSelectModularConfig = (config: 'mammuten') => {
+    setModularConfig(config);
+    setSelectedModel(null); // Clear regular model
+    setCurrentModelUrl(null);
+    setModularViewerReady(false);
+  };
+
+  const handleAddModularPart = (partCode: string) => {
+    const viewer = modularViewerRef.current;
+    if (viewer && typeof viewer.addModularModel === 'function') {
+      viewer.addModularModel(partCode);
+    } else {
+      console.warn('Modular viewer not ready or addModularModel method not available');
+    }
+  };
+
+  // Handle tab switching - clear viewer state
+  const handleTabChange = (tab: 'models' | 'modular') => {
+    setActiveTab(tab);
+    if (tab === 'models') {
+      setModularConfig(null);
+      setModularViewerReady(false);
+    } else {
+      setSelectedModel(null);
+      setCurrentModelUrl(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header 
@@ -158,15 +194,44 @@ export default function RenderPage() {
       />
       
       <div className="flex h-[calc(100vh-56px)]">
-        {/* Left Sidebar - Model Selection (exact copy from manage page) */}
+        {/* Left Sidebar - Model Selection with Tabs */}
         <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-          <div className="p-4 border-b border-gray-200 flex-shrink-0">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-              <FolderOpen className="w-5 h-5 mr-2" />
-              Select Model
-            </h2>
-            
-            <div className="relative mb-3">
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200">
+            <div className="flex">
+              <button 
+                onClick={() => handleTabChange('models')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'models' 
+                    ? 'border-b-2 border-black text-black bg-gray-50' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Models
+              </button>
+              <button 
+                onClick={() => handleTabChange('modular')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'modular' 
+                    ? 'border-b-2 border-black text-black bg-gray-50' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Modular Config
+              </button>
+            </div>
+          </div>
+
+          {/* Models Tab Content */}
+          {activeTab === 'models' && (
+            <>
+              <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                  <FolderOpen className="w-5 h-5 mr-2" />
+                  Select Model
+                </h2>
+                
+                <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
@@ -259,6 +324,36 @@ export default function RenderPage() {
               </div>
             )}
           </div>
+          </>
+          )}
+
+          {/* Modular Config Tab Content */}
+          {activeTab === 'modular' && (
+            <>
+              <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
+                  <Palette className="w-5 h-5 mr-2" />
+                  Modular Configurators
+                </h2>
+              </div>
+
+              <div className="flex-1 overflow-auto">
+                <div className="p-4 space-y-2">
+                  <button
+                    onClick={() => handleSelectModularConfig('mammuten')}
+                    className={`w-full px-4 py-3 text-left rounded-md border transition-colors ${
+                      modularConfig === 'mammuten'
+                        ? 'bg-black text-white border-black shadow-sm'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium">Mammuten</div>
+                  </button>
+                  {/* Future configs: MammutenOut, Hajen, Bjornen, Dromedaren */}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Center - 3D Viewer (60%) and Render Panel (40%) */}
@@ -266,7 +361,8 @@ export default function RenderPage() {
           {/* 3D Viewer - 60% height - NO PADDING */}
           <div className="h-[60%] bg-white border-b border-gray-200">
             <div className="h-full bg-[#F8F9FA] flex items-center justify-center relative">
-              {selectedModel ? (
+              {/* Regular Model Viewer */}
+              {activeTab === 'models' && selectedModel && (
                 <>
                   <ModelViewer 
                     clientModelUrl={currentModelUrl}
@@ -297,14 +393,52 @@ export default function RenderPage() {
                     </div>
                   )}
                 </>
-              ) : (
+              )}
+
+              {/* Modular Viewer */}
+              {activeTab === 'modular' && modularConfig === 'mammuten' && (
+                <>
+                  <ModularViewer 
+                    src="MAM"
+                    onViewerReady={(viewer) => {
+                      modularViewerRef.current = viewer;
+                      setModularViewerReady(true);
+                    }}
+                  />
+
+                  {/* Modular Part Buttons */}
+                  {modularViewerReady && (
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
+                      {[
+                        'MAM-1', 'MAM-15', 'MAM-C45', 'MAM-C90', 
+                        'MAM-AL', 'MAM-AR', 'MAM-CHL15', 'MAM-FOOT', 'MAM-DIV15'
+                      ].map(part => (
+                        <button
+                          key={part}
+                          onClick={() => handleAddModularPart(part)}
+                          className="px-3 py-2 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 hover:border-gray-400 text-xs font-medium transition-colors"
+                          title={`Add ${part}`}
+                        >
+                          {part}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Empty State */}
+              {((activeTab === 'models' && !selectedModel) || (activeTab === 'modular' && !modularConfig)) && (
                 <div className="text-gray-400 text-center">
                   <Eye className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <h3 className="text-lg font-medium text-gray-700 mb-2">
-                    Select a Model
+                    {activeTab === 'models' ? 'Select a Model' : 'Select a Configuration'}
                   </h3>
                   <p className="text-sm text-gray-500 max-w-xs">
-                    Choose a model from the sidebar to preview and configure render settings
+                    {activeTab === 'models' 
+                      ? 'Choose a model from the sidebar to preview and configure render settings'
+                      : 'Choose a modular configuration from the sidebar to start building'
+                    }
                   </p>
                 </div>
               )}
@@ -317,13 +451,16 @@ export default function RenderPage() {
               modelViewerRef={modelViewerRef}
               modelFilename={selectedModel}
               selectedVariants={selectedVariants}
+              isModularMode={activeTab === 'modular'}
+              modularViewerRef={modularViewerRef}
+              modularConfig={modularConfig}
             />
           </div>
         </div>
 
-        {/* Right Panel - Variant Selector (exact copy from manage page) */}
+        {/* Right Panel - Variant Selector */}
         <div className="w-80 border-l border-gray-200 bg-white flex flex-col">
-          {selectedModel ? (
+          {(activeTab === 'models' && selectedModel) || (activeTab === 'modular' && modularConfig) ? (
             <>
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center space-x-2">
@@ -331,23 +468,35 @@ export default function RenderPage() {
                   <h3 className="text-sm font-medium text-gray-800">Material Variants</h3>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  {modelsWithDisplayNames.find(m => m.filename === selectedModel)?.displayName || selectedModel}
+                  {activeTab === 'modular' 
+                    ? modularConfig 
+                    : (modelsWithDisplayNames.find(m => m.filename === selectedModel)?.displayName || selectedModel)
+                  }
                 </p>
               </div>
               
               <div className="flex-1 p-4 overflow-y-auto">
-                {!modelLoadError ? (
+                {(activeTab === 'models' && selectedModel && !modelLoadError) || (activeTab === 'modular' && modularConfig && modularViewerReady) ? (
                   <RenderVariantSelector 
-                    modelViewerRef={modelViewerRef}
-                    modelName={selectedModel}
+                    modelViewerRef={activeTab === 'modular' ? modularViewerRef : modelViewerRef}
+                    modelName={(activeTab === 'modular' ? modularConfig : selectedModel) || ''}
                     selectedVariants={selectedVariants}
                     onSelectionChange={setSelectedVariants}
+                    isModularMode={activeTab === 'modular'}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <Palette size={32} className="text-gray-300 mb-3" />
-                    <p className="text-sm text-gray-400">Cannot load variants</p>
-                    <p className="text-xs text-gray-400 mt-1">Model failed to load</p>
+                    <p className="text-sm text-gray-400">
+                      {activeTab === 'models' && modelLoadError 
+                        ? 'Cannot load variants' 
+                        : activeTab === 'modular' && !modularViewerReady
+                        ? 'Loading modular viewer...'
+                        : 'Select a model or configuration'}
+                    </p>
+                    {activeTab === 'models' && modelLoadError && (
+                      <p className="text-xs text-gray-400 mt-1">Model failed to load</p>
+                    )}
                   </div>
                 )}
               </div>

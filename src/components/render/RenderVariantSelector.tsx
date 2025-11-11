@@ -9,13 +9,15 @@ interface RenderVariantSelectorProps {
   modelName: string;
   selectedVariants: string[];
   onSelectionChange: (selected: string[]) => void;
+  isModularMode?: boolean;
 }
 
 const RenderVariantSelector: React.FC<RenderVariantSelectorProps> = ({ 
   modelViewerRef,
   modelName,
   selectedVariants,
-  onSelectionChange
+  onSelectionChange,
+  isModularMode = false
 }) => {
   const [variants, setVariants] = useState<string[]>([]);
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
@@ -140,8 +142,19 @@ const RenderVariantSelector: React.FC<RenderVariantSelectorProps> = ({
     if (!modelViewerRef.current) return;
     
     try {
-      modelViewerRef.current.variantName = variantName;
-      setCurrentVariant(variantName);
+      if (isModularMode) {
+        // For modular mode, use setColor method
+        if (typeof modelViewerRef.current.setColor === 'function') {
+          modelViewerRef.current.setColor(variantName);
+          setCurrentVariant(variantName);
+        } else {
+          console.warn('setColor method not available on modular viewer');
+        }
+      } else {
+        // For regular mode, use variantName attribute
+        modelViewerRef.current.variantName = variantName;
+        setCurrentVariant(variantName);
+      }
     } catch (error) {
       console.error('Error selecting variant:', error);
     }
