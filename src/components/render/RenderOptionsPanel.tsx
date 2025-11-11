@@ -111,6 +111,14 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
     }
   }, [isRenderingAll]);
 
+  // Reset background to white when switching modular configs
+  React.useEffect(() => {
+    if (isModularMode && modularConfig) {
+      setBackgroundColor('#ffffff');
+      setBackgroundMode('color');
+    }
+  }, [modularConfig, isModularMode]);
+
   // Update viewer background when background settings change
   React.useEffect(() => {
     const viewer = isModularMode ? modularViewerRef?.current : modelViewerRef.current;
