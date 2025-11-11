@@ -20,6 +20,7 @@ interface RenderOptionsPanelProps {
 
 type BackgroundMode = 'transparent' | 'color';
 type OutputFormat = 'png' | 'jpg' | 'webp';
+type AspectRatio = 'square' | 'rectangle';
 
 const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ 
   modelViewerRef, 
@@ -55,6 +56,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   // Instead, always start with defaults and load from localStorage in useEffect
   const [selectedViews, setSelectedViews] = useState<string[]>(['front']);
   const [resolution, setResolution] = useState<string>('1024');
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>('square');
   const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('color');
   const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('png');
@@ -76,6 +78,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       // Re-read from localStorage and update state if different
       const savedViews = localStorage.getItem('charpstar:renderSettings:views');
       const savedResolution = localStorage.getItem('charpstar:renderSettings:resolution');
+      const savedAspectRatio = localStorage.getItem('charpstar:renderSettings:aspectRatio');
       const savedBackgroundMode = localStorage.getItem('charpstar:renderSettings:backgroundMode');
       const savedBackgroundColor = localStorage.getItem('charpstar:renderSettings:backgroundColor');
       const savedFormat = localStorage.getItem('charpstar:renderSettings:format');
@@ -83,6 +86,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       console.log('[RENDER DEBUG] Loading from localStorage:', {
         savedViews,
         savedResolution,
+        savedAspectRatio,
         savedBackgroundMode,
         savedBackgroundColor,
         savedFormat
@@ -94,6 +98,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       }
       
       if (savedResolution) setResolution(savedResolution);
+      if (savedAspectRatio) setAspectRatio(savedAspectRatio as AspectRatio);
       if (savedBackgroundMode) setBackgroundMode(savedBackgroundMode as BackgroundMode);
       if (savedBackgroundColor) setBackgroundColor(savedBackgroundColor);
       if (savedFormat) setOutputFormat(savedFormat as OutputFormat);
@@ -178,6 +183,13 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       localStorage.setItem('charpstar:renderSettings:resolution', resolution);
     } catch {}
   }, [resolution]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:aspectRatio', aspectRatio);
+    } catch {}
+  }, [aspectRatio]);
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -370,6 +382,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
           views,
           background: backgroundValue,
           resolution: Number(resolution),
+          aspectRatio,
           format: outputFormat,
           isModularUpload: true,
           tempGLBPath: tempPath
@@ -387,6 +400,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
           views,
           background: backgroundValue,
           resolution: Number(resolution),
+          aspectRatio,
           format: outputFormat
         };
       }
@@ -516,6 +530,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 views,
                 background: backgroundValue,
                 resolution: 1024, // Fixed at 1024
+                aspectRatio,
                 format: outputFormat,
                 isModularUpload: true,
                 tempGLBPath: tempPath
@@ -541,6 +556,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 views,
                 background: backgroundValue,
                 resolution: 1024, // Fixed at 1024
+                aspectRatio,
                 format: outputFormat
               })
             });
@@ -657,6 +673,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 views,
                 background: backgroundValue,
                 resolution: Number(resolution),
+                aspectRatio,
                 format: outputFormat,
                 isModularUpload: true,
                 tempGLBPath: tempPath
@@ -682,6 +699,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 views,
                 background: backgroundValue,
                 resolution: Number(resolution),
+                aspectRatio,
                 format: outputFormat
               })
             });
@@ -779,28 +797,44 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 </div>
               </div>
 
-              {/* Resolution */}
+              {/* Resolution & Aspect Ratio Combined */}
               <div className="sm:col-span-1">
                 <label className="text-[10px] sm:text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 sm:mb-3 block">
-                  Resolution {isRenderingAll && <span className="text-[9px] sm:text-[10px] text-gray-500">(1024px only)</span>}
+                  Resolution {isRenderingAll && <span className="text-[9px] sm:text-[10px] text-gray-500">(1K only)</span>}
                 </label>
-                <div className="space-y-1.5 sm:space-y-2">
-                  {['1024', '2048', '4096'].map(res => {
-                    const isDisabled = isRenderingAll && res !== '1024';
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                  {[
+                    { value: '512', label: '512', sublabel: 'Square', ratio: 'square' },
+                    { value: '512', label: '512', sublabel: 'Wide', ratio: 'rectangle' },
+                    { value: '1024', label: '1K', sublabel: 'Square', ratio: 'square' },
+                    { value: '1024', label: '1K', sublabel: 'Wide', ratio: 'rectangle' },
+                    { value: '2048', label: '2K', sublabel: 'Square', ratio: 'square' },
+                    { value: '2048', label: '2K', sublabel: 'Wide', ratio: 'rectangle' },
+                    { value: '4096', label: '4K', sublabel: 'Square', ratio: 'square' },
+                    { value: '4096', label: '4K', sublabel: 'Wide', ratio: 'rectangle' }
+                  ].map(({ value, label, sublabel, ratio }) => {
+                    const isSelected = resolution === value && aspectRatio === ratio;
+                    const isDisabled = isRenderingAll && value !== '1024';
                     return (
                       <button
-                        key={res}
-                        onClick={() => !isDisabled && setResolution(res)}
+                        key={`${value}-${ratio}`}
+                        onClick={() => {
+                          if (!isDisabled) {
+                            setResolution(value);
+                            setAspectRatio(ratio as AspectRatio);
+                          }
+                        }}
                         disabled={isDisabled}
-                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded font-medium transition-colors ${
-                          resolution === res
+                        className={`px-1.5 sm:px-2 py-1.5 sm:py-2 text-[10px] sm:text-xs rounded font-medium transition-colors flex flex-col items-center justify-center ${
+                          isSelected
                             ? 'bg-black text-white'
                             : isDisabled
                             ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
-                        {res}px
+                        <span className="font-bold">{label}</span>
+                        <span className={`text-[8px] sm:text-[9px] ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>{sublabel}</span>
                       </button>
                     );
                   })}

@@ -10,6 +10,7 @@ interface StartBody {
   views: Array<{ name: string; orbit?: string }>;
   background: string; // 'transparent' or hex color (without #)
   resolution: number;
+  aspectRatio?: 'square' | 'rectangle'; // 'square' or 'rectangle' (16:9)
   format?: 'png' | 'jpg' | 'webp';
   isModularUpload?: boolean; // Flag for pre-uploaded modular GLB
   tempGLBPath?: string; // Path to pre-uploaded GLB on BunnyCDN
@@ -18,7 +19,7 @@ interface StartBody {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as StartBody;
-    const { client, modelFilename, modelName, variantName, views, background, resolution, format, isModularUpload, tempGLBPath } = body || ({} as StartBody);
+    const { client, modelFilename, modelName, variantName, views, background, resolution, aspectRatio, format, isModularUpload, tempGLBPath } = body || ({} as StartBody);
     if (!client || !modelFilename || !modelName || !views || !Array.isArray(views) || views.length === 0 || !background || !resolution) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
         views,
         background,
         resolution,
+        aspectRatio: aspectRatio || 'square',
         format: format || 'png',
         isModularUpload: isModularUpload || false,
         tempGLBPath: tempGLBPath || null,
@@ -77,6 +79,7 @@ export async function POST(request: NextRequest) {
           views,
           background,
           resolution,
+          aspectRatio: aspectRatio || 'square',
           format: format || 'png',
           createdAt: new Date().toISOString(),
         })

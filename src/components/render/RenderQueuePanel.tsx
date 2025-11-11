@@ -109,14 +109,10 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
       <div className="space-y-3 max-h-80 overflow-auto">
         {items.map((it, idx) => {
           const st = statuses[it.jobId] || {};
-          const rawPct = Math.max(0, Math.min(100, Number(st.progress || 0)));
           const combinedPct = (() => {
             const cp = (st as any)?.combinedProgress;
             if (typeof cp === 'number') return Math.max(0, Math.min(100, cp));
-            if (String((st as any).stage) === 'queued') return 0;
-            if (st.stage === 'preparing') return Math.round(rawPct * 0.25);
-            if (st.stage === 'rendering') return 25 + Math.round(rawPct * 0.75);
-            return rawPct;
+            return 0;
           })();
           const effectiveQueuePos = (() => {
             const qp = (st as any)?.queuePosition;

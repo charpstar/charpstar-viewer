@@ -184,14 +184,10 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
         <div className="max-h-[calc(45vh-55px)] overflow-auto p-2 space-y-1.5">
           {items.map((it, idx) => {
             const st = statuses[it.jobId] || {};
-            const rawPct = Math.max(0, Math.min(100, Number(st.progress || 0)));
             const combinedPct = (() => {
               const cp = (st as any)?.combinedProgress;
               if (typeof cp === 'number') return Math.max(0, Math.min(100, cp));
-              if (String((st as any).stage) === 'queued') return 0;
-              if (st.stage === 'preparing') return Math.round(rawPct * 0.25);
-              if (st.stage === 'rendering') return 25 + Math.round(rawPct * 0.75);
-              return rawPct;
+              return 0;
             })();
             const effectiveQueuePos = (() => {
               const qp = (st as any)?.queuePosition;

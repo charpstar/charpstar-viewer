@@ -85,6 +85,7 @@ export async function GET(request: NextRequest) {
           views: meta?.views || [meta?.view].filter(Boolean),
           background: meta?.background,
           resolution: meta?.resolution,
+          aspectRatio: meta?.aspectRatio || 'square',
           format: meta?.format || 'png',
           callbackUrl,
           callbackToken,
@@ -116,6 +117,7 @@ export async function GET(request: NextRequest) {
             views: meta?.views || [meta?.view].filter(Boolean),
             background: meta?.background,
             resolution: meta?.resolution,
+            aspectRatio: meta?.aspectRatio || 'square',
             format: meta?.format || 'png',
             callbackUrl,
             callbackToken,
@@ -139,7 +141,9 @@ export async function GET(request: NextRequest) {
     const imageUrl = typeof renderJson?.imageUrl === 'string' ? renderJson.imageUrl : undefined;
     const error = typeof renderJson?.error === 'string' ? renderJson.error : undefined;
 
-    const combinedProgress = Math.max(25, Math.min(100, 25 + Math.round((rProgress || 0) * 0.75)));
+    // Worker already returns 0-100% overall progress (including prep phase)
+    // No need to scale or adjust - just use it directly
+    const combinedProgress = Math.max(0, Math.min(100, rProgress));
     return NextResponse.json({ stage: 'rendering', status: rStatus, progress: rProgress, queuePosition: rQueuePos, imageUrl, error, combinedProgress });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Failed to get combined status';

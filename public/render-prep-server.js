@@ -27,7 +27,7 @@ const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || 'd9d2d9f3-8f91-46ea-98afd3a6f
 const PULL_ZONE_URL = process.env.BUNNY_PULL_ZONE_URL || 'cdn.charpstar.net';
 
 const CLIENTS_ROOT = process.env.CLIENTS_ROOT || 'Client-Editor';
-const CLIENTS_ALLOWLIST = (process.env.CLIENTS_ALLOWLIST || 'Sweef,NordicNest').split(',').map(s => s.trim()).filter(Boolean);
+const CLIENTS_ALLOWLIST = (process.env.CLIENTS_ALLOWLIST || 'Sweef,NordicNest,Artwood').split(',').map(s => s.trim()).filter(Boolean);
 
 // Render worker orchestration (start render immediately when prep completes)
 // Render worker / callback (fallbacks filled with your provided values)
@@ -463,6 +463,7 @@ async function startRenderOnWorker(workerIndex, jobId, meta) {
       views: meta?.views || [meta?.view].filter(Boolean),
       background: meta?.background || 'ffffff',
       resolution: typeof meta?.resolution === 'number' ? meta.resolution : 1024,
+      aspectRatio: meta?.aspectRatio || 'square',
       format: meta?.format || 'png',
       callbackUrl: cb,
       callbackToken: RENDER_CALLBACK_TOKEN,
@@ -664,7 +665,7 @@ app.get('/health', (req, res) => res.json({ ok: true, service: 'render-prep', ti
 
 app.post('/jobs/render/prepare', auth, async (req, res) => {
   try {
-    const { client, modelFilename, variantName, modelName, views, view, background, resolution, format, isModularUpload, tempGLBPath } = req.body || {};
+    const { client, modelFilename, variantName, modelName, views, view, background, resolution, aspectRatio, format, isModularUpload, tempGLBPath } = req.body || {};
     if (!client || typeof client !== 'string' || !isClientAllowed(client)) {
       return res.status(400).json({ error: 'client is required/invalid' });
     }
@@ -684,6 +685,7 @@ app.post('/jobs/render/prepare', auth, async (req, res) => {
       view: viewsArray[0],
       background, 
       resolution,
+      aspectRatio: aspectRatio || 'square',
       format: format || 'png',
       isModularUpload: isModularUpload || false,
       tempGLBPath: tempGLBPath || null
@@ -741,17 +743,9 @@ app.get('/jobs/render/queue', auth, async (req, res) => {
       else if (status === 'running' || status === 'completed' || status === 'failed') stage = 'rendering';
       
       const rawProg = typeof job?.progress === 'number' ? job.progress : 0;
-      let combinedProgress = stage === 'queued'
-        ? 0
-        : (stage === 'preparing'
-        ? Math.max(0, Math.min(25, Math.round(rawProg * 0.25)))
-        : Math.max(25, Math.min(100, 25 + Math.round(rawProg * 0.75))));
       
-      if (typeof job.lastCombinedProgress === 'number') {
-        combinedProgress = Math.max(combinedProgress, job.lastCombinedProgress);
-      }
-      job.lastCombinedProgress = combinedProgress;
-      job.lastStage = stage;
+      // Worker already reports 0-100% progress, use it directly
+      let combinedProgress = stage === 'queued' ? 0 : Math.max(0, Math.min(100, rawProg));
       
             items.push({
               jobId,
