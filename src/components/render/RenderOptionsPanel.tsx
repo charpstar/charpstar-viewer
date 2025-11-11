@@ -289,11 +289,13 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
         
         console.log('[RENDER] Base64 string length:', glbBase64.length);
         
-        // Upload to temp location
-        console.log('[RENDER] Uploading modular GLB to temp...');
-        const uploadRes = await fetch('/api/upload-temp-glb', {
+        // Upload via Next.js API proxy to prep server (uses server-side env vars)
+        console.log('[RENDER] Uploading modular GLB via API proxy...');
+        const uploadRes = await fetch('/api/upload-modular-glb', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({ client: clientName, glbBase64 })
         });
         
