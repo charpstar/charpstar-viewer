@@ -43,7 +43,7 @@ export default function RenderPage() {
   
   // Modular configurator state
   const [activeTab, setActiveTab] = useState<'models' | 'modular'>('models');
-  const [modularConfig, setModularConfig] = useState<'mammuten' | null>(null);
+  const [modularConfig, setModularConfig] = useState<'mammuten' | 'hajen' | 'kamelen' | 'dromedaren' | 'bjornen' | 'mammuten-hfc' | null>(null);
   const [modularViewerReady, setModularViewerReady] = useState(false);
   const modularViewerRef = useRef<any>(null);
 
@@ -155,12 +155,41 @@ export default function RenderPage() {
     models: groupedModels[key].sort((a, b) => a.displayName.localeCompare(b.displayName))
   }));
 
+  // Modular configurator config mapping
+  const modularConfigData = {
+    'mammuten': {
+      src: 'MAM',
+      parts: ['MAM-1', 'MAM-15', 'MAM-C45', 'MAM-C90', 'MAM-AL', 'MAM-AR', 'MAM-CHL15', 'MAM-FOOT', 'MAM-DIV15']
+    },
+    'hajen': {
+      src: 'HAJ',
+      parts: ['HAJ-1', 'HAJ-15', 'HAJ-E1', 'HAJ-1E', 'HAJ-15C', 'HAJ-C15', 'HAJ-FOOT']
+    },
+    'kamelen': {
+      src: 'KAM',
+      parts: ['KAM-AL-15', 'KAM-15', 'KAM-1', 'KAM-FOOT', 'KAM-15-AR', 'KAM-FOOT1', 'KAM-C90']
+    },
+    'dromedaren': {
+      src: 'DRO',
+      parts: ['DRO-2', 'DRO-3', 'DRO-4', 'DRO-5', 'DRO-AL', 'DRO-AR', 'DRO-C', 'DRO-P2X2', 'DRO-P2X3']
+    },
+    'bjornen': {
+      src: 'BJO',
+      parts: ['BJO-MOD2', 'BJO-FOOT1', 'BJO-MOD15', 'BJO-MODDIV', 'BJO-ARM-SOFT', 'BJO-MOD3', 'BJO-ARM-COV', 'BJO-MODCHL', 'BJO-ARM-LID']
+    },
+    'mammuten-hfc': {
+      src: 'MAM-HFC',
+      parts: ['MAM_HFC-15', 'MAM_HFC-1', 'MAM_HFC-C90', 'MAM-C1-HFC', 'MAM_HFC-AL', 'MAM_HFC-AR', 'MAM_HFC-CHL']
+    }
+  };
+
   // Modular configurator handlers
-  const handleSelectModularConfig = (config: 'mammuten') => {
+  const handleSelectModularConfig = (config: 'mammuten' | 'hajen' | 'kamelen' | 'dromedaren' | 'bjornen' | 'mammuten-hfc') => {
     setModularConfig(config);
     setSelectedModel(null); // Clear regular model
     setCurrentModelUrl(null);
     setModularViewerReady(false);
+    setSelectedVariants([]); // Clear variant selections when switching configs
   };
 
   const handleAddModularPart = (partCode: string) => {
@@ -201,7 +230,7 @@ export default function RenderPage() {
             <div className="flex">
               <button 
                 onClick={() => handleTabChange('models')}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                className={`${clientConfig.features?.modularConfigurator ? 'flex-1' : 'w-full'} px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === 'models' 
                     ? 'border-b-2 border-black text-black bg-gray-50' 
                     : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -209,16 +238,18 @@ export default function RenderPage() {
               >
                 Models
               </button>
-              <button 
-                onClick={() => handleTabChange('modular')}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'modular' 
-                    ? 'border-b-2 border-black text-black bg-gray-50' 
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                Modular Config
-              </button>
+              {clientConfig.features?.modularConfigurator && (
+                <button 
+                  onClick={() => handleTabChange('modular')}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    activeTab === 'modular' 
+                      ? 'border-b-2 border-black text-black bg-gray-50' 
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Modular Config
+                </button>
+              )}
             </div>
           </div>
 
@@ -328,7 +359,7 @@ export default function RenderPage() {
           )}
 
           {/* Modular Config Tab Content */}
-          {activeTab === 'modular' && (
+          {activeTab === 'modular' && clientConfig.features?.modularConfigurator && (
             <>
               <div className="p-4 border-b border-gray-200 flex-shrink-0">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
@@ -349,7 +380,61 @@ export default function RenderPage() {
                   >
                     <div className="font-medium">Mammuten</div>
                   </button>
-                  {/* Future configs: MammutenOut, Hajen, Bjornen, Dromedaren */}
+                  
+                  <button
+                    onClick={() => handleSelectModularConfig('hajen')}
+                    className={`w-full px-4 py-3 text-left rounded-md border transition-colors ${
+                      modularConfig === 'hajen'
+                        ? 'bg-black text-white border-black shadow-sm'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium">Hajen</div>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleSelectModularConfig('kamelen')}
+                    className={`w-full px-4 py-3 text-left rounded-md border transition-colors ${
+                      modularConfig === 'kamelen'
+                        ? 'bg-black text-white border-black shadow-sm'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium">Kamelen</div>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleSelectModularConfig('dromedaren')}
+                    className={`w-full px-4 py-3 text-left rounded-md border transition-colors ${
+                      modularConfig === 'dromedaren'
+                        ? 'bg-black text-white border-black shadow-sm'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium">Dromedaren</div>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleSelectModularConfig('bjornen')}
+                    className={`w-full px-4 py-3 text-left rounded-md border transition-colors ${
+                      modularConfig === 'bjornen'
+                        ? 'bg-black text-white border-black shadow-sm'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium">Bjornen</div>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleSelectModularConfig('mammuten-hfc')}
+                    className={`w-full px-4 py-3 text-left rounded-md border transition-colors ${
+                      modularConfig === 'mammuten-hfc'
+                        ? 'bg-black text-white border-black shadow-sm'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium">Mammuten HFC</div>
+                  </button>
                 </div>
               </div>
             </>
@@ -396,10 +481,11 @@ export default function RenderPage() {
               )}
 
               {/* Modular Viewer */}
-              {activeTab === 'modular' && modularConfig === 'mammuten' && (
+              {activeTab === 'modular' && modularConfig && modularConfigData[modularConfig] && (
                 <>
                   <ModularViewer 
-                    src="MAM"
+                    key={modularConfig} // Force remount when config changes
+                    src={modularConfigData[modularConfig].src}
                     onViewerReady={(viewer) => {
                       modularViewerRef.current = viewer;
                       setModularViewerReady(true);
@@ -408,15 +494,12 @@ export default function RenderPage() {
 
                   {/* Modular Part Buttons */}
                   {modularViewerReady && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
-                      {[
-                        'MAM-1', 'MAM-15', 'MAM-C45', 'MAM-C90', 
-                        'MAM-AL', 'MAM-AR', 'MAM-CHL15', 'MAM-FOOT', 'MAM-DIV15'
-                      ].map(part => (
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10 max-h-[80%] overflow-y-auto">
+                      {modularConfigData[modularConfig].parts.map(part => (
                         <button
                           key={part}
                           onClick={() => handleAddModularPart(part)}
-                          className="px-3 py-2 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 hover:border-gray-400 text-xs font-medium transition-colors"
+                          className="px-3 py-2 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 hover:border-gray-400 text-xs font-medium transition-colors whitespace-nowrap"
                           title={`Add ${part}`}
                         >
                           {part}

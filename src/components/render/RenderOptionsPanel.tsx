@@ -113,7 +113,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
 
   // Update viewer background when background settings change
   React.useEffect(() => {
-    const viewer = modelViewerRef.current;
+    const viewer = isModularMode ? modularViewerRef?.current : modelViewerRef.current;
     if (!viewer) return;
     
     try {
@@ -125,17 +125,35 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
     } catch (e) {
       console.error('Failed to update viewer background:', e);
     }
-  }, [backgroundMode, backgroundColor, modelViewerRef]);
+  }, [backgroundMode, backgroundColor, modelViewerRef, modularViewerRef, isModularMode]);
 
-  // Handle camera angle hover preview
+  // Handle camera angle hover preview with 250ms delay
+  const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  
   const handleCameraHover = (orbit: string) => {
-    const viewer = modelViewerRef.current;
-    if (!viewer) return;
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
     
-    try {
-      viewer.cameraOrbit = orbit;
-    } catch (e) {
-      console.error('Failed to update camera orbit:', e);
+    // Set new timeout for 250ms delay
+    hoverTimeoutRef.current = setTimeout(() => {
+      const viewer = isModularMode ? modularViewerRef?.current : modelViewerRef.current;
+      if (!viewer) return;
+      
+      try {
+        viewer.cameraOrbit = orbit;
+      } catch (e) {
+        console.error('Failed to update camera orbit:', e);
+      }
+    }, 250);
+  };
+  
+  const handleCameraHoverEnd = () => {
+    // Clear timeout if mouse leaves before 250ms
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
     }
   };
 
@@ -329,12 +347,18 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
         const tempPath = `Client-Editor/${storagePath}`;
         console.log('[RENDER] Temp GLB uploaded:', tempPath);
         
+        // Get current variant from state (tracked by variant selector)
+        // Use null for "Default" to match normal model behavior
+        const modularVariantName: string | null = (currentVariantName && currentVariantName !== 'Default') ? currentVariantName : null;
+        console.log('[RENDER] Current variant name from state:', currentVariantName);
+        console.log('[RENDER] Modular variant name for payload:', modularVariantName);
+        
         // Build payload for modular render
         payload = {
           client: clientName,
           modelFilename: filename,
           modelName: `modular-${modularConfig}`,
-          variantName: null,
+          variantName: modularVariantName,
           views,
           background: backgroundValue,
           resolution: Number(resolution),
@@ -381,12 +405,17 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   };
 
   const handleRenderAll = async () => {
-    if (!clientName || !modelFilename || selectedViews.length === 0) return;
-    const mv = modelViewerRef.current as any | null;
-    if (!mv) return;
+    if (!clientName || selectedViews.length === 0) return;
+    
+    // Check if we have a model or modular config
+    if (!isModularMode && !modelFilename) return;
+    if (isModularMode && !modularConfig) return;
+    
+    const viewer = isModularMode ? modularViewerRef?.current : modelViewerRef.current;
+    if (!viewer) return;
 
     // Get all available variants
-    const availableVariants = mv.availableVariants || [];
+    const availableVariants = viewer.availableVariants || [];
     const variantsToRender = availableVariants.length > 0 ? availableVariants : [null]; // null for default
     
     // Show warning dialog
@@ -395,9 +424,14 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   };
 
   const proceedWithRenderAll = async () => {
-    if (!clientName || !modelFilename || selectedViews.length === 0) return;
-    const mv = modelViewerRef.current as any | null;
-    if (!mv) return;
+    if (!clientName || selectedViews.length === 0) return;
+    
+    // Check if we have a model or modular config
+    if (!isModularMode && !modelFilename) return;
+    if (isModularMode && !modularConfig) return;
+    
+    const viewer = isModularMode ? modularViewerRef?.current : modelViewerRef.current;
+    if (!viewer) return;
 
     setShowRenderAllDialog(false);
 
@@ -405,7 +439,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       setIsRenderingAll(true);
       
       // Get all available variants
-      const availableVariants = mv.availableVariants || [];
+      const availableVariants = viewer.availableVariants || [];
       const variantsToRender = availableVariants.length > 0 ? availableVariants : [null]; // null for default
       
       const views = selectedViews.map(viewName => {
@@ -418,27 +452,99 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       // Queue render for each variant
       for (const variantName of variantsToRender) {
         try {
-          const res = await fetch('/api/render/start', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              client: clientName,
-              modelFilename,
-              modelName: modelFilename.replace(/\.(gltf|glb)$/i, ''),
-              variantName,
-              views,
-              background: backgroundValue,
-              resolution: 1024, // Fixed at 1024
-              format: outputFormat
-            })
-          });
-          const json = await res.json().catch(() => ({}));
-          if (res.ok) {
-            const jobId = json?.jobId as string | undefined;
-            if (jobId) {
-              try { window.dispatchEvent(new CustomEvent('charpstar:renderJobStarted', { detail: { clientName, jobId } })); } catch {}
+          // For modular mode, we need to export GLB for each variant
+          if (isModularMode && modularViewerRef?.current) {
+            // Set the variant first
+            if (variantName) {
+              viewer.setColor(variantName);
+              // Wait for variant to apply
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Export GLB
+            const glbBlob = await viewer.exportGLB();
+            const glbBase64 = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const result = reader.result as string;
+                const base64 = result?.split(',')[1];
+                if (base64) resolve(base64);
+                else reject(new Error('Base64 conversion failed'));
+              };
+              reader.onerror = () => reject(new Error('FileReader failed'));
+              reader.readAsDataURL(glbBlob);
+            });
+            
+            // Get upload config
+            const configRes = await fetch('/api/bunny-upload-config');
+            const { hostname, zone, accessKey } = await configRes.json();
+            
+            // Generate filename
+            const timestamp = Date.now();
+            const randomId = Math.random().toString(36).slice(2, 10);
+            const filename = `modular-${timestamp}-${randomId}.glb`;
+            const storagePath = `${clientName}/Renders/_temp/${filename}`;
+            const uploadUrl = `https://${hostname}/${zone}/${storagePath}`;
+            
+            // Upload to BunnyCDN
+            const glbBinary = Uint8Array.from(atob(glbBase64), c => c.charCodeAt(0));
+            await fetch(uploadUrl, {
+              method: 'PUT',
+              headers: { 'AccessKey': accessKey, 'Content-Type': 'model/gltf-binary' },
+              body: glbBinary,
+            });
+            
+            const tempPath = `Client-Editor/${storagePath}`;
+            
+            // Queue render
+            const res = await fetch('/api/render/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                client: clientName,
+                modelFilename: filename,
+                modelName: `modular-${modularConfig}`,
+                variantName,
+                views,
+                background: backgroundValue,
+                resolution: 1024, // Fixed at 1024
+                format: outputFormat,
+                isModularUpload: true,
+                tempGLBPath: tempPath
+              })
+            });
+            const json = await res.json().catch(() => ({}));
+            if (res.ok) {
+              const jobId = json?.jobId as string | undefined;
+              if (jobId) {
+                try { window.dispatchEvent(new CustomEvent('charpstar:renderJobStarted', { detail: { clientName, jobId } })); } catch {}
+              }
+            }
+          } else {
+            // Normal model mode
+            const res = await fetch('/api/render/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                client: clientName,
+                modelFilename,
+                modelName: modelFilename!.replace(/\.(gltf|glb)$/i, ''),
+                variantName,
+                views,
+                background: backgroundValue,
+                resolution: 1024, // Fixed at 1024
+                format: outputFormat
+              })
+            });
+            const json = await res.json().catch(() => ({}));
+            if (res.ok) {
+              const jobId = json?.jobId as string | undefined;
+              if (jobId) {
+                try { window.dispatchEvent(new CustomEvent('charpstar:renderJobStarted', { detail: { clientName, jobId } })); } catch {}
+              }
             }
           }
+          
           // Small delay between requests
           await new Promise(resolve => setTimeout(resolve, 500));
         } catch (e) {
@@ -453,14 +559,22 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   };
 
   const handleRenderSelected = () => {
-    if (!clientName || !modelFilename || selectedVariants.length === 0 || selectedViews.length === 0) return;
+    if (!clientName || selectedVariants.length === 0 || selectedViews.length === 0) return;
+    
+    // Check if we have a model or modular config
+    if (!isModularMode && !modelFilename) return;
+    if (isModularMode && !modularConfig) return;
     
     // Show confirmation dialog
     setShowRenderSelectedDialog(true);
   };
 
   const proceedWithRenderSelected = async () => {
-    if (!clientName || !modelFilename || selectedVariants.length === 0 || selectedViews.length === 0) return;
+    if (!clientName || selectedVariants.length === 0 || selectedViews.length === 0) return;
+    
+    // Check if we have a model or modular config
+    if (!isModularMode && !modelFilename) return;
+    if (isModularMode && !modularConfig) return;
 
     setShowRenderSelectedDialog(false);
 
@@ -477,27 +591,101 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       // Queue render for each selected variant
       for (const variantName of selectedVariants) {
         try {
-          const res = await fetch('/api/render/start', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              client: clientName,
-              modelFilename,
-              modelName: modelFilename.replace(/\.(gltf|glb)$/i, ''),
-              variantName,
-              views,
-              background: backgroundValue,
-              resolution: Number(resolution),
-              format: outputFormat
-            })
-          });
-          const json = await res.json().catch(() => ({}));
-          if (res.ok) {
-            const jobId = json?.jobId as string | undefined;
-            if (jobId) {
-              try { window.dispatchEvent(new CustomEvent('charpstar:renderJobStarted', { detail: { clientName, jobId } })); } catch {}
+          // For modular mode, we need to export GLB for each variant
+          if (isModularMode && modularViewerRef?.current) {
+            const viewer = modularViewerRef.current;
+            
+            // Set the variant first
+            if (variantName) {
+              viewer.setColor(variantName);
+              // Wait for variant to apply
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Export GLB
+            const glbBlob = await viewer.exportGLB();
+            const glbBase64 = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const result = reader.result as string;
+                const base64 = result?.split(',')[1];
+                if (base64) resolve(base64);
+                else reject(new Error('Base64 conversion failed'));
+              };
+              reader.onerror = () => reject(new Error('FileReader failed'));
+              reader.readAsDataURL(glbBlob);
+            });
+            
+            // Get upload config
+            const configRes = await fetch('/api/bunny-upload-config');
+            const { hostname, zone, accessKey } = await configRes.json();
+            
+            // Generate filename
+            const timestamp = Date.now();
+            const randomId = Math.random().toString(36).slice(2, 10);
+            const filename = `modular-${timestamp}-${randomId}.glb`;
+            const storagePath = `${clientName}/Renders/_temp/${filename}`;
+            const uploadUrl = `https://${hostname}/${zone}/${storagePath}`;
+            
+            // Upload to BunnyCDN
+            const glbBinary = Uint8Array.from(atob(glbBase64), c => c.charCodeAt(0));
+            await fetch(uploadUrl, {
+              method: 'PUT',
+              headers: { 'AccessKey': accessKey, 'Content-Type': 'model/gltf-binary' },
+              body: glbBinary,
+            });
+            
+            const tempPath = `Client-Editor/${storagePath}`;
+            
+            // Queue render
+            const res = await fetch('/api/render/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                client: clientName,
+                modelFilename: filename,
+                modelName: `modular-${modularConfig}`,
+                variantName,
+                views,
+                background: backgroundValue,
+                resolution: Number(resolution),
+                format: outputFormat,
+                isModularUpload: true,
+                tempGLBPath: tempPath
+              })
+            });
+            const json = await res.json().catch(() => ({}));
+            if (res.ok) {
+              const jobId = json?.jobId as string | undefined;
+              if (jobId) {
+                try { window.dispatchEvent(new CustomEvent('charpstar:renderJobStarted', { detail: { clientName, jobId } })); } catch {}
+              }
+            }
+          } else {
+            // Normal model mode
+            const res = await fetch('/api/render/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                client: clientName,
+                modelFilename,
+                modelName: modelFilename!.replace(/\.(gltf|glb)$/i, ''),
+                variantName,
+                views,
+                background: backgroundValue,
+                resolution: Number(resolution),
+                format: outputFormat
+              })
+            });
+            const json = await res.json().catch(() => ({}));
+            if (res.ok) {
+              const jobId = json?.jobId as string | undefined;
+              if (jobId) {
+                try { window.dispatchEvent(new CustomEvent('charpstar:renderJobStarted', { detail: { clientName, jobId } })); } catch {}
+              }
             }
           }
+          
           // Small delay between requests
           await new Promise(resolve => setTimeout(resolve, 500));
         } catch (e) {
@@ -521,12 +709,12 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   React.useEffect(() => {
     const updateVariantName = () => {
       try {
-        const mv = modelViewerRef.current;
-        if (!mv) {
+        const viewer = isModularMode ? modularViewerRef?.current : modelViewerRef.current;
+        if (!viewer) {
           setCurrentVariantName('Default');
           return;
         }
-        setCurrentVariantName(mv.variantName || 'Default');
+        setCurrentVariantName(viewer.variantName || 'Default');
       } catch {
         setCurrentVariantName('Default');
       }
@@ -536,41 +724,42 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
     updateVariantName();
 
     // Listen for variant changes
-    const viewer = modelViewerRef.current;
+    const viewer = isModularMode ? modularViewerRef?.current : modelViewerRef.current;
     if (viewer) {
       viewer.addEventListener('variant-applied', updateVariantName);
       return () => {
         viewer.removeEventListener('variant-applied', updateVariantName);
       };
     }
-  }, [modelViewerRef.current, modelFilename]);
+  }, [modelViewerRef.current, modularViewerRef?.current, modelFilename, modularConfig, isModularMode]);
 
   return (
-    <div className="h-full flex bg-gray-50">
-      {/* Left Section - Render Settings (exactly 50%) */}
-      <div className="w-1/2 bg-white border-r border-gray-200 flex flex-col">
+    <div className="h-full flex flex-col lg:flex-row bg-gray-50">
+      {/* Left Section - Render Settings */}
+      <div className="w-full lg:w-1/2 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col">
         {/* Settings Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0">
-          <h3 className="text-base font-semibold text-gray-900">Render Settings</h3>
+        <div className="px-3 sm:px-4 lg:px-6 py-3 lg:py-4 border-b border-gray-200 flex-shrink-0">
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900">Render Settings</h3>
         </div>
         
         {/* Settings Content */}
-        <div className="flex-1 overflow-auto p-6">
-          <div className="space-y-6">
-            {/* Settings Grid */}
-            <div className="grid grid-cols-5 gap-5">
+        <div className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6">
+          <div className="space-y-4 lg:space-y-6">
+            {/* Settings Grid - Responsive: 2 cols on mobile, 3 on tablet, 5 on desktop */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
               {/* Camera Angles */}
-              <div>
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 block">
+              <div className="sm:col-span-1">
+                <label className="text-[10px] sm:text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 sm:mb-3 block">
                   Camera Angles (<span suppressHydrationWarning>{selectedViews.length}</span>)
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {cameraPresets.map(preset => (
                     <button
                       key={preset.name}
                       onClick={() => toggleView(preset.name)}
                       onMouseEnter={() => handleCameraHover(preset.orbit)}
-                      className={`w-full px-3 py-2 text-sm rounded font-medium text-left transition-colors ${
+                      onMouseLeave={handleCameraHoverEnd}
+                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded font-medium text-left transition-colors ${
                         selectedViews.includes(preset.name)
                           ? 'bg-black text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -583,11 +772,11 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
               </div>
 
               {/* Resolution */}
-              <div>
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 block">
-                  Resolution {isRenderingAll && <span className="text-[10px] text-gray-500">(1024px only)</span>}
+              <div className="sm:col-span-1">
+                <label className="text-[10px] sm:text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 sm:mb-3 block">
+                  Resolution {isRenderingAll && <span className="text-[9px] sm:text-[10px] text-gray-500">(1024px only)</span>}
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {['1024', '2048', '4096'].map(res => {
                     const isDisabled = isRenderingAll && res !== '1024';
                     return (
@@ -595,7 +784,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                         key={res}
                         onClick={() => !isDisabled && setResolution(res)}
                         disabled={isDisabled}
-                        className={`w-full px-3 py-2 text-sm rounded font-medium transition-colors ${
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded font-medium transition-colors ${
                           resolution === res
                             ? 'bg-black text-white'
                             : isDisabled
@@ -611,14 +800,14 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
               </div>
 
               {/* Format */}
-              <div>
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 block">Format</label>
-                <div className="space-y-2">
+              <div className="sm:col-span-1">
+                <label className="text-[10px] sm:text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 sm:mb-3 block">Format</label>
+                <div className="space-y-1.5 sm:space-y-2">
                   {(['png', 'jpg', 'webp'] as OutputFormat[]).map(fmt => (
                     <button
                       key={fmt}
                       onClick={() => setOutputFormat(fmt)}
-                      className={`w-full px-3 py-2 text-sm rounded font-medium transition-colors ${
+                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded font-medium transition-colors ${
                         outputFormat === fmt
                           ? 'bg-black text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -631,13 +820,13 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
               </div>
 
               {/* Background Mode */}
-              <div>
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 block">Background</label>
-                <div className="space-y-2">
+              <div className="sm:col-span-1">
+                <label className="text-[10px] sm:text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 sm:mb-3 block">Background</label>
+                <div className="space-y-1.5 sm:space-y-2">
                   <button
                     onClick={() => canUseTransparent && setBackgroundMode('transparent')}
                     disabled={!canUseTransparent}
-                    className={`w-full px-3 py-2 text-sm rounded font-medium transition-colors ${
+                    className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded font-medium transition-colors ${
                       backgroundMode === 'transparent'
                         ? 'bg-black text-white'
                         : canUseTransparent
@@ -649,7 +838,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                   </button>
                   <button
                     onClick={() => setBackgroundMode('color')}
-                    className={`w-full px-3 py-2 text-sm rounded font-medium transition-colors ${
+                    className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded font-medium transition-colors ${
                       backgroundMode === 'color'
                         ? 'bg-black text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -660,11 +849,11 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 </div>
               </div>
 
-              {/* Color Picker with Quick Colors */}
-              <div>
-                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 block">Background Color</label>
+              {/* Color Picker with Quick Colors - Spans 2 cols on mobile for better visibility */}
+              <div className="col-span-2 sm:col-span-1">
+                <label className="text-[10px] sm:text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 sm:mb-3 block">Background Color</label>
                 <div>
-                  <div className={`mb-3 ${isColorPickerDisabled ? 'opacity-40 pointer-events-none' : ''}`}>
+                  <div className={`mb-2 sm:mb-3 ${isColorPickerDisabled ? 'opacity-40 pointer-events-none' : ''}`}>
                     <AlwaysOpenColorPicker
                       value={backgroundColor}
                       onChange={setBackgroundColor}
@@ -672,8 +861,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                     />
                   </div>
                   <div className={isColorPickerDisabled ? 'opacity-40 pointer-events-none' : ''}>
-                    <div className="text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-2">Quick</div>
-                    <div className="grid grid-cols-4 gap-1.5">
+                    <div className="text-[9px] sm:text-[10px] font-semibold text-gray-600 uppercase tracking-wide mb-1.5 sm:mb-2">Quick</div>
+                    <div className="grid grid-cols-4 gap-1 sm:gap-1.5">
                       {quickColors.map(color => (
                         <TooltipProvider key={color.hex}>
                           <Tooltip>
@@ -700,8 +889,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="border-t border-gray-200 p-6 bg-white flex-shrink-0">
-          <div className="flex gap-3">
+        <div className="border-t border-gray-200 p-3 sm:p-4 lg:p-6 bg-white flex-shrink-0">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -709,17 +898,19 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                     size="lg"
                     onClick={handleStartRender}
                     disabled={(isModularMode ? !modularConfig : !modelFilename) || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected}
-                    className="flex-1 h-12 text-base font-semibold bg-black hover:bg-gray-800"
+                    className="flex-1 h-10 sm:h-12 text-sm sm:text-base font-semibold bg-black hover:bg-gray-800"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Rendering...
+                        <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 mr-2 animate-spin" />
+                        <span className="hidden sm:inline">Rendering...</span>
+                        <span className="sm:hidden">Rendering...</span>
                       </>
                     ) : (
                       <>
-                        <Camera className="w-5 h-5 mr-2" />
-                        Render ({currentVariantName})
+                        <Camera className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
+                        <span className="hidden sm:inline">Render ({currentVariantName})</span>
+                        <span className="sm:hidden">Render</span>
                       </>
                     )}
                   </Button>
@@ -744,7 +935,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                     variant="outline"
                     onClick={handleRenderSelected}
                     disabled={(isModularMode ? !modularConfig : !modelFilename) || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected || selectedVariants.length === 0}
-                    className={`flex-1 h-12 text-base font-semibold border-2 hover:bg-gray-100 ${
+                    className={`flex-1 h-10 sm:h-12 text-sm sm:text-base font-semibold border-2 hover:bg-gray-100 ${
                       selectedVariants.length === 0
                         ? 'border-gray-300 text-gray-400 cursor-not-allowed' 
                         : 'border-black'
@@ -752,13 +943,15 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                   >
                     {isRenderingSelected ? (
                       <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Queueing...
+                        <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 mr-2 animate-spin" />
+                        <span className="hidden sm:inline">Queueing...</span>
+                        <span className="sm:hidden">Queue...</span>
                       </>
                     ) : (
                       <>
-                        <Camera className="w-5 h-5 mr-2" />
-                        Render Selected ({selectedVariants.length})
+                        <Camera className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
+                        <span className="hidden md:inline">Render Selected ({selectedVariants.length})</span>
+                        <span className="md:hidden">Selected ({selectedVariants.length})</span>
                       </>
                     )}
                   </Button>
@@ -782,7 +975,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                     variant="outline"
                     onClick={handleRenderAll}
                     disabled={(isModularMode ? !modularConfig : !modelFilename) || isSubmitting || isBlocked || isRenderingAll || isRenderingSelected || resolution !== '1024'}
-                    className={`flex-1 h-12 text-base font-semibold border-2 hover:bg-gray-100 ${
+                    className={`flex-1 h-10 sm:h-12 text-sm sm:text-base font-semibold border-2 hover:bg-gray-100 ${
                       resolution !== '1024' 
                         ? 'border-gray-300 text-gray-400 cursor-not-allowed' 
                         : 'border-black'
@@ -790,13 +983,15 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                   >
                     {isRenderingAll ? (
                       <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Queueing...
+                        <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 mr-2 animate-spin" />
+                        <span className="hidden sm:inline">Queueing...</span>
+                        <span className="sm:hidden">Queue...</span>
                       </>
                     ) : (
                       <>
-                        <Camera className="w-5 h-5 mr-2" />
-                        Render All
+                        <Camera className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
+                        <span className="hidden md:inline">Render All</span>
+                        <span className="md:hidden">All</span>
                       </>
                     )}
                   </Button>
@@ -815,23 +1010,36 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
         </div>
       </div>
 
-      {/* Right Section - History (exactly 50%) */}
-      <div className="w-1/2 bg-white flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0">
-          <h3 className="text-base font-semibold text-gray-900">
-            Render History - {modelFilename ? modelFilename.replace(/\.(gltf|glb)$/i, '') : 'Select Model'}
+      {/* Right Section - History */}
+      <div className="w-full lg:w-1/2 bg-white flex flex-col">
+        <div className="px-3 sm:px-4 lg:px-6 py-3 lg:py-4 border-b border-gray-200 flex-shrink-0">
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">
+            Render History - {
+              isModularMode && modularConfig 
+                ? `modular-${modularConfig}` 
+                : modelFilename 
+                ? modelFilename.replace(/\.(gltf|glb)$/i, '') 
+                : 'Select Model'
+            }
           </h3>
         </div>
         
         <div className="flex-1 overflow-auto">
-          {modelFilename ? (
+          {(modelFilename || (isModularMode && modularConfig)) ? (
             <div className="h-full">
-              <RenderHistoryPanel clientName={clientName} modelName={modelFilename.replace(/\.(gltf|glb)$/i, '')} />
+              <RenderHistoryPanel 
+                clientName={clientName} 
+                modelName={
+                  isModularMode && modularConfig 
+                    ? `modular-${modularConfig}` 
+                    : modelFilename!.replace(/\.(gltf|glb)$/i, '')
+                } 
+              />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full p-6 text-center">
+            <div className="flex items-center justify-center h-full p-4 sm:p-6 text-center">
               <div>
-                <div className="text-sm text-gray-500">Select a model to view render history</div>
+                <div className="text-xs sm:text-sm text-gray-500">Select a model to view render history</div>
               </div>
             </div>
           )}
