@@ -41,51 +41,13 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
     { name: 'Dark Grey', hex: '#505050' },
   ];
 
-  const [selectedViews, setSelectedViews] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return ['front'];
-    try {
-      const saved = localStorage.getItem('charpstar:renderSettings:views');
-      return saved ? JSON.parse(saved) : ['front'];
-    } catch {
-      return ['front'];
-    }
-  });
-  
-  const [resolution, setResolution] = useState<string>(() => {
-    if (typeof window === 'undefined') return '1024';
-    try {
-      return localStorage.getItem('charpstar:renderSettings:resolution') || '1024';
-    } catch {
-      return '1024';
-    }
-  });
-  
-  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>(() => {
-    if (typeof window === 'undefined') return 'color';
-    try {
-      return (localStorage.getItem('charpstar:renderSettings:backgroundMode') as BackgroundMode) || 'color';
-    } catch {
-      return 'color';
-    }
-  });
-  
-  const [backgroundColor, setBackgroundColor] = useState<string>(() => {
-    if (typeof window === 'undefined') return '#ffffff';
-    try {
-      return localStorage.getItem('charpstar:renderSettings:backgroundColor') || '#ffffff';
-    } catch {
-      return '#ffffff';
-    }
-  });
-  
-  const [outputFormat, setOutputFormat] = useState<OutputFormat>(() => {
-    if (typeof window === 'undefined') return 'png';
-    try {
-      return (localStorage.getItem('charpstar:renderSettings:format') as OutputFormat) || 'png';
-    } catch {
-      return 'png';
-    }
-  });
+  // CRITICAL FIX: Don't read from localStorage in initializer - causes hydration mismatch
+  // Instead, always start with defaults and load from localStorage in useEffect
+  const [selectedViews, setSelectedViews] = useState<string[]>(['front']);
+  const [resolution, setResolution] = useState<string>('1024');
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('color');
+  const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('png');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -94,6 +56,43 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
   const [variantCount, setVariantCount] = useState(0);
   const [isRenderingSelected, setIsRenderingSelected] = useState(false);
   const [showRenderSelectedDialog, setShowRenderSelectedDialog] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // CRITICAL FIX: Re-sync state from localStorage after hydration to fix UI mismatch
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      // Re-read from localStorage and update state if different
+      const savedViews = localStorage.getItem('charpstar:renderSettings:views');
+      const savedResolution = localStorage.getItem('charpstar:renderSettings:resolution');
+      const savedBackgroundMode = localStorage.getItem('charpstar:renderSettings:backgroundMode');
+      const savedBackgroundColor = localStorage.getItem('charpstar:renderSettings:backgroundColor');
+      const savedFormat = localStorage.getItem('charpstar:renderSettings:format');
+      
+      console.log('[RENDER DEBUG] Loading from localStorage:', {
+        savedViews,
+        savedResolution,
+        savedBackgroundMode,
+        savedBackgroundColor,
+        savedFormat
+      });
+      
+      if (savedViews) {
+        const parsed = JSON.parse(savedViews);
+        setSelectedViews(parsed);
+      }
+      
+      if (savedResolution) setResolution(savedResolution);
+      if (savedBackgroundMode) setBackgroundMode(savedBackgroundMode as BackgroundMode);
+      if (savedBackgroundColor) setBackgroundColor(savedBackgroundColor);
+      if (savedFormat) setOutputFormat(savedFormat as OutputFormat);
+      
+      setIsHydrated(true);
+    } catch (e) {
+      console.error('Failed to sync from localStorage:', e);
+    }
+  }, []);
 
   // Force 1024 resolution when Render All button is clicked
   React.useEffect(() => {
@@ -225,21 +224,36 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
 
     const backgroundValue = backgroundMode === 'transparent' ? 'transparent' : backgroundColor.replace('#', '');
 
+    // DEBUG: Log what we're actually sending
+    console.log('[RENDER DEBUG] Sending render request:', {
+      selectedViews,
+      views,
+      resolution,
+      outputFormat,
+      backgroundMode,
+      backgroundColor,
+      backgroundValue
+    });
+
     try {
       setIsSubmitting(true);
+      const payload = {
+        client: clientName,
+        modelFilename,
+        modelName: modelFilename.replace(/\.(gltf|glb)$/i, ''),
+        variantName,
+        views,
+        background: backgroundValue,
+        resolution: Number(resolution),
+        format: outputFormat
+      };
+      
+      console.log('[RENDER DEBUG] Full payload:', payload);
+      
       const res = await fetch('/api/render/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client: clientName,
-          modelFilename,
-          modelName: modelFilename.replace(/\.(gltf|glb)$/i, ''),
-          variantName,
-          views,
-          background: backgroundValue,
-          resolution: Number(resolution),
-          format: outputFormat
-        })
+        body: JSON.stringify(payload)
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error || 'Failed to start render');
@@ -766,7 +780,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
               <Camera className="h-5 w-5 text-black" />
               <DialogTitle>Render Selected Variants</DialogTitle>
             </div>
-            <DialogDescription className="text-left">
+            <div className="text-left text-sm text-muted-foreground">
               <div className="mb-3">
                 You are about to queue renders for <strong>{selectedVariants.length} selected variant{selectedVariants.length !== 1 ? 's' : ''}</strong>:
               </div>
@@ -797,7 +811,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ modelViewerRef,
               <div className="text-sm text-gray-600">
                 Depending on the number of selected camera angles and material complexity, this process may take some time to complete.
               </div>
-            </DialogDescription>
+            </div>
           </DialogHeader>
           
           <DialogFooter className="flex-col sm:flex-row gap-2">
