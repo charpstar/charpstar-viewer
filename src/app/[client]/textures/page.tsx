@@ -87,7 +87,7 @@ export default function TexturesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header onRefreshModels={loadImages} onUploadModels={() => setUploadOpen(true)} onSave={() => {}} isSaving={false} />
-      <div className="flex h-[calc(100vh-48px)]">
+      <div className="flex h-[calc(100vh-56px)]">
         {/* Main content only */}
         <div className="flex-1 p-4 overflow-y-scroll overflow-x-hidden [scrollbar-gutter:stable]">
           <div className="flex items-center justify-between mb-4">

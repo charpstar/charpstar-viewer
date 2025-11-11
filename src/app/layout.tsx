@@ -42,6 +42,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <SimpleClientViewerScript />
         {/* Global job notifications */}
         <GlobalJobNotifications />
+        {/* Render notifications removed in favor of per-panel queue UI */}
         {children}
       </body>
     </html>

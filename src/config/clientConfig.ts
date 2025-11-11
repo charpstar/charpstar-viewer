@@ -17,6 +17,11 @@ export interface ClientConfig {
   exposure: number;
   toneMapping: string;
   
+  // Features
+  features?: {
+    modularConfigurator?: boolean; // Enable modular configurator tab
+  };
+  
   // BunnyCDN specific paths
   bunnyCdn: {
     modelPath: string;         
@@ -71,6 +76,9 @@ export const clients: Record<string, ClientConfig> = {
     livePassword: "sweef2024",
     exposure: 1.4,
     toneMapping: "aces",
+    features: {
+      modularConfigurator: true // Enable modular configurator for Sweef
+    },
     bunnyCdn: {
       modelPath: "Client-Editor/Sweef",
       imagesPath: "Client-Editor/Sweef/images",

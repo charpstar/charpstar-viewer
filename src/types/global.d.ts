@@ -14,10 +14,14 @@ declare namespace JSX {
         'auto-rotate'?: boolean | "";
         'disable-pan'?: boolean | "";
         'shadow-intensity'?: string;
+        'shadow-softness'?: string;
         'environment-image'?: string;
         exposure?: string;
         'tone-mapping'?: string;
         'camera-orbit'?: string;
+        'min-field-of-view'?: string;
+        'max-field-of-view'?: string;
+        'ar-status'?: string;
         id?: string;
         style?: React.CSSProperties;
         ref?: React.RefObject<any>;

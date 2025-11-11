@@ -13,7 +13,6 @@ export const useLayoutPersistence = (defaultLayout: IJsonModel) => {
   useEffect(() => {
     try {
       const savedLayout = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      
       if (savedLayout) {
         // Try to use the saved layout
         try {
