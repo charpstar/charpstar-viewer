@@ -64,6 +64,8 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
   }, [clientName]);
 
   useEffect(() => {
+    let localPrevStatuses = prevStatuses; // Capture in closure to avoid dependency
+    
     const poll = async () => {
       try {
         const res = await fetch(`/api/render/jobs/list?client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
@@ -82,7 +84,7 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
         
         // Check for newly completed jobs
         for (const jobId of Object.keys(next)) {
-          const prevStatus = prevStatuses[jobId];
+          const prevStatus = localPrevStatuses[jobId];
           const currentStatus = next[jobId];
           if (currentStatus?.status === 'completed' && prevStatus?.status !== 'completed') {
             // Job just completed, dispatch event
@@ -92,26 +94,20 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
           }
         }
         
-        setPrevStatuses(statuses);
+        localPrevStatuses = next; // Update local copy
+        setPrevStatuses(next);
         setStatuses(next);
-        setVisible(arr.length > 0 || totalActiveCount > 0);
+        setVisible(arr.length > 0 || (typeof json?.activeCount === 'number' && json.activeCount > 0));
       } catch {}
     };
     poll();
     
     // Adaptive polling interval based on total active jobs count
-    const getInterval = () => {
-      // No active jobs: poll every 10s
-      // 1-5 active: 3s
-      // 6+ active: 5s (to reduce load)
-      if (totalActiveCount === 0) return 10000;
-      if (totalActiveCount <= 5) return 3000;
-      return 5000;
-    };
-    
-    timerRef.current = setInterval(poll, getInterval());
+    // CRITICAL FIX: Use fixed 5s interval to prevent infinite loop
+    // The adaptive logic was causing re-renders that recreated the interval
+    timerRef.current = setInterval(poll, 5000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [clientName, statuses, prevStatuses, totalActiveCount]);
+  }, [clientName]); // CRITICAL FIX: Only depend on clientName to prevent infinite loop
 
   const clearFinished = async () => {
     try {
