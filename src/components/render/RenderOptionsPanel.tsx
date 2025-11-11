@@ -289,28 +289,50 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
         
         console.log('[RENDER] Base64 string length:', glbBase64.length);
         
-        // Upload via Next.js API proxy to prep server (uses server-side env vars)
-        console.log('[RENDER] Uploading modular GLB via API proxy...');
-        const uploadRes = await fetch('/api/upload-modular-glb', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json'
+        // Get BunnyCDN upload config (small request, no 413 error)
+        console.log('[RENDER] Getting BunnyCDN upload config...');
+        const configRes = await fetch('/api/bunny-upload-config');
+        if (!configRes.ok) {
+          const configError = await configRes.json().catch(() => ({}));
+          throw new Error(configError?.error || 'Failed to get upload config');
+        }
+        const { hostname, zone, accessKey, pullZoneUrl } = await configRes.json();
+        
+        // Generate unique filename
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).slice(2, 10);
+        const filename = `modular-${timestamp}-${randomId}.glb`;
+        
+        // Storage path (zone already includes Client-Editor)
+        const storagePath = `${clientName}/Renders/_temp/${filename}`;
+        const uploadUrl = `https://${hostname}/${zone}/${storagePath}`;
+        
+        // Convert base64 back to binary for upload
+        console.log('[RENDER] Uploading directly to BunnyCDN...');
+        const glbBinary = Uint8Array.from(atob(glbBase64), c => c.charCodeAt(0));
+        
+        const uploadRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'AccessKey': accessKey,
+            'Content-Type': 'model/gltf-binary',
           },
-          body: JSON.stringify({ client: clientName, glbBase64 })
+          body: glbBinary,
         });
         
         if (!uploadRes.ok) {
-          const uploadError = await uploadRes.json().catch(() => ({}));
-          throw new Error(uploadError?.error || 'Failed to upload temp GLB');
+          const uploadError = await uploadRes.text().catch(() => '');
+          throw new Error(`BunnyCDN upload failed: ${uploadRes.status} - ${uploadError}`);
         }
         
-        const uploadData = await uploadRes.json();
-        console.log('[RENDER] Temp GLB uploaded:', uploadData.tempPath);
+        // Temp path for prep server (needs Client-Editor prefix)
+        const tempPath = `Client-Editor/${storagePath}`;
+        console.log('[RENDER] Temp GLB uploaded:', tempPath);
         
         // Build payload for modular render
         payload = {
           client: clientName,
-          modelFilename: uploadData.filename,
+          modelFilename: filename,
           modelName: `modular-${modularConfig}`,
           variantName: null,
           views,
@@ -318,7 +340,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
           resolution: Number(resolution),
           format: outputFormat,
           isModularUpload: true,
-          tempGLBPath: uploadData.tempPath
+          tempGLBPath: tempPath
         };
       } else {
         // Regular model mode
