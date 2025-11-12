@@ -85,6 +85,10 @@ export default function ModularViewer({ onViewerReady, src }: ModularViewerProps
       ar-status="not-presenting"
       style={{ width: '100%', height: '100%' }}
     >
+      <div className="cmv-progress-container" style={{ visibility: 'hidden' }}>
+        <div className="cmv-progress" style={{ width: '100%' }}></div>
+      </div>
+      
       <div 
         className="cmv-initial-text-container" 
         id="cmv-initialText" 
