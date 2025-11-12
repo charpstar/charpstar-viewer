@@ -163,7 +163,7 @@ export default function RenderPage() {
     },
     'hajen': {
       src: 'HAJ',
-      parts: ['HAJ-1', 'HAJ-15', 'HAJ-E1', 'HAJ-1E', 'HAJ-15C', 'HAJ-C15', 'HAJ-FOOT']
+      parts: ['HAJ-1', 'HAJ-15', 'HAJ-E1', 'HAJ-1E', 'HAJ-15C', 'HAJ-C15', 'HAJ-FOOT', 'HAJ-ENDR', 'HAJ-ENDL']
     },
     'kamelen': {
       src: 'KAM',

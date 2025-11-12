@@ -75153,7 +75153,7 @@ const StagingMixin = (ModelViewerElement) => {
  * limitations under the License.
  */
 const ModelViewerElement = AnnotationMixin(SceneGraphMixin(StagingMixin(EnvironmentMixin(ControlsMixin(ARMixin(LoadingMixin(AnimationMixin(ModelViewerElementBase))))))));
-customElements.define('model-viewer', ModelViewerElement);
+customElements.define('modular-viewer', ModelViewerElement);
 
 export {
     CanvasTexture,
