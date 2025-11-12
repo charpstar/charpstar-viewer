@@ -1,5 +1,5 @@
-let m1sits, m15sits, mhorn, mhornright, marmrest, mdivan, msvanggd, mfotpall, mloveseat, h15sits, h1sits, hconvex, hconcave, hleftend, hrightend, hfoot, msvanggdright, msvanggdleft, marmrestRight, mendleft, mendright;
-let loveAO, m1AO, m15AO, hornAO, divAO, fotAO, armAO, svanAO, loveSeatMat, hornMat, m1Mat, m15Mat, divMat, fotMat, armMAt, svanMat, h1sitsAO, h15sitsAO, hendAO, hconcaveAO, hconvexAO, hfootAO, h1sitsMat, h15sitsMat, hendMat, hconcaveMat, hconvexMat, hfootMat, hRendMat, hRendAO, mendAO, mendMat, mendLAO, mendLMat;
+let m1sits, m15sits, mhorn, mhornright, marmrest, mdivan, msvanggd, mfotpall, mloveseat, h15sits, h1sits, hconvex, hconcave, hleftend, hrightend, hnewrightend, hnewleftend, hfoot, msvanggdright, msvanggdleft, marmrestRight, mendleft, mendright;
+let loveAO, m1AO, m15AO, hornAO, divAO, fotAO, armAO, svanAO, loveSeatMat, hornMat, m1Mat, m15Mat, divMat, fotMat, armMAt, svanMat, h1sitsAO, h15sitsAO, hendAO, hconcaveAO, hconvexAO, hfootAO, hnewrightendAO, hnewleftendAO, h1sitsMat, h15sitsMat, hendMat, hconcaveMat, hconvexMat, hfootMat, hRendMat, hRendAO, hnewrightendMat, hnewleftendMat, mendAO, mendMat, mendLAO, mendLMat;
 let m1sitshfc, m15sitshfc, mhornlefthfc, mhornrighthfc, marmresthfc, mloveseathfc;
 let k1sits, k15sits, khornL, khornR, k15ar, kal15, kfoot, kfoot1, k15sitsMat, k1sitsMat, khornLMat, khornRMat, k15arMat, kal15Mat, kfootMat, kfoot1Mat, k1sitsAO, k15sitsAO, khornLAO, khornRAO, k15arAO, kal15AO, kfootAO, kfoot1AO;
 var hfcloveSeatMat, hfchornMat, hfcm1Mat, hfcm15Mat, hfcarmMAt, hfcloveAO, hfchornAO, hfcm1AO, hfcm15AO, hfcarmAO;
@@ -54666,11 +54666,11 @@ const ControlsMixin = (ModelViewerElement) => {
             this.maxFieldOfView = 'auto';
             var sweefLoadManagerProgress, sweefLoadManager, sweefMainLoader, sweefTextureLoader;
             var fullyLoaded, m15sits, m1sits, mhorn, mhornright, marmrest, mdivan, msvanggd, mfotpall, mloveseat, marmrestRight, mendleft, mendright;
-            var h15sits, h1sits, hconvex, hconcave, hleftend, hrightend, hfoot;
+            var h15sits, h1sits, hconvex, hconcave, hleftend, hrightend, hnewleftend, hnewrightend, hfoot;
             var arrowHelperR, arrowHelperL;
             var skeletonX, skeletonX2, outlineMesh1;
             var loveAO, m1AO, m15AO, hornAO, divAO, fotAO, armAO, svanAO, currentActiveMaterial, loveSeatMat, hornMat, m1Mat, m15Mat, divMat, fotMat, armMAt, svanMat;
-            var h1sitsAO, h15sitsAO, hendAO, hconcaveAO, hconvexAO, hfootAO, h1sitsMat, h15sitsMat, hendMat, hRendMat, hRendAO, hconcaveMat, hconvexMat, hfootMat;
+            var h1sitsAO, h15sitsAO, hendAO, hconcaveAO, hconvexAO, hfootAO, hnewleftendAO, hnewrightendAO, h1sitsMat, h15sitsMat, hendMat, hRendMat, hRendAO, hnewleftendMat, hnewrightendMat, hconcaveMat, hconvexMat, hfootMat;
             var k15sitsMat, k1sitsMat, khornLMat, khornRMat, k15arMat, kal15Mat, kfootMat, kfoot1Mat, k1sitsAO, k15sitsAO, khornLAO, khornRAO, k15arAO, kal15AO, kfootAO, kfoot1AO;
             var hfcloveSeatMat, hfchornMat, hfcm1Mat, hfcm15Mat, hfcarmMAt, hfcloveAO, hfchornAO, hfcm1AO, hfcm15AO, hfcarmAO;
 
@@ -54878,6 +54878,8 @@ const ControlsMixin = (ModelViewerElement) => {
                 "HFootMesh": "HAJ-FOOT",
                 "HLeftEndMesh": "HAJ-E1",
                 "HRightEndMesh": "HAJ-1E",
+                "HNewLeftEndMesh": "HAJ-ENDL",
+                "HNewRightEndMesh": "HAJ-ENDR",
                 "M15SitsMesh": "MAM-15",
                 "M1SitsMesh": "MAM-1",
                 "MHornLeftMesh": "MAM-C90",
@@ -54950,6 +54952,8 @@ const ControlsMixin = (ModelViewerElement) => {
                 "HAJ-15": h15sits,
                 "HAJ-E1": hleftend,
                 "HAJ-1E": hrightend,
+                "HAJ-ENDL": hnewleftend,
+                "HAJ-ENDR": hnewrightend,
                 "HAJ-15C": hconcave,
                 "HAJ-C15": hconvex,
                 "HAJ-FOOT": hfoot,
@@ -55189,6 +55193,18 @@ const ControlsMixin = (ModelViewerElement) => {
                 hRendAO.colorSpace = SRGBColorSpace;
                 hRendAO.channel = 1;
                 hRendAO.flipY = false;
+            }.bind(this));
+            ktx2Loader.load('https://sweef.charpstar.net/ConfigTemp/AOTexture/HNewEndAOLeft.ktx2', function (texture) {
+                hnewleftendAO = texture;
+                hnewleftendAO.colorSpace = SRGBColorSpace;
+                hnewleftendAO.channel = 1;
+                hnewleftendAO.flipY = false;
+            }.bind(this));
+            ktx2Loader.load('https://sweef.charpstar.net/ConfigTemp/AOTexture/HNewEndAORight.ktx2', function (texture) {
+                hnewrightendAO = texture;
+                hnewrightendAO.colorSpace = SRGBColorSpace;
+                hnewrightendAO.channel = 1;
+                hnewrightendAO.flipY = false;
             }.bind(this));
             ktx2Loader.load('https://sweef.charpstar.net/ConfigTemp/AOTexture/MArmAO.ktx2', function (texture) {
                 armAO = texture;
@@ -55495,7 +55511,7 @@ const ControlsMixin = (ModelViewerElement) => {
                 }
                 if (modelName == "HAJ-E1") {
                     if (this.leftMostModel !== undefined) {
-                        if (this.leftMostModel.name !== "HLeftEndMesh" && (this.skeletonX == undefined || this.skeletonX.parent == null)) {
+                        if ((this.leftMostModel.name !== "HLeftEndMesh" && this.leftMostModel.name !== "HNewLeftEndMesh") && (this.skeletonX == undefined || this.skeletonX.parent == null)) {
                             this.addHajenModelLeftSideOfCurrentModel(hleftend);
                         }
                     } else {
@@ -55505,11 +55521,31 @@ const ControlsMixin = (ModelViewerElement) => {
                 }
                 if (modelName == "HAJ-1E") {
                     if (this.rightMostModel !== undefined) {
-                        if (this.rightMostModel.name !== "HRightEndMesh" && (this.skeletonX == undefined || this.skeletonX.parent == null)) {
+                        if ((this.rightMostModel.name !== "HRightEndMesh" && this.rightMostModel.name !== "HNewRightEndMesh") && (this.skeletonX == undefined || this.skeletonX.parent == null)) {
                             this.addHajenModelRightSideOfCurrentModel(hrightend);
                         }
                     } else {
                         this.addSweefHajenModel(hrightend);
+                        this.canAddRightofRightModel = false;
+                    }
+                }
+                if (modelName == "HAJ-ENDL") {
+                    if (this.leftMostModel !== undefined) {
+                        if ((this.leftMostModel.name !== "HLeftEndMesh" && this.leftMostModel.name !== "HNewLeftEndMesh") && (this.skeletonX == undefined || this.skeletonX.parent == null)) {
+                            this.addHajenModelLeftSideOfCurrentModel(hnewleftend);
+                        }
+                    } else {
+                        this.addSweefHajenModel(hnewleftend);
+                        this.canAddLeftofLeftModel = false;
+                    }
+                }
+                if (modelName == "HAJ-ENDR") {
+                    if (this.rightMostModel !== undefined) {
+                        if ((this.rightMostModel.name !== "HRightEndMesh" && this.rightMostModel.name !== "HNewRightEndMesh") && (this.skeletonX == undefined || this.skeletonX.parent == null)) {
+                            this.addHajenModelRightSideOfCurrentModel(hnewrightend);
+                        }
+                    } else {
+                        this.addSweefHajenModel(hnewrightend);
                         this.canAddRightofRightModel = false;
                     }
                 }
@@ -55890,11 +55926,11 @@ const ControlsMixin = (ModelViewerElement) => {
         getScene() {
             this.mainScene = this[$scene];
         }
-
+        
+        
         getMainScene() {
             return this[$scene];
         }
-        
         getRenderer() {
             const renderer = this[$renderer];
             return renderer;
@@ -56031,6 +56067,12 @@ const ControlsMixin = (ModelViewerElement) => {
                             if (hRendMat) {
                                 hRendMat.dispose();
                             }
+                            if (hnewleftendMat) {
+                                hnewleftendMat.dispose();
+                            }
+                            if (hnewrightendMat) {
+                                hnewrightendMat.dispose();
+                            }
                             if (hconcaveMat) {
                                 hconcaveMat.dispose();
                             }
@@ -56076,6 +56118,16 @@ const ControlsMixin = (ModelViewerElement) => {
                                             this.allSceneObjects[j].material = hRendMat
                                             hRendMat.aoMap = hRendAO;
                                             hRendMat.aoMapIntensity = 0.6;
+                                        } else if (this.allSceneObjects[j].name.includes("HNewLeftEnd")) {
+                                            hnewleftendMat = this.model.materials[i].getVariantMaterial().clone();
+                                            this.allSceneObjects[j].material = hnewleftendMat
+                                            hnewleftendMat.aoMap = hnewleftendAO;
+                                            hnewleftendMat.aoMapIntensity = 0.6;
+                                        } else if (this.allSceneObjects[j].name.includes("HNewRightEnd")) {
+                                            hnewrightendMat = this.model.materials[i].getVariantMaterial().clone();
+                                            this.allSceneObjects[j].material = hnewrightendMat
+                                            hnewrightendMat.aoMap = hnewrightendAO;
+                                            hnewrightendMat.aoMapIntensity = 0.6;
                                         } else if (this.allSceneObjects[j].name.includes("HFoot")) {
                                             hfootMat = this.model.materials[i].getVariantMaterial().clone();
                                             this.allSceneObjects[j].material = hfootMat
@@ -56973,6 +57025,12 @@ const ControlsMixin = (ModelViewerElement) => {
                 }.bind(this));
                 sweefCharpstarLoader.load("https://sweef.charpstar.net/ConfigMain/Hajen/HAJ-FOOT.glb", function (gltf) {
                     hfoot = gltf.scene;
+                }.bind(this));
+                sweefCharpstarLoader.load("https://sweef.charpstar.net/ConfigMain/Hajen//HAJ-ENDL.glb", function (gltf) {
+                    hnewleftend = gltf.scene;
+                }.bind(this));
+                sweefCharpstarLoader.load("https://sweef.charpstar.net/ConfigMain/Hajen//HAJ-ENDR.glb", function (gltf) {
+                    hnewrightend = gltf.scene;
                 }.bind(this));
             } else if (this.sweefModelName == "KAM") {
                 sweefCharpstarLoader.load("https://sweef.charpstar.net/ConfigMain/Kamelen/KAM-1.glb", function (gltf) {
@@ -60467,6 +60525,10 @@ const ControlsMixin = (ModelViewerElement) => {
                         return "HAJ-E1";
                     case "HRightEnd":
                         return "HAJ-1E";
+                    case "HNewLeftEnd":
+                        return "HAJ-ENDL";
+                    case "HNewRightEnd":
+                        return "HAJ-ENDR";
                     case "KAM-15-Group":
                         return "KAM-15";
                     case "KAM-1-Group":
@@ -61561,6 +61623,8 @@ const ControlsMixin = (ModelViewerElement) => {
             if (this.rightMostModel) {
                 if (this.rightMostModel.name == "HRightEndMesh" && this.src == "HAJ") {
                     this.canAddRightofRightModel = false;
+                } else if (this.rightMostModel.name == "HNewRightEndMesh" && this.src == "HAJ") {
+                    this.canAddRightofRightModel = false;
                 } else {
                     if ((this.skeletonX == undefined || this.skeletonX.parent == null) && this.src == "HAJ") {
                         this.canAddRightofRightModel = true;
@@ -61608,6 +61672,8 @@ const ControlsMixin = (ModelViewerElement) => {
             }
             if (this.leftMostModel) {
                 if (this.leftMostModel.name == "HLeftEndMesh" && this.src == "HAJ") {
+                    this.canAddLeftofLeftModel = false;
+                } else if (this.leftMostModel.name == "HNewLeftEndMesh" && this.src == "HAJ") {
                     this.canAddLeftofLeftModel = false;
                 } else {
                     if ((this.skeletonX == undefined || this.skeletonX.parent == null) && this.src == "HAJ") {
@@ -61681,6 +61747,14 @@ const ControlsMixin = (ModelViewerElement) => {
                     this.canAddRightofRightModel = false;
                     this.canAddLeftofLeftModel = true;
                 }
+                if (this.leftMostModel == this.rightMostModel && this.leftMostModel.name == "HNewLeftEndMesh" && this.mainScene.modelContainer.children.length == 1) {
+                    this.canAddRightofRightModel = true;
+                    this.canAddLeftofLeftModel = false;
+                }
+                if (this.leftMostModel == this.rightMostModel && this.leftMostModel.name == "HNewRightEndMesh" && this.mainScene.modelContainer.children.length == 1) {
+                    this.canAddRightofRightModel = false;
+                    this.canAddLeftofLeftModel = true;
+                }
             }
             if (!this.canAddLeftofLeftModel && !this.canAddRightofRightModel) {
                 this.disableViewerButtons();
@@ -61694,6 +61768,15 @@ const ControlsMixin = (ModelViewerElement) => {
                     } else {
                         if (document.querySelector('[sku="HAJ-1E"]') && (this.skeletonX == undefined || this.skeletonX.parent == null) && this.src == "HAJ") {
                             document.querySelector('[sku="HAJ-1E"]').classList.remove("disabled");
+                        }
+                    }
+                    if (this.rightMostModel.name == "HNewRightEndMesh" && this.src == "HAJ") {
+                        if (document.querySelector('[sku="HAJ-ENDR"]')) {
+                            document.querySelector('[sku="HAJ-ENDR"]').classList.add("disabled");
+                        }
+                    } else {
+                        if (document.querySelector('[sku="HAJ-ENDR"]') && (this.skeletonX == undefined || this.skeletonX.parent == null) && this.src == "HAJ") {
+                            document.querySelector('[sku="HAJ-ENDR"]').classList.remove("disabled");
                         }
                     }
                     if (this.rightMostModel.name == "MArmrestRightMesh" && this.src == "MAM") {
@@ -61762,6 +61845,15 @@ const ControlsMixin = (ModelViewerElement) => {
                     } else {
                         if (document.querySelector('[sku="HAJ-E1"]') && (this.skeletonX == undefined || this.skeletonX.parent == null) && this.src == "HAJ") {
                             document.querySelector('[sku="HAJ-E1"]').classList.remove("disabled");
+                        }
+                    }
+                    if (this.leftMostModel.name == "HNewLeftEndMesh" && this.src == "HAJ") {
+                        if (document.querySelector('[sku="HAJ-ENDL"]')) {
+                            document.querySelector('[sku="HAJ-ENDL"]').classList.add("disabled");
+                        }
+                    } else {
+                        if (document.querySelector('[sku="HAJ-ENDL"]') && (this.skeletonX == undefined || this.skeletonX.parent == null) && this.src == "HAJ") {
+                            document.querySelector('[sku="HAJ-ENDL"]').classList.remove("disabled");
                         }
                     }
                     if (this.leftMostModel.name == "MArmrestMesh" && this.src == "MAM") {
@@ -62387,6 +62479,12 @@ const ControlsMixin = (ModelViewerElement) => {
                 if (document.querySelector('[sku="HAJ-1E"]')) {
                     document.querySelector('[sku="HAJ-1E"]').classList.add("disabled");
                 }
+                if (document.querySelector('[sku="HAJ-ENDL"]')) {
+                    document.querySelector('[sku="HAJ-ENDL"]').classList.add("disabled");
+                }
+                if (document.querySelector('[sku="HAJ-ENDR"]')) {
+                    document.querySelector('[sku="HAJ-ENDR"]').classList.add("disabled");
+                }
                 if (document.querySelector('[sku="HAJ-FOOT"]')) {
                     document.querySelector('[sku="HAJ-FOOT"]').classList.add("disabled");
                 }
@@ -62498,6 +62596,12 @@ const ControlsMixin = (ModelViewerElement) => {
                 }
                 if (document.querySelector('[sku="HAJ-1E"]')) {
                     document.querySelector('[sku="HAJ-1E"]').classList.remove("disabled");
+                }
+                if (document.querySelector('[sku="HAJ-ENDL"]')) {
+                    document.querySelector('[sku="HAJ-ENDL"]').classList.remove("disabled");
+                }
+                if (document.querySelector('[sku="HAJ-ENDR"]')) {
+                    document.querySelector('[sku="HAJ-ENDR"]').classList.remove("disabled");
                 }
                 if (document.querySelector('[sku="HAJ-FOOT"]')) {
                     document.querySelector('[sku="HAJ-FOOT"]').classList.remove("disabled");
@@ -69627,45 +69731,8 @@ const SceneGraphMixin = (ModelViewerElement) => {
                 }
                 this[$currentGLTF] = currentGLTF;
             }
-        /** @export */
-        async exportScene(options) {
-            const scene = this[$scene];
-            return new Promise(async (resolve, reject) => {
-                // Defaults
-                const opts = {
-                    binary: true,
-                    onlyVisible: true,
-                    maxTextureSize: Infinity,
-                    includeCustomExtensions: false,
-                    forceIndices: false
-                };
-                Object.assign(opts, options);
-                // Not configurable
-                opts.animations = scene.animations;
-                opts.truncateDrawRange = true;
-                const shadow = scene.shadow;
-                let visible = false;
-                // Remove shadow from export
-                if (shadow != null) {
-                    visible = shadow.visible;
-                    shadow.visible = false;
-                }
-                await this[$model][$prepareVariantsForExport]();
-                const exporter = new GLTFExporter()
-                    .register((writer) => new GLTFExporterMaterialsVariantsExtension(writer));
-                exporter.parse(scene.model, (gltf) => {
-                    return resolve(new Blob([opts.binary ? gltf : JSON.stringify(gltf)], {
-                        type: opts.binary ? 'application/octet-stream' : 'application/json'
-                    }));
-                }, () => {
-                    return reject('glTF export failed');
-                }, opts);
-                if (shadow != null) {
-                    shadow.visible = visible;
-                }
-            });
-        }
-        /** @export */
+        
+               /** @export */
         async exportGLB() {
             const scene = this.getMainScene().modelContainer;
             console.log(scene);
@@ -69708,6 +69775,45 @@ const SceneGraphMixin = (ModelViewerElement) => {
                     });
                     return reject('glTF export failed: ' + error);
                 }, opts);
+            });
+        }
+        
+        /** @export */
+        async exportScene(options) {
+            const scene = this[$scene];
+            return new Promise(async (resolve, reject) => {
+                // Defaults
+                const opts = {
+                    binary: true,
+                    onlyVisible: true,
+                    maxTextureSize: Infinity,
+                    includeCustomExtensions: false,
+                    forceIndices: false
+                };
+                Object.assign(opts, options);
+                // Not configurable
+                opts.animations = scene.animations;
+                opts.truncateDrawRange = true;
+                const shadow = scene.shadow;
+                let visible = false;
+                // Remove shadow from export
+                if (shadow != null) {
+                    visible = shadow.visible;
+                    shadow.visible = false;
+                }
+                await this[$model][$prepareVariantsForExport]();
+                const exporter = new GLTFExporter()
+                    .register((writer) => new GLTFExporterMaterialsVariantsExtension(writer));
+                exporter.parse(scene.model, (gltf) => {
+                    return resolve(new Blob([opts.binary ? gltf : JSON.stringify(gltf)], {
+                        type: opts.binary ? 'application/octet-stream' : 'application/json'
+                    }));
+                }, () => {
+                    return reject('glTF export failed');
+                }, opts);
+                if (shadow != null) {
+                    shadow.visible = visible;
+                }
             });
         }
         materialFromPoint(pixelX, pixelY) {
@@ -72069,6 +72175,10 @@ class ModelViewerElementBase extends u {
             this.loadTextureSweef();
             this.addEventListener('click', this.selectCurrentObject, false);
             onProgress = (event) => {
+                this.querySelector(".cmv-progress").style.width = `${event.detail.totalProgress*100}%`;
+                if (this.querySelector(".cmv-initial-text-container")) {
+                    this.querySelector(".cmv-initial-text-container").style.visibility = "hidden";
+                }
                 this.disableViewerButtons();
                 if (event.detail.totalProgress == 1) {
                     this.mainScene.modelContainer.children = [];
@@ -72084,6 +72194,10 @@ class ModelViewerElementBase extends u {
                     this.leftMostModel = undefined;
                     this.canPlaceSweefModels = true;
                     this.sweefRenderRefresh();
+                    this.querySelector(".cmv-progress-container").style.visibility = "hidden";
+                    if (this.querySelector(".cmv-initial-text-container")) {
+                        this.querySelector(".cmv-initial-text-container").style.visibility = "visible";
+                    }
                     this.enableViewerButtons();
 
                     if (document.querySelector('[sku="DRO-AR"]')) {
@@ -75039,7 +75153,7 @@ const StagingMixin = (ModelViewerElement) => {
  * limitations under the License.
  */
 const ModelViewerElement = AnnotationMixin(SceneGraphMixin(StagingMixin(EnvironmentMixin(ControlsMixin(ARMixin(LoadingMixin(AnimationMixin(ModelViewerElementBase))))))));
-customElements.define('modular-viewer', ModelViewerElement);
+customElements.define('model-viewer', ModelViewerElement);
 
 export {
     CanvasTexture,
