@@ -34,7 +34,9 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   const clientName = (params?.client as string) || '';
 
   const cameraPresets = useMemo(() => ([
-    { name: 'default', label: 'Default', orbit: '30deg 90deg 80%' },
+    { name: 'angledright', label: 'Angled Right 35°', orbit: '30deg 90deg 80%' },
+    { name: 'angledleft', label: 'Angled Left 35°', orbit: '-30deg 90deg 80%' },
+    { name: 'table', label: 'Table', orbit: '-30deg 75deg 80%' },
     { name: 'front', label: 'Front', orbit: '0deg 88deg 80%' },
     { name: 'back', label: 'Back', orbit: '180deg 90deg 80%' },
     { name: 'side', label: 'Side', orbit: '90deg 91deg 80%' },
