@@ -96,7 +96,11 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       
       if (savedViews) {
         const parsed = JSON.parse(savedViews);
-        setSelectedViews(parsed);
+        // Filter out invalid/renamed view names (e.g., old 'default' view)
+        const validViews = parsed.filter((viewName: string) => 
+          cameraPresets.some(p => p.name === viewName)
+        );
+        setSelectedViews(validViews.length > 0 ? validViews : ['front']);
       }
       
       if (savedResolution) setResolution(savedResolution);

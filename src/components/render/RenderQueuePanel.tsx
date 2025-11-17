@@ -149,7 +149,17 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
               <div className="mt-1.5 text-[10px] text-gray-500">
                 {(() => {
                   const viewsArray = it.views || (it.view ? [it.view] : []);
-                  const viewNames = viewsArray.map(v => v.name).join(', ');
+                  const shortNames: Record<string, string> = {
+                    'angledright': 'R35°',
+                    'angledleft': 'L35°',
+                    'table': 'Table',
+                    'front': 'Front',
+                    'back': 'Back',
+                    'side': 'Side',
+                    'top': 'Top',
+                    'default': 'Def'
+                  };
+                  const viewNames = viewsArray.map(v => shortNames[v.name.toLowerCase()] || v.name).join(', ');
                   const bg = it.background === 'transparent' ? 'Transparent' : `#${it.background}`;
                   const fmt = it.format ? it.format.toUpperCase() : 'PNG';
                   return `${viewNames} • ${bg} • ${it.resolution}px • ${fmt}`;
@@ -216,7 +226,20 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
                           </a>
                           {img.view && (
                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-gray-900/90 text-white text-[9px] font-medium rounded whitespace-nowrap">
-                              {img.view}
+                              {(() => {
+                                const viewName = img.view || '';
+                                const shortNames: Record<string, string> = {
+                                  'angledright': 'R35°',
+                                  'angledleft': 'L35°',
+                                  'table': 'Table',
+                                  'front': 'Front',
+                                  'back': 'Back',
+                                  'side': 'Side',
+                                  'top': 'Top',
+                                  'default': 'Def'
+                                };
+                                return shortNames[viewName.toLowerCase()] || viewName;
+                              })()}
                             </div>
                           )}
                         </div>
@@ -227,7 +250,20 @@ const RenderQueuePanel: React.FC<{ clientName: string }> = ({ clientName }) => {
                             <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
                           </div>
                           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-gray-700/90 text-white text-[9px] font-medium rounded whitespace-nowrap">
-                            {view.name}
+                            {(() => {
+                              const viewName = view.name || '';
+                              const shortNames: Record<string, string> = {
+                                'angledright': 'R35°',
+                                'angledleft': 'L35°',
+                                'table': 'Table',
+                                'front': 'Front',
+                                'back': 'Back',
+                                'side': 'Side',
+                                'top': 'Top',
+                                'default': 'Def'
+                              };
+                              return shortNames[viewName.toLowerCase()] || viewName;
+                            })()}
                           </div>
                         </div>
                       ))}

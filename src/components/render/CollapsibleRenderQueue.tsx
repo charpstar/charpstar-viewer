@@ -274,7 +274,20 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
                               </a>
                               {img.view && (
                                 <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 px-0.5 py-0.5 bg-black text-white text-[7px] font-medium rounded whitespace-nowrap leading-none">
-                                  {img.view}
+                                  {(() => {
+                                    const viewName = img.view || '';
+                                    const shortNames: Record<string, string> = {
+                                      'angledright': 'R35°',
+                                      'angledleft': 'L35°',
+                                      'table': 'Table',
+                                      'front': 'Front',
+                                      'back': 'Back',
+                                      'side': 'Side',
+                                      'top': 'Top',
+                                      'default': 'Def'
+                                    };
+                                    return shortNames[viewName.toLowerCase()] || viewName;
+                                  })()}
                                 </div>
                               )}
                             </div>
@@ -286,7 +299,20 @@ const CollapsibleRenderQueue: React.FC<{ clientName: string }> = ({ clientName }
                               <Loader2 className="w-2.5 h-2.5 text-gray-400 animate-spin" />
                             </div>
                             <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 px-0.5 py-0.5 bg-gray-700 text-white text-[7px] font-medium rounded whitespace-nowrap leading-none">
-                              {view.name}
+                              {(() => {
+                                const viewName = view.name || '';
+                                const shortNames: Record<string, string> = {
+                                  'angledright': 'R35°',
+                                  'angledleft': 'L35°',
+                                  'table': 'Table',
+                                  'front': 'Front',
+                                  'back': 'Back',
+                                  'side': 'Side',
+                                  'top': 'Top',
+                                  'default': 'Def'
+                                };
+                                return shortNames[viewName.toLowerCase()] || viewName;
+                              })()}
                             </div>
                           </div>
                         ))}
