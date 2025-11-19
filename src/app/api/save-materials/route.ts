@@ -20,8 +20,8 @@ const getStorageZoneDetails = () => {
 };
 
 const uploadToBunny = async (
-  filePath: string, 
-  content: string, 
+  filePath: string,
+  content: string,
   contentType: string = 'application/json'
 ): Promise<void> => {
   const { zoneName } = getStorageZoneDetails();
@@ -91,9 +91,9 @@ export async function POST(request: NextRequest) {
 
     // Externalized arrays are no longer supported. Require embedded arrays in reference.gltf.
     if (typeof (gltfData as any).materials === 'string' ||
-        typeof (gltfData as any).textures === 'string' ||
-        typeof (gltfData as any).images === 'string' ||
-        typeof (gltfData as any).externalImagesUri === 'string') {
+      typeof (gltfData as any).textures === 'string' ||
+      typeof (gltfData as any).images === 'string' ||
+      typeof (gltfData as any).externalImagesUri === 'string') {
       return NextResponse.json({
         error: 'Externalized materials/textures/images are no longer supported. Embed arrays directly in reference.gltf.'
       }, { status: 400 });
@@ -198,11 +198,11 @@ export async function POST(request: NextRequest) {
       if (Array.isArray(m.emissiveFactor)) mat.setEmissiveFactor(m.emissiveFactor as [number, number, number]);
 
       // Helper to preserve existing TextureInfo (incl. KHR_texture_transform) when rebinding
-    const setSlot = (newTex: Texture | undefined, getInfo: () => any, setTex: (t: Texture) => void) => {
+      const setSlot = (newTex: Texture | undefined, getInfo: () => any, setTex: (t: Texture) => void) => {
         if (!newTex) return;
-      const info = typeof getInfo === 'function' ? getInfo() : undefined;
-      // Preserve existing TextureInfo (extensions/texCoord) if present
-      if (info && typeof info.setTexture === 'function') {
+        const info = typeof getInfo === 'function' ? getInfo() : undefined;
+        // Preserve existing TextureInfo (extensions/texCoord) if present
+        if (info && typeof info.setTexture === 'function') {
           info.setTexture(newTex);
         } else {
           setTex(newTex);
@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
           if (xform?.setScale) xform.setScale(scale as [number, number]);
           else if (xform) (xform as any).scale = scale;
         }
-      } catch {}
+      } catch { }
 
       // MetallicRoughness texture
       const mrKey = normalizeKey(m.metallicRoughnessTexture || m.metallicTexture || m.roughnessTexture);
@@ -255,7 +255,7 @@ export async function POST(request: NextRequest) {
           if (nInfo?.setScale) nInfo.setScale(m.normalScale);
           else if (nInfo) (nInfo as any).scale = m.normalScale;
         }
-      } catch {}
+      } catch { }
       // Normal texture tiling (KHR_texture_transform scale)
       try {
         const nInfo = (mat as any).getNormalTextureInfo?.();
@@ -270,7 +270,7 @@ export async function POST(request: NextRequest) {
           if (nx?.setScale) nx.setScale(nScale as [number, number]);
           else if (nx) (nx as any).scale = nScale;
         }
-      } catch {}
+      } catch { }
 
       // Occlusion texture
       if (m.occlusionTexture == null) {
@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
           if (oInfo?.setStrength) oInfo.setStrength(m.occlusionStrength);
           else if (oInfo) (oInfo as any).strength = m.occlusionStrength;
         }
-      } catch {}
+      } catch { }
 
       // Emissive texture
       if (m.emissiveTexture == null) {
@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
           sheenExt.setSheenColorFactor(m.sheenColor as [number, number, number]);
         }
         if ((Object.prototype.hasOwnProperty.call(m as any, 'sheenRoughnessTexture') && (m as any).sheenRoughnessTexture === null) ||
-            (Object.prototype.hasOwnProperty.call(m as any, 'sheenTexture') && (m as any).sheenTexture === null)) {
+          (Object.prototype.hasOwnProperty.call(m as any, 'sheenTexture') && (m as any).sheenTexture === null)) {
           sheenExt.setSheenRoughnessTexture(null as any);
         } else if (m.sheenRoughnessTexture || (m as any).sheenTexture) {
           const newSheenRoughTex = ensureTextureForImageKey(m.sheenRoughnessTexture || (m as any).sheenTexture);
@@ -330,7 +330,7 @@ export async function POST(request: NextRequest) {
                 if (typeof (info as any).setTexCoord === 'function') (info as any).setTexCoord(tc);
                 else (info as any).texCoord = tc;
               }
-            } catch {}
+            } catch { }
           }
         }
         if (Object.prototype.hasOwnProperty.call(m as any, 'sheenColorTexture') && (m as any).sheenColorTexture === null) {
@@ -347,7 +347,7 @@ export async function POST(request: NextRequest) {
                 if (typeof (info as any).setTexCoord === 'function') (info as any).setTexCoord(tc);
                 else (info as any).texCoord = tc;
               }
-            } catch {}
+            } catch { }
           }
         }
       } else {
@@ -365,6 +365,74 @@ export async function POST(request: NextRequest) {
 
     // Upsert all provided materials
     materials.forEach(upsertMaterial);
+
+    // Create placeholder meshes for new mesh names (so server.js can find and copy them)
+    try {
+      const existingMeshNames = new Set<string>();
+      root.listMeshes().forEach((m) => {
+        const name = m.getName();
+        if (name) existingMeshNames.add(name);
+      });
+
+      // Collect mesh names from materials that need new meshes created
+      const newMeshNames = new Set<string>();
+      materials.forEach((m: any) => {
+        if (Array.isArray(m.variantMeshes)) {
+          m.variantMeshes.forEach((name: any) => {
+            if (typeof name === 'string' && name.length > 0 && !existingMeshNames.has(name)) {
+              newMeshNames.add(name);
+            }
+          });
+        }
+      });
+
+      // Create a mesh for each new mesh name with material assigned
+      if (newMeshNames.size > 0) {
+        // Unit cube vertex positions (8 vertices)
+        const positionsArray = new Float32Array([
+          -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5,
+          -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5
+        ]);
+
+        // Cube face indices (12 triangles = 36 indices)
+        const indicesArray = new Uint16Array([
+          0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 4, 5, 1, 4, 1, 0,
+          3, 2, 6, 3, 6, 7, 4, 0, 3, 4, 3, 7, 1, 5, 6, 1, 6, 2
+        ]);
+
+        // Create shared accessors for all placeholder meshes (reuse the same geometry)
+        const positionsAccessor = document.createAccessor()
+          .setType('VEC3')
+          .setArray(positionsArray);
+
+        const indicesAccessor = document.createAccessor()
+          .setType('SCALAR')
+          .setArray(indicesArray);
+
+        // Create a mesh for each new mesh name
+        newMeshNames.forEach((meshName) => {
+          // Find the material for this mesh
+          const material = root.listMaterials().find((mat) => {
+            const matData = materials.find((m: any) => m.name === mat.getName());
+            return matData && Array.isArray(matData.variantMeshes) && matData.variantMeshes.includes(meshName);
+          });
+
+          // Create primitive with geometry and material
+          const primitive = document.createPrimitive()
+            .setIndices(indicesAccessor)
+            .setAttribute('POSITION', positionsAccessor);
+
+          if (material) {
+            primitive.setMaterial(material);
+          }
+
+          // Create mesh with the primitive
+          document.createMesh(meshName).addPrimitive(primitive);
+        });
+      }
+    } catch (e) {
+      console.error('Error creating new meshes:', e);
+    }
 
     // Serialize back to JSON (non-destructive; unchanged data preserved)
     const writeResult: any = await io.writeJSON(document);
@@ -388,7 +456,7 @@ export async function POST(request: NextRequest) {
           }
         });
       }
-    } catch {}
+    } catch { }
 
     // Preserve explicit values that glTF-Transform omits as defaults (e.g., roughnessFactor=1, emissiveFactor=[0,0,0])
     try {
@@ -438,7 +506,7 @@ export async function POST(request: NextRequest) {
           }
         });
       }
-    } catch {}
+    } catch { }
 
     // Apply requested variant mesh assignments for new/edited materials
     try {
@@ -508,7 +576,7 @@ export async function POST(request: NextRequest) {
                     }
                   });
                 }
-              } catch {}
+              } catch { }
               // Ensure extension containers
               prim.extensions = prim.extensions || {};
               prim.extensions.KHR_materials_variants = prim.extensions.KHR_materials_variants || {};
@@ -533,9 +601,9 @@ export async function POST(request: NextRequest) {
         try {
           (out as any).extensionsUsed = Array.isArray((out as any).extensionsUsed) ? (out as any).extensionsUsed : [];
           if (!(out as any).extensionsUsed.includes('KHR_materials_variants')) (out as any).extensionsUsed.push('KHR_materials_variants');
-        } catch {}
+        } catch { }
       }
-    } catch {}
+    } catch { }
 
     // Ensure occlusionTexture.strength defaults to 1 when occlusion texture is present but strength missing
     try {
@@ -549,7 +617,7 @@ export async function POST(request: NextRequest) {
           }
         });
       }
-    } catch {}
+    } catch { }
 
     // Inline binary buffer as data URI to avoid external .bin files. Keep images external.
     try {
@@ -564,7 +632,7 @@ export async function POST(request: NextRequest) {
           buf.uri = `data:application/octet-stream;base64,${base64}`;
         });
       }
-    } catch {}
+    } catch { }
 
     // Ensure newly referenced textures are materialized (non-destructive append only)
     try {
@@ -693,7 +761,7 @@ export async function POST(request: NextRequest) {
             ) {
               outMat.occlusionTexture.strength = m.occlusionStrength;
             }
-          } catch {}
+          } catch { }
           applySlot(outMat, ['emissiveTexture'], m.emissiveTexture);
           // Sheen optional
           if (m.sheenRoughnessTexture || (m as any).sheenTexture || m.sheenColorTexture) {
@@ -726,9 +794,9 @@ export async function POST(request: NextRequest) {
         try {
           (out as any).extensionsUsed = Array.isArray((out as any).extensionsUsed) ? (out as any).extensionsUsed : [];
           if (!(out as any).extensionsUsed.includes('KHR_texture_transform')) (out as any).extensionsUsed.push('KHR_texture_transform');
-        } catch {}
+        } catch { }
       }
-    } catch {}
+    } catch { }
 
     // Enforce deletions: restrict materials to posted names and remap mesh/variant indices
     try {
@@ -777,7 +845,7 @@ export async function POST(request: NextRequest) {
           });
         }
       }
-    } catch {}
+    } catch { }
 
     // Preserve existing sheen texture bindings (and their KHR_texture_transform) for materials where they were not explicitly changed
     try {
@@ -815,7 +883,7 @@ export async function POST(request: NextRequest) {
           }
         });
       }
-    } catch {}
+    } catch { }
 
     // Integrity check: compare counts before/after to ensure non-destructive structure
     try {

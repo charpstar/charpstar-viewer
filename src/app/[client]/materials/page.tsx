@@ -129,10 +129,10 @@ function attachThreeAccess(modelViewerEl: any) {
     modelViewerEl.withThreeModel = (fn: (root: any) => void) => {
       const root = modelViewerEl.getThreeModel?.();
       if (root) {
-        try { fn(root); } catch {}
+        try { fn(root); } catch { }
       }
     };
-  } catch {}
+  } catch { }
 }
 
 function forceModelViewerRender(modelViewerEl: any) {
@@ -148,22 +148,22 @@ function forceModelViewerRender(modelViewerEl: any) {
     modelViewerEl.exposure = next;
     // restore on next frame
     requestAnimationFrame(() => {
-      try { modelViewerEl.exposure = original; } catch {}
+      try { modelViewerEl.exposure = original; } catch { }
     });
-  } catch {}
+  } catch { }
 }
 
 export default function MaterialEditorPage() {
   const params = useParams();
   const clientName = params.client as string;
-  
+
   // Validate client
   if (!isValidClient(clientName)) {
     notFound();
   }
 
   const clientConfig = clients[clientName];
-  
+
   // State management
   const [referenceGltf, setReferenceGltf] = useState<ReferenceGltf | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -192,11 +192,11 @@ export default function MaterialEditorPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [texturePicker, setTexturePicker] = useState<{open: boolean; slot: keyof Material | null; search: string}>({open:false, slot:null, search:''});
+  const [texturePicker, setTexturePicker] = useState<{ open: boolean; slot: keyof Material | null; search: string }>({ open: false, slot: null, search: '' });
   const [cdnImages, setCdnImages] = useState<string[]>([]);
-  const [deleteDialog, setDeleteDialog] = useState<{open:boolean; name:string}|null>(null);
-  const [toasts, setToasts] = useState<Array<{ id: number; message: string; type: 'success'|'error'}>>([]);
-  const addToast = useCallback((message: string, type: 'success'|'error' = 'success') => {
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; name: string } | null>(null);
+  const [toasts, setToasts] = useState<Array<{ id: number; message: string; type: 'success' | 'error' }>>([]);
+  const addToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     const id = Date.now() + Math.random();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
@@ -216,9 +216,9 @@ export default function MaterialEditorPage() {
   const [isApplyingLive, setIsApplyingLive] = useState(false);
   const activeJobIdRef = useRef<string | null>(null);
   const pollTimerRef = useRef<any>(null);
-  const [applyProgress, setApplyProgress] = useState<{ 
-    total: number; 
-    done: number; 
+  const [applyProgress, setApplyProgress] = useState<{
+    total: number;
+    done: number;
     failed: number;
     currentFile?: string;
     processedFiles?: Array<{
@@ -228,10 +228,10 @@ export default function MaterialEditorPage() {
       error?: string;
     }>;
   } | null>(null);
-  const [applySummary, setApplySummary] = useState<{ 
-    total: number; 
-    done: number; 
-    failed: number; 
+  const [applySummary, setApplySummary] = useState<{
+    total: number;
+    done: number;
+    failed: number;
     failedFiles: string[];
     processedFiles?: Array<{
       filename: string;
@@ -287,11 +287,11 @@ export default function MaterialEditorPage() {
         try {
           mutate(mat, obj, THREE);
           mat.needsUpdate = true;
-        } catch (e) {}
+        } catch (e) { }
       });
       mv.requestRender?.();
       forceModelViewerRender(mv);
-    } catch {}
+    } catch { }
   }, [modelViewerRef]);
 
   // Sync cross-tab lock/progress
@@ -307,8 +307,8 @@ export default function MaterialEditorPage() {
         const isActive = !!parsed?.active;
         const isStale = isActive && (!startedAt || (now - startedAt > MAX_AGE_MS));
         if (isStale) {
-          try { localStorage.removeItem(lockKey); } catch {}
-          try { localStorage.removeItem(`charpstar:applyJob:${clientName}`); } catch {}
+          try { localStorage.removeItem(lockKey); } catch { }
+          try { localStorage.removeItem(`charpstar:applyJob:${clientName}`); } catch { }
           setGlobalLock(null);
           setIsApplyingLive(false);
         } else {
@@ -327,13 +327,13 @@ export default function MaterialEditorPage() {
     try {
       localStorage.removeItem(lockKey);
       localStorage.removeItem(`charpstar:applyJob:${clientName}`);
-    } catch {}
+    } catch { }
     setIsApplyingLive(false);
     setApplyProgress(null);
     setApplySummary(null);
     setGlobalLock(null);
     setOverlayDismissed(false);
-    try { reloadMaterials(); } catch {}
+    try { reloadMaterials(); } catch { }
   }, [clientName, lockKey]);
 
   // Remove auto hard-reload on summary so user can read log; we will hard-reload only on explicit Dismiss
@@ -357,9 +357,9 @@ export default function MaterialEditorPage() {
         const ce = e as CustomEvent;
         const detail = (ce?.detail || {}) as any;
         if (detail?.clientName && detail.clientName !== clientName) return;
-      } catch {}
+      } catch { }
       postFinishReset();
-      setTimeout(() => { try { window.location.reload(); } catch {} }, 100);
+      setTimeout(() => { try { window.location.reload(); } catch { } }, 100);
     };
     window.addEventListener('charpstar:jobDismissed', onJobDismissed as EventListener);
     return () => window.removeEventListener('charpstar:jobDismissed', onJobDismissed as EventListener);
@@ -377,7 +377,7 @@ export default function MaterialEditorPage() {
         setApplySummary(null);
         setIsApplyingLive(false);
       }
-    } catch {}
+    } catch { }
     // Also clear on unload to avoid stale locks if the tab closes mid-process
     const clearOnUnload = () => {
       try {
@@ -386,7 +386,7 @@ export default function MaterialEditorPage() {
         if (lock && lock.owner === tabId) {
           localStorage.removeItem(lockKey);
         }
-      } catch {}
+      } catch { }
     };
     window.addEventListener('beforeunload', clearOnUnload);
     window.addEventListener('pagehide', clearOnUnload);
@@ -405,7 +405,7 @@ export default function MaterialEditorPage() {
         activeJobIdRef.current = jobId;
         setIsApplyingLive(true);
       }
-    } catch {}
+    } catch { }
   }, [clientName]);
 
   // Load reference GLTF data via server (GLTF-Transform on server)
@@ -465,11 +465,11 @@ export default function MaterialEditorPage() {
                 const modelUrl = `${base}/${modelRoot}/${first}`;
                 setEditingModelUrl(modelUrl);
                 setEditingModelName(first.replace(/\.(gltf|glb)$/i, ''));
-                try { localStorage.setItem(key, JSON.stringify({ filename: first })); } catch {}
+                try { localStorage.setItem(key, JSON.stringify({ filename: first })); } catch { }
               }
-            } catch {}
+            } catch { }
           }
-        } catch {}
+        } catch { }
       })
       .catch((err) => setError(err.message || 'Failed to initialize viewer'));
   }, [clientName]);
@@ -521,14 +521,14 @@ export default function MaterialEditorPage() {
                 const visible = next[nm] !== false;
                 if (obj.visible !== visible) obj.visible = visible;
               });
-              try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch {}
+              try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch { }
               mv.requestRender?.();
               forceModelViewerRender(mv);
             }
-          } catch {}
+          } catch { }
           return next;
         });
-      } catch {}
+      } catch { }
     };
     mv.addEventListener?.('load', collect);
     if (mv.loaded) collect();
@@ -625,13 +625,13 @@ export default function MaterialEditorPage() {
       normalTextureScale: (material as any).normalTextureScale || [1, 1],
       sheenColorTextureScale: (material as any).sheenColorTextureScale || [1, 1],
       sheenRoughnessTextureScale: (material as any).sheenRoughnessTextureScale || [1, 1],
-        // Sheen texCoord (UV set) passthrough
-        sheenColorTextureTexCoord: (material as any).sheenColorTextureTexCoord,
-        sheenRoughnessTextureTexCoord: (material as any).sheenRoughnessTextureTexCoord,
+      // Sheen texCoord (UV set) passthrough
+      sheenColorTextureTexCoord: (material as any).sheenColorTextureTexCoord,
+      sheenRoughnessTextureTexCoord: (material as any).sheenRoughnessTextureTexCoord,
       // Variant mesh usage (for sidebar tooltip and viewer overlay)
       variantMeshes: (material as any).variantMeshes || [],
     };
-    
+
     const staged = stagedMaterials[materialWithDefaults.name];
     const active = staged ? { ...materialWithDefaults, ...staged } : materialWithDefaults;
 
@@ -671,259 +671,259 @@ export default function MaterialEditorPage() {
 
     // Apply selected material to the preview cube (pure three.js)
     (async () => {
-        try {
-          const mv = modelViewerRef.current as any;
-          if (!mv) return;
-          // @ts-expect-error: Resolved at runtime via public ESM; types shimmed in types/three-module.d.ts
-          const THREE = await import(/* webpackIgnore: true */ '/three.module.js');
-          attachThreeAccess(mv);
-          const root = mv.getThreeModel?.();
-          if (!root) return;
-          let firstMesh: any = null;
-          const variantNames: string[] = Array.isArray((active as any).variantMeshes) ? (active as any).variantMeshes : [];
-          const meshNameSet = variantNames.length > 0 ? new Set(variantNames) : null;
-          selectedMeshNamesRef.current = meshNameSet;
-          if (!meshNameSet || meshNameSet.size === 0) {
-            // No target meshes specified: do not mutate display materials
-            return;
-          }
-          // Find a first mesh for fallback and capture original AO maps for target meshes
-          root.traverse((obj: any) => {
-            if (obj?.isMesh) {
-              if (!firstMesh) firstMesh = obj;
-              const meshName: string | undefined = obj.name;
-              if (!meshNameSet || (meshName && meshNameSet.has(meshName))) {
-                if (!aoMapByMeshNameRef.current.has(meshName || '')) {
-                  try { aoMapByMeshNameRef.current.set(meshName || '', obj.material?.aoMap ?? null); } catch {}
-                }
-              }
-            }
-          });
-          if (!firstMesh) return;
-          try { originalAoMapRef.current = firstMesh?.material?.aoMap ?? null; } catch {}
-      const hasSheen = (
-            (active as any).sheenRoughnessFactor != null ||
-            Array.isArray((active as any).sheenColor) ||
-            (active as any).sheenColorTexture ||
-            (active as any).sheenRoughnessTexture ||
-            (active as any).sheenTexture
-          );
-          let mat: any = firstMesh.material;
-          const shouldBePhysical = hasSheen;
-          const bc = active.baseColor || [1,1,1,1];
-
-          const loader = new THREE.TextureLoader();
-          const toUrl = (name?: string) => resolveTextureUrl(clientName, name);
-          const loadTex = (url?: string) => new Promise<any>((resolve) => {
-            if (!url) return resolve(null);
-            loader.load(
-              url,
-              (t: any) => {
-                // Do not force wrapping here; base/normal set wrapping later explicitly.
-                resolve(t);
-              },
-              undefined,
-              () => resolve(null)
-            );
-          });
-
-          const [mapTex, mrTex, normalTex, aoTex, emisTex, sheenColorTex, sheenRoughTex] = await Promise.all([
-            loadTex(toUrl(active.baseColorTexture)),
-            loadTex(toUrl(active.metallicRoughnessTexture)),
-            loadTex(toUrl(active.normalTexture)),
-            loadTex(toUrl(active.occlusionTexture)),
-            loadTex(toUrl(active.emissiveTexture)),
-            loadTex(toUrl((active as any).sheenColorTexture)),
-            loadTex(toUrl((active as any).sheenRoughnessTexture || (active as any).sheenTexture)),
-          ]);
-
-          // Keep normal map default flip; enforce flipY=false for non-normal. Also apply to sheen maps.
-          try {
-            if (mapTex) mapTex.flipY = false;
-            if (mrTex) mrTex.flipY = false;
-            if (aoTex) aoTex.flipY = false;
-            if (emisTex) emisTex.flipY = false;
-            if (sheenColorTex) (sheenColorTex as any).flipY = false;
-            if (sheenRoughTex) (sheenRoughTex as any).flipY = false;
-          } catch {}
-
-          // Ensure correct color space: base color, emissive and sheen color maps should be sRGB
-          const setSRGB = (tex?: any) => {
-            if (!tex) return;
-            try {
-              if ('colorSpace' in tex && (THREE as any).SRGBColorSpace !== undefined) {
-                (tex as any).colorSpace = (THREE as any).SRGBColorSpace;
-              } else if ('encoding' in tex && (THREE as any).sRGBEncoding !== undefined) {
-                (tex as any).encoding = (THREE as any).sRGBEncoding;
-              }
-              tex.needsUpdate = true;
-            } catch {}
-          };
-          setSRGB(mapTex);
-          setSRGB(emisTex);
-          // Sheen color map is a color texture — use sRGB
-          setSRGB(sheenColorTex);
-
-          // Per-mesh application happens below
-
-          // Apply to all target-named meshes (variantMeshes) or fallback first mesh only
-          root.traverse((obj: any) => {
-            if (!obj?.isMesh) return;
+      try {
+        const mv = modelViewerRef.current as any;
+        if (!mv) return;
+        // @ts-expect-error: Resolved at runtime via public ESM; types shimmed in types/three-module.d.ts
+        const THREE = await import(/* webpackIgnore: true */ '/three.module.js');
+        attachThreeAccess(mv);
+        const root = mv.getThreeModel?.();
+        if (!root) return;
+        let firstMesh: any = null;
+        const variantNames: string[] = Array.isArray((active as any).variantMeshes) ? (active as any).variantMeshes : [];
+        const meshNameSet = variantNames.length > 0 ? new Set(variantNames) : null;
+        selectedMeshNamesRef.current = meshNameSet;
+        if (!meshNameSet || meshNameSet.size === 0) {
+          // No target meshes specified: do not mutate display materials
+          return;
+        }
+        // Find a first mesh for fallback and capture original AO maps for target meshes
+        root.traverse((obj: any) => {
+          if (obj?.isMesh) {
+            if (!firstMesh) firstMesh = obj;
             const meshName: string | undefined = obj.name;
-            if (meshNameSet && (!meshName || !meshNameSet.has(meshName))) return;
-            // Build a material instance per mesh to avoid shared state across meshes
-            let m: any = obj.material?.clone ? obj.material.clone() : obj.material;
-            const shouldBePhysicalLocal = hasSheen;
-            if (!m) {
-              m = shouldBePhysicalLocal ? new (THREE as any).MeshPhysicalMaterial() : new (THREE as any).MeshStandardMaterial();
-            } else if (shouldBePhysicalLocal && !m.isMeshPhysicalMaterial) {
-              const phys = new (THREE as any).MeshPhysicalMaterial();
-              if (m.color) phys.color.copy?.(m.color);
-              if ('metalness' in m) phys.metalness = m.metalness;
-              if ('roughness' in m) phys.roughness = m.roughness;
-              phys.map = m.map ?? null;
-              phys.metalnessMap = m.metalnessMap ?? null;
-              phys.roughnessMap = m.roughnessMap ?? null;
-              phys.normalMap = m.normalMap ?? null;
-              phys.aoMap = m.aoMap ?? null;
-              if (m.emissive) phys.emissive.copy?.(m.emissive);
-              phys.emissiveMap = m.emissiveMap ?? null;
-              phys.opacity = m.opacity ?? phys.opacity;
-              phys.transparent = m.transparent ?? phys.transparent;
-              if (m.normalScale) phys.normalScale?.copy?.(m.normalScale);
-              m = phys;
-            } else if (!shouldBePhysicalLocal && m.isMeshPhysicalMaterial) {
-              // Downgrade Physical → Standard when no sheen is present
-              const std = new (THREE as any).MeshStandardMaterial();
-              if (m.color) std.color.copy?.(m.color);
-              if ('metalness' in m) std.metalness = m.metalness;
-              if ('roughness' in m) std.roughness = m.roughness;
-              std.map = m.map ?? null;
-              std.metalnessMap = m.metalnessMap ?? null;
-              std.roughnessMap = m.roughnessMap ?? null;
-              std.normalMap = m.normalMap ?? null;
-              std.aoMap = m.aoMap ?? null;
-              if (m.emissive) std.emissive.copy?.(m.emissive);
-              std.emissiveMap = m.emissiveMap ?? null;
-              std.opacity = m.opacity ?? std.opacity;
-              std.transparent = m.transparent ?? std.transparent;
-              if (m.normalScale) std.normalScale?.copy?.(m.normalScale);
-              m = std;
+            if (!meshNameSet || (meshName && meshNameSet.has(meshName))) {
+              if (!aoMapByMeshNameRef.current.has(meshName || '')) {
+                try { aoMapByMeshNameRef.current.set(meshName || '', obj.material?.aoMap ?? null); } catch { }
+              }
             }
-            obj.material = m;
+          }
+        });
+        if (!firstMesh) return;
+        try { originalAoMapRef.current = firstMesh?.material?.aoMap ?? null; } catch { }
+        const hasSheen = (
+          (active as any).sheenRoughnessFactor != null ||
+          Array.isArray((active as any).sheenColor) ||
+          (active as any).sheenColorTexture ||
+          (active as any).sheenRoughnessTexture ||
+          (active as any).sheenTexture
+        );
+        let mat: any = firstMesh.material;
+        const shouldBePhysical = hasSheen;
+        const bc = active.baseColor || [1, 1, 1, 1];
 
-            // Only apply scalar/color changes to target meshes
-            const isTarget = !meshNameSet || (meshName && meshNameSet.has(meshName));
-            if (isTarget && m.color?.setRGB) m.color.setRGB(bc[0], bc[1], bc[2]);
-            if (isTarget && 'metalness' in m) m.metalness = active.metallicFactor ?? 0;
-            if (isTarget && 'roughness' in m) m.roughness = active.roughnessFactor ?? 0.5;
-            if (isTarget && m.emissive?.setRGB && Array.isArray(active.emissiveFactor)) {
-              m.emissive.setRGB(
-                active.emissiveFactor[0] ?? 0,
-                active.emissiveFactor[1] ?? 0,
-                active.emissiveFactor[2] ?? 0
-              );
-            }
-            if (isTarget && 'opacity' in m) {
-              const a = bc[3] ?? 1;
-              m.opacity = a;
-              m.transparent = a < 1;
-              // Ensure proper blending state toggles are respected
-              if (m.transparent && typeof m.depthWrite === 'boolean') m.depthWrite = a >= 1;
-            }
-            if (isTarget && m.normalScale?.set && typeof active.normalScale === 'number') {
-              m.normalScale.set(active.normalScale, active.normalScale);
-            }
-            if (isTarget && 'aoMapIntensity' in m && typeof active.occlusionStrength === 'number') {
-              m.aoMapIntensity = active.occlusionStrength;
-            }
+        const loader = new THREE.TextureLoader();
+        const toUrl = (name?: string) => resolveTextureUrl(clientName, name);
+        const loadTex = (url?: string) => new Promise<any>((resolve) => {
+          if (!url) return resolve(null);
+          loader.load(
+            url,
+            (t: any) => {
+              // Do not force wrapping here; base/normal set wrapping later explicitly.
+              resolve(t);
+            },
+            undefined,
+            () => resolve(null)
+          );
+        });
 
-            // Bind textures with repeats per mesh
-            if (mapTex) {
-              const s = Array.isArray((active as any).baseColorTextureScale) ? (active as any).baseColorTextureScale : [1, 1];
-              mapTex.wrapS = (THREE as any).RepeatWrapping;
-              mapTex.wrapT = (THREE as any).RepeatWrapping;
-              if (mapTex.repeat?.set) mapTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
-              
+        const [mapTex, mrTex, normalTex, aoTex, emisTex, sheenColorTex, sheenRoughTex] = await Promise.all([
+          loadTex(toUrl(active.baseColorTexture)),
+          loadTex(toUrl(active.metallicRoughnessTexture)),
+          loadTex(toUrl(active.normalTexture)),
+          loadTex(toUrl(active.occlusionTexture)),
+          loadTex(toUrl(active.emissiveTexture)),
+          loadTex(toUrl((active as any).sheenColorTexture)),
+          loadTex(toUrl((active as any).sheenRoughnessTexture || (active as any).sheenTexture)),
+        ]);
+
+        // Keep normal map default flip; enforce flipY=false for non-normal. Also apply to sheen maps.
+        try {
+          if (mapTex) mapTex.flipY = false;
+          if (mrTex) mrTex.flipY = false;
+          if (aoTex) aoTex.flipY = false;
+          if (emisTex) emisTex.flipY = false;
+          if (sheenColorTex) (sheenColorTex as any).flipY = false;
+          if (sheenRoughTex) (sheenRoughTex as any).flipY = false;
+        } catch { }
+
+        // Ensure correct color space: base color, emissive and sheen color maps should be sRGB
+        const setSRGB = (tex?: any) => {
+          if (!tex) return;
+          try {
+            if ('colorSpace' in tex && (THREE as any).SRGBColorSpace !== undefined) {
+              (tex as any).colorSpace = (THREE as any).SRGBColorSpace;
+            } else if ('encoding' in tex && (THREE as any).sRGBEncoding !== undefined) {
+              (tex as any).encoding = (THREE as any).sRGBEncoding;
             }
-            if (isTarget) {
-              m.map = mapTex || null;
-              m.metalnessMap = mrTex || null;
-              m.roughnessMap = mrTex || null;
-              if (mrTex) {
-                const sMR = Array.isArray((active as any).metallicRoughnessTextureScale)
-                  ? (active as any).metallicRoughnessTextureScale
-                  : [1, 1];
-                mrTex.wrapS = (THREE as any).RepeatWrapping;
-                mrTex.wrapT = (THREE as any).RepeatWrapping;
-                if (mrTex.repeat?.set) mrTex.repeat.set(sMR[0] ?? 1, sMR[1] ?? 1);
+            tex.needsUpdate = true;
+          } catch { }
+        };
+        setSRGB(mapTex);
+        setSRGB(emisTex);
+        // Sheen color map is a color texture — use sRGB
+        setSRGB(sheenColorTex);
+
+        // Per-mesh application happens below
+
+        // Apply to all target-named meshes (variantMeshes) or fallback first mesh only
+        root.traverse((obj: any) => {
+          if (!obj?.isMesh) return;
+          const meshName: string | undefined = obj.name;
+          if (meshNameSet && (!meshName || !meshNameSet.has(meshName))) return;
+          // Build a material instance per mesh to avoid shared state across meshes
+          let m: any = obj.material?.clone ? obj.material.clone() : obj.material;
+          const shouldBePhysicalLocal = hasSheen;
+          if (!m) {
+            m = shouldBePhysicalLocal ? new (THREE as any).MeshPhysicalMaterial() : new (THREE as any).MeshStandardMaterial();
+          } else if (shouldBePhysicalLocal && !m.isMeshPhysicalMaterial) {
+            const phys = new (THREE as any).MeshPhysicalMaterial();
+            if (m.color) phys.color.copy?.(m.color);
+            if ('metalness' in m) phys.metalness = m.metalness;
+            if ('roughness' in m) phys.roughness = m.roughness;
+            phys.map = m.map ?? null;
+            phys.metalnessMap = m.metalnessMap ?? null;
+            phys.roughnessMap = m.roughnessMap ?? null;
+            phys.normalMap = m.normalMap ?? null;
+            phys.aoMap = m.aoMap ?? null;
+            if (m.emissive) phys.emissive.copy?.(m.emissive);
+            phys.emissiveMap = m.emissiveMap ?? null;
+            phys.opacity = m.opacity ?? phys.opacity;
+            phys.transparent = m.transparent ?? phys.transparent;
+            if (m.normalScale) phys.normalScale?.copy?.(m.normalScale);
+            m = phys;
+          } else if (!shouldBePhysicalLocal && m.isMeshPhysicalMaterial) {
+            // Downgrade Physical → Standard when no sheen is present
+            const std = new (THREE as any).MeshStandardMaterial();
+            if (m.color) std.color.copy?.(m.color);
+            if ('metalness' in m) std.metalness = m.metalness;
+            if ('roughness' in m) std.roughness = m.roughness;
+            std.map = m.map ?? null;
+            std.metalnessMap = m.metalnessMap ?? null;
+            std.roughnessMap = m.roughnessMap ?? null;
+            std.normalMap = m.normalMap ?? null;
+            std.aoMap = m.aoMap ?? null;
+            if (m.emissive) std.emissive.copy?.(m.emissive);
+            std.emissiveMap = m.emissiveMap ?? null;
+            std.opacity = m.opacity ?? std.opacity;
+            std.transparent = m.transparent ?? std.transparent;
+            if (m.normalScale) std.normalScale?.copy?.(m.normalScale);
+            m = std;
+          }
+          obj.material = m;
+
+          // Only apply scalar/color changes to target meshes
+          const isTarget = !meshNameSet || (meshName && meshNameSet.has(meshName));
+          if (isTarget && m.color?.setRGB) m.color.setRGB(bc[0], bc[1], bc[2]);
+          if (isTarget && 'metalness' in m) m.metalness = active.metallicFactor ?? 0;
+          if (isTarget && 'roughness' in m) m.roughness = active.roughnessFactor ?? 0.5;
+          if (isTarget && m.emissive?.setRGB && Array.isArray(active.emissiveFactor)) {
+            m.emissive.setRGB(
+              active.emissiveFactor[0] ?? 0,
+              active.emissiveFactor[1] ?? 0,
+              active.emissiveFactor[2] ?? 0
+            );
+          }
+          if (isTarget && 'opacity' in m) {
+            const a = bc[3] ?? 1;
+            m.opacity = a;
+            m.transparent = a < 1;
+            // Ensure proper blending state toggles are respected
+            if (m.transparent && typeof m.depthWrite === 'boolean') m.depthWrite = a >= 1;
+          }
+          if (isTarget && m.normalScale?.set && typeof active.normalScale === 'number') {
+            m.normalScale.set(active.normalScale, active.normalScale);
+          }
+          if (isTarget && 'aoMapIntensity' in m && typeof active.occlusionStrength === 'number') {
+            m.aoMapIntensity = active.occlusionStrength;
+          }
+
+          // Bind textures with repeats per mesh
+          if (mapTex) {
+            const s = Array.isArray((active as any).baseColorTextureScale) ? (active as any).baseColorTextureScale : [1, 1];
+            mapTex.wrapS = (THREE as any).RepeatWrapping;
+            mapTex.wrapT = (THREE as any).RepeatWrapping;
+            if (mapTex.repeat?.set) mapTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
+
+          }
+          if (isTarget) {
+            m.map = mapTex || null;
+            m.metalnessMap = mrTex || null;
+            m.roughnessMap = mrTex || null;
+            if (mrTex) {
+              const sMR = Array.isArray((active as any).metallicRoughnessTextureScale)
+                ? (active as any).metallicRoughnessTextureScale
+                : [1, 1];
+              mrTex.wrapS = (THREE as any).RepeatWrapping;
+              mrTex.wrapT = (THREE as any).RepeatWrapping;
+              if (mrTex.repeat?.set) mrTex.repeat.set(sMR[0] ?? 1, sMR[1] ?? 1);
+            }
+          }
+          if (normalTex) {
+            const sN = Array.isArray((active as any).normalTextureScale) ? (active as any).normalTextureScale : [1, 1];
+            normalTex.wrapS = (THREE as any).RepeatWrapping;
+            normalTex.wrapT = (THREE as any).RepeatWrapping;
+            if (normalTex.repeat?.set) normalTex.repeat.set(sN[0] ?? 1, sN[1] ?? 1);
+
+          }
+          if (isTarget) {
+            m.normalMap = normalTex || null;
+            const originalAo = aoMapByMeshNameRef.current.get(meshName || '') ?? originalAoMapRef.current;
+            m.aoMap = (originalAo ?? aoTex) || null;
+            m.emissiveMap = emisTex || null;
+          }
+          if (m.isMeshPhysicalMaterial && hasSheen) {
+            if ('sheen' in m) m.sheen = 1;
+            if ((active as any).sheenRoughnessFactor != null && 'sheenRoughness' in m) {
+              m.sheenRoughness = (active as any).sheenRoughnessFactor;
+            }
+            if (Array.isArray((active as any).sheenColor) && m.sheenColor?.setRGB) {
+              const sc = (active as any).sheenColor as [number, number, number];
+              if (isTarget) m.sheenColor.setRGB(sc[0] ?? 0, sc[1] ?? 0, sc[2] ?? 0);
+            }
+            // Assign sheen maps. Respect KHR_texture_transform tiling if present in reference data.
+            if (isTarget && 'sheenColorMap' in m) {
+              (m as any).sheenColorMap = sheenColorTex || null;
+              const s = Array.isArray((active as any).sheenColorTextureScale) ? (active as any).sheenColorTextureScale : undefined;
+              if (sheenColorTex && Array.isArray(s)) {
+                sheenColorTex.wrapS = (THREE as any).RepeatWrapping;
+                sheenColorTex.wrapT = (THREE as any).RepeatWrapping;
+                if (sheenColorTex.repeat?.set) sheenColorTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
               }
-            }
-            if (normalTex) {
-              const sN = Array.isArray((active as any).normalTextureScale) ? (active as any).normalTextureScale : [1, 1];
-              normalTex.wrapS = (THREE as any).RepeatWrapping;
-              normalTex.wrapT = (THREE as any).RepeatWrapping;
-              if (normalTex.repeat?.set) normalTex.repeat.set(sN[0] ?? 1, sN[1] ?? 1);
-              
-            }
-            if (isTarget) {
-              m.normalMap = normalTex || null;
-              const originalAo = aoMapByMeshNameRef.current.get(meshName || '') ?? originalAoMapRef.current;
-              m.aoMap = (originalAo ?? aoTex) || null;
-              m.emissiveMap = emisTex || null;
-            }
-            if (m.isMeshPhysicalMaterial && hasSheen) {
-              if ('sheen' in m) m.sheen = 1;
-              if ((active as any).sheenRoughnessFactor != null && 'sheenRoughness' in m) {
-                m.sheenRoughness = (active as any).sheenRoughnessFactor;
-              }
-              if (Array.isArray((active as any).sheenColor) && m.sheenColor?.setRGB) {
-                const sc = (active as any).sheenColor as [number, number, number];
-                if (isTarget) m.sheenColor.setRGB(sc[0] ?? 0, sc[1] ?? 0, sc[2] ?? 0);
-              }
-              // Assign sheen maps. Respect KHR_texture_transform tiling if present in reference data.
-              if (isTarget && 'sheenColorMap' in m) {
-                (m as any).sheenColorMap = sheenColorTex || null;
-                const s = Array.isArray((active as any).sheenColorTextureScale) ? (active as any).sheenColorTextureScale : undefined;
-                if (sheenColorTex && Array.isArray(s)) {
-                  sheenColorTex.wrapS = (THREE as any).RepeatWrapping;
-                  sheenColorTex.wrapT = (THREE as any).RepeatWrapping;
-                  if (sheenColorTex.repeat?.set) sheenColorTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
+              // Apply UV channel (texCoord) if provided
+              try {
+                const tc = (active as any).sheenColorTextureTexCoord;
+                // model-viewer/three use channel=1 for UV1, channel=0 for UV0; texCoord maps 0->0,1->1 etc.
+                if (typeof tc === 'number') {
+                  if ((m as any).sheenColorMap) (m as any).sheenColorMap.channel = tc;
+                  if (typeof (m as any).sheenColorMap?.setUvChannel === 'function') (m as any).sheenColorMap.setUvChannel(tc);
                 }
-                // Apply UV channel (texCoord) if provided
-                try {
-                  const tc = (active as any).sheenColorTextureTexCoord;
-                  // model-viewer/three use channel=1 for UV1, channel=0 for UV0; texCoord maps 0->0,1->1 etc.
-                  if (typeof tc === 'number') {
-                    if ((m as any).sheenColorMap) (m as any).sheenColorMap.channel = tc;
-                    if (typeof (m as any).sheenColorMap?.setUvChannel === 'function') (m as any).sheenColorMap.setUvChannel(tc);
-                  }
-                } catch {}
-              }
-              if (isTarget && 'sheenRoughnessMap' in m) {
-                (m as any).sheenRoughnessMap = sheenRoughTex || null;
-                const s = Array.isArray((active as any).sheenRoughnessTextureScale) ? (active as any).sheenRoughnessTextureScale : undefined;
-                if (sheenRoughTex && Array.isArray(s)) {
-                  sheenRoughTex.wrapS = (THREE as any).RepeatWrapping;
-                  sheenRoughTex.wrapT = (THREE as any).RepeatWrapping;
-                  if (sheenRoughTex.repeat?.set) sheenRoughTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
-                }
-                // Apply UV channel (texCoord) if provided
-                try {
-                  const tc = (active as any).sheenRoughnessTextureTexCoord;
-                  if (typeof tc === 'number') {
-                    if ((m as any).sheenRoughnessMap) (m as any).sheenRoughnessMap.channel = tc;
-                    if (typeof (m as any).sheenRoughnessMap?.setUvChannel === 'function') (m as any).sheenRoughnessMap.setUvChannel(tc);
-                  }
-                } catch {}
-              }
+              } catch { }
             }
+            if (isTarget && 'sheenRoughnessMap' in m) {
+              (m as any).sheenRoughnessMap = sheenRoughTex || null;
+              const s = Array.isArray((active as any).sheenRoughnessTextureScale) ? (active as any).sheenRoughnessTextureScale : undefined;
+              if (sheenRoughTex && Array.isArray(s)) {
+                sheenRoughTex.wrapS = (THREE as any).RepeatWrapping;
+                sheenRoughTex.wrapT = (THREE as any).RepeatWrapping;
+                if (sheenRoughTex.repeat?.set) sheenRoughTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
+              }
+              // Apply UV channel (texCoord) if provided
+              try {
+                const tc = (active as any).sheenRoughnessTextureTexCoord;
+                if (typeof tc === 'number') {
+                  if ((m as any).sheenRoughnessMap) (m as any).sheenRoughnessMap.channel = tc;
+                  if (typeof (m as any).sheenRoughnessMap?.setUvChannel === 'function') (m as any).sheenRoughnessMap.setUvChannel(tc);
+                }
+              } catch { }
+            }
+          }
 
-            m.needsUpdate = true;
-          });
-          mv.requestRender?.();
-          forceModelViewerRender(mv);
-        } catch {}
+          m.needsUpdate = true;
+        });
+        mv.requestRender?.();
+        forceModelViewerRender(mv);
+      } catch { }
     })();
   }, [stagedMaterials]);
 
@@ -951,7 +951,7 @@ export default function MaterialEditorPage() {
         (prev as any)[property] = value;
         return { ...prev }; // shallow spread to update dependents without changing nested texture refs
       }
-      
+
       // Update textures in separate state to decouple from slider-driven re-renders
       setEditedTextures((texPrev) => {
         const next = { ...(texPrev || {}), [property]: value ?? undefined } as any;
@@ -994,7 +994,7 @@ export default function MaterialEditorPage() {
               case 'sheenColorTexture': if ('sheenColorMap' in mat) (mat as any).sheenColorMap = null; break;
             }
           });
-        } catch {}
+        } catch { }
       } else if (typeof value === 'string') {
         (async () => {
           try {
@@ -1035,7 +1035,7 @@ export default function MaterialEditorPage() {
                   // leave default for normal map
                   break;
               }
-            } catch {}
+            } catch { }
             const baseScale = [1, 1] as [number, number];
             const normalScaleVals = [1, 1] as [number, number];
             withTargetMeshes((mat, obj, THREEctx) => {
@@ -1066,7 +1066,7 @@ export default function MaterialEditorPage() {
                     if ('colorSpace' in tex && (THREEctx as any).SRGBColorSpace !== undefined) (tex as any).colorSpace = (THREEctx as any).SRGBColorSpace;
                     else if ('encoding' in tex && (THREEctx as any).sRGBEncoding !== undefined) (tex as any).encoding = (THREEctx as any).sRGBEncoding;
                     tex.needsUpdate = true;
-                  } catch {}
+                  } catch { }
                   tex.wrapS = THREEctx.RepeatWrapping; tex.wrapT = THREEctx.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(baseScale[0] ?? 1, baseScale[1] ?? 1);
                   mat.map = tex; break;
                 }
@@ -1083,7 +1083,7 @@ export default function MaterialEditorPage() {
                     if ('colorSpace' in tex && (THREEctx as any).SRGBColorSpace !== undefined) (tex as any).colorSpace = (THREEctx as any).SRGBColorSpace;
                     else if ('encoding' in tex && (THREEctx as any).sRGBEncoding !== undefined) (tex as any).encoding = (THREEctx as any).sRGBEncoding;
                     tex.needsUpdate = true;
-                  } catch {}
+                  } catch { }
                   mat.emissiveMap = tex; break;
                 }
                 case 'sheenRoughnessTexture': if ('sheenRoughnessMap' in mat) (mat as any).sheenRoughnessMap = tex; break;
@@ -1092,7 +1092,7 @@ export default function MaterialEditorPage() {
                 }
               }
             });
-          } catch {}
+          } catch { }
         })();
       }
       return updated;
@@ -1172,17 +1172,31 @@ export default function MaterialEditorPage() {
     const [name, setName] = useState('');
     const [selectedMeshes, setSelectedMeshes] = useState<Set<string>>(new Set());
     const [filter, setFilter] = useState('');
+    const [meshInputMode, setMeshInputMode] = useState<'existing' | 'new'>('existing');
+    const [newMeshName, setNewMeshName] = useState('');
+
     useEffect(() => {
       if (open) {
         setName('');
         setSelectedMeshes(new Set());
         setFilter('');
+        setMeshInputMode('existing');
+        setNewMeshName('');
       }
     }, [open]);
+
     const meshOptions: string[] = Array.isArray((referenceGltf as any)?.meshes)
       ? ((referenceGltf as any).meshes as string[])
       : sceneMeshNames;
     const filteredOptions = meshOptions.filter(m => m && m.toLowerCase().includes(filter.toLowerCase()));
+
+    const handleSubmit = () => {
+      const meshNamesToSubmit = meshInputMode === 'new'
+        ? (newMeshName.trim() ? [newMeshName.trim()] : undefined)
+        : (selectedMeshes.size > 0 ? Array.from(selectedMeshes) : undefined);
+      onSubmit(name, meshNamesToSubmit);
+    };
+
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger asChild>
@@ -1195,7 +1209,7 @@ export default function MaterialEditorPage() {
           <DialogHeader>
             <DialogTitle>Add New Material</DialogTitle>
             <DialogDescription>
-              Create a new material. Optionally assign it as a variant for one or more meshes.
+              Create a new material. Optionally assign it as a variant for meshes.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -1205,37 +1219,78 @@ export default function MaterialEditorPage() {
               onChange={(e) => setName(e.target.value)}
             />
             <div className="mt-3">
-              <label className="block text-xs text-gray-600 mb-1">Assign as Variant to Meshes (optional)</label>
-              <Input
-                placeholder="Filter meshes..."
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="mb-2"
-              />
-              <div className="max-h-40 overflow-auto border rounded p-2 bg-white">
-                {filteredOptions.length === 0 ? (
-                  <div className="text-xs text-gray-500">No meshes</div>
-                ) : (
-                  filteredOptions.map((m) => (
-                    <label key={m} className="flex items-center text-xs space-x-2 py-1">
-                      <input
-                        type="checkbox"
-                        checked={selectedMeshes.has(m)}
-                        onChange={(e) => {
-                          setSelectedMeshes((prev) => {
-                            const next = new Set(prev);
-                            if (e.target.checked) next.add(m); else next.delete(m);
-                            return next;
-                          });
-                        }}
-                      />
-                      <span className="truncate">{m}</span>
-                    </label>
-                  ))
-                )}
+              <label className="block text-xs text-gray-600 mb-2">Assign as Variant to Meshes (optional)</label>
+
+              {/* Mode Toggle */}
+              <div className="flex gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setMeshInputMode('existing')}
+                  className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${meshInputMode === 'existing'
+                      ? 'bg-blue-50 border-blue-500 text-blue-900'
+                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  Select Existing
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMeshInputMode('new')}
+                  className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${meshInputMode === 'new'
+                      ? 'bg-blue-50 border-blue-500 text-blue-900'
+                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  Create New Mesh
+                </button>
               </div>
-              {selectedMeshes.size > 0 && (
-                <div className="text-[11px] text-gray-500 mt-1">{selectedMeshes.size} mesh{selectedMeshes.size !== 1 ? 'es' : ''} selected</div>
+
+              {/* Conditional UI based on mode */}
+              {meshInputMode === 'existing' ? (
+                <>
+                  <Input
+                    placeholder="Filter meshes..."
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="mb-2"
+                  />
+                  <div className="max-h-40 overflow-auto border rounded p-2 bg-white">
+                    {filteredOptions.length === 0 ? (
+                      <div className="text-xs text-gray-500">No meshes</div>
+                    ) : (
+                      filteredOptions.map((m) => (
+                        <label key={m} className="flex items-center text-xs space-x-2 py-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedMeshes.has(m)}
+                            onChange={(e) => {
+                              setSelectedMeshes((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(m); else next.delete(m);
+                                return next;
+                              });
+                            }}
+                          />
+                          <span className="truncate">{m}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                  {selectedMeshes.size > 0 && (
+                    <div className="text-[11px] text-gray-500 mt-1">{selectedMeshes.size} mesh{selectedMeshes.size !== 1 ? 'es' : ''} selected</div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Input
+                    placeholder="New mesh name (e.g., ChairArm_500mm)"
+                    value={newMeshName}
+                    onChange={(e) => setNewMeshName(e.target.value)}
+                  />
+                  <div className="text-[11px] text-gray-500 mt-1">
+                    This material will be applied to any model that contains a mesh with this name.
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -1243,7 +1298,7 @@ export default function MaterialEditorPage() {
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={() => onSubmit(name, selectedMeshes.size > 0 ? Array.from(selectedMeshes) : undefined)} disabled={!name.trim()}>
+            <Button onClick={handleSubmit} disabled={!name.trim()}>
               Add Material
             </Button>
           </DialogFooter>
@@ -1251,6 +1306,7 @@ export default function MaterialEditorPage() {
       </Dialog>
     );
   });
+
 
   // Delete material
   const deleteMaterial = (materialName: string) => {
@@ -1279,7 +1335,7 @@ export default function MaterialEditorPage() {
   };
 
   // Simple filtered materials
-  const filteredMaterials = referenceGltf?.materials.filter(m => 
+  const filteredMaterials = referenceGltf?.materials.filter(m =>
     m.name.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
@@ -1333,9 +1389,9 @@ export default function MaterialEditorPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-       <Header 
-         onRefreshModels={() => { reloadMaterials(); }}
-        onUploadModels={() => {}}
+      <Header
+        onRefreshModels={() => { reloadMaterials(); }}
+        onUploadModels={() => { }}
         onSave={saveAllMaterials}
         isSaving={isSaving}
         title={editingModelName || undefined}
@@ -1360,13 +1416,13 @@ export default function MaterialEditorPage() {
               addToast('Failed to cancel on server; clearing local state', 'error');
             } finally {
               // Always clear local state so UI unsticks
-              try { localStorage.removeItem(lockKey); } catch {}
-              try { localStorage.removeItem(`charpstar:applyJob:${clientName}`); } catch {}
+              try { localStorage.removeItem(lockKey); } catch { }
+              try { localStorage.removeItem(`charpstar:applyJob:${clientName}`); } catch { }
               setIsApplyingLive(false);
               setApplyProgress(null);
               setApplySummary(null);
               setGlobalLock(null);
-              try { window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName, status: 'cancelled' } })); } catch {}
+              try { window.dispatchEvent(new CustomEvent('charpstar:jobSummary', { detail: { clientName, status: 'cancelled' } })); } catch { }
             }
           })();
         }}
@@ -1380,13 +1436,13 @@ export default function MaterialEditorPage() {
                 addToast('Another apply is already in progress', 'error');
                 return;
               }
-            } catch {}
+            } catch { }
             setIsApplyingLive(true);
             setApplyProgress(null);
             // 1) Save All to reference first
             await saveAllMaterials();
-             // Simple guard: give CDN a moment to propagate the updated reference before starting the apply job
-             await new Promise((r) => setTimeout(r, 1500));
+            // Simple guard: give CDN a moment to propagate the updated reference before starting the apply job
+            await new Promise((r) => setTimeout(r, 1500));
             // 2) Discover targets on the app server to ensure worker gets a concrete list
             const listRes = await fetch(`/api/list-models?client=${clientName}`, { cache: 'no-store' });
             const listJson = await listRes.json().catch(() => ({ models: [] }));
@@ -1418,12 +1474,12 @@ export default function MaterialEditorPage() {
             try {
               localStorage.setItem(lockKey, JSON.stringify({ owner: tabId, active: true, total, done: 0, failed: 0, failedFiles: [], jobId, startedAt: Date.now() }));
               localStorage.setItem(`charpstar:applyJob:${clientName}`, jobId);
-              
+
               // Dispatch custom event for same-tab communication
               window.dispatchEvent(new CustomEvent('charpstar:jobStarted', {
                 detail: { clientName, jobId }
               }));
-            } catch {}
+            } catch { }
 
             activeJobIdRef.current = jobId;
             // Initialize UI progress
@@ -1460,7 +1516,7 @@ export default function MaterialEditorPage() {
                   <li key={b.name} className="flex items-center justify-between px-3 py-2 text-sm">
                     <div>
                       <div className="font-medium text-gray-900">{b.name}</div>
-                      <div className="text-xs text-gray-500">{new Date(b.lastModified || Date.now()).toLocaleString()} • {Math.round((b.size || 0)/1024)} KB</div>
+                      <div className="text-xs text-gray-500">{new Date(b.lastModified || Date.now()).toLocaleString()} • {Math.round((b.size || 0) / 1024)} KB</div>
                     </div>
                     <Button size="sm" variant="outline" disabled={reverting} onClick={() => handleRestoreBackup(b.name)}>
                       {reverting ? 'Restoring…' : 'Restore'}
@@ -1475,7 +1531,7 @@ export default function MaterialEditorPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {error ? (
         <div className="flex h-[calc(100vh-56px)] items-center justify-center">
           <div className="text-center">
@@ -1519,678 +1575,608 @@ export default function MaterialEditorPage() {
           </div>
         </div>
       ) : (
-      <div className="flex h-[calc(100vh-56px)]">
+        <div className="flex h-[calc(100vh-56px)]">
 
-        {/* Left Sidebar - Material List */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col min-h-0">
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                <Palette className="w-5 h-5 mr-2" />
-                Materials
-              </h2>
-              <AddMaterialModal open={isAddingMaterial} onOpenChange={setIsAddingMaterial} onSubmit={addNewMaterialByName} />
-            </div>
-            
-            <Input
-              placeholder="Search materials..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-3"
-            />
-            
-            <p className="text-sm text-gray-600">
-              {filteredMaterials.length} material{filteredMaterials.length !== 1 ? 's' : ''}
-            </p>
-          </div>
-          
-          <div className="flex-1 p-2 space-y-2 overflow-y-auto">
-            {filteredMaterials.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <p className="text-sm">No materials found</p>
+          {/* Left Sidebar - Material List */}
+          <div className="w-80 bg-white border-r border-gray-200 flex flex-col min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <Palette className="w-5 h-5 mr-2" />
+                  Materials
+                </h2>
+                <AddMaterialModal open={isAddingMaterial} onOpenChange={setIsAddingMaterial} onSubmit={addNewMaterialByName} />
               </div>
-            ) : (
-              filteredMaterials.map((material) => (
-                <Card
-                  key={material.name}
-                  className={`group cursor-pointer transition-colors ${
-                    selectedMaterial?.name === material.name
+
+              <Input
+                placeholder="Search materials..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="mb-3"
+              />
+
+              <p className="text-sm text-gray-600">
+                {filteredMaterials.length} material{filteredMaterials.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+
+            <div className="flex-1 p-2 space-y-2 overflow-y-auto">
+              {filteredMaterials.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="text-sm">No materials found</p>
+                </div>
+              ) : (
+                filteredMaterials.map((material) => (
+                  <Card
+                    key={material.name}
+                    className={`group cursor-pointer transition-colors ${selectedMaterial?.name === material.name
                       ? 'border-blue-500 bg-blue-50'
                       : 'hover:border-gray-300'
-                  }`}
-                  onClick={() => handleMaterialSelect(material)}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm text-gray-900">{material.name}</h4>
-                        <div className="flex items-start space-x-2 mt-1">
-                          <div
-                            className="w-4 h-4 rounded border border-gray-300 mt-0.5"
-                            style={{
-                              backgroundColor: `rgb(${Math.round(material.baseColor[0] * 255)}, ${Math.round(material.baseColor[1] * 255)}, ${Math.round(material.baseColor[2] * 255)})`
-                            }}
-                          />
-                          <div className="flex flex-wrap gap-1">
-                            {Array.isArray((material as any).variantMeshes) && (material as any).variantMeshes.length > 0 ? (
-                              <>
-                                {(material as any).variantMeshes.slice(0, 4).map((meshName: string) => (
-                                  <span key={meshName} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                    {meshName}
-                                  </span>
-                                ))}
-                                {(material as any).variantMeshes.length > 4 && (
-                                  <span className="text-xs text-gray-500">+{(material as any).variantMeshes.length - 4} more</span>
-                                )}
-                              </>
-                            ) : (
-                              <span className="text-xs text-gray-500">No variants</span>
-                            )}
+                      }`}
+                    onClick={() => handleMaterialSelect(material)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm text-gray-900">{material.name}</h4>
+                          <div className="flex items-start space-x-2 mt-1">
+                            <div
+                              className="w-4 h-4 rounded border border-gray-300 mt-0.5"
+                              style={{
+                                backgroundColor: `rgb(${Math.round(material.baseColor[0] * 255)}, ${Math.round(material.baseColor[1] * 255)}, ${Math.round(material.baseColor[2] * 255)})`
+                              }}
+                            />
+                            <div className="flex flex-wrap gap-1">
+                              {Array.isArray((material as any).variantMeshes) && (material as any).variantMeshes.length > 0 ? (
+                                <>
+                                  {(material as any).variantMeshes.slice(0, 4).map((meshName: string) => (
+                                    <span key={meshName} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                      {meshName}
+                                    </span>
+                                  ))}
+                                  {(material as any).variantMeshes.length > 4 && (
+                                    <span className="text-xs text-gray-500">+{(material as any).variantMeshes.length - 4} more</span>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="text-xs text-gray-500">No variants</span>
+                              )}
+                            </div>
                           </div>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteDialog({ open: true, name: material.name });
+                          }}
+                          className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteDialog({open:true, name: material.name});
-                        }}
-                        className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Center - Simple Cube Preview via model-viewer (module build) */}
-        <div className="flex-1 p-4 bg-white flex flex-col">
-          <div className="h-full rounded-lg overflow-hidden shadow-md bg-[#F8F9FA] flex items-center justify-center relative">
-            {/* @ts-ignore - model-viewer custom element */}
-            <model-viewer
-              ref={modelViewerRef}
-              src={editingModelUrl || '/Cube1.glb'}
-              alt="Material preview cube"
-              style={{ width: '100%', height: '100%' }}
-              camera-controls
-              disable-pan
-              interaction-prompt = "none"
-              shadow-intensity="0.6"
-              shadow-softness="0.9"
-              environment-image={clients[clientName]?.hdrPath || ""}
-              exposure={String(clients[clientName]?.exposure ?? 1.0)}
-              tone-mapping={(clients[clientName]?.toneMapping || 'neutral') as any}
-            />
-            {(selectedMaterial || editedMaterial) && (
-              <div className="absolute top-4 left-4 bg-white bg-opacity-90 rounded-lg p-3 shadow-sm">
-                <h4 className="font-medium text-gray-900 mb-1">
-                  {(editedMaterial || selectedMaterial)?.name}
-                </h4>
-                <div className="text-[11px] text-gray-700">
-                  <div className="font-medium mb-1">Material present on meshes</div>
-                  {Array.isArray((editedMaterial as any)?.variantMeshes) && (editedMaterial as any).variantMeshes.length > 0 ? (
-                    <div className="flex flex-wrap gap-1 max-w-[320px]">
-                      {(editedMaterial as any).variantMeshes.map((meshName: string) => (
-                        <span key={meshName} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                          {meshName}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-gray-600">No variant mappings for this material</div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Scene mesh visibility overlay */}
-            {sceneMeshNames.length > 0 && (
-              <div className="absolute bottom-4 right-4 bg-white rounded-lg border border-gray-200 shadow-lg w-80 max-h-56 overflow-auto">
-                <div className="px-3 pt-2 pb-2 border-b border-gray-100 flex items-center justify-between">
-                  <div className="text-sm font-semibold text-gray-900">Scene Meshes</div>
-                  <div className="text-xs text-gray-500">{sceneMeshNames.length}</div>
-                </div>
-                <div className="px-3 py-2 text-xs text-gray-800 space-y-1">
-                  {sceneMeshNames.map((nm) => (
-                    <label key={nm} className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="cursor-pointer"
-                        checked={meshVisibility[nm] !== false}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          setMeshVisibility(prev => {
-                            const next = { ...prev, [nm]: checked } as Record<string, boolean>;
-                            try {
-                              const mv = modelViewerRef.current as any;
-                              if (mv) {
-                                attachThreeAccess(mv);
-                                const root = mv.getThreeModel?.();
-                                if (root) {
-                                  root.traverse((obj: any) => {
-                                    if (!obj?.isMesh) return;
-                                    const name = typeof obj.name === 'string' && obj.name.length > 0 ? obj.name : '(unnamed)';
-                                    const visible = next[name] !== false;
-                                    if (obj.visible !== visible) obj.visible = visible;
-                                  });
-                                  try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch {}
-                                  mv.requestRender?.();
-                                  forceModelViewerRender(mv);
-                                }
-                              }
-                            } catch {}
-                            return next;
-                          });
-                        }}
-                      />
-                      <span className="truncate" title={nm}>{nm}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Panel - Material Properties */}
-        <div id="material-sidebar" className="w-80 border-l border-gray-200 bg-white flex flex-col">
-          {selectedMaterial ? (
-            <>
-              <div className="p-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">{selectedMaterial.name}</h3>
-                  {/* Save All moved to header */}
-                </div>
-                <p className="text-sm text-gray-600 mt-1">Material Properties</p>
-              </div>
-              
-              {editedMaterial && (
-                <div className="flex-1 overflow-y-scroll px-4 py-6 space-y-4 scrollbar-hide"
-                     style={{ 
-                       scrollbarWidth: 'none', 
-                       msOverflowStyle: 'none' 
-                     }}>
-
-                  <div className="rounded-md bg-neutral-50 p-3 space-y-2 shadow-inner">
-                  {/* Group: Base Color */}
-                  <div className="rounded-md bg-neutral-100/60 p-2 space-y-2">
-                  {/* Base Color */}
-                   <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Base Color</span>
-                      <DebouncedColorPicker
-                        value={uiColors.base || `#${Math.round(editedMaterial.baseColor[0] * 255).toString(16).padStart(2, '0')}${Math.round(editedMaterial.baseColor[1] * 255).toString(16).padStart(2, '0')}${Math.round(editedMaterial.baseColor[2] * 255).toString(16).padStart(2, '0')}`}
-                        onChange={(hex) => {
-                          if (!hex || typeof hex !== 'string' || hex.length < 7) return;
-                          setUiColors((c) => ({ ...c, base: hex }));
-                          const mv = modelViewerRef.current as any;
-                          if (!mv) return;
-                          const r = parseInt(hex.slice(1, 3), 16) / 255;
-                          const g = parseInt(hex.slice(3, 5), 16) / 255;
-                          const b = parseInt(hex.slice(5, 7), 16) / 255;
-                          // stage baseColor
-                          const name = editedMaterial?.name;
-                          if (name) {
-                            setStagedMaterials(prev => {
-                              const base = prev[name] ?? editedMaterial!;
-                              const next: Material = { ...base, baseColor: [r,g,b, (base.baseColor?.[3] ?? editedMaterial!.baseColor[3])] as any };
-                              return { ...prev, [name]: next };
-                            });
-                            // keep local editedMaterial in sync so color picker doesn't snap back
-                            setEditedMaterial(prev => prev ? ({
-                              ...prev,
-                              baseColor: [r, g, b, (prev.baseColor?.[3] ?? 1)] as any,
-                            }) : prev);
-                          }
-                          try {
-                            withTargetMeshes((mat) => {
-                              if (mat?.color?.setRGB) mat.color.setRGB(r, g, b);
-                            });
-                          } catch {}
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Base Color Map */}
-          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Base Color Map</span>
-                      <MapSlot
-                        texture={editedTextures?.baseColorTexture}
-                        alt="base color"
-                        onPick={()=>setTexturePicker({open:true, slot:'baseColorTexture', search:''})}
-                onRemove={()=>handleMaterialChange('baseColorTexture', null)}
-                      />
-                    </div>
-            {editedTextures?.baseColorTexture && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-600 w-12">U Tile</span>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0.01"
-                    value={String((editedMaterial as any)?.baseColorTextureScale?.[0] ?? 1)}
-                    onChange={(e)=>{
-                      const u = Math.max(0.01, parseFloat(e.target.value || '1'));
-                      const v = (editedMaterial as any)?.baseColorTextureScale?.[1] ?? 1;
-                      const next: [number, number] = [u, v];
-                      setEditedMaterial(prev => prev ? ({ ...prev, baseColorTextureScale: next as any }) : prev);
-                      const name = editedMaterial?.name;
-                      if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), baseColorTextureScale: next as any } } as any));
-                      (async ()=>{
-                        try {
-                          await withTargetMeshes((mat, _obj, THREE)=>{
-                            if (mat?.map) {
-                              const tex = mat.map; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
-                            }
-                          });
-                        } catch {}
-                      })();
-                    }}
-                    className="h-7 text-xs"
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-600 w-12">V Tile</span>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0.01"
-                    value={String((editedMaterial as any)?.baseColorTextureScale?.[1] ?? 1)}
-                    onChange={(e)=>{
-                      const v = Math.max(0.01, parseFloat(e.target.value || '1'));
-                      const u = (editedMaterial as any)?.baseColorTextureScale?.[0] ?? 1;
-                      const next: [number, number] = [u, v];
-                      setEditedMaterial(prev => prev ? ({ ...prev, baseColorTextureScale: next as any }) : prev);
-                      const name = editedMaterial?.name;
-                      if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), baseColorTextureScale: next as any } } as any));
-                      (async ()=>{
-                        try {
-                          await withTargetMeshes((mat, _obj, THREE)=>{
-                            if (mat?.map) {
-                              const tex = mat.map; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
-                            }
-                          });
-                        } catch {}
-                      })();
-                    }}
-                    className="h-7 text-xs"
-                  />
-                </div>
-              </div>
-            )}
-                  </div>
-                  </div>
-
-                {/* Group: Roughness & Metalness */}
-                <div className="rounded-md bg-neutral-100/60 p-2 space-y-2">
-                {/* Roughness */}
-                 <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Roughness</span>
-                    <span className="text-sm text-gray-600">{Math.round((uiScalars?.roughnessFactor ?? 0) * 100)}%</span>
-                  </div>
-                    <SliderWithInput 
-                      className="w-full"
-                      sliderWidth="w-full"
-                      showValue={false}
-                      value={uiScalars?.roughnessFactor ?? 0} 
-                      onChange={(v) => {
-                        setUiScalars(prev => prev ? { ...prev, roughnessFactor: v } : prev)
-                        // Persist in staged material
-                        const name = editedMaterial?.name;
-                        if (name) {
-                          setStagedMaterials(prev => {
-                            const base = prev[name] ?? editedMaterial!;
-                            const next: Material = { ...base, roughnessFactor: v };
-                            return { ...prev, [name]: next };
-                          });
-                        }
-                         const mv = modelViewerRef.current as any;
-                         if (!mv) return;
-                          try { withTargetMeshes((mat) => { if ('roughness' in mat) mat.roughness = v; }); } catch {}
-                      }} 
-                      min={0} max={1} step={0.01} 
-                    />
-                </div>
-
-          {/* Roughness Map */}
-          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900">Roughness Map</span>
-              <MapSlot
-                texture={editedTextures?.metallicRoughnessTexture}
-                alt="roughness map"
-                onPick={()=>setTexturePicker({open:true, slot:'metallicRoughnessTexture', search:''})}
-                onRemove={()=>handleMaterialChange('metallicRoughnessTexture', null)}
+          {/* Center - Simple Cube Preview via model-viewer (module build) */}
+          <div className="flex-1 p-4 bg-white flex flex-col">
+            <div className="h-full rounded-lg overflow-hidden shadow-md bg-[#F8F9FA] flex items-center justify-center relative">
+              {/* @ts-ignore - model-viewer custom element */}
+              <model-viewer
+                ref={modelViewerRef}
+                src={editingModelUrl || '/Cube1.glb'}
+                alt="Material preview cube"
+                style={{ width: '100%', height: '100%' }}
+                camera-controls
+                disable-pan
+                interaction-prompt="none"
+                shadow-intensity="0.6"
+                shadow-softness="0.9"
+                environment-image={clients[clientName]?.hdrPath || ""}
+                exposure={String(clients[clientName]?.exposure ?? 1.0)}
+                tone-mapping={(clients[clientName]?.toneMapping || 'neutral') as any}
               />
-            </div>
-          </div>
-
-          {/* Metalness */}
-           <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900">Metalness</span>
-              <span className="text-sm text-gray-600">{Math.round((uiScalars?.metallicFactor ?? 0) * 100)}%</span>
-            </div>
-              <SliderWithInput 
-              className="w-full"
-              sliderWidth="w-full"
-              showValue={false}
-              value={uiScalars?.metallicFactor ?? 0} 
-                onChange={(v) => {
-                  setUiScalars(prev => prev ? { ...prev, metallicFactor: v } : prev);
-                  const name = editedMaterial?.name;
-                  if (name) {
-                    setStagedMaterials(prev => {
-                      const base = prev[name] ?? editedMaterial!;
-                      const next: Material = { ...base, metallicFactor: v };
-                      return { ...prev, [name]: next };
-                    });
-                  }
-                  const mv = modelViewerRef.current as any;
-                  if (!mv) return;
-                  attachThreeAccess(mv);
-                  try { withTargetMeshes((mat) => { if ('metalness' in mat) mat.metalness = v; }); } catch {}
-                }} 
-              min={0} max={1} step={0.01} 
-            />
-          </div>
-
-          {/* Metallic Map */}
-          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900">Metallic Map</span>
-              <MapSlot
-                texture={editedTextures?.metallicRoughnessTexture}
-                alt="metallic map"
-                onPick={()=>setTexturePicker({open:true, slot:'metallicRoughnessTexture', search:''})}
-                onRemove={()=>handleMaterialChange('metallicRoughnessTexture', null)}
-              />
-            </div>
-          </div>
+              {(selectedMaterial || editedMaterial) && (
+                <div className="absolute top-4 left-4 bg-white bg-opacity-90 rounded-lg p-3 shadow-sm">
+                  <h4 className="font-medium text-gray-900 mb-1">
+                    {(editedMaterial || selectedMaterial)?.name}
+                  </h4>
+                  <div className="text-[11px] text-gray-700">
+                    <div className="font-medium mb-1">Material present on meshes</div>
+                    {Array.isArray((editedMaterial as any)?.variantMeshes) && (editedMaterial as any).variantMeshes.length > 0 ? (
+                      <div className="flex flex-wrap gap-1 max-w-[320px]">
+                        {(editedMaterial as any).variantMeshes.map((meshName: string) => (
+                          <span key={meshName} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                            {meshName}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-gray-600">No variant mappings for this material</div>
+                    )}
                   </div>
-
-                  {/* Group: Occlusion & Normal */}
-                  <div className="rounded-md bg-neutral-100/60 p-2 space-y-2">
-                  {/* Occlusion Strength */}
-                         <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Occlusion Strength</span>
-                      <span className="text-sm text-gray-600">{Math.round((uiScalars?.occlusionStrength ?? 0) * 100)}%</span>
-                    </div>
-                      <SliderWithInput 
-                      className="w-full"
-                      sliderWidth="w-full"
-                      showValue={false}
-                      value={uiScalars?.occlusionStrength ?? 0} 
-                        onChange={(v) => {
-                          setUiScalars(prev => prev ? { ...prev, occlusionStrength: v } : prev);
-                          const name = editedMaterial?.name;
-                          if (name) {
-                            setStagedMaterials(prev => {
-                              const base = prev[name] ?? editedMaterial!;
-                              const next: Material = { ...base, occlusionStrength: v };
-                              return { ...prev, [name]: next };
-                            });
-                          }
-                          const mv = modelViewerRef.current as any;
-                          if (!mv) return;
-                          try { withTargetMeshes((mat) => { if ('aoMapIntensity' in mat) mat.aoMapIntensity = v; }); } catch {}
-                        }} 
-                      min={0} max={1} step={0.01} 
-                    />
-                  </div>
-
-                  {/* Normal factor */}
-                         <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Normal factor</span>
-                      <span className="text-sm text-gray-600">{Math.round((uiScalars?.normalScale ?? 0) * 100)}%</span>
-                    </div>
-                      <SliderWithInput 
-                      className="w-full"
-                      sliderWidth="w-full"
-                      showValue={false}
-                      value={uiScalars?.normalScale ?? 0} 
-                        onChange={(v) => {
-                          setUiScalars(prev => prev ? { ...prev, normalScale: v } : prev);
-                          const name = editedMaterial?.name;
-                          if (name) {
-                            setStagedMaterials(prev => {
-                              const base = prev[name] ?? editedMaterial!;
-                              const next: Material = { ...base, normalScale: v };
-                              return { ...prev, [name]: next };
-                            });
-                          }
-                          const mv = modelViewerRef.current as any;
-                          if (!mv) return;
-                          try { withTargetMeshes((mat) => { if (mat?.normalScale?.set) mat.normalScale.set(v, v); }); } catch {}
-                        }} 
-                      min={0} max={2} step={0.01} 
-                    />
-                  </div>
-
-          {/* Normal Map (texture) */}
-          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900">Normal Map</span>
-              <MapSlot
-                texture={editedTextures?.normalTexture}
-                alt="normal map"
-                onPick={()=>setTexturePicker({open:true, slot:'normalTexture', search:''})}
-                onRemove={()=>handleMaterialChange('normalTexture', null)}
-              />
-            </div>
-            {editedTextures?.normalTexture && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-600 w-12">U Tile</span>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0.01"
-                    value={String((editedMaterial as any)?.normalTextureScale?.[0] ?? 1)}
-                    onChange={(e)=>{
-                      const u = Math.max(0.01, parseFloat(e.target.value || '1'));
-                      const v = (editedMaterial as any)?.normalTextureScale?.[1] ?? 1;
-                      const next: [number, number] = [u, v];
-                      setEditedMaterial(prev => prev ? ({ ...prev, normalTextureScale: next as any }) : prev);
-                      const name = editedMaterial?.name;
-                      if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), normalTextureScale: next as any } } as any));
-                      (async ()=>{
-                        try {
-                          await withTargetMeshes((mat, _obj, THREE)=>{
-                            if (mat?.normalMap) {
-                              const tex = mat.normalMap; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
-                            }
-                          });
-                        } catch {}
-                      })();
-                    }}
-                    className="h-7 text-xs"
-                  />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-600 w-12">V Tile</span>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0.01"
-                    value={String((editedMaterial as any)?.normalTextureScale?.[1] ?? 1)}
-                    onChange={(e)=>{
-                      const v = Math.max(0.01, parseFloat(e.target.value || '1'));
-                      const u = (editedMaterial as any)?.normalTextureScale?.[0] ?? 1;
-                      const next: [number, number] = [u, v];
-                      setEditedMaterial(prev => prev ? ({ ...prev, normalTextureScale: next as any }) : prev);
-                      const name = editedMaterial?.name;
-                      if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), normalTextureScale: next as any } } as any));
-                      (async ()=>{
-                        try {
-                          await withTargetMeshes((mat, _obj, THREE)=>{
-                            if (mat?.normalMap) {
-                              const tex = mat.normalMap; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
-                            }
-                          });
-                        } catch {}
-                      })();
-                    }}
-                    className="h-7 text-xs"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-                  </div>
-                  </div>
+              )}
 
-                  {/* Advanced options */}
-                  <div className="space-y-2">
-                    <div 
-                      className="flex items-center justify-between cursor-pointer py-2"
-                      onClick={()=>setShowAdvanced(v=>!v)}
-                    >
-                      <span className="text-sm font-medium text-gray-900">Advanced options</span>
-                      <svg className={`w-4 h-4 text-gray-400 transition-transform ${showAdvanced ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                    
-                    {showAdvanced && (
-                      <div className="space-y-4 rounded-md bg-neutral-50 p-3 shadow-inner">
-                        
-                        {/* Opacity */}
-                   <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-900">Opacity</span>
-                            <span className="text-sm text-gray-600">{Math.round(((uiScalars?.baseOpacity ?? 1)) * 100)}%</span>
-                          </div>
-                          <SliderWithInput 
-                            className="w-full"
-                            sliderWidth="w-full"
-                            showValue={false}
-                            value={uiScalars?.baseOpacity ?? 1} 
-                            onChange={(v) => {
-                              setUiScalars(prev => prev ? { ...prev, baseOpacity: v } : prev);
-                              const name = editedMaterial?.name;
-                              if (name) {
-                                setStagedMaterials(prev => {
-                                  const base = prev[name] ?? editedMaterial!;
-                                  const [r,g,b,a] = base.baseColor ?? editedMaterial!.baseColor;
-                                  const next: Material = { ...base, baseColor: [r,g,b,v] as any };
-                                  return { ...prev, [name]: next };
-                                });
-                              }
-                              const mv = modelViewerRef.current as any;
-                              if (!mv) return;
-                              try { withTargetMeshes((mat) => { if ('opacity' in mat) { mat.opacity = v; mat.transparent = v < 1; } }); } catch {}
-                            }} 
-                            min={0} max={1} step={0.01} 
-                          />
-                        </div>
-
-                        {/* Sheen Roughness */}
-                   <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-900">Sheen Roughness</span>
-                            <span className="text-sm text-gray-600">{Math.round(((uiScalars?.sheenRoughnessFactor ?? (editedMaterial as any).sheenFactor ?? 0)) * 100)}%</span>
-                          </div>
-                          <SliderWithInput 
-                            className="w-full"
-                            sliderWidth="w-full"
-                            showValue={false}
-                            value={uiScalars?.sheenRoughnessFactor ?? (editedMaterial as any).sheenFactor ?? 0} 
-                            onChange={(v) => {
-                              setUiScalars(prev => prev ? { ...prev, sheenRoughnessFactor: v } : prev);
-                              const name = editedMaterial?.name;
-                              if (name) {
-                                setStagedMaterials(prev => {
-                                  const base = prev[name] ?? editedMaterial!;
-                                  const next: Material = { ...base, sheenRoughnessFactor: v as any };
-                                  return { ...prev, [name]: next };
-                                });
-                              }
-                              const mv = modelViewerRef.current as any;
-                              if (!mv) return;
+              {/* Scene mesh visibility overlay */}
+              {sceneMeshNames.length > 0 && (
+                <div className="absolute bottom-4 right-4 bg-white rounded-lg border border-gray-200 shadow-lg w-80 max-h-56 overflow-auto">
+                  <div className="px-3 pt-2 pb-2 border-b border-gray-100 flex items-center justify-between">
+                    <div className="text-sm font-semibold text-gray-900">Scene Meshes</div>
+                    <div className="text-xs text-gray-500">{sceneMeshNames.length}</div>
+                  </div>
+                  <div className="px-3 py-2 text-xs text-gray-800 space-y-1">
+                    {sceneMeshNames.map((nm) => (
+                      <label key={nm} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="cursor-pointer"
+                          checked={meshVisibility[nm] !== false}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setMeshVisibility(prev => {
+                              const next = { ...prev, [nm]: checked } as Record<string, boolean>;
                               try {
-                                withTargetMeshes((mat, obj, THREE) => {
-                                  // Upgrade to MeshPhysicalMaterial on-the-fly if needed to reflect sheen changes live
-                                  if (!mat?.isMeshPhysicalMaterial) {
-                                    const phys = new (THREE as any).MeshPhysicalMaterial();
-                                    if (mat?.color) phys.color.copy?.(mat.color);
-                                    if ('metalness' in mat) phys.metalness = mat.metalness;
-                                    if ('roughness' in mat) phys.roughness = mat.roughness;
-                                    phys.map = mat.map ?? null;
-                                    phys.metalnessMap = mat.metalnessMap ?? null;
-                                    phys.roughnessMap = mat.roughnessMap ?? null;
-                                    phys.normalMap = mat.normalMap ?? null;
-                                    phys.aoMap = mat.aoMap ?? null;
-                                    if (mat.emissive) phys.emissive.copy?.(mat.emissive);
-                                    phys.emissiveMap = mat.emissiveMap ?? null;
-                                    phys.opacity = mat.opacity ?? phys.opacity;
-                                    phys.transparent = mat.transparent ?? phys.transparent;
-                                    if (mat.normalScale) phys.normalScale?.copy?.(mat.normalScale);
-                                    obj.material = phys;
-                                    mat = phys;
+                                const mv = modelViewerRef.current as any;
+                                if (mv) {
+                                  attachThreeAccess(mv);
+                                  const root = mv.getThreeModel?.();
+                                  if (root) {
+                                    root.traverse((obj: any) => {
+                                      if (!obj?.isMesh) return;
+                                      const name = typeof obj.name === 'string' && obj.name.length > 0 ? obj.name : '(unnamed)';
+                                      const visible = next[name] !== false;
+                                      if (obj.visible !== visible) obj.visible = visible;
+                                    });
+                                    try { const sc = typeof mv.getScene === 'function' ? mv.getScene() : null; if (sc) sc.isDirty = true; } catch { }
+                                    mv.requestRender?.();
+                                    forceModelViewerRender(mv);
                                   }
-                                  if ('sheen' in mat) (mat as any).sheen = 1;
-                                  if ('sheenRoughness' in mat) (mat as any).sheenRoughness = v;
-                                });
-                              } catch {}
-                            }} 
-                            min={0} max={1} step={0.01} 
-                          />
-                        </div>
+                                }
+                              } catch { }
+                              return next;
+                            });
+                          }}
+                        />
+                        <span className="truncate" title={nm}>{nm}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
-                        {/* Sheen Roughness Map */}
+          {/* Right Panel - Material Properties */}
+          <div id="material-sidebar" className="w-80 border-l border-gray-200 bg-white flex flex-col">
+            {selectedMaterial ? (
+              <>
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">{selectedMaterial.name}</h3>
+                    {/* Save All moved to header */}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">Material Properties</p>
+                </div>
+
+                {editedMaterial && (
+                  <div className="flex-1 overflow-y-scroll px-4 py-6 space-y-4 scrollbar-hide"
+                    style={{
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none'
+                    }}>
+
+                    <div className="rounded-md bg-neutral-50 p-3 space-y-2 shadow-inner">
+                      {/* Group: Base Color */}
+                      <div className="rounded-md bg-neutral-100/60 p-2 space-y-2">
+                        {/* Base Color */}
                         <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-900">Sheen Roughness Map</span>
-                            <MapSlot
-                              texture={editedTextures?.sheenRoughnessTexture || (editedMaterial as any).sheenTexture}
-                              alt="sheen roughness map"
-                              onPick={()=>setTexturePicker({open:true, slot:'sheenRoughnessTexture' as any, search:''})}
-                              onRemove={()=>handleMaterialChange('sheenRoughnessTexture', null)}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Sheen Color */}
-                         <div className="space-y-2 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-900">Sheen Color</span>
+                            <span className="text-sm font-medium text-gray-900">Base Color</span>
                             <DebouncedColorPicker
-                              value={uiColors.sheen || `#${Math.round((editedMaterial.sheenColor?.[0] ?? 1) * 255).toString(16).padStart(2, '0')}${Math.round((editedMaterial.sheenColor?.[1] ?? 1) * 255).toString(16).padStart(2, '0')}${Math.round((editedMaterial.sheenColor?.[2] ?? 1) * 255).toString(16).padStart(2, '0')}`}
+                              value={uiColors.base || `#${Math.round(editedMaterial.baseColor[0] * 255).toString(16).padStart(2, '0')}${Math.round(editedMaterial.baseColor[1] * 255).toString(16).padStart(2, '0')}${Math.round(editedMaterial.baseColor[2] * 255).toString(16).padStart(2, '0')}`}
                               onChange={(hex) => {
                                 if (!hex || typeof hex !== 'string' || hex.length < 7) return;
-                                setUiColors((c) => ({ ...c, sheen: hex }));
+                                setUiColors((c) => ({ ...c, base: hex }));
                                 const mv = modelViewerRef.current as any;
                                 if (!mv) return;
                                 const r = parseInt(hex.slice(1, 3), 16) / 255;
                                 const g = parseInt(hex.slice(3, 5), 16) / 255;
                                 const b = parseInt(hex.slice(5, 7), 16) / 255;
+                                // stage baseColor
                                 const name = editedMaterial?.name;
                                 if (name) {
-                                  setStagedMaterials(prev => ({
-                                    ...prev,
-                                    [name]: { ...(prev[name] ?? editedMaterial!), sheenColor: [r,g,b] as any },
-                                  }));
-                                  // keep local editedMaterial in sync for stable picker value
+                                  setStagedMaterials(prev => {
+                                    const base = prev[name] ?? editedMaterial!;
+                                    const next: Material = { ...base, baseColor: [r, g, b, (base.baseColor?.[3] ?? editedMaterial!.baseColor[3])] as any };
+                                    return { ...prev, [name]: next };
+                                  });
+                                  // keep local editedMaterial in sync so color picker doesn't snap back
                                   setEditedMaterial(prev => prev ? ({
                                     ...prev,
-                                    sheenColor: [r, g, b] as any,
+                                    baseColor: [r, g, b, (prev.baseColor?.[3] ?? 1)] as any,
                                   }) : prev);
                                 }
                                 try {
+                                  withTargetMeshes((mat) => {
+                                    if (mat?.color?.setRGB) mat.color.setRGB(r, g, b);
+                                  });
+                                } catch { }
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Base Color Map */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Base Color Map</span>
+                            <MapSlot
+                              texture={editedTextures?.baseColorTexture}
+                              alt="base color"
+                              onPick={() => setTexturePicker({ open: true, slot: 'baseColorTexture', search: '' })}
+                              onRemove={() => handleMaterialChange('baseColorTexture', null)}
+                            />
+                          </div>
+                          {editedTextures?.baseColorTexture && (
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs text-gray-600 w-12">U Tile</span>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  min="0.01"
+                                  value={String((editedMaterial as any)?.baseColorTextureScale?.[0] ?? 1)}
+                                  onChange={(e) => {
+                                    const u = Math.max(0.01, parseFloat(e.target.value || '1'));
+                                    const v = (editedMaterial as any)?.baseColorTextureScale?.[1] ?? 1;
+                                    const next: [number, number] = [u, v];
+                                    setEditedMaterial(prev => prev ? ({ ...prev, baseColorTextureScale: next as any }) : prev);
+                                    const name = editedMaterial?.name;
+                                    if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), baseColorTextureScale: next as any } } as any));
+                                    (async () => {
+                                      try {
+                                        await withTargetMeshes((mat, _obj, THREE) => {
+                                          if (mat?.map) {
+                                            const tex = mat.map; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
+                                          }
+                                        });
+                                      } catch { }
+                                    })();
+                                  }}
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs text-gray-600 w-12">V Tile</span>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  min="0.01"
+                                  value={String((editedMaterial as any)?.baseColorTextureScale?.[1] ?? 1)}
+                                  onChange={(e) => {
+                                    const v = Math.max(0.01, parseFloat(e.target.value || '1'));
+                                    const u = (editedMaterial as any)?.baseColorTextureScale?.[0] ?? 1;
+                                    const next: [number, number] = [u, v];
+                                    setEditedMaterial(prev => prev ? ({ ...prev, baseColorTextureScale: next as any }) : prev);
+                                    const name = editedMaterial?.name;
+                                    if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), baseColorTextureScale: next as any } } as any));
+                                    (async () => {
+                                      try {
+                                        await withTargetMeshes((mat, _obj, THREE) => {
+                                          if (mat?.map) {
+                                            const tex = mat.map; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
+                                          }
+                                        });
+                                      } catch { }
+                                    })();
+                                  }}
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Group: Roughness & Metalness */}
+                      <div className="rounded-md bg-neutral-100/60 p-2 space-y-2">
+                        {/* Roughness */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Roughness</span>
+                            <span className="text-sm text-gray-600">{Math.round((uiScalars?.roughnessFactor ?? 0) * 100)}%</span>
+                          </div>
+                          <SliderWithInput
+                            className="w-full"
+                            sliderWidth="w-full"
+                            showValue={false}
+                            value={uiScalars?.roughnessFactor ?? 0}
+                            onChange={(v) => {
+                              setUiScalars(prev => prev ? { ...prev, roughnessFactor: v } : prev)
+                              // Persist in staged material
+                              const name = editedMaterial?.name;
+                              if (name) {
+                                setStagedMaterials(prev => {
+                                  const base = prev[name] ?? editedMaterial!;
+                                  const next: Material = { ...base, roughnessFactor: v };
+                                  return { ...prev, [name]: next };
+                                });
+                              }
+                              const mv = modelViewerRef.current as any;
+                              if (!mv) return;
+                              try { withTargetMeshes((mat) => { if ('roughness' in mat) mat.roughness = v; }); } catch { }
+                            }}
+                            min={0} max={1} step={0.01}
+                          />
+                        </div>
+
+                        {/* Roughness Map */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Roughness Map</span>
+                            <MapSlot
+                              texture={editedTextures?.metallicRoughnessTexture}
+                              alt="roughness map"
+                              onPick={() => setTexturePicker({ open: true, slot: 'metallicRoughnessTexture', search: '' })}
+                              onRemove={() => handleMaterialChange('metallicRoughnessTexture', null)}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Metalness */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Metalness</span>
+                            <span className="text-sm text-gray-600">{Math.round((uiScalars?.metallicFactor ?? 0) * 100)}%</span>
+                          </div>
+                          <SliderWithInput
+                            className="w-full"
+                            sliderWidth="w-full"
+                            showValue={false}
+                            value={uiScalars?.metallicFactor ?? 0}
+                            onChange={(v) => {
+                              setUiScalars(prev => prev ? { ...prev, metallicFactor: v } : prev);
+                              const name = editedMaterial?.name;
+                              if (name) {
+                                setStagedMaterials(prev => {
+                                  const base = prev[name] ?? editedMaterial!;
+                                  const next: Material = { ...base, metallicFactor: v };
+                                  return { ...prev, [name]: next };
+                                });
+                              }
+                              const mv = modelViewerRef.current as any;
+                              if (!mv) return;
+                              attachThreeAccess(mv);
+                              try { withTargetMeshes((mat) => { if ('metalness' in mat) mat.metalness = v; }); } catch { }
+                            }}
+                            min={0} max={1} step={0.01}
+                          />
+                        </div>
+
+                        {/* Metallic Map */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Metallic Map</span>
+                            <MapSlot
+                              texture={editedTextures?.metallicRoughnessTexture}
+                              alt="metallic map"
+                              onPick={() => setTexturePicker({ open: true, slot: 'metallicRoughnessTexture', search: '' })}
+                              onRemove={() => handleMaterialChange('metallicRoughnessTexture', null)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Group: Occlusion & Normal */}
+                      <div className="rounded-md bg-neutral-100/60 p-2 space-y-2">
+                        {/* Occlusion Strength */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Occlusion Strength</span>
+                            <span className="text-sm text-gray-600">{Math.round((uiScalars?.occlusionStrength ?? 0) * 100)}%</span>
+                          </div>
+                          <SliderWithInput
+                            className="w-full"
+                            sliderWidth="w-full"
+                            showValue={false}
+                            value={uiScalars?.occlusionStrength ?? 0}
+                            onChange={(v) => {
+                              setUiScalars(prev => prev ? { ...prev, occlusionStrength: v } : prev);
+                              const name = editedMaterial?.name;
+                              if (name) {
+                                setStagedMaterials(prev => {
+                                  const base = prev[name] ?? editedMaterial!;
+                                  const next: Material = { ...base, occlusionStrength: v };
+                                  return { ...prev, [name]: next };
+                                });
+                              }
+                              const mv = modelViewerRef.current as any;
+                              if (!mv) return;
+                              try { withTargetMeshes((mat) => { if ('aoMapIntensity' in mat) mat.aoMapIntensity = v; }); } catch { }
+                            }}
+                            min={0} max={1} step={0.01}
+                          />
+                        </div>
+
+                        {/* Normal factor */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Normal factor</span>
+                            <span className="text-sm text-gray-600">{Math.round((uiScalars?.normalScale ?? 0) * 100)}%</span>
+                          </div>
+                          <SliderWithInput
+                            className="w-full"
+                            sliderWidth="w-full"
+                            showValue={false}
+                            value={uiScalars?.normalScale ?? 0}
+                            onChange={(v) => {
+                              setUiScalars(prev => prev ? { ...prev, normalScale: v } : prev);
+                              const name = editedMaterial?.name;
+                              if (name) {
+                                setStagedMaterials(prev => {
+                                  const base = prev[name] ?? editedMaterial!;
+                                  const next: Material = { ...base, normalScale: v };
+                                  return { ...prev, [name]: next };
+                                });
+                              }
+                              const mv = modelViewerRef.current as any;
+                              if (!mv) return;
+                              try { withTargetMeshes((mat) => { if (mat?.normalScale?.set) mat.normalScale.set(v, v); }); } catch { }
+                            }}
+                            min={0} max={2} step={0.01}
+                          />
+                        </div>
+
+                        {/* Normal Map (texture) */}
+                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">Normal Map</span>
+                            <MapSlot
+                              texture={editedTextures?.normalTexture}
+                              alt="normal map"
+                              onPick={() => setTexturePicker({ open: true, slot: 'normalTexture', search: '' })}
+                              onRemove={() => handleMaterialChange('normalTexture', null)}
+                            />
+                          </div>
+                          {editedTextures?.normalTexture && (
+                            <div className="mt-2 grid grid-cols-2 gap-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs text-gray-600 w-12">U Tile</span>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  min="0.01"
+                                  value={String((editedMaterial as any)?.normalTextureScale?.[0] ?? 1)}
+                                  onChange={(e) => {
+                                    const u = Math.max(0.01, parseFloat(e.target.value || '1'));
+                                    const v = (editedMaterial as any)?.normalTextureScale?.[1] ?? 1;
+                                    const next: [number, number] = [u, v];
+                                    setEditedMaterial(prev => prev ? ({ ...prev, normalTextureScale: next as any }) : prev);
+                                    const name = editedMaterial?.name;
+                                    if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), normalTextureScale: next as any } } as any));
+                                    (async () => {
+                                      try {
+                                        await withTargetMeshes((mat, _obj, THREE) => {
+                                          if (mat?.normalMap) {
+                                            const tex = mat.normalMap; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
+                                          }
+                                        });
+                                      } catch { }
+                                    })();
+                                  }}
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs text-gray-600 w-12">V Tile</span>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  min="0.01"
+                                  value={String((editedMaterial as any)?.normalTextureScale?.[1] ?? 1)}
+                                  onChange={(e) => {
+                                    const v = Math.max(0.01, parseFloat(e.target.value || '1'));
+                                    const u = (editedMaterial as any)?.normalTextureScale?.[0] ?? 1;
+                                    const next: [number, number] = [u, v];
+                                    setEditedMaterial(prev => prev ? ({ ...prev, normalTextureScale: next as any }) : prev);
+                                    const name = editedMaterial?.name;
+                                    if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), normalTextureScale: next as any } } as any));
+                                    (async () => {
+                                      try {
+                                        await withTargetMeshes((mat, _obj, THREE) => {
+                                          if (mat?.normalMap) {
+                                            const tex = mat.normalMap; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
+                                          }
+                                        });
+                                      } catch { }
+                                    })();
+                                  }}
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Advanced options */}
+                    <div className="space-y-2">
+                      <div
+                        className="flex items-center justify-between cursor-pointer py-2"
+                        onClick={() => setShowAdvanced(v => !v)}
+                      >
+                        <span className="text-sm font-medium text-gray-900">Advanced options</span>
+                        <svg className={`w-4 h-4 text-gray-400 transition-transform ${showAdvanced ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+
+                      {showAdvanced && (
+                        <div className="space-y-4 rounded-md bg-neutral-50 p-3 shadow-inner">
+
+                          {/* Opacity */}
+                          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">Opacity</span>
+                              <span className="text-sm text-gray-600">{Math.round(((uiScalars?.baseOpacity ?? 1)) * 100)}%</span>
+                            </div>
+                            <SliderWithInput
+                              className="w-full"
+                              sliderWidth="w-full"
+                              showValue={false}
+                              value={uiScalars?.baseOpacity ?? 1}
+                              onChange={(v) => {
+                                setUiScalars(prev => prev ? { ...prev, baseOpacity: v } : prev);
+                                const name = editedMaterial?.name;
+                                if (name) {
+                                  setStagedMaterials(prev => {
+                                    const base = prev[name] ?? editedMaterial!;
+                                    const [r, g, b, a] = base.baseColor ?? editedMaterial!.baseColor;
+                                    const next: Material = { ...base, baseColor: [r, g, b, v] as any };
+                                    return { ...prev, [name]: next };
+                                  });
+                                }
+                                const mv = modelViewerRef.current as any;
+                                if (!mv) return;
+                                try { withTargetMeshes((mat) => { if ('opacity' in mat) { mat.opacity = v; mat.transparent = v < 1; } }); } catch { }
+                              }}
+                              min={0} max={1} step={0.01}
+                            />
+                          </div>
+
+                          {/* Sheen Roughness */}
+                          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">Sheen Roughness</span>
+                              <span className="text-sm text-gray-600">{Math.round(((uiScalars?.sheenRoughnessFactor ?? (editedMaterial as any).sheenFactor ?? 0)) * 100)}%</span>
+                            </div>
+                            <SliderWithInput
+                              className="w-full"
+                              sliderWidth="w-full"
+                              showValue={false}
+                              value={uiScalars?.sheenRoughnessFactor ?? (editedMaterial as any).sheenFactor ?? 0}
+                              onChange={(v) => {
+                                setUiScalars(prev => prev ? { ...prev, sheenRoughnessFactor: v } : prev);
+                                const name = editedMaterial?.name;
+                                if (name) {
+                                  setStagedMaterials(prev => {
+                                    const base = prev[name] ?? editedMaterial!;
+                                    const next: Material = { ...base, sheenRoughnessFactor: v as any };
+                                    return { ...prev, [name]: next };
+                                  });
+                                }
+                                const mv = modelViewerRef.current as any;
+                                if (!mv) return;
+                                try {
                                   withTargetMeshes((mat, obj, THREE) => {
-                                    // Upgrade to MeshPhysicalMaterial on-the-fly if needed
+                                    // Upgrade to MeshPhysicalMaterial on-the-fly if needed to reflect sheen changes live
                                     if (!mat?.isMeshPhysicalMaterial) {
                                       const phys = new (THREE as any).MeshPhysicalMaterial();
                                       if (mat?.color) phys.color.copy?.(mat.color);
@@ -2210,66 +2196,135 @@ export default function MaterialEditorPage() {
                                       mat = phys;
                                     }
                                     if ('sheen' in mat) (mat as any).sheen = 1;
-                                    if (mat?.sheenColor?.setRGB) mat.sheenColor.setRGB(r, g, b);
-                                    mat.needsUpdate = true;
+                                    if ('sheenRoughness' in mat) (mat as any).sheenRoughness = v;
                                   });
-                                  const req = mv.requestRender?.();
-                                  forceModelViewerRender(mv);
-                                } catch {}
+                                } catch { }
                               }}
+                              min={0} max={1} step={0.01}
                             />
                           </div>
-                        </div>
 
-                        {/* Sheen Color Map */}
-                        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-900">Sheen Color Map</span>
-                            <MapSlot
-                              texture={editedTextures?.sheenColorTexture}
-                              alt="sheen color map"
-                              onPick={()=>setTexturePicker({open:true, slot:'sheenColorTexture' as any, search:''})}
-                              onRemove={()=>handleMaterialChange('sheenColorTexture', null)}
-                            />
+                          {/* Sheen Roughness Map */}
+                          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">Sheen Roughness Map</span>
+                              <MapSlot
+                                texture={editedTextures?.sheenRoughnessTexture || (editedMaterial as any).sheenTexture}
+                                alt="sheen roughness map"
+                                onPick={() => setTexturePicker({ open: true, slot: 'sheenRoughnessTexture' as any, search: '' })}
+                                onRemove={() => handleMaterialChange('sheenRoughnessTexture', null)}
+                              />
+                            </div>
                           </div>
-                        </div>
 
-                      </div>
-                    )}
+                          {/* Sheen Color */}
+                          <div className="space-y-2 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">Sheen Color</span>
+                              <DebouncedColorPicker
+                                value={uiColors.sheen || `#${Math.round((editedMaterial.sheenColor?.[0] ?? 1) * 255).toString(16).padStart(2, '0')}${Math.round((editedMaterial.sheenColor?.[1] ?? 1) * 255).toString(16).padStart(2, '0')}${Math.round((editedMaterial.sheenColor?.[2] ?? 1) * 255).toString(16).padStart(2, '0')}`}
+                                onChange={(hex) => {
+                                  if (!hex || typeof hex !== 'string' || hex.length < 7) return;
+                                  setUiColors((c) => ({ ...c, sheen: hex }));
+                                  const mv = modelViewerRef.current as any;
+                                  if (!mv) return;
+                                  const r = parseInt(hex.slice(1, 3), 16) / 255;
+                                  const g = parseInt(hex.slice(3, 5), 16) / 255;
+                                  const b = parseInt(hex.slice(5, 7), 16) / 255;
+                                  const name = editedMaterial?.name;
+                                  if (name) {
+                                    setStagedMaterials(prev => ({
+                                      ...prev,
+                                      [name]: { ...(prev[name] ?? editedMaterial!), sheenColor: [r, g, b] as any },
+                                    }));
+                                    // keep local editedMaterial in sync for stable picker value
+                                    setEditedMaterial(prev => prev ? ({
+                                      ...prev,
+                                      sheenColor: [r, g, b] as any,
+                                    }) : prev);
+                                  }
+                                  try {
+                                    withTargetMeshes((mat, obj, THREE) => {
+                                      // Upgrade to MeshPhysicalMaterial on-the-fly if needed
+                                      if (!mat?.isMeshPhysicalMaterial) {
+                                        const phys = new (THREE as any).MeshPhysicalMaterial();
+                                        if (mat?.color) phys.color.copy?.(mat.color);
+                                        if ('metalness' in mat) phys.metalness = mat.metalness;
+                                        if ('roughness' in mat) phys.roughness = mat.roughness;
+                                        phys.map = mat.map ?? null;
+                                        phys.metalnessMap = mat.metalnessMap ?? null;
+                                        phys.roughnessMap = mat.roughnessMap ?? null;
+                                        phys.normalMap = mat.normalMap ?? null;
+                                        phys.aoMap = mat.aoMap ?? null;
+                                        if (mat.emissive) phys.emissive.copy?.(mat.emissive);
+                                        phys.emissiveMap = mat.emissiveMap ?? null;
+                                        phys.opacity = mat.opacity ?? phys.opacity;
+                                        phys.transparent = mat.transparent ?? phys.transparent;
+                                        if (mat.normalScale) phys.normalScale?.copy?.(mat.normalScale);
+                                        obj.material = phys;
+                                        mat = phys;
+                                      }
+                                      if ('sheen' in mat) (mat as any).sheen = 1;
+                                      if (mat?.sheenColor?.setRGB) mat.sheenColor.setRGB(r, g, b);
+                                      mat.needsUpdate = true;
+                                    });
+                                    const req = mv.requestRender?.();
+                                    forceModelViewerRender(mv);
+                                  } catch { }
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Sheen Color Map */}
+                          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">Sheen Color Map</span>
+                              <MapSlot
+                                texture={editedTextures?.sheenColorTexture}
+                                alt="sheen color map"
+                                onPick={() => setTexturePicker({ open: true, slot: 'sheenColorTexture' as any, search: '' })}
+                                onRemove={() => handleMaterialChange('sheenColorTexture', null)}
+                              />
+                            </div>
+                          </div>
+
+                        </div>
+                      )}
+                    </div>
+
+
+
                   </div>
-
-                    
-                  
-                </div>
-              )}
+                )}
 
 
-            </>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-              <Edit className="w-12 h-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-700 mb-2">
-                Select Material
-              </h3>
-              <p className="text-sm text-gray-500 max-w-xs">
-                Choose a material from the sidebar to edit its properties and preview changes in real-time.
-              </p>
-            </div>
-          )}
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                <Edit className="w-12 h-12 text-gray-300 mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                  Select Material
+                </h3>
+                <p className="text-sm text-gray-500 max-w-xs">
+                  Choose a material from the sidebar to edit its properties and preview changes in real-time.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       )}
 
       {/* Texture Library Picker */}
       {texturePicker.open && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setTexturePicker({open:false, slot:null, search:''})}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setTexturePicker({ open: false, slot: null, search: '' })}>
           <div className="bg-white rounded-lg shadow-lg w-[720px] max-w-[90vw] p-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold">Pick a texture</h3>
-              <button className="text-gray-500 text-sm" onClick={() => setTexturePicker({open:false, slot:null, search:''})}>Close</button>
+              <button className="text-gray-500 text-sm" onClick={() => setTexturePicker({ open: false, slot: null, search: '' })}>Close</button>
             </div>
             <div className="mb-3">
-              <Input placeholder="Search textures..." value={texturePicker.search} onChange={(e)=> setTexturePicker(prev=>({...prev, search: e.target.value}))} />
+              <Input placeholder="Search textures..." value={texturePicker.search} onChange={(e) => setTexturePicker(prev => ({ ...prev, search: e.target.value }))} />
             </div>
             <div className="grid grid-cols-4 gap-3 max-h-[60vh] overflow-auto">
               {cdnImages
@@ -2285,7 +2340,7 @@ export default function MaterialEditorPage() {
                     <button key={`${clean}-${idx}`} className="border rounded p-2 hover:border-blue-500 text-left" onClick={() => {
                       if (!texturePicker.slot) return;
                       handleMaterialChange(texturePicker.slot, clean);
-                      setTexturePicker({open:false, slot:null, search:''});
+                      setTexturePicker({ open: false, slot: null, search: '' });
                     }}>
                       <img
                         src={webpThumb}
@@ -2336,9 +2391,8 @@ export default function MaterialEditorPage() {
           {toasts.map((toast) => (
             <div
               key={toast.id}
-              className={`px-4 py-2 rounded-lg shadow-lg text-white ${
-                toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-              }`}
+              className={`px-4 py-2 rounded-lg shadow-lg text-white ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                }`}
             >
               {toast.message}
             </div>
