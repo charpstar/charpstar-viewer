@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useRef, useState } from 'react';
+import { upload as uploadToBlob } from '@vercel/blob/client';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -114,35 +115,50 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
             : (file.name.toLowerCase().endsWith('.glb') ? `${customFilename}.glb` : `${customFilename}.gltf`))
           : file.name;
 
-        // Create FormData for direct file upload
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('filename', finalFilename);
-        formData.append('client', clientName);
-        formData.append('isGlb', file.name.toLowerCase().endsWith('.glb') ? 'true' : 'false');
+        const isGlbFile = finalFilename.toLowerCase().endsWith('.glb');
 
         setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 30 } : f));
 
-        // Upload directly to server API (which uploads to BunnyCDN)
-        const uploadResponse = await fetch('/api/upload-direct', {
-          method: 'POST',
-          body: formData,
+        // 1) Upload file bytes directly to Vercel Blob storage (browser -> Blob)
+        const blobResult = await uploadToBlob(finalFilename, file, {
+          access: 'public',
+          handleUploadUrl: '/api/blob/generate-upload-token',
+          multipart: true,
         });
 
-        if (!uploadResponse.ok) {
-          const msg = await readServerError(uploadResponse);
-          throw new Error(`Upload failed: ${msg}`);
+        setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 60 } : f));
+
+        // 2) Ask the server to pull from the blob URL and push to Bunny CDN
+        const finalizeResponse = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            blobUrl: blobResult.url,
+            filename: finalFilename,
+            client: clientName,
+            isGlbFile,
+          }),
+        });
+
+        if (!finalizeResponse.ok) {
+          const msg = await readServerError(finalizeResponse);
+          throw new Error(`Finalize failed: ${msg}`);
         }
 
-        const result = await uploadResponse.json();
-        if (!result?.success) {
-          throw new Error(result?.error || 'Upload failed');
+        const finalizeJson = await finalizeResponse.json().catch(() => ({}));
+        if (!finalizeJson?.success) {
+          throw new Error(finalizeJson?.error || 'Finalize failed');
         }
 
         // Success
         setUploadFiles(prev => prev.map(f =>
           f.id === uploadFile.id
-            ? { ...f, status: 'success' as const, progress: 100, uploadedUrl: finalFilename }
+            ? {
+              ...f,
+              status: 'success' as const,
+              progress: 100,
+              uploadedUrl: finalizeJson?.fileUrl || finalFilename
+            }
             : f
         ));
 
