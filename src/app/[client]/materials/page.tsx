@@ -1134,7 +1134,12 @@ export default function MaterialEditorPage() {
   };
 
   // Add new material by name (invoked from modal)
-  const addNewMaterialByName = (name: string, assignMeshNames?: string[] | string) => {
+  const addNewMaterialByName = (
+    name: string,
+    assignMeshNames?: string[] | string,
+    assignAsVariant: boolean = true,
+    createMeshes: boolean = false
+  ) => {
     const trimmed = name.trim();
     if (!trimmed || !referenceGltf) return;
     const newMaterial: Material = {
@@ -1146,14 +1151,27 @@ export default function MaterialEditorPage() {
       normalScale: 1.0,
       occlusionStrength: 1.0,
     };
-    // If meshes were chosen, annotate with variantMeshes for UI and staging
+    // If meshes were chosen, annotate with variantMeshes only if assignAsVariant is true
     const meshList: string[] | undefined = Array.isArray(assignMeshNames)
       ? assignMeshNames.filter(Boolean)
       : (typeof assignMeshNames === 'string' && assignMeshNames ? [assignMeshNames] : undefined);
-    const annotated: any = meshList && meshList.length > 0 ? { ...newMaterial, variantMeshes: meshList } : newMaterial;
+
+    // Only add variantMeshes if assignAsVariant is true
+    const annotated: any = { ...newMaterial };
+    if (meshList && meshList.length > 0) {
+      if (assignAsVariant) {
+        annotated.variantMeshes = meshList;
+      }
+      if (createMeshes) {
+        (annotated as any).pendingMeshes = meshList;
+      }
+    }
+
     setReferenceGltf(prev => prev ? { ...prev, materials: [...prev.materials, annotated] } : prev);
     setIsAddingMaterial(false);
     handleMaterialSelect(annotated);
+
+    // Stage the material for save (always needed to create the mesh object)
     if (meshList && meshList.length > 0) {
       setStagedMaterials(prev => ({ ...prev, [annotated.name]: annotated } as any));
     }
@@ -1167,13 +1185,14 @@ export default function MaterialEditorPage() {
   }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
-    onSubmit: (name: string, meshNames?: string[] | string) => void;
+    onSubmit: (name: string, meshNames?: string[] | string, assignAsVariant?: boolean, createMeshes?: boolean) => void;
   }) => {
     const [name, setName] = useState('');
     const [selectedMeshes, setSelectedMeshes] = useState<Set<string>>(new Set());
     const [filter, setFilter] = useState('');
     const [meshInputMode, setMeshInputMode] = useState<'existing' | 'new'>('existing');
     const [newMeshName, setNewMeshName] = useState('');
+    const [assignAsVariant, setAssignAsVariant] = useState(true);
 
     useEffect(() => {
       if (open) {
@@ -1182,6 +1201,7 @@ export default function MaterialEditorPage() {
         setFilter('');
         setMeshInputMode('existing');
         setNewMeshName('');
+        setAssignAsVariant(true);
       }
     }, [open]);
 
@@ -1191,10 +1211,11 @@ export default function MaterialEditorPage() {
     const filteredOptions = meshOptions.filter(m => m && m.toLowerCase().includes(filter.toLowerCase()));
 
     const handleSubmit = () => {
-      const meshNamesToSubmit = meshInputMode === 'new'
+      const isNewMeshMode = meshInputMode === 'new';
+      const meshNamesToSubmit = isNewMeshMode
         ? (newMeshName.trim() ? [newMeshName.trim()] : undefined)
         : (selectedMeshes.size > 0 ? Array.from(selectedMeshes) : undefined);
-      onSubmit(name, meshNamesToSubmit);
+      onSubmit(name, meshNamesToSubmit, assignAsVariant, isNewMeshMode);
     };
 
     return (
@@ -1227,8 +1248,8 @@ export default function MaterialEditorPage() {
                   type="button"
                   onClick={() => setMeshInputMode('existing')}
                   className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${meshInputMode === 'existing'
-                      ? 'bg-blue-50 border-blue-500 text-blue-900'
-                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-50 border-blue-500 text-blue-900'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   Select Existing
@@ -1237,8 +1258,8 @@ export default function MaterialEditorPage() {
                   type="button"
                   onClick={() => setMeshInputMode('new')}
                   className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${meshInputMode === 'new'
-                      ? 'bg-blue-50 border-blue-500 text-blue-900'
-                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-50 border-blue-500 text-blue-900'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   Create New Mesh
@@ -1287,8 +1308,21 @@ export default function MaterialEditorPage() {
                     value={newMeshName}
                     onChange={(e) => setNewMeshName(e.target.value)}
                   />
-                  <div className="text-[11px] text-gray-500 mt-1">
-                    This material will be applied to any model that contains a mesh with this name.
+                  <div className="mt-3">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={assignAsVariant}
+                        onChange={(e) => setAssignAsVariant(e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-xs text-gray-700">Assign as material variant</span>
+                    </label>
+                    <div className="text-[11px] text-gray-500 mt-1">
+                      {assignAsVariant
+                        ? 'Material will be assigned as a variant. Uncheck to assign as the default material only.'
+                        : 'Material will be assigned as the default material without creating a variant.'}
+                    </div>
                   </div>
                 </>
               )}

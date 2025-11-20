@@ -7,7 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, File, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { upload as blobUpload } from '@vercel/blob/client';
 
 interface SimpleUploadDialogProps {
   isOpen: boolean;
@@ -38,7 +37,7 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
   }, []);
 
   const handleFilesSelected = useCallback((files: File[]) => {
-    const validFiles = files.filter(file => 
+    const validFiles = files.filter(file =>
       file.name.toLowerCase().endsWith('.gltf') || file.name.toLowerCase().endsWith('.glb')
     );
 
@@ -83,22 +82,17 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
     for (const uploadFile of pendingFiles) {
       try {
         // Update status to uploading
-        setUploadFiles(prev => prev.map(f => 
+        setUploadFiles(prev => prev.map(f =>
           f.id === uploadFile.id ? { ...f, status: 'uploading' as const, progress: 10 } : f
         ));
 
         // Read the filename from the input element (NO React state!)
         const filenameInput = document.querySelector(`[data-file-id="${uploadFile.id}"]`) as HTMLInputElement;
         const customFilename = filenameInput?.value?.trim() || '';
-        
-        const file = uploadFile.file;
-        // 1) Upload directly via Vercel Blob client helper
-        const safeErrorMessage = (e: unknown): string => {
-          if (e instanceof Error && e.message) return e.message;
-          if (typeof e === 'string') return e;
-          try { return JSON.stringify(e); } catch { return 'Unknown error'; }
-        };
 
+        const file = uploadFile.file;
+
+        // Helper to extract error messages from server responses
         async function readServerError(res: Response): Promise<string> {
           try {
             const ct = res.headers.get('content-type') || '';
@@ -113,61 +107,54 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
           }
         }
 
-        const { url: blobUrl } = await blobUpload(file.name, file, {
-          handleUploadUrl: '/api/blob/generate-upload-token',
-          access: 'public',
-          contentType: file.type || 'application/octet-stream',
-        }).catch((e) => { throw new Error(`Cloud upload failed: ${safeErrorMessage(e)}`); });
-
-        setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 50 } : f));
-
-        // 3) Ask server to process and upload to Bunny from blobUrl
-        const finalFilename = customFilename 
-          ? (customFilename.endsWith('.gltf') || customFilename.endsWith('.glb') ? customFilename : (file.name.toLowerCase().endsWith('.glb') ? `${customFilename}.glb` : `${customFilename}.gltf`))
+        // Determine final filename
+        const finalFilename = customFilename
+          ? (customFilename.endsWith('.gltf') || customFilename.endsWith('.glb')
+            ? customFilename
+            : (file.name.toLowerCase().endsWith('.glb') ? `${customFilename}.glb` : `${customFilename}.gltf`))
           : file.name;
 
-        const isGlb = file.name.toLowerCase().endsWith('.glb');
-        if (isGlb) {
-          const upRes = await fetch('/api/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ blobUrl, filename: finalFilename, client: clientName, isGlbFile: true })
-          });
-          if (!upRes.ok) {
-            const msg = await readServerError(upRes);
-            throw new Error(`Upload failed: ${msg}`);
-          }
-          await upRes.json().catch(() => ({}));
-        } else {
-          const convertResponse = await fetch('/api/convert-gltf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ blobUrl, filename: finalFilename, client: clientName, customFilename: finalFilename })
-          });
-          if (!convertResponse.ok) {
-            const msg = await readServerError(convertResponse);
-            throw new Error(`Convert failed: ${msg}`);
-          }
-          const result = await convertResponse.json().catch(() => ({} as any));
-          if (!result?.success) throw new Error(result?.error || 'Convert failed');
+        // Create FormData for direct file upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('filename', finalFilename);
+        formData.append('client', clientName);
+        formData.append('isGlb', file.name.toLowerCase().endsWith('.glb') ? 'true' : 'false');
+
+        setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 30 } : f));
+
+        // Upload directly to server API (which uploads to BunnyCDN)
+        const uploadResponse = await fetch('/api/upload-direct', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          const msg = await readServerError(uploadResponse);
+          throw new Error(`Upload failed: ${msg}`);
+        }
+
+        const result = await uploadResponse.json();
+        if (!result?.success) {
+          throw new Error(result?.error || 'Upload failed');
         }
 
         // Success
-        setUploadFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
+        setUploadFiles(prev => prev.map(f =>
+          f.id === uploadFile.id
             ? { ...f, status: 'success' as const, progress: 100, uploadedUrl: finalFilename }
             : f
         ));
 
       } catch (error) {
         console.error('Upload error:', error);
-        setUploadFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
-            ? { 
-                ...f, 
-                status: 'error' as const, 
-                error: error instanceof Error && error.message ? error.message : 'Upload failed' 
-              }
+        setUploadFiles(prev => prev.map(f =>
+          f.id === uploadFile.id
+            ? {
+              ...f,
+              status: 'error' as const,
+              error: error instanceof Error && error.message ? error.message : 'Upload failed'
+            }
             : f
         ));
       }
@@ -218,9 +205,8 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
           {uploadFiles.length === 0 ? (
             /* No files - Full upload area */
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-              }`}
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -232,8 +218,8 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
               <p className="text-sm text-gray-500 mb-4">
                 Supports .gltf and .glb files
               </p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => fileInputRef.current?.click()}
                 className="cursor-pointer"
               >
@@ -252,17 +238,16 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
             /* Files added - Show queue */
             <div className="space-y-4">
               {/* Compact upload area */}
-              <div 
-                className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
-                  isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-                }`}
+              <div
+                className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
                 <p className="text-sm text-gray-600">
                   Drop more files here or{' '}
-                  <button 
+                  <button
                     onClick={() => fileInputRef.current?.click()}
                     className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
                   >
@@ -289,7 +274,7 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
                 </div>
                 <div className="p-4 max-h-60 overflow-y-auto space-y-3">
                   {uploadFiles.map((uploadFile) => (
-                    <div 
+                    <div
                       key={uploadFile.id}
                       className="p-3 bg-gray-50 rounded-lg space-y-3"
                     >
@@ -306,7 +291,7 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
                             </p>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
                           {getStatusBadge(uploadFile)}
                           {(uploadFile.status === 'pending' || uploadFile.status === 'error') && (
@@ -371,8 +356,8 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
 
         {/* Footer Buttons */}
         <div className="flex items-center justify-end space-x-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={onClose}
             className="cursor-pointer"
           >

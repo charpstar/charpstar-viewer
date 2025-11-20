@@ -368,6 +368,19 @@ export async function POST(request: NextRequest) {
 
     // Create placeholder meshes for new mesh names (so server.js can find and copy them)
     try {
+      const getTargetMeshNames = (matData: any): string[] => {
+        if (!matData) return [];
+        const variantList = Array.isArray(matData.variantMeshes) ? matData.variantMeshes : [];
+        const pendingList = Array.isArray((matData as any).pendingMeshes) ? (matData as any).pendingMeshes : [];
+        return Array.from(
+          new Set(
+            [...variantList, ...pendingList].filter(
+              (name): name is string => typeof name === 'string' && name.length > 0
+            )
+          )
+        );
+      };
+
       const existingMeshNames = new Set<string>();
       root.listMeshes().forEach((m) => {
         const name = m.getName();
@@ -377,13 +390,12 @@ export async function POST(request: NextRequest) {
       // Collect mesh names from materials that need new meshes created
       const newMeshNames = new Set<string>();
       materials.forEach((m: any) => {
-        if (Array.isArray(m.variantMeshes)) {
-          m.variantMeshes.forEach((name: any) => {
-            if (typeof name === 'string' && name.length > 0 && !existingMeshNames.has(name)) {
-              newMeshNames.add(name);
-            }
-          });
-        }
+        const targets = getTargetMeshNames(m);
+        targets.forEach((name) => {
+          if (!existingMeshNames.has(name)) {
+            newMeshNames.add(name);
+          }
+        });
       });
 
       // Create a mesh for each new mesh name with material assigned
@@ -414,7 +426,9 @@ export async function POST(request: NextRequest) {
           // Find the material for this mesh
           const material = root.listMaterials().find((mat) => {
             const matData = materials.find((m: any) => m.name === mat.getName());
-            return matData && Array.isArray(matData.variantMeshes) && matData.variantMeshes.includes(meshName);
+            if (!matData) return false;
+            const targets = getTargetMeshNames(matData);
+            return targets.includes(meshName);
           });
 
           // Create primitive with geometry and material

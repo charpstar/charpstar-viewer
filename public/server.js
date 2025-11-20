@@ -257,6 +257,21 @@ async function applyReferenceToTarget(clientName, filename, shouldCancel) {
 
   // Build target materials from reference
   const refMaterials = Array.isArray(refJson.materials) ? refJson.materials : [];
+  const refMaterialNames = refMaterials.map((m, idx) =>
+    (m && typeof m.name === 'string' && m.name.length > 0) ? m.name : `Mat_${idx}`
+  );
+  const refMeshBaseAssignments = new Map();
+  const refMeshes = Array.isArray(refJson.meshes) ? refJson.meshes : [];
+  refMeshes.forEach((mesh, meshIdx) => {
+    if (!Array.isArray(mesh?.primitives)) return;
+    const meshName = typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIdx}`;
+    const desiredMaterials = mesh.primitives.map((prim) => {
+      const matIdx = typeof prim?.material === 'number' ? prim.material : undefined;
+      if (typeof matIdx !== 'number') return undefined;
+      return refMaterialNames[matIdx];
+    });
+    refMeshBaseAssignments.set(meshName, desiredMaterials);
+  });
   const newMaterials = [];
   const usedTextureTransformRef = { used: false };
 
@@ -332,6 +347,28 @@ async function applyReferenceToTarget(clientName, filename, shouldCancel) {
       }
     });
   });
+
+  // 2b) Apply reference default material assignments by mesh name (handles non-variant mesh additions)
+  try {
+    const outMaterialsArr = Array.isArray(out.materials) ? out.materials : [];
+    const outMaterialNamesByIndex = outMaterialsArr.map((m) => (m && typeof m.name === 'string') ? m.name : undefined);
+    (Array.isArray(out.meshes) ? out.meshes : []).forEach((mesh, meshIdx) => {
+      const meshName = typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIdx}`;
+      const desiredMaterialNames = refMeshBaseAssignments.get(meshName);
+      if (!Array.isArray(desiredMaterialNames) || desiredMaterialNames.length === 0) return;
+      const prims = Array.isArray(mesh?.primitives) ? mesh.primitives : [];
+      prims.forEach((prim, primIdx) => {
+        const desiredName = desiredMaterialNames[primIdx];
+        if (!desiredName) return;
+        const newIdx = nameToNewIndex.get(desiredName);
+        if (typeof newIdx !== 'number') return;
+        const currentIdx = typeof prim?.material === 'number' ? prim.material : undefined;
+        const currentName = typeof currentIdx === 'number' ? outMaterialNamesByIndex[currentIdx] : undefined;
+        if (currentName === desiredName) return;
+        prim.material = newIdx;
+      });
+    });
+  } catch {}
 
   // 3) Remap KHR_materials_variants mapping.material indices by name (preserve variant names and per-variant assignments)
   try {
