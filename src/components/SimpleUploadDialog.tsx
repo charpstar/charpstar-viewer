@@ -150,6 +150,28 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
           throw new Error(finalizeJson?.error || 'Finalize failed');
         }
 
+        setUploadFiles(prev => prev.map(f => f.id === uploadFile.id ? { ...f, progress: 80 } : f));
+
+        // 3) Immediately apply reference materials to the newly uploaded model on Bunny
+        const applyResponse = await fetch('/api/apply-reference-to-model', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            client: clientName,
+            target: finalFilename,
+          }),
+        });
+
+        if (!applyResponse.ok) {
+          const msg = await readServerError(applyResponse);
+          throw new Error(`Material copy failed: ${msg}`);
+        }
+
+        const applyJson = await applyResponse.json().catch(() => ({}));
+        if (!applyJson?.success) {
+          throw new Error(applyJson?.error || 'Material copy failed');
+        }
+
         // Success
         setUploadFiles(prev => prev.map(f =>
           f.id === uploadFile.id
@@ -157,7 +179,7 @@ const SimpleUploadDialog = ({ isOpen, onClose, clientName, onSuccess }: SimpleUp
               ...f,
               status: 'success' as const,
               progress: 100,
-              uploadedUrl: finalizeJson?.fileUrl || finalFilename
+              uploadedUrl: applyJson?.url || finalizeJson?.fileUrl || finalFilename
             }
             : f
         ));
