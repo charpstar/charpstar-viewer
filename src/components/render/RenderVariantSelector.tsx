@@ -10,6 +10,7 @@ interface RenderVariantSelectorProps {
   selectedVariants: string[];
   onSelectionChange: (selected: string[]) => void;
   isModularMode?: boolean;
+  enableSecondary?: boolean;
 }
 
 const RenderVariantSelector: React.FC<RenderVariantSelectorProps> = ({ 
@@ -17,12 +18,14 @@ const RenderVariantSelector: React.FC<RenderVariantSelectorProps> = ({
   modelName,
   selectedVariants,
   onSelectionChange,
-  isModularMode = false
+  isModularMode = false,
+  enableSecondary = false
 }) => {
   const [variants, setVariants] = useState<string[]>([]);
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [useSecondary, setUseSecondary] = useState(false);
   
   // Variant fetching with proper modelViewerRef waiting
   useEffect(() => {
@@ -151,8 +154,12 @@ const RenderVariantSelector: React.FC<RenderVariantSelectorProps> = ({
           console.warn('setColor method not available on modular viewer');
         }
       } else {
-        // For regular mode, use variantName attribute
-        modelViewerRef.current.variantName = variantName;
+        // For regular mode, optionally apply via secondary-material helper
+        if (enableSecondary && useSecondary && typeof modelViewerRef.current.setSecondaryMaterial === 'function') {
+          modelViewerRef.current.setSecondaryMaterial(variantName);
+        } else {
+          modelViewerRef.current.variantName = variantName;
+        }
         setCurrentVariant(variantName);
       }
     } catch (error) {
@@ -272,6 +279,21 @@ const RenderVariantSelector: React.FC<RenderVariantSelectorProps> = ({
             Clear
           </Button>
         </div>
+
+        {enableSecondary && !isModularMode && (
+          <div className="flex items-center gap-2 text-xs text-gray-700">
+            <input
+              type="checkbox"
+              id="secondary-material-toggle"
+              checked={useSecondary}
+              onChange={(e) => setUseSecondary(e.target.checked)}
+              className="h-4 w-4"
+            />
+            <label htmlFor="secondary-material-toggle" className="cursor-pointer select-none">
+              Use secondary material (Sweef)
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Variant List - FULL HEIGHT with proper overflow */}

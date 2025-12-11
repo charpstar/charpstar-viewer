@@ -581,6 +581,7 @@ export default function ManageModelsPage() {
                   <VariantSelector 
                     modelViewerRef={modelViewerRef}
                     modelName={selectedModel}
+                    enableSecondary={clientName === 'Sweef'}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">

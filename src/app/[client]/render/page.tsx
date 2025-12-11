@@ -40,6 +40,7 @@ export default function RenderPage() {
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
   const modelViewerRef = useRef<any>(null);
+  const [isHeaderDownloading, setIsHeaderDownloading] = useState(false);
   
   // Modular configurator state
   const [activeTab, setActiveTab] = useState<'models' | 'modular'>('models');
@@ -125,6 +126,33 @@ export default function RenderPage() {
     setIsModelLoading(false);
     if (window.modelViewerElement) {
       modelViewerRef.current = window.modelViewerElement;
+    }
+  };
+
+  // Header GLB export (client-side snapshot of current viewer)
+  const handleHeaderDownloadGlb = async () => {
+    const viewer: any = modelViewerRef?.current;
+    if (!viewer || typeof viewer.exportScene !== 'function') {
+      alert('Export not available: model-viewer exportScene() missing.');
+      return;
+    }
+    try {
+      setIsHeaderDownloading(true);
+      const blob: Blob = await viewer.exportScene({ binary: true, onlyVisible: true, includeCustomExtensions: true });
+      const base = selectedModel ? selectedModel.replace(/\.(gltf|glb)$/i, '') : 'model';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${base}-export.glb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Header export failed:', e);
+      alert('Failed to export GLB from viewer.');
+    } finally {
+      setIsHeaderDownloading(false);
     }
   };
 
@@ -217,9 +245,9 @@ export default function RenderPage() {
     <div className="min-h-screen bg-gray-50">
       <Header 
         modelViewerRef={modelViewerRef}
-        onExportGLB={() => {}}
-        onExportGLTF={() => {}}
-        onExportUSDZ={() => {}}
+        titlePrefix="Rendering"
+        onExportGLB={handleHeaderDownloadGlb}
+        isSaving={isHeaderDownloading}
       />
       
       <div className="flex h-[calc(100vh-56px)]">
@@ -566,6 +594,7 @@ export default function RenderPage() {
                     selectedVariants={selectedVariants}
                     onSelectionChange={setSelectedVariants}
                     isModularMode={activeTab === 'modular'}
+                    enableSecondary={clientName === 'Sweef' && activeTab === 'models'}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">

@@ -417,6 +417,33 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
         const mv = modelViewerRef.current as any | null;
         const variantName: string | null = mv?.variantName || null;
         
+        // Collect per-mesh material overrides from the live viewer scene
+        let materialOverrides: Array<{ meshName: string; materialName: string }> = [];
+        try {
+          const scene = mv?.getScene?.();
+          if (scene && Array.isArray(scene.children)) {
+            const overrides: Record<string, string> = {};
+            const walk = (node: any) => {
+              if (!node) return;
+              if (node.type === 'Mesh' && node.name && node.material?.name) {
+                overrides[node.name] = node.material.name;
+              }
+              if (Array.isArray(node.children)) {
+                node.children.forEach(walk);
+              }
+            };
+            scene.children.forEach(walk);
+            materialOverrides = Object.entries(overrides).map(([meshName, materialName]) => ({ meshName, materialName }));
+            if (materialOverrides.length === 0) {
+              console.log('[RENDER] No material overrides found from viewer scene');
+            } else {
+              console.log('[RENDER] Collected material overrides from viewer scene:', materialOverrides);
+            }
+          }
+        } catch (err) {
+          console.warn('[RENDER] Failed to collect material overrides from viewer scene:', err);
+        }
+        
         payload = {
           client: clientName,
           modelFilename,
@@ -427,7 +454,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
           resolution: Number(resolution),
           aspectRatio,
           format: outputFormat,
-          environment
+          environment,
+          materialOverrides
         };
       }
       

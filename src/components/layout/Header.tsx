@@ -281,36 +281,42 @@ const Header: React.FC<HeaderProps> = ({
           </>
         )}
 
-        {/* Export buttons only shown for non-client views */}
-        {!isClientView && (
+        {/* Export buttons: show for non-client views or render view when handler provided */}
+        {((!isClientView) || isRenderView) && (
           <>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onExportGLB}
-              className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
-            >
-              <Download size={14} className="mr-2" />
-              GLB
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onExportGLTF}
-              className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
-            >
-              <Download size={14} className="mr-2" />
-              GLTF
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onExportUSDZ}
-              className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
-            >
-              <Download size={14} className="mr-2" />
-              USDZ
-            </Button>
+            {onExportGLB && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExportGLB}
+                className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
+              >
+                <Download size={14} className="mr-2" />
+                GLB
+              </Button>
+            )}
+            {onExportGLTF && !isClientView && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExportGLTF}
+                className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
+              >
+                <Download size={14} className="mr-2" />
+                GLTF
+              </Button>
+            )}
+            {onExportUSDZ && !isClientView && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExportUSDZ}
+                className="text-xs h-7 cursor-pointer hover:scale-105 transition-transform duration-200"
+              >
+                <Download size={14} className="mr-2" />
+                USDZ
+              </Button>
+            )}
           </>
         )}
       </div>

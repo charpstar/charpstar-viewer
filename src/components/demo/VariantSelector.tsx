@@ -4,16 +4,19 @@ import { Check, Search, X } from 'lucide-react';
 interface VariantSelectorProps {
   modelViewerRef: React.RefObject<any>;
   modelName: string;
+  enableSecondary?: boolean;
 }
 
 const VariantSelector: React.FC<VariantSelectorProps> = ({ 
   modelViewerRef,
-  modelName
+  modelName,
+  enableSecondary = false
 }) => {
   const [variants, setVariants] = useState<string[]>([]);
   const [currentVariant, setCurrentVariant] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [useSecondary, setUseSecondary] = useState(false);
   
   // Variant fetching with proper modelViewerRef waiting
   useEffect(() => {
@@ -135,7 +138,11 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
     if (!modelViewerRef.current) return;
     
     try {
-      modelViewerRef.current.variantName = variantName;
+      if (enableSecondary && useSecondary && typeof modelViewerRef.current.setSecondaryMaterial === 'function') {
+        modelViewerRef.current.setSecondaryMaterial(variantName);
+      } else {
+        modelViewerRef.current.variantName = variantName;
+      }
       setCurrentVariant(variantName);
     } catch (error) {
       console.error('Error selecting variant:', error);
@@ -201,6 +208,18 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
           : `Showing ${filteredVariants.length} of ${variants.length} variants`
         }
       </div>
+
+      {enableSecondary && (
+        <label className="flex items-center gap-2 text-xs text-gray-700">
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={useSecondary}
+            onChange={(e) => setUseSecondary(e.target.checked)}
+          />
+          <span>Use secondary material (Sweef)</span>
+        </label>
+      )}
 
       {/* Variant List - FULL HEIGHT with proper overflow */}
       <div className="flex-1 overflow-y-auto">

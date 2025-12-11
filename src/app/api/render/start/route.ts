@@ -15,12 +15,13 @@ interface StartBody {
   isModularUpload?: boolean; // Flag for pre-uploaded modular GLB
   tempGLBPath?: string; // Path to pre-uploaded GLB on BunnyCDN
   environment?: 'studio' | 'neutral' | 'neutral2';
+  materialOverrides?: Array<{ meshName: string; materialName: string }>;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as StartBody;
-    const { client, modelFilename, modelName, variantName, views, background, resolution, aspectRatio, format, isModularUpload, tempGLBPath, environment } = body || ({} as StartBody);
+    const { client, modelFilename, modelName, variantName, views, background, resolution, aspectRatio, format, isModularUpload, tempGLBPath, environment, materialOverrides } = body || ({} as StartBody);
     if (!client || !modelFilename || !modelName || !views || !Array.isArray(views) || views.length === 0 || !background || !resolution) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
         isModularUpload: isModularUpload || false,
         tempGLBPath: tempGLBPath || null,
         environment: environment || 'studio',
+        materialOverrides: Array.isArray(materialOverrides) ? materialOverrides : []
       }),
     });
     const prepJson = await prepRes.json().catch(() => ({}));
@@ -83,8 +85,9 @@ export async function POST(request: NextRequest) {
           resolution,
           aspectRatio: aspectRatio || 'square',
           format: format || 'png',
-          createdAt: new Date().toISOString(),
           environment: environment || 'studio',
+          materialOverrides: Array.isArray(materialOverrides) ? materialOverrides : [],
+          createdAt: new Date().toISOString(),
         })
       }).catch(() => null);
     } catch {}

@@ -13478,6 +13478,19 @@ const ControlsMixin = (ModelViewerElement) => {
 		getScene() {
 			return this[$scene]._model;
 		}
+ 
+        async setSecondaryMaterial(matName) {
+                for (var i = 0; i < this.model.materials.length; i++) {
+                    if (this.model.materials[i].name == matName) {
+                        if (this.getScene().getObjectByName("extra_fabric")) {
+                            await this.model.materials[i].ensureLoaded();
+                            await this.model.materials[i].getVariantMaterial();
+                            this.getScene().getObjectByName("extra_fabric").material = this.model.materials[i].getVariantMaterial();
+                        }
+                    }
+                }
+                this[$scene].isDirty = true;
+        }
 
 		totalMeshCount() {
 			if (!this[$scene] || !this[$scene].model) {
@@ -19290,6 +19303,10 @@ class Material extends ThreeDOMElement {
             this[$lazyLoadGLTFInfo] = lazyLoadInfo;
         }
     }
+
+	getVariantMaterial() {
+		return this[$correlatedObjects].values().next().value;
+	}
     [$initialize]() {
         const onUpdate = this[$onUpdate$1];
         const correlatedMaterials = this[$correlatedObjects];

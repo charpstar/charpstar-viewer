@@ -78,6 +78,7 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
       return 'png';
     }
   });
+  const [isDownloading, setIsDownloading] = useState(false);
   const [environment, setEnvironment] = useState<EnvironmentPreset>(() => {
     if (typeof window === 'undefined') return 'studio';
     try {
@@ -220,6 +221,32 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
     }
   };
 
+  const handleDownloadGlb = async () => {
+    const viewer: any = modelViewerRef?.current;
+    if (!viewer || typeof viewer.exportScene !== 'function') {
+      alert('Export not available: model-viewer exportScene() missing.');
+      return;
+    }
+    try {
+      setIsDownloading(true);
+      const blob: Blob = await viewer.exportScene({ binary: true, onlyVisible: true, includeCustomExtensions: true });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const base = modelFilename ? modelFilename.replace(/\.(gltf|glb)$/i, '') : 'model';
+      a.href = url;
+      a.download = `${base}-export.glb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to export GLB:', e);
+      alert('Failed to export GLB from viewer.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="bg-white/95 rounded-lg">
       <div className="p-4">
@@ -228,25 +255,36 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
             <Camera className="w-4 h-4 text-gray-600" />
             <div className="text-sm font-medium text-gray-900">Photoreal Render</div>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  onClick={handleStartRender}
-                  disabled={!modelFilename || isSubmitting || isBlocked}
-                  className="h-8 text-xs px-4"
-                >
-                  {isSubmitting ? (<><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Render</>) : 'Render'}
-                </Button>
-              </TooltipTrigger>
-              {isBlocked && (
-                <TooltipContent>
-                  <div className="text-xs">Render already in progress for this model/variant</div>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex items-center space-x-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    onClick={handleStartRender}
+                    disabled={!modelFilename || isSubmitting || isBlocked}
+                    className="h-8 text-xs px-4"
+                  >
+                    {isSubmitting ? (<><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Render</>) : 'Render'}
+                  </Button>
+                </TooltipTrigger>
+                {isBlocked && (
+                  <TooltipContent>
+                    <div className="text-xs">Render already in progress for this model/variant</div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDownloadGlb}
+              disabled={!modelFilename || isDownloading}
+              className="h-8 text-xs px-3"
+            >
+              {isDownloading ? (<><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Export</>) : 'Download GLB'}
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="options">
