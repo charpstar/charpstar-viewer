@@ -126,6 +126,8 @@ export async function GET(request: NextRequest) {
       const baseScale = baseTransform?.getScale?.();
       const mrScale = mrTransform?.getScale?.();
       const normalScale = normalTransform?.getScale?.();
+      const baseRotation = baseTransform?.getRotation?.();
+      const normalRotation = normalTransform?.getRotation?.();
       // Sheen texture transform scales
       const sheenColorInfo = sheen?.getSheenColorTextureInfo?.();
       const sheenRoughInfo = sheen?.getSheenRoughnessTextureInfo?.();
@@ -133,6 +135,7 @@ export async function GET(request: NextRequest) {
       const sheenRoughTransform = sheenRoughInfo?.getExtension?.('KHR_texture_transform' as any) as any;
       const sheenColorScale = sheenColorTransform?.getScale?.();
       const sheenRoughScale = sheenRoughTransform?.getScale?.();
+      const sheenColorRotation = sheenColorTransform?.getRotation?.();
       const sheenColorTexCoord = typeof sheenColorInfo?.getTexCoord === 'function' ? sheenColorInfo.getTexCoord() : undefined;
       const sheenRoughTexCoord = typeof sheenRoughInfo?.getTexCoord === 'function' ? sheenRoughInfo.getTexCoord() : undefined;
 
@@ -154,12 +157,15 @@ export async function GET(request: NextRequest) {
         baseColorTextureScale: Array.isArray(baseScale) ? baseScale : undefined,
         metallicRoughnessTextureScale: Array.isArray(mrScale) ? mrScale : undefined,
         normalTextureScale: Array.isArray(normalScale) ? normalScale : undefined,
+        baseColorTextureRotation: typeof baseRotation === 'number' ? baseRotation : undefined,
+        normalTextureRotation: typeof normalRotation === 'number' ? normalRotation : undefined,
         sheenRoughnessFactor: sheen?.getSheenRoughnessFactor?.(),
         sheenRoughnessTexture: texToKey(sheen?.getSheenRoughnessTexture?.()),
         sheenColor: sheen?.getSheenColorFactor?.(),
         sheenColorTexture: texToKey(sheen?.getSheenColorTexture?.()),
         sheenColorTextureScale: Array.isArray(sheenColorScale) ? sheenColorScale : undefined,
         sheenRoughnessTextureScale: Array.isArray(sheenRoughScale) ? sheenRoughScale : undefined,
+        sheenColorTextureRotation: typeof sheenColorRotation === 'number' ? sheenColorRotation : undefined,
         sheenColorTextureTexCoord: typeof sheenColorTexCoord === 'number' ? sheenColorTexCoord : undefined,
         sheenRoughnessTextureTexCoord: typeof sheenRoughTexCoord === 'number' ? sheenRoughTexCoord : undefined,
       };
@@ -209,6 +215,9 @@ export async function GET(request: NextRequest) {
       const baseScale = pbr.baseColorTexture?.extensions?.KHR_texture_transform?.scale;
       const mrScaleRaw = pbr.metallicRoughnessTexture?.extensions?.KHR_texture_transform?.scale;
       const normalScale = original.normalTexture?.extensions?.KHR_texture_transform?.scale;
+      const baseRotRaw = pbr.baseColorTexture?.extensions?.KHR_texture_transform?.rotation;
+      const normalRotRaw = original.normalTexture?.extensions?.KHR_texture_transform?.rotation;
+      const sheenColorRotRaw = sheenExt?.sheenColorTexture?.extensions?.KHR_texture_transform?.rotation;
       return {
         ...m,
         baseColorTexture: m.baseColorTexture ?? getUriFromTexIndex(baseIdx),
@@ -221,8 +230,11 @@ export async function GET(request: NextRequest) {
         baseColorTextureScale: (m as any).baseColorTextureScale ?? (Array.isArray(baseScale) ? baseScale : undefined),
         metallicRoughnessTextureScale: (m as any).metallicRoughnessTextureScale ?? (Array.isArray(mrScaleRaw) ? mrScaleRaw : undefined),
         normalTextureScale: (m as any).normalTextureScale ?? (Array.isArray(normalScale) ? normalScale : undefined),
+        baseColorTextureRotation: (m as any).baseColorTextureRotation ?? (typeof baseRotRaw === 'number' ? baseRotRaw : undefined),
+        normalTextureRotation: (m as any).normalTextureRotation ?? (typeof normalRotRaw === 'number' ? normalRotRaw : undefined),
           sheenColorTextureScale: (m as any).sheenColorTextureScale ?? (Array.isArray(sheenColorScaleRaw) ? sheenColorScaleRaw : undefined),
           sheenRoughnessTextureScale: (m as any).sheenRoughnessTextureScale ?? (Array.isArray(sheenRoughScaleRaw) ? sheenRoughScaleRaw : undefined),
+          sheenColorTextureRotation: (m as any).sheenColorTextureRotation ?? (typeof sheenColorRotRaw === 'number' ? sheenColorRotRaw : undefined),
           sheenColorTextureTexCoord: (m as any).sheenColorTextureTexCoord ?? (typeof sheenColorTexCoordRaw === 'number' ? sheenColorTexCoordRaw : undefined),
           sheenRoughnessTextureTexCoord: (m as any).sheenRoughnessTextureTexCoord ?? (typeof sheenRoughTexCoordRaw === 'number' ? sheenRoughTexCoordRaw : undefined),
         // Fallback for occlusionStrength: read from raw JSON when present

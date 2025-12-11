@@ -25,8 +25,10 @@ interface Material {
   normalScale: number;
   occlusionStrength: number;
   baseColorTexture?: string;
+  baseColorTextureRotation?: number;
   metallicRoughnessTexture?: string;
   normalTexture?: string;
+  normalTextureRotation?: number;
   occlusionTexture?: string;
   emissiveTexture?: string;
   sheenFactor?: number; // legacy UI alias
@@ -35,6 +37,7 @@ interface Material {
   sheenRoughnessTexture?: string;
   sheenColor?: [number, number, number];
   sheenColorTexture?: string;
+  sheenColorTextureRotation?: number;
   // Texture tiling (KHR_texture_transform scale)
   baseColorTextureScale?: [number, number];
   normalTextureScale?: [number, number];
@@ -610,8 +613,10 @@ export default function MaterialEditorPage() {
       normalScale: material.normalScale ?? 1,
       occlusionStrength: material.occlusionStrength ?? 1,
       baseColorTexture: material.baseColorTexture,
+      baseColorTextureRotation: (material as any).baseColorTextureRotation ?? 0,
       metallicRoughnessTexture: material.metallicRoughnessTexture,
       normalTexture: material.normalTexture,
+      normalTextureRotation: (material as any).normalTextureRotation ?? 0,
       occlusionTexture: material.occlusionTexture,
       emissiveTexture: material.emissiveTexture,
       // Sheen fields from reader (support full names and legacy) — do NOT default when absent
@@ -619,6 +624,7 @@ export default function MaterialEditorPage() {
       sheenRoughnessTexture: ((material as any).sheenRoughnessTexture ?? (material as any).sheenTexture) || undefined,
       sheenColor: Array.isArray((material as any).sheenColor) ? (material as any).sheenColor : undefined,
       sheenColorTexture: (material as any).sheenColorTexture || undefined,
+      sheenColorTextureRotation: (material as any).sheenColorTextureRotation ?? 0,
       // Tiling defaults
       baseColorTextureScale: (material as any).baseColorTextureScale || [1, 1],
       metallicRoughnessTextureScale: (material as any).metallicRoughnessTextureScale || [1, 1],
@@ -746,6 +752,18 @@ export default function MaterialEditorPage() {
           if (sheenColorTex) (sheenColorTex as any).flipY = false;
           if (sheenRoughTex) (sheenRoughTex as any).flipY = false;
         } catch { }
+
+        const applyRotation = (tex: any, rot?: number) => {
+          if (!tex || rot == null) return;
+          try {
+            if (tex.center?.set) tex.center.set(0.5, 0.5);
+            tex.rotation = rot;
+            tex.needsUpdate = true;
+          } catch { }
+        };
+        applyRotation(mapTex, (active as any).baseColorTextureRotation ?? 0);
+        applyRotation(normalTex, (active as any).normalTextureRotation ?? 0);
+        applyRotation(sheenColorTex, (active as any).sheenColorTextureRotation ?? 0);
 
         // Ensure correct color space: base color, emissive and sheen color maps should be sRGB
         const setSRGB = (tex?: any) => {
@@ -961,11 +979,17 @@ export default function MaterialEditorPage() {
       // Reset tiling to 1,1 when a new base or normal texture is added
       const resetBase = property === 'baseColorTexture' && typeof value === 'string';
       const resetNormal = property === 'normalTexture' && typeof value === 'string';
+      const resetRotationProp =
+        property === 'baseColorTexture' ? 'baseColorTextureRotation'
+          : property === 'normalTexture' ? 'normalTextureRotation'
+            : property === 'sheenColorTexture' ? 'sheenColorTextureRotation'
+              : null;
       const updated = {
         ...prev,
         [property]: value,
         ...(resetBase ? { baseColorTextureScale: [1, 1] as any } : {}),
         ...(resetNormal ? { normalTextureScale: [1, 1] as any } : {}),
+        ...(resetRotationProp ? { [resetRotationProp]: 0 } : {}),
       };
       // Persist texture edits into staged materials so Save includes them
       const name = prev.name;
@@ -977,6 +1001,7 @@ export default function MaterialEditorPage() {
             [property]: value,
             ...(resetBase ? { baseColorTextureScale: [1, 1] as any } : {}),
             ...(resetNormal ? { normalTextureScale: [1, 1] as any } : {}),
+            ...(resetRotationProp ? { [resetRotationProp]: 0 } : {}),
           } as any,
         }));
       }
@@ -1035,6 +1060,18 @@ export default function MaterialEditorPage() {
                   // leave default for normal map
                   break;
               }
+            } catch { }
+            const rot = (() => {
+              switch (property) {
+                case 'baseColorTexture': return (editedMaterial as any)?.baseColorTextureRotation ?? 0;
+                case 'normalTexture': return (editedMaterial as any)?.normalTextureRotation ?? 0;
+                case 'sheenColorTexture': return (editedMaterial as any)?.sheenColorTextureRotation ?? 0;
+                default: return 0;
+              }
+            })();
+            try {
+              if (tex.center?.set) tex.center.set(0.5, 0.5);
+              tex.rotation = rot;
             } catch { }
             const baseScale = [1, 1] as [number, number];
             const normalScaleVals = [1, 1] as [number, number];
@@ -1098,6 +1135,42 @@ export default function MaterialEditorPage() {
       return updated;
     });
   }, []);
+
+  // Handle texture rotation (radians) for base color / normal / sheen color maps
+  const handleTextureRotationChange = useCallback((slot: 'baseColorTexture' | 'normalTexture' | 'sheenColorTexture', radians: number) => {
+    const rad = isFinite(radians) ? radians : 0;
+    const prop =
+      slot === 'baseColorTexture' ? 'baseColorTextureRotation'
+        : slot === 'normalTexture' ? 'normalTextureRotation'
+          : 'sheenColorTextureRotation';
+    setEditedMaterial(prev => {
+      if (!prev) return prev;
+      return { ...prev, [prop]: rad } as any;
+    });
+    const name = editedMaterial?.name;
+    if (name) {
+      setStagedMaterials(prev => {
+        const base = prev[name] ?? editedMaterial!;
+        return {
+          ...prev,
+          [name]: { ...(base as any), [prop]: rad } as any,
+        };
+      });
+    }
+    try {
+      withTargetMeshes((mat) => {
+        const tex =
+          slot === 'baseColorTexture' ? mat?.map
+            : slot === 'normalTexture' ? mat?.normalMap
+              : (mat as any)?.sheenColorMap;
+        if (tex) {
+          if (tex.center?.set) tex.center.set(0.5, 0.5);
+          tex.rotation = rad;
+          tex.needsUpdate = true;
+        }
+      });
+    } catch { }
+  }, [editedMaterial, withTargetMeshes]);
 
   // Removed slider control logic – we will rebuild cleanly
 
@@ -1915,6 +1988,20 @@ export default function MaterialEditorPage() {
                               </div>
                             </div>
                           )}
+                          <div className="mt-2 flex items-center space-x-2">
+                            <span className="text-xs text-gray-600 w-16">Rotation (rad)</span>
+                            <Input
+                              type="number"
+                              step="0.001"
+                              value={String(Math.round((((editedMaterial as any)?.baseColorTextureRotation ?? 0) * 1e6)) / 1e6)}
+                              onChange={(e) => {
+                                const rad = parseFloat(e.target.value || '0');
+                                handleTextureRotationChange('baseColorTexture', rad);
+                              }}
+                              disabled={!editedTextures?.baseColorTexture}
+                              className="h-7 text-xs"
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -2136,6 +2223,20 @@ export default function MaterialEditorPage() {
                               </div>
                             </div>
                           )}
+                          <div className="mt-2 flex items-center space-x-2">
+                            <span className="text-xs text-gray-600 w-16">Rotation (rad)</span>
+                            <Input
+                              type="number"
+                              step="0.001"
+                              value={String(Math.round((((editedMaterial as any)?.normalTextureRotation ?? 0) * 1e6)) / 1e6)}
+                              onChange={(e) => {
+                                const rad = parseFloat(e.target.value || '0');
+                                handleTextureRotationChange('normalTexture', rad);
+                              }}
+                              disabled={!editedTextures?.normalTexture}
+                              className="h-7 text-xs"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2321,6 +2422,20 @@ export default function MaterialEditorPage() {
                                 onRemove={() => handleMaterialChange('sheenColorTexture', null)}
                               />
                             </div>
+                              <div className="mt-2 flex items-center space-x-2">
+                                <span className="text-xs text-gray-600 w-20">Rotation (rad)</span>
+                                <Input
+                                  type="number"
+                                  step="0.001"
+                                  value={String(Math.round((((editedMaterial as any)?.sheenColorTextureRotation ?? 0) * 1e6)) / 1e6)}
+                                  onChange={(e) => {
+                                    const rad = parseFloat(e.target.value || '0');
+                                    handleTextureRotationChange('sheenColorTexture', rad);
+                                  }}
+                                  disabled={!editedTextures?.sheenColorTexture}
+                                  className="h-7 text-xs"
+                                />
+                              </div>
                           </div>
 
                         </div>

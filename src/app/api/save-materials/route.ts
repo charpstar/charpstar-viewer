@@ -220,6 +220,7 @@ export async function POST(request: NextRequest) {
       try {
         const info = (mat as any).getBaseColorTextureInfo?.();
         const scale = Array.isArray((m as any).baseColorTextureScale) ? (m as any).baseColorTextureScale : undefined;
+        const rotation = typeof (m as any).baseColorTextureRotation === 'number' ? (m as any).baseColorTextureRotation : undefined;
         if (info && Array.isArray(scale) && scale.length === 2 && scale.every((v: any) => typeof v === 'number')) {
           let xform = info.getExtension?.('KHR_texture_transform');
           if (!xform) {
@@ -229,6 +230,16 @@ export async function POST(request: NextRequest) {
           }
           if (xform?.setScale) xform.setScale(scale as [number, number]);
           else if (xform) (xform as any).scale = scale;
+        }
+        if (info && rotation !== undefined) {
+          let xform = info.getExtension?.('KHR_texture_transform');
+          if (!xform) {
+            const ext = document.createExtension(KHRTextureTransform);
+            xform = (ext as any).createTextureTransform?.();
+            info.setExtension?.('KHR_texture_transform', xform);
+          }
+          if (xform?.setRotation) xform.setRotation(rotation);
+          else if (xform) (xform as any).rotation = rotation;
         }
       } catch { }
 
@@ -260,6 +271,7 @@ export async function POST(request: NextRequest) {
       try {
         const nInfo = (mat as any).getNormalTextureInfo?.();
         const nScale = Array.isArray((m as any).normalTextureScale) ? (m as any).normalTextureScale : undefined;
+        const nRotation = typeof (m as any).normalTextureRotation === 'number' ? (m as any).normalTextureRotation : undefined;
         if (nInfo && Array.isArray(nScale) && nScale.length === 2 && nScale.every((v: any) => typeof v === 'number')) {
           let nx = nInfo.getExtension?.('KHR_texture_transform');
           if (!nx) {
@@ -269,6 +281,16 @@ export async function POST(request: NextRequest) {
           }
           if (nx?.setScale) nx.setScale(nScale as [number, number]);
           else if (nx) (nx as any).scale = nScale;
+        }
+        if (nInfo && nRotation !== undefined) {
+          let nx = nInfo.getExtension?.('KHR_texture_transform');
+          if (!nx) {
+            const ext = document.createExtension(KHRTextureTransform);
+            nx = (ext as any).createTextureTransform?.();
+            nInfo.setExtension?.('KHR_texture_transform', nx);
+          }
+          if (nx?.setRotation) nx.setRotation(nRotation);
+          else if (nx) (nx as any).rotation = nRotation;
         }
       } catch { }
 
@@ -343,9 +365,20 @@ export async function POST(request: NextRequest) {
             try {
               const info = sheenExt.getSheenColorTextureInfo?.();
               const tc = (m as any).sheenColorTextureTexCoord;
+              const rot = typeof (m as any).sheenColorTextureRotation === 'number' ? (m as any).sheenColorTextureRotation : undefined;
               if (info && typeof tc === 'number') {
                 if (typeof (info as any).setTexCoord === 'function') (info as any).setTexCoord(tc);
                 else (info as any).texCoord = tc;
+              }
+              if (info && rot !== undefined) {
+                let xform = info.getExtension?.('KHR_texture_transform');
+                if (!xform) {
+                  const ext = document.createExtension(KHRTextureTransform);
+                  xform = (ext as any).createTextureTransform?.();
+                  info.setExtension?.('KHR_texture_transform', xform);
+                }
+                if (xform?.setRotation) xform.setRotation(rot);
+                else if (xform) (xform as any).rotation = rot;
               }
             } catch { }
           }
@@ -708,7 +741,13 @@ export async function POST(request: NextRequest) {
 
       let usedTextureTransform = false;
 
-      const applySlot = (outMat: any, slotPath: string[], texKey?: string, transformScale?: [number, number]) => {
+      const applySlot = (
+        outMat: any,
+        slotPath: string[],
+        texKey?: string,
+        transformScale?: [number, number],
+        transformRotation?: number
+      ) => {
         if (!texKey) return;
         // Resolve filename: accept with or without images/ prefix
         const cleanKey = stripImagesPrefix(texKey) || texKey;
@@ -737,10 +776,14 @@ export async function POST(request: NextRequest) {
           target[lastKey].index = texIndex;
         }
         // KHR_texture_transform scale (e.g., tiling) if provided
-        if (Array.isArray(transformScale) && transformScale.length === 2) {
+        const hasScale = Array.isArray(transformScale) && transformScale.length === 2;
+        const hasRotation = typeof transformRotation === 'number';
+        if (hasScale || hasRotation) {
           target[lastKey].extensions = target[lastKey].extensions || {};
           target[lastKey].extensions.KHR_texture_transform = target[lastKey].extensions.KHR_texture_transform || {};
-          target[lastKey].extensions.KHR_texture_transform.scale = [...transformScale];
+          const xform = target[lastKey].extensions.KHR_texture_transform;
+          if (hasScale) xform.scale = [...transformScale as [number, number]];
+          if (hasRotation) xform.rotation = transformRotation;
           usedTextureTransform = true;
         }
       };
@@ -751,9 +794,9 @@ export async function POST(request: NextRequest) {
           if (!m?.name) continue;
           const outMat = (out.materials as any[]).find((x) => x?.name === m.name);
           if (!outMat) continue;
-          applySlot(outMat, ['pbrMetallicRoughness', 'baseColorTexture'], m.baseColorTexture, (m as any).baseColorTextureScale);
+          applySlot(outMat, ['pbrMetallicRoughness', 'baseColorTexture'], m.baseColorTexture, (m as any).baseColorTextureScale, (m as any).baseColorTextureRotation);
           applySlot(outMat, ['pbrMetallicRoughness', 'metallicRoughnessTexture'], m.metallicRoughnessTexture || (m as any).metallicTexture || (m as any).roughnessTexture);
-          applySlot(outMat, ['normalTexture'], m.normalTexture, (m as any).normalTextureScale);
+          applySlot(outMat, ['normalTexture'], m.normalTexture, (m as any).normalTextureScale, (m as any).normalTextureRotation);
           // Persist normalTexture.scale (normal strength) explicitly in raw JSON
           // Only when a normal texture index is present to avoid creating invalid TextureInfo objects
           if (
@@ -791,7 +834,7 @@ export async function POST(request: NextRequest) {
               }
             }
             if (m.sheenColorTexture) {
-              applySlot(outMat.extensions.KHR_materials_sheen, ['sheenColorTexture'], m.sheenColorTexture, (m as any).sheenColorTextureScale);
+              applySlot(outMat.extensions.KHR_materials_sheen, ['sheenColorTexture'], m.sheenColorTexture, (m as any).sheenColorTextureScale, (m as any).sheenColorTextureRotation);
               const tc = (m as any).sheenColorTextureTexCoord;
               if (typeof tc === 'number') {
                 const tgt = outMat.extensions.KHR_materials_sheen;
