@@ -20413,7 +20413,6 @@ const SceneGraphMixin = (ModelViewerElement) => {
                     visible = shadow.visible;
                     shadow.visible = false;
                 }
-                await this[$model][$prepareVariantsForExport]();
                 const exporter = new GLTFExporter()
                     .register((writer) => new GLTFExporterMaterialsVariantsExtension(writer));
                 exporter.parse(scene.model, (gltf) => {

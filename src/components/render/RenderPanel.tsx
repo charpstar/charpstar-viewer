@@ -18,6 +18,7 @@ interface RenderPanelProps {
 
 type BackgroundMode = 'transparent' | 'color';
 type OutputFormat = 'png' | 'jpg' | 'webp';
+type EnvironmentPreset = 'studio' | 'neutral' | 'neutral2';
 
 const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename }) => {
   const params = useParams();
@@ -77,6 +78,14 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
       return 'png';
     }
   });
+  const [environment, setEnvironment] = useState<EnvironmentPreset>(() => {
+    if (typeof window === 'undefined') return 'studio';
+    try {
+      return (localStorage.getItem('charpstar:renderSettings:environment') as EnvironmentPreset) || 'studio';
+    } catch {
+      return 'studio';
+    }
+  });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -116,6 +125,13 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
       localStorage.setItem('charpstar:renderSettings:format', outputFormat);
     } catch {}
   }, [outputFormat]);
+  
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:environment', environment);
+    } catch {}
+  }, [environment]);
 
   const computeBlocked = async () => {
     try {
@@ -186,7 +202,8 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
           views,
           background: backgroundValue,
           resolution: Number(resolution),
-          format: outputFormat
+          format: outputFormat,
+          environment
         })
       });
       const json = await res.json().catch(() => ({}));
@@ -326,6 +343,20 @@ const RenderPanel: React.FC<RenderPanelProps> = ({ modelViewerRef, modelFilename
                   />
                 </div>
               )}
+            </div>
+
+            {/* HDRI / Environment */}
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-gray-500 mb-2">Lighting Preset</div>
+              <select
+                value={environment}
+                onChange={e => setEnvironment(e.target.value as EnvironmentPreset)}
+                className="w-full h-9 text-xs bg-gray-50 border-0 rounded-md px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="studio">Studio (warm)</option>
+                <option value="neutral">Neutral</option>
+                <option value="neutral2">Neutral 2</option>
+              </select>
             </div>
 
             <RenderQueuePanel clientName={clientName} />

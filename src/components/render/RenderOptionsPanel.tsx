@@ -21,6 +21,13 @@ interface RenderOptionsPanelProps {
 type BackgroundMode = 'transparent' | 'color';
 type OutputFormat = 'png' | 'jpg' | 'webp';
 type AspectRatio = 'square' | 'rectangle';
+type EnvironmentPreset = 'studio' | 'neutral' | 'neutral2';
+
+const environmentLabels: Record<EnvironmentPreset, string> = {
+  studio: 'Studio (warm)',
+  neutral: 'Neutral',
+  neutral2: 'Neutral 2',
+};
 
 const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({ 
   modelViewerRef, 
@@ -34,8 +41,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   const clientName = (params?.client as string) || '';
 
   const cameraPresets = useMemo(() => ([
-    { name: 'angledright', label: 'Angled Right 35°', orbit: '30deg 90deg 80%' },
-    { name: 'angledleft', label: 'Angled Left 35°', orbit: '-30deg 90deg 80%' },
+    { name: 'angledright', label: 'Angled Right 35°', orbit: '25deg 84deg 80%' },
+    { name: 'angledleft', label: 'Angled Left 35°', orbit: '-25deg 84deg 80%' },
     { name: 'table', label: 'Table', orbit: '-30deg 75deg 80%' },
     { name: 'front', label: 'Front', orbit: '0deg 88deg 80%' },
     { name: 'back', label: 'Back', orbit: '180deg 90deg 80%' },
@@ -62,6 +69,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
   const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('color');
   const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('png');
+  const [environment, setEnvironment] = useState<EnvironmentPreset>('studio');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -84,6 +92,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       const savedBackgroundMode = localStorage.getItem('charpstar:renderSettings:backgroundMode');
       const savedBackgroundColor = localStorage.getItem('charpstar:renderSettings:backgroundColor');
       const savedFormat = localStorage.getItem('charpstar:renderSettings:format');
+      const savedEnvironment = localStorage.getItem('charpstar:renderSettings:environment');
       
       console.log('[RENDER DEBUG] Loading from localStorage:', {
         savedViews,
@@ -91,7 +100,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
         savedAspectRatio,
         savedBackgroundMode,
         savedBackgroundColor,
-        savedFormat
+        savedFormat,
+        savedEnvironment
       });
       
       if (savedViews) {
@@ -108,6 +118,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       if (savedBackgroundMode) setBackgroundMode(savedBackgroundMode as BackgroundMode);
       if (savedBackgroundColor) setBackgroundColor(savedBackgroundColor);
       if (savedFormat) setOutputFormat(savedFormat as OutputFormat);
+      if (savedEnvironment) setEnvironment(savedEnvironment as EnvironmentPreset);
       
       setIsHydrated(true);
     } catch (e) {
@@ -217,6 +228,13 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
       localStorage.setItem('charpstar:renderSettings:format', outputFormat);
     } catch {}
   }, [outputFormat]);
+  
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('charpstar:renderSettings:environment', environment);
+    } catch {}
+  }, [environment]);
 
   // When JPG is selected, switch to color mode if transparent
   React.useEffect(() => {
@@ -391,7 +409,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
           aspectRatio,
           format: outputFormat,
           isModularUpload: true,
-          tempGLBPath: tempPath
+          tempGLBPath: tempPath,
+          environment
         };
       } else {
         // Regular model mode
@@ -407,7 +426,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
           background: backgroundValue,
           resolution: Number(resolution),
           aspectRatio,
-          format: outputFormat
+          format: outputFormat,
+          environment
         };
       }
       
@@ -539,7 +559,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 aspectRatio,
                 format: outputFormat,
                 isModularUpload: true,
-                tempGLBPath: tempPath
+                tempGLBPath: tempPath,
+                environment
               })
             });
             const json = await res.json().catch(() => ({}));
@@ -563,7 +584,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 background: backgroundValue,
                 resolution: 1024, // Fixed at 1024
                 aspectRatio,
-                format: outputFormat
+                format: outputFormat,
+                environment
               })
             });
             const json = await res.json().catch(() => ({}));
@@ -682,7 +704,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 aspectRatio,
                 format: outputFormat,
                 isModularUpload: true,
-                tempGLBPath: tempPath
+                tempGLBPath: tempPath,
+                environment
               })
             });
             const json = await res.json().catch(() => ({}));
@@ -706,7 +729,8 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                 background: backgroundValue,
                 resolution: Number(resolution),
                 aspectRatio,
-                format: outputFormat
+                format: outputFormat,
+                environment
               })
             });
             const json = await res.json().catch(() => ({}));
@@ -931,6 +955,20 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Lighting Preset */}
+              <div className="sm:col-span-1">
+                <label className="text-[10px] sm:text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 sm:mb-3 block">Lighting Preset</label>
+                <select
+                  value={environment}
+                  onChange={e => setEnvironment(e.target.value as EnvironmentPreset)}
+                  className="w-full h-9 sm:h-10 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-md px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="studio">{environmentLabels.studio}</option>
+                  <option value="neutral">{environmentLabels.neutral}</option>
+                  <option value="neutral2">{environmentLabels.neutral2}</option>
+                </select>
               </div>
             </div>
           </div>
@@ -1172,6 +1210,7 @@ const RenderOptionsPanel: React.FC<RenderOptionsPanelProps> = ({
                   <div>• <strong>Resolution:</strong> {resolution}px</div>
                   <div>• <strong>Format:</strong> {outputFormat.toUpperCase()}</div>
                   <div>• <strong>Background:</strong> {backgroundMode === 'transparent' ? 'Transparent' : backgroundColor}</div>
+                  <div>• <strong>Lighting:</strong> {environmentLabels[environment]}</div>
                   <div>• <strong>Camera Angles:</strong> {selectedViews.map(v => cameraPresets.find(p => p.name === v)?.label || v).join(', ')}</div>
                 </div>
               </div>

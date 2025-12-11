@@ -14,12 +14,13 @@ interface StartBody {
   format?: 'png' | 'jpg' | 'webp';
   isModularUpload?: boolean; // Flag for pre-uploaded modular GLB
   tempGLBPath?: string; // Path to pre-uploaded GLB on BunnyCDN
+  environment?: 'studio' | 'neutral' | 'neutral2';
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as StartBody;
-    const { client, modelFilename, modelName, variantName, views, background, resolution, aspectRatio, format, isModularUpload, tempGLBPath } = body || ({} as StartBody);
+    const { client, modelFilename, modelName, variantName, views, background, resolution, aspectRatio, format, isModularUpload, tempGLBPath, environment } = body || ({} as StartBody);
     if (!client || !modelFilename || !modelName || !views || !Array.isArray(views) || views.length === 0 || !background || !resolution) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -54,6 +55,7 @@ export async function POST(request: NextRequest) {
         format: format || 'png',
         isModularUpload: isModularUpload || false,
         tempGLBPath: tempGLBPath || null,
+        environment: environment || 'studio',
       }),
     });
     const prepJson = await prepRes.json().catch(() => ({}));
@@ -82,6 +84,7 @@ export async function POST(request: NextRequest) {
           aspectRatio: aspectRatio || 'square',
           format: format || 'png',
           createdAt: new Date().toISOString(),
+          environment: environment || 'studio',
         })
       }).catch(() => null);
     } catch {}
