@@ -20393,6 +20393,7 @@ const SceneGraphMixin = (ModelViewerElement) => {
         /** @export */
         async exportScene(options) {
             const scene = this[$scene];
+			console.log('exportScene', scene);
             return new Promise(async (resolve, reject) => {
                 // Defaults
                 const opts = {
