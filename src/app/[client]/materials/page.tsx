@@ -850,7 +850,7 @@ export default function MaterialEditorPage() {
             if (m.transparent && typeof m.depthWrite === 'boolean') m.depthWrite = a >= 1;
           }
           if (isTarget && m.normalScale?.set && typeof active.normalScale === 'number') {
-            m.normalScale.set(active.normalScale, active.normalScale);
+            m.normalScale.set(active.normalScale, -active.normalScale);
           }
           if (isTarget && 'aoMapIntensity' in m && typeof active.occlusionStrength === 'number') {
             m.aoMapIntensity = active.occlusionStrength;
@@ -2148,7 +2148,7 @@ export default function MaterialEditorPage() {
                               }
                               const mv = modelViewerRef.current as any;
                               if (!mv) return;
-                              try { withTargetMeshes((mat) => { if (mat?.normalScale?.set) mat.normalScale.set(v, v); }); } catch { }
+                              try { withTargetMeshes((mat) => { if (mat?.normalScale?.set) mat.normalScale.set(v, -v); }); } catch { }
                             }}
                             min={0} max={2} step={0.01}
                           />
@@ -2434,8 +2434,8 @@ export default function MaterialEditorPage() {
                                   }}
                                   disabled={!editedTextures?.sheenColorTexture}
                                   className="h-7 text-xs"
-                                />
-                              </div>
+                              />
+                            </div>
                           </div>
 
                         </div>
