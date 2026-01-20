@@ -13540,6 +13540,16 @@ const ControlsMixin = (ModelViewerElement) => {
         else {
         this.cameraOrbit = "-25deg 80deg 80%";   
         }
+		const size = this.getDimensions();
+		if (size.x + size.z <= 1.5 ) {
+			if (cameraOrbitX) {
+			   var nco = cameraOrbitX.replace(/(\d+)%$/, '98%');
+			   this.cameraOrbit = nco;
+			   }
+		   this.minFieldOfView = "40deg"
+		   this.fieldOfView = "30deg";
+		   this.updateFraming();
+	   }
 		var tempFieldOfView = this.fieldOfView;
 		// Preserve current inline styles so we can restore them after capture
 		const prevVisibility = this.style.visibility;
@@ -13763,6 +13773,19 @@ const ControlsMixin = (ModelViewerElement) => {
             this.requestUpdate('maxCameraOrbit');
             this.requestUpdate('cameraOrbit');
             await this.updateComplete;
+
+			const size = this.getDimensions();
+            //Skip doing this for APP-VABL and GET-1
+            //GET-FOOT1 for some reason turns out extremely small with this. Needs fixing. Temp solution near updatesourceprogress
+            //Skip zoom adjustment for modular sofas - let natural framing handle camera positioning
+            if (this.src != "HAJ" && this.src != "MAM" && this.src != "KAM" && this.src != "MAM-HFC" && this.src != "DRO" && this.src != "BJO" && this.src != "MAM_OUT") {
+                if (size.x + size.z <= 1.75 && (this.src != "APP-VABL") && (this.src != "GET-1")) {
+                    this.zoom(-5);
+                } else {
+                    this.zoom(1);
+                }
+            }
+			
         }
         interact(duration, finger0, finger1) {
             const inputElement = this[$userInputElement];
