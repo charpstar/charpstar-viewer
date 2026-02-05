@@ -119,6 +119,22 @@ export const clients: Record<string, ClientConfig> = {
       publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
+  Tester: {
+    name: "Tester",
+    description: "Tester Editor",
+    hdrPath: "https://sweef.charpstar.net/HDR/Sweef-HDR.hdr",
+    resourcesPath: "Sweef",
+    livePassword: "sweef2024",
+    exposure: 1.4,
+    toneMapping: "aces",
+    bunnyCdn: {
+      modelPath: "Client-Editor/Tester",
+      imagesPath: "Client-Editor/Tester/images",
+      referencePath: "Client-Editor/Tester/reference/reference.gltf",
+      backupsPath: "Client-Editor/Tester/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
+    }
+  },
 };
 
 // Helper function to get client configuration

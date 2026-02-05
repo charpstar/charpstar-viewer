@@ -366,19 +366,22 @@ export async function POST(request: NextRequest) {
               const info = sheenExt.getSheenColorTextureInfo?.();
               const tc = (m as any).sheenColorTextureTexCoord;
               const rot = typeof (m as any).sheenColorTextureRotation === 'number' ? (m as any).sheenColorTextureRotation : undefined;
+              const scale = Array.isArray((m as any).sheenColorTextureScale) ? (m as any).sheenColorTextureScale : undefined;
               if (info && typeof tc === 'number') {
                 if (typeof (info as any).setTexCoord === 'function') (info as any).setTexCoord(tc);
                 else (info as any).texCoord = tc;
               }
-              if (info && rot !== undefined) {
+              if (info && (rot !== undefined || scale)) {
                 let xform = info.getExtension?.('KHR_texture_transform');
                 if (!xform) {
                   const ext = document.createExtension(KHRTextureTransform);
                   xform = (ext as any).createTextureTransform?.();
                   info.setExtension?.('KHR_texture_transform', xform);
                 }
-                if (xform?.setRotation) xform.setRotation(rot);
-                else if (xform) (xform as any).rotation = rot;
+                if (xform?.setRotation && rot !== undefined) xform.setRotation(rot);
+                else if (xform && rot !== undefined) (xform as any).rotation = rot;
+                if (xform?.setScale && scale) xform.setScale(scale);
+                else if (xform && scale) (xform as any).scale = scale;
               }
             } catch { }
           }

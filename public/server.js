@@ -177,7 +177,7 @@ function getRefTexKey(ref, texIndex) {
   if (!key) return undefined;
   return key.startsWith('images/') ? key.substring(7) : key;
 }
-function applySlotRaw(outObj, outMat, slotPath, texKey, transformSrc, usedTextureTransformRef) {
+function applySlotRaw(outObj, outMat, slotPath, texKey, transformSrc, usedTextureTransformRef, slotName) {
   if (!texKey) return;
   const cleanKey = stripImagesPrefix(texKey) || texKey;
   const candidates = /\.[A-Za-z0-9]{2,5}$/.test(cleanKey) ? [cleanKey] : [`${cleanKey}.ktx2`, `${cleanKey}.jpg`, `${cleanKey}.jpeg`, `${cleanKey}.png`, cleanKey];
@@ -212,9 +212,14 @@ function applySlotRaw(outObj, outMat, slotPath, texKey, transformSrc, usedTextur
   try {
     const xform = transformSrc?.extensions?.KHR_texture_transform;
     if (xform && typeof xform === 'object') {
-      const scale = Array.isArray(xform.scale) ? xform.scale : undefined;
-      const rotation = typeof xform.rotation === 'number' ? xform.rotation : undefined;
+      let scale = Array.isArray(xform.scale) ? [...xform.scale] : undefined;
+      let rotation = typeof xform.rotation === 'number' ? xform.rotation : undefined;
       const offset = Array.isArray(xform.offset) ? xform.offset : undefined;
+      // For normal maps, enforce non-negative tiling to avoid unintended Y inversion
+      if (slotName === 'normalTexture') {
+        if (Array.isArray(scale)) scale = [Math.abs(scale[0]), Math.abs(scale[1])];
+        // Note: Rotation is now preserved for normal maps
+      }
       if (scale || rotation !== undefined || offset) {
         target[lastKey].extensions = target[lastKey].extensions || {};
         target[lastKey].extensions.KHR_texture_transform = target[lastKey].extensions.KHR_texture_transform || {};
@@ -290,17 +295,18 @@ async function applyReferenceToTarget(clientName, filename, shouldCancel) {
     if (typeof rmat.alphaCutoff === 'number') tgtMat.alphaCutoff = rmat.alphaCutoff;
 
     const baseKey = getRefTexKey(refJson, pbrR.baseColorTexture?.index);
-    if (baseKey) applySlotRaw(out, tgtMat, ['pbrMetallicRoughness', 'baseColorTexture'], baseKey, pbrR.baseColorTexture, usedTextureTransformRef);
+    if (baseKey) applySlotRaw(out, tgtMat, ['pbrMetallicRoughness', 'baseColorTexture'], baseKey, pbrR.baseColorTexture, usedTextureTransformRef, 'baseColorTexture');
 
     const mrKey = getRefTexKey(refJson, pbrR.metallicRoughnessTexture?.index);
-    if (mrKey) applySlotRaw(out, tgtMat, ['pbrMetallicRoughness', 'metallicRoughnessTexture'], mrKey, pbrR.metallicRoughnessTexture, usedTextureTransformRef);
+    if (mrKey) applySlotRaw(out, tgtMat, ['pbrMetallicRoughness', 'metallicRoughnessTexture'], mrKey, pbrR.metallicRoughnessTexture, usedTextureTransformRef, 'metallicRoughnessTexture');
 
     const nKey = getRefTexKey(refJson, rmat.normalTexture?.index);
     if (nKey) {
-      applySlotRaw(out, tgtMat, ['normalTexture'], nKey, rmat.normalTexture, usedTextureTransformRef);
+      applySlotRaw(out, tgtMat, ['normalTexture'], nKey, rmat.normalTexture, usedTextureTransformRef, 'normalTexture');
       if (typeof rmat.normalTexture?.scale === 'number') {
+        const nScaleVal = Math.abs(rmat.normalTexture.scale);
         tgtMat.normalTexture = tgtMat.normalTexture || { index: tgtMat.normalTexture?.index };
-        tgtMat.normalTexture.scale = rmat.normalTexture.scale;
+        tgtMat.normalTexture.scale = nScaleVal;
       }
     }
 
@@ -312,7 +318,7 @@ async function applyReferenceToTarget(clientName, filename, shouldCancel) {
     }
 
     const eKey = getRefTexKey(refJson, rmat.emissiveTexture?.index);
-    if (eKey) applySlotRaw(out, tgtMat, ['emissiveTexture'], eKey, rmat.emissiveTexture, usedTextureTransformRef);
+    if (eKey) applySlotRaw(out, tgtMat, ['emissiveTexture'], eKey, rmat.emissiveTexture, usedTextureTransformRef, 'emissiveTexture');
 
     const sRef = rmat?.extensions?.KHR_materials_sheen;
     if (sRef) {
@@ -322,8 +328,8 @@ async function applyReferenceToTarget(clientName, filename, shouldCancel) {
       if (Array.isArray(sRef.sheenColorFactor)) sTgt.sheenColorFactor = [...sRef.sheenColorFactor];
       const srKey = getRefTexKey(refJson, sRef.sheenRoughnessTexture?.index);
       const scKey = getRefTexKey(refJson, sRef.sheenColorTexture?.index);
-      if (srKey) applySlotRaw(out, { extensions: { KHR_materials_sheen: sTgt } }, ['extensions', 'KHR_materials_sheen', 'sheenRoughnessTexture'], srKey, sRef.sheenRoughnessTexture, usedTextureTransformRef);
-      if (scKey) applySlotRaw(out, { extensions: { KHR_materials_sheen: sTgt } }, ['extensions', 'KHR_materials_sheen', 'sheenColorTexture'], scKey, sRef.sheenColorTexture, usedTextureTransformRef);
+        if (srKey) applySlotRaw(out, { extensions: { KHR_materials_sheen: sTgt } }, ['extensions', 'KHR_materials_sheen', 'sheenRoughnessTexture'], srKey, sRef.sheenRoughnessTexture, usedTextureTransformRef, 'sheenRoughnessTexture');
+        if (scKey) applySlotRaw(out, { extensions: { KHR_materials_sheen: sTgt } }, ['extensions', 'KHR_materials_sheen', 'sheenColorTexture'], scKey, sRef.sheenColorTexture, usedTextureTransformRef, 'sheenColorTexture');
     }
 
     newMaterials.push(tgtMat);
@@ -713,18 +719,18 @@ app.post('/jobs/render/prepare', auth, async (req, res) => {
 
     // Import gltf-transform dependencies
     const { NodeIO } = require('@gltf-transform/core');
-    const { 
-      KHRMaterialsVariants, 
-      KHRDracoMeshCompression, 
-      KHRTextureBasisu, 
-      KHRTextureTransform, 
-      KHRMaterialsSheen 
+    const {
+      KHRMaterialsVariants,
+      KHRDracoMeshCompression,
+      KHRTextureBasisu,
+      KHRTextureTransform,
+      KHRMaterialsSheen
     } = require('@gltf-transform/extensions');
     const draco3d = require('draco3dgltf');
 
     const basePath = bunnyBasePathFor(client);
     const sourceUrl = `https://${PULL_ZONE_URL}/${basePath}/${encodeURIComponent(modelFilename)}`;
-    
+
     // Download source GLTF/GLB
     const srcRes = await fetch(sourceUrl);
     if (!srcRes.ok) throw new Error(`Failed to fetch source: ${srcRes.status}`);

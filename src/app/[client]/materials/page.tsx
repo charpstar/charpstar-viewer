@@ -1449,9 +1449,27 @@ export default function MaterialEditorPage() {
   // MapSlot component (simple image cell)
   const MapSlot = React.memo(
     ({ texture, onPick, onRemove, alt }: { texture?: string; onPick: () => void; onRemove: () => void; alt: string }) => {
+      const [showPreview, setShowPreview] = React.useState(false);
+      const [previewPos, setPreviewPos] = React.useState({ x: 0, y: 0 });
+      const thumbRef = React.useRef<HTMLDivElement>(null);
       const src = texture ? resolveTextureUrl(clientName, texture) || null : null;
+      
+      const handleMouseEnter = () => {
+        if (!src) return;
+        if (thumbRef.current) {
+          const rect = thumbRef.current.getBoundingClientRect();
+          setPreviewPos({ x: rect.left, y: rect.top + rect.height / 2 });
+        }
+        setShowPreview(true);
+      };
+      
       return (
-        <div className="relative w-6 h-6 rounded overflow-hidden group border border-gray-300 bg-white">
+        <div 
+          ref={thumbRef}
+          className="relative w-6 h-6 rounded overflow-hidden group border border-gray-300 bg-white"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={() => setShowPreview(false)}
+        >
           {src ? (
             <>
               <div
@@ -1474,6 +1492,33 @@ export default function MaterialEditorPage() {
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
+              {showPreview && (
+                <div 
+                  className="fixed z-[9999] pointer-events-none"
+                  style={{
+                    left: `${previewPos.x - 208}px`,
+                    top: `${previewPos.y}px`,
+                    transform: 'translateY(-50%)',
+                  }}
+                >
+                  <div className="bg-white rounded-lg shadow-2xl border-2 border-gray-300 overflow-hidden">
+                    <div className="bg-gray-100 px-2 py-1 border-b border-gray-300">
+                      <p className="text-xs font-medium text-gray-900 truncate max-w-[180px]" title={texture}>
+                        {texture}
+                      </p>
+                    </div>
+                    <div 
+                      className="w-48 h-48"
+                      style={{
+                        backgroundImage: `url(${src})`,
+                        backgroundSize: '200%',
+                        backgroundPosition: 'center',
+                        imageRendering: 'pixelated',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <button
@@ -2411,32 +2456,145 @@ export default function MaterialEditorPage() {
                             </div>
                           </div>
 
-                          {/* Sheen Color Map */}
-                          <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-900">Sheen Color Map</span>
-                              <MapSlot
-                                texture={editedTextures?.sheenColorTexture}
-                                alt="sheen color map"
-                                onPick={() => setTexturePicker({ open: true, slot: 'sheenColorTexture' as any, search: '' })}
-                                onRemove={() => handleMaterialChange('sheenColorTexture', null)}
-                              />
-                            </div>
-                              <div className="mt-2 flex items-center space-x-2">
-                                <span className="text-xs text-gray-600 w-20">Rotation (rad)</span>
-                                <Input
-                                  type="number"
-                                  step="0.001"
-                                  value={String(Math.round((((editedMaterial as any)?.sheenColorTextureRotation ?? 0) * 1e6)) / 1e6)}
-                                  onChange={(e) => {
-                                    const rad = parseFloat(e.target.value || '0');
-                                    handleTextureRotationChange('sheenColorTexture', rad);
-                                  }}
-                                  disabled={!editedTextures?.sheenColorTexture}
-                                  className="h-7 text-xs"
-                              />
-                            </div>
-                          </div>
+                {/* Sheen Color Map */}
+                <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-900">Sheen Color Map</span>
+                    <MapSlot
+                      texture={editedTextures?.sheenColorTexture}
+                      alt="sheen color map"
+                      onPick={() => setTexturePicker({ open: true, slot: 'sheenColorTexture' as any, search: '' })}
+                      onRemove={() => handleMaterialChange('sheenColorTexture', null)}
+                    />
+                  </div>
+                  {editedTextures?.sheenColorTexture && (
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-gray-600 w-12">U Tile</span>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0.01"
+                          value={String((editedMaterial as any)?.sheenColorTextureScale?.[0] ?? 1)}
+                          onChange={(e) => {
+                            const u = Math.max(0.01, parseFloat(e.target.value || '1'));
+                            const v = (editedMaterial as any)?.sheenColorTextureScale?.[1] ?? 1;
+                            const next: [number, number] = [u, v];
+                            setEditedMaterial(prev => prev ? ({ ...prev, sheenColorTextureScale: next as any }) : prev);
+                            const name = editedMaterial?.name;
+                            if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), sheenColorTextureScale: next as any } } as any));
+                            (async () => {
+                              try {
+                                await withTargetMeshes((mat, _obj, THREE) => {
+                                  if ((mat as any)?.sheenColorMap) {
+                                    const tex = (mat as any).sheenColorMap; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
+                                  }
+                                });
+                              } catch { }
+                            })();
+                          }}
+                          className="h-7 text-xs"
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-gray-600 w-12">V Tile</span>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0.01"
+                          value={String((editedMaterial as any)?.sheenColorTextureScale?.[1] ?? 1)}
+                          onChange={(e) => {
+                            const v = Math.max(0.01, parseFloat(e.target.value || '1'));
+                            const u = (editedMaterial as any)?.sheenColorTextureScale?.[0] ?? 1;
+                            const next: [number, number] = [u, v];
+                            setEditedMaterial(prev => prev ? ({ ...prev, sheenColorTextureScale: next as any }) : prev);
+                            const name = editedMaterial?.name;
+                            if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), sheenColorTextureScale: next as any } } as any));
+                            (async () => {
+                              try {
+                                await withTargetMeshes((mat, _obj, THREE) => {
+                                  if ((mat as any)?.sheenColorMap) {
+                                    const tex = (mat as any).sheenColorMap; tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; if (tex.repeat?.set) tex.repeat.set(u, v);
+                                  }
+                                });
+                              } catch { }
+                            })();
+                          }}
+                          className="h-7 text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
+                    <div className="mt-2 flex items-center space-x-2">
+                      <span className="text-xs text-gray-600 w-20">Rotation (rad)</span>
+                      <Input
+                        type="number"
+                        step="0.001"
+                        value={String(Math.round((((editedMaterial as any)?.sheenColorTextureRotation ?? 0) * 1e6)) / 1e6)}
+                        onChange={(e) => {
+                          const rad = parseFloat(e.target.value || '0');
+                          handleTextureRotationChange('sheenColorTexture', rad);
+                        }}
+                        disabled={!editedTextures?.sheenColorTexture}
+                        className="h-7 text-xs"
+                    />
+                  </div>
+                  {editedTextures?.sheenColorTexture && (
+                    <div className="mt-2 flex items-center space-x-2">
+                      <span className="text-xs text-gray-600 w-20">UV Set</span>
+                      <div className="flex space-x-1">
+                        <button
+                          className={`px-3 py-1 text-xs rounded transition-colors ${
+                            ((editedMaterial as any)?.sheenColorTextureTexCoord ?? 0) === 0
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                          onClick={() => {
+                            setEditedMaterial(prev => prev ? ({ ...prev, sheenColorTextureTexCoord: 0 as any }) : prev);
+                            const name = editedMaterial?.name;
+                            if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), sheenColorTextureTexCoord: 0 as any } } as any));
+                            (async () => {
+                              try {
+                                await withTargetMeshes((mat) => {
+                                  if ((mat as any)?.sheenColorMap) {
+                                    (mat as any).sheenColorMap.channel = 0;
+                                    if (typeof (mat as any).sheenColorMap?.setUvChannel === 'function') (mat as any).sheenColorMap.setUvChannel(0);
+                                  }
+                                });
+                              } catch { }
+                            })();
+                          }}
+                        >
+                          UV0
+                        </button>
+                        <button
+                          className={`px-3 py-1 text-xs rounded transition-colors ${
+                            ((editedMaterial as any)?.sheenColorTextureTexCoord ?? 0) === 1
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                          onClick={() => {
+                            setEditedMaterial(prev => prev ? ({ ...prev, sheenColorTextureTexCoord: 1 as any }) : prev);
+                            const name = editedMaterial?.name;
+                            if (name) setStagedMaterials(prev => ({ ...prev, [name]: { ...(prev[name] ?? editedMaterial!), sheenColorTextureTexCoord: 1 as any } } as any));
+                            (async () => {
+                              try {
+                                await withTargetMeshes((mat) => {
+                                  if ((mat as any)?.sheenColorMap) {
+                                    (mat as any).sheenColorMap.channel = 1;
+                                    if (typeof (mat as any).sheenColorMap?.setUvChannel === 'function') (mat as any).sheenColorMap.setUvChannel(1);
+                                  }
+                                });
+                              } catch { }
+                            })();
+                          }}
+                        >
+                          UV1
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                         </div>
                       )}
@@ -2552,10 +2710,28 @@ export default function MaterialEditorPage() {
   );
 }
 
-// Thumbnail cell, memoized by src+alt only
-const MapSlotCell = memo(
-  ({ src, onPick, onRemove, alt }: { src?: string; onPick: () => void; onRemove: () => void; alt: string }) => (
-    <div className="relative w-6 h-6 rounded overflow-hidden group border border-gray-300 bg-white">
+// Thumbnail cell with hover preview
+const MapSlotCell = ({ src, texture, onPick, onRemove, alt }: { src?: string; texture?: string; onPick: () => void; onRemove: () => void; alt: string }) => {
+  const [showPreview, setShowPreview] = React.useState(false);
+  const [previewPos, setPreviewPos] = React.useState({ x: 0, y: 0 });
+  const thumbRef = React.useRef<HTMLDivElement>(null);
+  
+  const handleMouseEnter = () => {
+    if (!src) return;
+    if (thumbRef.current) {
+      const rect = thumbRef.current.getBoundingClientRect();
+      setPreviewPos({ x: rect.left, y: rect.top + rect.height / 2 });
+    }
+    setShowPreview(true);
+  };
+  
+  return (
+    <div 
+      ref={thumbRef}
+      className="relative w-6 h-6 rounded overflow-hidden group border border-gray-300 bg-white"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setShowPreview(false)}
+    >
       {src ? (
         <>
           <img src={src} alt={alt} className="object-cover w-full h-full" draggable={false} />
@@ -2568,6 +2744,33 @@ const MapSlotCell = memo(
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
+          {showPreview && texture && (
+            <div 
+              className="fixed z-[9999] pointer-events-none"
+              style={{
+                left: `${previewPos.x - 208}px`,
+                top: `${previewPos.y}px`,
+                transform: 'translateY(-50%)',
+              }}
+            >
+              <div className="bg-white rounded-lg shadow-2xl border-2 border-gray-300 overflow-hidden">
+                <div className="bg-gray-100 px-2 py-1 border-b border-gray-300">
+                  <p className="text-xs font-medium text-gray-900 truncate max-w-[180px]" title={texture}>
+                    {texture}
+                  </p>
+                </div>
+                <div 
+                  className="w-48 h-48"
+                  style={{
+                    backgroundImage: `url(${src})`,
+                    backgroundSize: '200%',
+                    backgroundPosition: 'center',
+                    imageRendering: 'pixelated',
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <button
@@ -2581,9 +2784,8 @@ const MapSlotCell = memo(
         </button>
       )}
     </div>
-  ),
-  (prev, next) => prev.src === next.src && prev.alt === next.alt
-);
+  );
+};
 
 // Texture rows block, memoized by texture strings and clientName; ignores function prop changes
 const TextureRows = memo(
@@ -2616,6 +2818,7 @@ const TextureRows = memo(
             <span className="text-sm font-medium text-gray-900">Base Color Map</span>
             <MapSlotCell
               src={toSrc(textures.baseColorTexture)}
+              texture={textures.baseColorTexture}
               alt="base color"
               onPick={() => onPick('baseColorTexture')}
               onRemove={() => onRemove('baseColorTexture')}
@@ -2629,6 +2832,7 @@ const TextureRows = memo(
             <span className="text-sm font-medium text-gray-900">Roughness Map</span>
             <MapSlotCell
               src={toSrc(textures.metallicRoughnessTexture)}
+              texture={textures.metallicRoughnessTexture}
               alt="roughness map"
               onPick={() => onPick('metallicRoughnessTexture')}
               onRemove={() => onRemove('metallicRoughnessTexture')}
@@ -2642,6 +2846,7 @@ const TextureRows = memo(
             <span className="text-sm font-medium text-gray-900">Metallic Map</span>
             <MapSlotCell
               src={toSrc(textures.metallicRoughnessTexture)}
+              texture={textures.metallicRoughnessTexture}
               alt="metallic map"
               onPick={() => onPick('metallicRoughnessTexture')}
               onRemove={() => onRemove('metallicRoughnessTexture')}
@@ -2655,6 +2860,7 @@ const TextureRows = memo(
             <span className="text-sm font-medium text-gray-900">Normal Map</span>
             <MapSlotCell
               src={toSrc(textures.normalTexture)}
+              texture={textures.normalTexture}
               alt="normal map"
               onPick={() => onPick('normalTexture')}
               onRemove={() => onRemove('normalTexture')}
