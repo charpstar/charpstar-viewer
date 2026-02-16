@@ -135,6 +135,22 @@ export const clients: Record<string, ClientConfig> = {
       publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
+  Sleepo: {
+    name: "Sleepo",
+    description: "Sleepo Editor",
+    hdrPath: "https://cdn.charpstar.net/Assets/hdri.hdr",
+    resourcesPath: "Sleepo",
+    livePassword: "Sleepo",
+    exposure: 1.3,
+    toneMapping: "aces",
+    bunnyCdn: {
+      modelPath: "Client-Editor/Sleepo",
+      imagesPath: "Client-Editor/Sleepo/images",
+      referencePath: "Client-Editor/Sleepo/reference/reference.gltf",
+      backupsPath: "Client-Editor/Sleepo/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
+    }
+  },
 };
 
 // Helper function to get client configuration

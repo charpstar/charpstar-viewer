@@ -89,10 +89,34 @@ async function purgeCache(fileUrl) {
     console.error('Error purging cache:', e);
   }
 }
-async function fetchGltfJson(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
-  return await res.json();
+async function fetchGltfJson(url, retries = 2) {
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      if (!text || text.trim().length === 0) {
+        throw new Error('Empty response');
+      }
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error(`JSON parse error for ${url}:`, e.message);
+        console.error(`Response length: ${text.length} bytes`);
+        console.error(`First 200 chars: ${text.substring(0, 200)}`);
+        console.error(`Last 200 chars: ${text.substring(Math.max(0, text.length - 200))}`);
+        throw new Error(`Invalid JSON: ${e.message}`);
+      }
+    } catch (e) {
+      lastError = e;
+      if (attempt < retries) {
+        console.log(`Retry ${attempt + 1}/${retries} for ${url}: ${e.message}`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    }
+  }
+  throw new Error(`Failed to fetch ${url} after ${retries + 1} attempts: ${lastError.message}`);
 }
 function uploadToBunnyStorage(storagePath, content, contentType = 'model/gltf+json') {
   return new Promise((resolve, reject) => {
@@ -242,6 +266,14 @@ async function applyReferenceToTarget(clientName, filename, shouldCancel) {
   const refJson = await fetchGltfJson(refUrl);
   if (shouldCancel()) throw new Error('Cancelled');
   const tgtJson = await fetchGltfJson(tgtUrl);
+
+  // Validate basic glTF structure
+  if (!tgtJson || typeof tgtJson !== 'object') {
+    throw new Error(`Target glTF is not a valid object: ${filename}`);
+  }
+  if (!refJson || typeof refJson !== 'object') {
+    throw new Error('Reference glTF is not a valid object');
+  }
 
   if (['materials', 'textures', 'images'].some((k) => typeof refJson[k] === 'string')) {
     throw new Error('Reference glTF must embed materials/textures/images arrays');
