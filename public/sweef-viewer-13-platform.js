@@ -72169,7 +72169,7 @@ class ModelViewerElementBase extends u {
         let source;
         let onProgress;
         if (this.src == "HAJ" || this.src == "MAM" || this.src == "KAM" || this.src == "MAM-HFC" || this.src == "DRO" || this.src == "BJO" || this.src == "MAM_OUT") {
-            source = "https://sweef.charpstar.net/Models-V3/TEST.gltf";
+            source = "https://cdn.charpstar.net/Client-Editor/Sweef/Modular-Material-File.gltf";
             this.sweefModelName = this.src;
             this.loadSweefStuff();
             this.loadTextureSweef();
