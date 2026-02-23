@@ -2767,6 +2767,7 @@ const TextureEditorModal = ({
   const [adjustments, setAdjustments] = useState({ brightness: 100, saturation: 100, contrast: 0, hue: 0 });
   const panelRef = useRef<HTMLDivElement>(null);
   const [sidebarLeft, setSidebarLeft] = useState<number | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     const sidebar = document.getElementById('material-sidebar');
@@ -2776,15 +2777,52 @@ const TextureEditorModal = ({
     }
   }, []);
 
+  const resetTextureToOriginal = async () => {
+    if (!originalImage) return;
+    
+    try {
+      await withTargetMeshes((mat) => {
+        if (!mat || !slot) return;
+        
+        const mapName = slot === 'baseColorTexture' ? 'map' :
+                       slot === 'metallicRoughnessTexture' ? 'roughnessMap' :
+                       slot === 'normalTexture' ? 'normalMap' :
+                       slot === 'sheenColorTexture' ? 'sheenColorMap' :
+                       slot === 'sheenRoughnessTexture' ? 'sheenRoughnessMap' : null;
+        
+        if (mapName && mat[mapName]) {
+          const texture = mat[mapName];
+          texture.image = originalImage;
+          texture.needsUpdate = true;
+          
+          const mv = modelViewerRef.current as any;
+          if (mv) {
+            mv.requestUpdate?.();
+          }
+        }
+      });
+    } catch (e) {
+      console.warn('Failed to reset texture:', e);
+    }
+  };
+
+  const handleClose = () => {
+    resetTextureToOriginal();
+    onClose();
+  };
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        if (originalImage) {
+          resetTextureToOriginal();
+        }
         onClose();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [onClose]);
+  }, [onClose, originalImage, withTargetMeshes, slot, modelViewerRef]);
 
   useEffect(() => {
     const img = new Image();
@@ -3026,7 +3064,7 @@ const TextureEditorModal = ({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-900">Edit Texture</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -3050,13 +3088,15 @@ const TextureEditorModal = ({
               min="-180"
               max="180"
               value={adjustments.hue}
-              onChange={(e) => {
-                const newAdj = { ...adjustments, hue: parseInt(e.target.value) };
-                setAdjustments(newAdj);
-                updateCanvasPreview(newAdj);
+              onChange={(e) => setAdjustments({ ...adjustments, hue: parseInt(e.target.value) })}
+              onMouseUp={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
               }}
-              onMouseUp={() => updateModelTexture()}
-              onTouchEnd={() => updateModelTexture()}
+              onTouchEnd={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
+              }}
               className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
             />
           </div>
@@ -3071,13 +3111,15 @@ const TextureEditorModal = ({
               min="0"
               max="200"
               value={adjustments.saturation}
-              onChange={(e) => {
-                const newAdj = { ...adjustments, saturation: parseInt(e.target.value) };
-                setAdjustments(newAdj);
-                updateCanvasPreview(newAdj);
+              onChange={(e) => setAdjustments({ ...adjustments, saturation: parseInt(e.target.value) })}
+              onMouseUp={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
               }}
-              onMouseUp={() => updateModelTexture()}
-              onTouchEnd={() => updateModelTexture()}
+              onTouchEnd={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
+              }}
               className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
             />
           </div>
@@ -3092,13 +3134,15 @@ const TextureEditorModal = ({
               min="0"
               max="200"
               value={adjustments.brightness}
-              onChange={(e) => {
-                const newAdj = { ...adjustments, brightness: parseInt(e.target.value) };
-                setAdjustments(newAdj);
-                updateCanvasPreview(newAdj);
+              onChange={(e) => setAdjustments({ ...adjustments, brightness: parseInt(e.target.value) })}
+              onMouseUp={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
               }}
-              onMouseUp={() => updateModelTexture()}
-              onTouchEnd={() => updateModelTexture()}
+              onTouchEnd={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
+              }}
               className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
             />
           </div>
@@ -3113,43 +3157,71 @@ const TextureEditorModal = ({
               min="-100"
               max="100"
               value={adjustments.contrast}
-              onChange={(e) => {
-                const newAdj = { ...adjustments, contrast: parseInt(e.target.value) };
-                setAdjustments(newAdj);
-                updateCanvasPreview(newAdj);
+              onChange={(e) => setAdjustments({ ...adjustments, contrast: parseInt(e.target.value) })}
+              onMouseUp={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
               }}
-              onMouseUp={() => updateModelTexture()}
-              onTouchEnd={() => updateModelTexture()}
+              onTouchEnd={() => {
+                updateCanvasPreview(adjustments);
+                updateModelTexture();
+              }}
               className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
             />
           </div>
         </div>
 
+        {showConfirmation && (
+          <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+            <p className="text-xs text-amber-800 mb-2">
+              ⚠️ This will permanently overwrite the original texture file. A backup will be created automatically.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowConfirmation(false)}
+                className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmation(false);
+                  handleSave();
+                }}
+                disabled={saving}
+                className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700 transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Confirm & Save'}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-2 pt-2">
           <button
-            onClick={() => {
+            onClick={async () => {
               const resetAdj = { brightness: 100, saturation: 100, contrast: 0, hue: 0 };
               setAdjustments(resetAdj);
               updateCanvasPreview(resetAdj);
-              setTimeout(() => updateModelTexture(), 50);
+              await updateModelTexture();
             }}
             className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
           >
             Reset
           </button>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
             disabled={saving}
           >
             Cancel
           </button>
           <button
-            onClick={handleSave}
-            disabled={saving}
+            onClick={() => setShowConfirmation(true)}
+            disabled={saving || showConfirmation}
             className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save'}
+            Save
           </button>
         </div>
       </div>
