@@ -4,8 +4,9 @@ import { useParams } from 'next/navigation';
 import { clients, isValidClient } from '@/config/clientConfig';
 import React, { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import { notFound } from 'next/navigation';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
-import { Plus, RefreshCw, Palette, Trash2, Edit, Upload } from 'lucide-react';
+import { Plus, RefreshCw, Palette, Trash2, Edit, Upload, X } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -196,6 +197,8 @@ export default function MaterialEditorPage() {
   const [isAddingMaterial, setIsAddingMaterial] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [texturePicker, setTexturePicker] = useState<{ open: boolean; slot: keyof Material | null; search: string }>({ open: false, slot: null, search: '' });
+  const [textureEditor, setTextureEditor] = useState<{ open: boolean; texture: string | null; slot: keyof Material | null }>({ open: false, texture: null, slot: null });
+  const [textureTimestamps, setTextureTimestamps] = useState<Record<string, number>>({});
   const [cdnImages, setCdnImages] = useState<string[]>([]);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; name: string } | null>(null);
   const [toasts, setToasts] = useState<Array<{ id: number; message: string; type: 'success' | 'error' }>>([]);
@@ -1447,79 +1450,44 @@ export default function MaterialEditorPage() {
   ) || [];
 
   // MapSlot component (simple image cell)
-  const MapSlot = React.memo(
-    ({ texture, onPick, onRemove, alt }: { texture?: string; onPick: () => void; onRemove: () => void; alt: string }) => {
-      const [showPreview, setShowPreview] = React.useState(false);
-      const [previewPos, setPreviewPos] = React.useState({ x: 0, y: 0 });
-      const thumbRef = React.useRef<HTMLDivElement>(null);
-      const src = texture ? resolveTextureUrl(clientName, texture) || null : null;
+  const MapSlot = ({ texture, onPick, onRemove, slot, alt }: { texture?: string; onPick: () => void; onRemove: () => void; slot?: keyof Material; alt: string }) => {
+    const [showPreview, setShowPreview] = React.useState(false);
+    const [previewPos, setPreviewPos] = React.useState({ x: 0, y: 0 });
+    const thumbRef = React.useRef<HTMLDivElement>(null);
+    const timestamp = texture ? textureTimestamps[texture] : undefined;
+    const baseUrl = texture ? resolveTextureUrl(clientName, texture) : null;
+    const src = baseUrl ? (timestamp ? `${baseUrl}?t=${timestamp}` : baseUrl) : null;
       
-      const handleMouseEnter = () => {
-        if (!src) return;
-        if (thumbRef.current) {
-          const rect = thumbRef.current.getBoundingClientRect();
-          setPreviewPos({ x: rect.left, y: rect.top + rect.height / 2 });
-        }
-        setShowPreview(true);
-      };
-      
-      return (
+    const handleMouseEnter = () => {
+      if (!src) return;
+      if (thumbRef.current) {
+        const rect = thumbRef.current.getBoundingClientRect();
+        setPreviewPos({ x: rect.left, y: rect.top + rect.height / 2 });
+      }
+      setShowPreview(true);
+    };
+    
+    return (
+      <div className="flex items-center gap-2">
         <div 
           ref={thumbRef}
-          className="relative w-6 h-6 rounded overflow-hidden group border border-gray-300 bg-white"
+          className="relative w-6 h-6 rounded overflow-hidden border border-gray-300 bg-white flex-shrink-0"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={() => setShowPreview(false)}
         >
           {src ? (
-            <>
-              <div
-                aria-label={alt}
-                className="w-full h-full"
-                style={{
-                  backgroundImage: `url(${src})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  willChange: 'transform',
-                  contain: 'paint',
-                }}
-              />
-              <button
-                type="button"
-                onClick={onRemove}
-                aria-label={`Remove ${alt}`}
-                className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-black/55 text-white"
-                title="Remove"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-              {showPreview && (
-                <div 
-                  className="fixed z-[9999] pointer-events-none"
-                  style={{
-                    left: `${previewPos.x - 208}px`,
-                    top: `${previewPos.y}px`,
-                    transform: 'translateY(-50%)',
-                  }}
-                >
-                  <div className="bg-white rounded-lg shadow-2xl border-2 border-gray-300 overflow-hidden">
-                    <div className="bg-gray-100 px-2 py-1 border-b border-gray-300">
-                      <p className="text-xs font-medium text-gray-900 truncate max-w-[180px]" title={texture}>
-                        {texture}
-                      </p>
-                    </div>
-                    <div 
-                      className="w-48 h-48"
-                      style={{
-                        backgroundImage: `url(${src})`,
-                        backgroundSize: '200%',
-                        backgroundPosition: 'center',
-                        imageRendering: 'pixelated',
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-            </>
+            <div
+              aria-label={alt}
+              className="w-full h-full cursor-pointer"
+              onClick={onPick}
+              style={{
+                backgroundImage: `url(${src})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                willChange: 'transform',
+                contain: 'paint',
+              }}
+            />
           ) : (
             <button
               type="button"
@@ -1531,11 +1499,57 @@ export default function MaterialEditorPage() {
               <Upload className="w-3.5 h-3.5" />
             </button>
           )}
+          {showPreview && (
+            <div 
+              className="fixed z-[9999] pointer-events-none"
+              style={{
+                left: `${previewPos.x - 208}px`,
+                top: `${previewPos.y}px`,
+                transform: 'translateY(-50%)',
+              }}
+            >
+              <div className="bg-white rounded-lg shadow-2xl border-2 border-gray-300 overflow-hidden">
+                <div className="bg-gray-100 px-2 py-1 border-b border-gray-300">
+                  <p className="text-xs font-medium text-gray-900 truncate max-w-[180px]" title={texture}>
+                    {texture}
+                  </p>
+                </div>
+                <div 
+                  className="w-48 h-48"
+                  style={{
+                    backgroundImage: `url(${src})`,
+                    backgroundSize: '200%',
+                    backgroundPosition: 'center',
+                    imageRendering: 'pixelated',
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      );
-    },
-    (prev, next) => prev.texture === next.texture
-  );
+        {src && slot && (
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => setTextureEditor({ open: true, texture: texture, slot: slot })}
+              className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+              title="Edit texture"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onRemove}
+              className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+              title="Remove texture"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Debug logging removed for cleanliness
 
@@ -1971,6 +1985,7 @@ export default function MaterialEditorPage() {
                             <MapSlot
                               texture={editedTextures?.baseColorTexture}
                               alt="base color"
+                              slot="baseColorTexture"
                               onPick={() => setTexturePicker({ open: true, slot: 'baseColorTexture', search: '' })}
                               onRemove={() => handleMaterialChange('baseColorTexture', null)}
                             />
@@ -2692,6 +2707,24 @@ export default function MaterialEditorPage() {
         </div>
       )}
 
+      {/* Texture Editor Modal */}
+      {textureEditor.open && textureEditor.texture && editedMaterial && (
+        <TextureEditorModal
+          clientName={clientName}
+          texture={textureEditor.texture}
+          slot={textureEditor.slot}
+          modelViewerRef={modelViewerRef}
+          withTargetMeshes={withTargetMeshes}
+          onClose={() => setTextureEditor({ open: false, texture: null, slot: null })}
+          onSave={(timestamp: number) => {
+            if (textureEditor.texture) {
+              setTextureTimestamps(prev => ({ ...prev, [textureEditor.texture!]: timestamp }));
+            }
+            setTextureEditor({ open: false, texture: null, slot: null });
+          }}
+        />
+      )}
+
       {/* Toast notifications */}
       {toasts.length > 0 && (
         <div className="fixed top-4 right-4 z-50 space-y-2">
@@ -2710,172 +2743,422 @@ export default function MaterialEditorPage() {
   );
 }
 
-// Thumbnail cell with hover preview
-const MapSlotCell = ({ src, texture, onPick, onRemove, alt }: { src?: string; texture?: string; onPick: () => void; onRemove: () => void; alt: string }) => {
-  const [showPreview, setShowPreview] = React.useState(false);
-  const [previewPos, setPreviewPos] = React.useState({ x: 0, y: 0 });
-  const thumbRef = React.useRef<HTMLDivElement>(null);
-  
-  const handleMouseEnter = () => {
-    if (!src) return;
-    if (thumbRef.current) {
-      const rect = thumbRef.current.getBoundingClientRect();
-      setPreviewPos({ x: rect.left, y: rect.top + rect.height / 2 });
+// Texture Editor Modal Component (positioned like color picker)
+const TextureEditorModal = ({ 
+  clientName, 
+  texture, 
+  slot,
+  modelViewerRef,
+  withTargetMeshes,
+  onClose,
+  onSave,
+}: { 
+  clientName: string;
+  texture: string; 
+  slot: keyof Material | null;
+  modelViewerRef: React.RefObject<any>;
+  withTargetMeshes: (mutate: (mat: any, obj: any, THREE: any) => void) => Promise<void>;
+  onClose: () => void;
+  onSave: (timestamp: number) => void;
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [saving, setSaving] = useState(false);
+  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
+  const [adjustments, setAdjustments] = useState({ brightness: 100, saturation: 100, contrast: 0, hue: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [sidebarLeft, setSidebarLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    const sidebar = document.getElementById('material-sidebar');
+    if (sidebar) {
+      const rect = sidebar.getBoundingClientRect();
+      setSidebarLeft(rect.left);
     }
-    setShowPreview(true);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = resolveTextureUrl(clientName, texture) || '';
+    img.onload = () => {
+      setOriginalImage(img);
+      const canvas = canvasRef.current;
+      if (canvas && img) {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+        }
+      }
+    };
+  }, [texture, clientName]);
+
+  const applyAdjustments = (img: HTMLImageElement, adj: typeof adjustments) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !img) return;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i];
+      let g = data[i + 1];
+      let b = data[i + 2];
+
+      const brightnessFactor = adj.brightness / 100;
+      r *= brightnessFactor;
+      g *= brightnessFactor;
+      b *= brightnessFactor;
+
+      const contrastFactor = (259 * (adj.contrast + 255)) / (255 * (259 - adj.contrast));
+      r = contrastFactor * (r - 128) + 128;
+      g = contrastFactor * (g - 128) + 128;
+      b = contrastFactor * (b - 128) + 128;
+
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h = 0, s = 0, l = (max + min) / 2 / 255;
+
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (510 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+
+      h = (h + adj.hue / 360) % 1;
+      if (h < 0) h += 1;
+      s *= adj.saturation / 100;
+      s = Math.min(1, Math.max(0, s));
+
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+
+      if (s === 0) {
+        r = g = b = l * 255;
+      } else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3) * 255;
+        g = hue2rgb(p, q, h) * 255;
+        b = hue2rgb(p, q, h - 1/3) * 255;
+      }
+
+      data[i] = Math.min(255, Math.max(0, r));
+      data[i + 1] = Math.min(255, Math.max(0, g));
+      data[i + 2] = Math.min(255, Math.max(0, b));
+    }
+
+    ctx.putImageData(imageData, 0, 0);
   };
-  
-  return (
+
+  const updateCanvasPreview = (adj: typeof adjustments) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !originalImage) return;
+    
+    const hasChanges = adj.brightness !== 100 || 
+                      adj.saturation !== 100 || 
+                      adj.contrast !== 0 || 
+                      adj.hue !== 0;
+    
+    if (hasChanges) {
+      applyAdjustments(originalImage, adj);
+    } else {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(originalImage, 0, 0);
+      }
+    }
+  };
+
+  const updateModelTexture = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    try {
+      await withTargetMeshes((mat) => {
+        if (!mat || !slot) return;
+        
+        const mapName = slot === 'baseColorTexture' ? 'map' :
+                       slot === 'metallicRoughnessTexture' ? 'roughnessMap' :
+                       slot === 'normalTexture' ? 'normalMap' :
+                       slot === 'sheenColorTexture' ? 'sheenColorMap' :
+                       slot === 'sheenRoughnessTexture' ? 'sheenRoughnessMap' : null;
+        
+        if (mapName && mat[mapName]) {
+          const texture = mat[mapName];
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            texture.image = img;
+            texture.needsUpdate = true;
+            
+            const mv = modelViewerRef.current as any;
+            if (mv) {
+              mv.requestUpdate?.();
+            }
+          };
+          img.src = canvas.toDataURL('image/png');
+        }
+      });
+    } catch (e) {
+      console.warn('Failed to update model-viewer texture:', e);
+    }
+  };
+
+
+  const handleSave = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      alert('Canvas not ready');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((b) => resolve(b), 'image/png', 0.95);
+      });
+
+      if (!blob) {
+        throw new Error('Failed to create blob from canvas');
+      }
+
+      const formData = new FormData();
+      formData.append('file', blob, texture);
+      formData.append('client', clientName);
+      formData.append('createBackup', 'true');
+
+      const response = await fetch('/api/upload-texture', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      const timestamp = data.timestamp || Date.now();
+      
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      try {
+        const textureUrl = `${resolveTextureUrl(clientName, texture)}?t=${timestamp}&nocache=${Math.random()}`;
+        await fetch(textureUrl, { cache: 'no-store' });
+        
+        await withTargetMeshes((mat) => {
+          if (!mat || !slot) return;
+          
+          const mapName = slot === 'baseColorTexture' ? 'map' :
+                         slot === 'metallicRoughnessTexture' ? 'roughnessMap' :
+                         slot === 'normalTexture' ? 'normalMap' :
+                         slot === 'sheenColorTexture' ? 'sheenColorMap' :
+                         slot === 'sheenRoughnessTexture' ? 'sheenRoughnessMap' : null;
+          
+          if (mapName && mat[mapName]) {
+            const texture = mat[mapName];
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              texture.image = img;
+              texture.needsUpdate = true;
+              
+              const mv = modelViewerRef.current as any;
+              if (mv) {
+                mv.requestUpdate?.();
+              }
+            };
+            img.src = textureUrl;
+          }
+        });
+      } catch (e) {
+        console.warn('Failed to reload texture in model:', e);
+      }
+      
+      onSave(timestamp);
+    } catch (error) {
+      console.error('Failed to save texture:', error);
+      alert(`Failed to save texture: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return createPortal(
     <div 
-      ref={thumbRef}
-      className="relative w-6 h-6 rounded overflow-hidden group border border-gray-300 bg-white"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setShowPreview(false)}
+      ref={panelRef}
+      className="fixed z-[9999] w-96 rounded-md border border-gray-200 bg-white shadow-lg p-4 select-none"
+      style={{
+        top: '50%',
+        left: sidebarLeft !== null ? sidebarLeft : 0,
+        transform: sidebarLeft !== null ? 'translate(calc(-100% - 12px), -50%)' : 'translate(-100%, -50%)',
+      }}
     >
-      {src ? (
-        <>
-          <img src={src} alt={alt} className="object-cover w-full h-full" draggable={false} />
-          <button
-            type="button"
-            onClick={onRemove}
-            aria-label={`Remove ${alt}`}
-            className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-black/55 text-white"
-            title="Remove"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-900">Edit Texture</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <X className="w-4 h-4" />
           </button>
-          {showPreview && texture && (
-            <div 
-              className="fixed z-[9999] pointer-events-none"
-              style={{
-                left: `${previewPos.x - 208}px`,
-                top: `${previewPos.y}px`,
-                transform: 'translateY(-50%)',
-              }}
-            >
-              <div className="bg-white rounded-lg shadow-2xl border-2 border-gray-300 overflow-hidden">
-                <div className="bg-gray-100 px-2 py-1 border-b border-gray-300">
-                  <p className="text-xs font-medium text-gray-900 truncate max-w-[180px]" title={texture}>
-                    {texture}
-                  </p>
-                </div>
-                <div 
-                  className="w-48 h-48"
-                  style={{
-                    backgroundImage: `url(${src})`,
-                    backgroundSize: '200%',
-                    backgroundPosition: 'center',
-                    imageRendering: 'pixelated',
-                  }}
-                />
-              </div>
+        </div>
+
+        <div className="bg-gray-100 rounded-lg p-2 w-full aspect-square flex items-center justify-center">
+          <canvas 
+            ref={canvasRef} 
+            className="max-w-full max-h-full object-contain"
+            style={{ imageRendering: 'auto' }}
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <div className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+              <span>Hue</span>
+              <span>{adjustments.hue}°</span>
             </div>
-          )}
-        </>
-      ) : (
-        <button
-          type="button"
-          onClick={onPick}
-          className="w-full h-full flex items-center justify-center text-gray-400 hover:text-gray-600"
-          aria-label={`Pick ${alt}`}
-          title="Add"
-        >
-          <Upload className="w-3.5 h-3.5" />
-        </button>
-      )}
-    </div>
+            <input
+              type="range"
+              min="-180"
+              max="180"
+              value={adjustments.hue}
+              onChange={(e) => {
+                const newAdj = { ...adjustments, hue: parseInt(e.target.value) };
+                setAdjustments(newAdj);
+                updateCanvasPreview(newAdj);
+              }}
+              onMouseUp={() => updateModelTexture()}
+              onTouchEnd={() => updateModelTexture()}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+            />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+              <span>Saturation</span>
+              <span>{adjustments.saturation}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="200"
+              value={adjustments.saturation}
+              onChange={(e) => {
+                const newAdj = { ...adjustments, saturation: parseInt(e.target.value) };
+                setAdjustments(newAdj);
+                updateCanvasPreview(newAdj);
+              }}
+              onMouseUp={() => updateModelTexture()}
+              onTouchEnd={() => updateModelTexture()}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+            />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+              <span>Brightness</span>
+              <span>{adjustments.brightness}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="200"
+              value={adjustments.brightness}
+              onChange={(e) => {
+                const newAdj = { ...adjustments, brightness: parseInt(e.target.value) };
+                setAdjustments(newAdj);
+                updateCanvasPreview(newAdj);
+              }}
+              onMouseUp={() => updateModelTexture()}
+              onTouchEnd={() => updateModelTexture()}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+            />
+          </div>
+          
+          <div>
+            <div className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+              <span>Contrast</span>
+              <span>{adjustments.contrast}</span>
+            </div>
+            <input
+              type="range"
+              min="-100"
+              max="100"
+              value={adjustments.contrast}
+              onChange={(e) => {
+                const newAdj = { ...adjustments, contrast: parseInt(e.target.value) };
+                setAdjustments(newAdj);
+                updateCanvasPreview(newAdj);
+              }}
+              onMouseUp={() => updateModelTexture()}
+              onTouchEnd={() => updateModelTexture()}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <button
+            onClick={() => {
+              const resetAdj = { brightness: 100, saturation: 100, contrast: 0, hue: 0 };
+              setAdjustments(resetAdj);
+              updateCanvasPreview(resetAdj);
+              setTimeout(() => updateModelTexture(), 50);
+            }}
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+          >
+            Reset
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            disabled={saving}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+          >
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 };
 
-// Texture rows block, memoized by texture strings and clientName; ignores function prop changes
-const TextureRows = memo(
-  ({
-    clientName,
-    textures,
-    onPick,
-    onRemove,
-  }: {
-    clientName: string;
-    textures: {
-      baseColorTexture?: string;
-      metallicRoughnessTexture?: string;
-      normalTexture?: string;
-      sheenRoughnessTexture?: string;
-      sheenColorTexture?: string;
-    };
-    onPick: (slot: keyof typeof textures) => void;
-    onRemove: (slot: keyof typeof textures) => void;
-  }) => {
-    const toSrc = (tex?: string) => {
-      if (!tex) return undefined;
-      return resolveTextureUrl(clientName, tex);
-    };
-    return (
-      <>
-        {/* Base Color Map */}
-        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-900">Base Color Map</span>
-            <MapSlotCell
-              src={toSrc(textures.baseColorTexture)}
-              texture={textures.baseColorTexture}
-              alt="base color"
-              onPick={() => onPick('baseColorTexture')}
-              onRemove={() => onRemove('baseColorTexture')}
-            />
-          </div>
-        </div>
+// Note: MapSlotCell removed - now using MapSlot everywhere for consistency
 
-        {/* Roughness Map */}
-        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-900">Roughness Map</span>
-            <MapSlotCell
-              src={toSrc(textures.metallicRoughnessTexture)}
-              texture={textures.metallicRoughnessTexture}
-              alt="roughness map"
-              onPick={() => onPick('metallicRoughnessTexture')}
-              onRemove={() => onRemove('metallicRoughnessTexture')}
-            />
-          </div>
-        </div>
-
-        {/* Metallic Map */}
-        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-900">Metallic Map</span>
-            <MapSlotCell
-              src={toSrc(textures.metallicRoughnessTexture)}
-              texture={textures.metallicRoughnessTexture}
-              alt="metallic map"
-              onPick={() => onPick('metallicRoughnessTexture')}
-              onRemove={() => onRemove('metallicRoughnessTexture')}
-            />
-          </div>
-        </div>
-
-        {/* Normal Map */}
-        <div className="space-y-2 pb-3 rounded-sm px-2 py-2 transition-colors hover:bg-white/50">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-900">Normal Map</span>
-            <MapSlotCell
-              src={toSrc(textures.normalTexture)}
-              texture={textures.normalTexture}
-              alt="normal map"
-              onPick={() => onPick('normalTexture')}
-              onRemove={() => onRemove('normalTexture')}
-            />
-          </div>
-        </div>
-      </>
-    );
-  },
-  (prev, next) =>
-    prev.clientName === next.clientName &&
-    prev.textures.baseColorTexture === next.textures.baseColorTexture &&
-    prev.textures.metallicRoughnessTexture === next.textures.metallicRoughnessTexture &&
-    prev.textures.normalTexture === next.textures.normalTexture &&
-    prev.textures.sheenRoughnessTexture === next.textures.sheenRoughnessTexture &&
-    prev.textures.sheenColorTexture === next.textures.sheenColorTexture
-);
+// Note: TextureRows component removed - using MapSlot directly in material cards
 
