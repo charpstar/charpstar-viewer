@@ -1531,7 +1531,7 @@ export default function MaterialEditorPage() {
           <div className="flex gap-1">
             <button
               type="button"
-              onClick={() => setTextureEditor({ open: true, texture: texture, slot: slot })}
+              onClick={() => setTextureEditor({ open: true, texture: texture || null, slot: slot || null })}
               className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
               title="Edit texture"
             >
