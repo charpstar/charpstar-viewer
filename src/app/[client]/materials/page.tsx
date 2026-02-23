@@ -2104,6 +2104,7 @@ export default function MaterialEditorPage() {
                             <MapSlot
                               texture={editedTextures?.metallicRoughnessTexture}
                               alt="roughness map"
+                              slot="metallicRoughnessTexture"
                               onPick={() => setTexturePicker({ open: true, slot: 'metallicRoughnessTexture', search: '' })}
                               onRemove={() => handleMaterialChange('metallicRoughnessTexture', null)}
                             />
@@ -2147,6 +2148,7 @@ export default function MaterialEditorPage() {
                             <MapSlot
                               texture={editedTextures?.metallicRoughnessTexture}
                               alt="metallic map"
+                              slot="metallicRoughnessTexture"
                               onPick={() => setTexturePicker({ open: true, slot: 'metallicRoughnessTexture', search: '' })}
                               onRemove={() => handleMaterialChange('metallicRoughnessTexture', null)}
                             />
@@ -2221,6 +2223,7 @@ export default function MaterialEditorPage() {
                             <MapSlot
                               texture={editedTextures?.normalTexture}
                               alt="normal map"
+                              slot="normalTexture"
                               onPick={() => setTexturePicker({ open: true, slot: 'normalTexture', search: '' })}
                               onRemove={() => handleMaterialChange('normalTexture', null)}
                             />
@@ -2406,6 +2409,7 @@ export default function MaterialEditorPage() {
                               <MapSlot
                                 texture={editedTextures?.sheenRoughnessTexture || (editedMaterial as any).sheenTexture}
                                 alt="sheen roughness map"
+                                slot="sheenRoughnessTexture"
                                 onPick={() => setTexturePicker({ open: true, slot: 'sheenRoughnessTexture' as any, search: '' })}
                                 onRemove={() => handleMaterialChange('sheenRoughnessTexture', null)}
                               />
@@ -2478,6 +2482,7 @@ export default function MaterialEditorPage() {
                     <MapSlot
                       texture={editedTextures?.sheenColorTexture}
                       alt="sheen color map"
+                      slot="sheenColorTexture"
                       onPick={() => setTexturePicker({ open: true, slot: 'sheenColorTexture' as any, search: '' })}
                       onRemove={() => handleMaterialChange('sheenColorTexture', null)}
                     />
