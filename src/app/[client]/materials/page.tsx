@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import DebouncedColorPicker from '@/components/material/DebouncedColorPicker';
 import { SliderWithInput } from '@/components/ui/slider-with-input';
 import { Progress } from '@/components/ui/progress';
+import { toast, Toaster } from 'sonner';
 
 // Material interface for the editor
 interface Material {
@@ -2744,6 +2745,9 @@ export default function MaterialEditorPage() {
           ))}
         </div>
       )}
+      
+      {/* Sonner Toast Provider */}
+      <Toaster position="top-right" richColors />
     </div>
   );
 }
@@ -2980,14 +2984,14 @@ const TextureEditorModal = ({
   const handleSave = async () => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      alert('Canvas not ready');
+      toast.error('Canvas not ready');
       return;
     }
 
     setSaving(true);
     try {
       const blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob((b) => resolve(b), 'image/png', 0.95);
+        canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.9);
       });
 
       if (!blob) {
@@ -3048,9 +3052,10 @@ const TextureEditorModal = ({
       }
       
       onSave(timestamp);
+      toast.success('Texture saved successfully!');
     } catch (error) {
       console.error('Failed to save texture:', error);
-      alert(`Failed to save texture: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to save texture: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setSaving(false);
     }
