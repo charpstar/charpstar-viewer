@@ -242,15 +242,21 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Compute variant mesh usage per material (from raw JSON for accuracy)
+    // Compute variant/default mesh usage per material (from raw JSON for accuracy)
     try {
       const meshesJson: any[] = Array.isArray(gltfData.meshes) ? gltfData.meshes : [];
       const materialsJsonArr: any[] = Array.isArray(gltfData.materials) ? gltfData.materials : [];
+      const materialIndexToDefaultMeshes = new Map<number, Set<string>>();
       const materialIndexToVariantMeshes = new Map<number, Set<string>>();
       meshesJson.forEach((mesh: any, meshIndex: number) => {
         const meshName = typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIndex}`;
         const primitives: any[] = Array.isArray(mesh?.primitives) ? mesh.primitives : [];
         primitives.forEach((prim: any) => {
+          const defaultMatIndex = prim?.material;
+          if (typeof defaultMatIndex === 'number') {
+            if (!materialIndexToDefaultMeshes.has(defaultMatIndex)) materialIndexToDefaultMeshes.set(defaultMatIndex, new Set());
+            materialIndexToDefaultMeshes.get(defaultMatIndex)!.add(meshName);
+          }
           const maps = prim?.extensions?.KHR_materials_variants?.mappings;
           if (Array.isArray(maps)) {
             maps.forEach((map: any) => {
@@ -263,14 +269,18 @@ export async function GET(request: NextRequest) {
           }
         });
       });
+      const nameToDefaultMeshes = new Map<string, string[]>();
       const nameToVariantMeshes = new Map<string, string[]>();
       materialsJsonArr.forEach((mat: any, idx: number) => {
         const name = typeof mat?.name === 'string' && mat.name.length > 0 ? mat.name : `Material_${idx}`;
+        const defaultSet = materialIndexToDefaultMeshes.get(idx);
+        if (defaultSet && defaultSet.size > 0) nameToDefaultMeshes.set(name, Array.from(defaultSet).sort());
         const set = materialIndexToVariantMeshes.get(idx);
         if (set && set.size > 0) nameToVariantMeshes.set(name, Array.from(set).sort());
       });
       materials = materials.map((m: any) => ({
         ...m,
+        defaultMeshes: nameToDefaultMeshes.get(m.name) || [],
         variantMeshes: nameToVariantMeshes.get(m.name) || [],
       }));
     } catch {}

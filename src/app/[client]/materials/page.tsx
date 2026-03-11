@@ -48,6 +48,11 @@ interface Material {
   // Sheen texCoord (UV set)
   sheenColorTextureTexCoord?: number;
   sheenRoughnessTextureTexCoord?: number;
+  // Assignment metadata used by add-material workflow
+  variantMeshes?: string[];
+  defaultMeshes?: string[];
+  pendingMeshes?: string[];
+  assignmentMode?: 'variant' | 'default';
 }
 
 interface ReferenceGltf {
@@ -640,6 +645,9 @@ export default function MaterialEditorPage() {
       sheenRoughnessTextureTexCoord: (material as any).sheenRoughnessTextureTexCoord,
       // Variant mesh usage (for sidebar tooltip and viewer overlay)
       variantMeshes: (material as any).variantMeshes || [],
+      // Default mesh assignments for non-variant materials
+      defaultMeshes: (material as any).defaultMeshes || [],
+      pendingMeshes: (material as any).pendingMeshes || [],
     };
 
     const staged = stagedMaterials[materialWithDefaults.name];
@@ -691,10 +699,31 @@ export default function MaterialEditorPage() {
         if (!root) return;
         let firstMesh: any = null;
         const variantNames: string[] = Array.isArray((active as any).variantMeshes) ? (active as any).variantMeshes : [];
-        const meshNameSet = variantNames.length > 0 ? new Set(variantNames) : null;
+        const defaultNames: string[] = Array.isArray((active as any).defaultMeshes) ? (active as any).defaultMeshes : [];
+        const pendingNames: string[] = Array.isArray((active as any).pendingMeshes) ? (active as any).pendingMeshes : [];
+        const normalizedTargetNames = Array.from(new Set([...variantNames, ...defaultNames, ...pendingNames]
+          .map((n) => (typeof n === 'string' ? n.trim() : ''))
+          .filter(Boolean)));
+        let meshNameSet = normalizedTargetNames.length > 0 ? new Set(normalizedTargetNames) : null;
+        // If no explicit mapping metadata exists (common after reload for default-only meshes),
+        // derive targets from currently assigned material name in the loaded model.
+        if (!meshNameSet || meshNameSet.size === 0) {
+          const derived = new Set<string>();
+          root.traverse((obj: any) => {
+            if (!obj?.isMesh) return;
+            const meshName: string | undefined = typeof obj.name === 'string' ? obj.name : undefined;
+            const materialName: string | undefined = typeof obj.material?.name === 'string' ? obj.material.name : undefined;
+            if (meshName && materialName && materialName === active.name) {
+              derived.add(meshName);
+            }
+          });
+          if (derived.size > 0) {
+            meshNameSet = derived;
+          }
+        }
         selectedMeshNamesRef.current = meshNameSet;
         if (!meshNameSet || meshNameSet.size === 0) {
-          // No target meshes specified: do not mutate display materials
+          // No target meshes resolved: do not mutate display materials
           return;
         }
         // Find a first mesh for fallback and capture original AO maps for target meshes
@@ -1213,12 +1242,16 @@ export default function MaterialEditorPage() {
   // Add new material by name (invoked from modal)
   const addNewMaterialByName = (
     name: string,
-    assignMeshNames?: string[] | string,
-    assignAsVariant: boolean = true,
-    createMeshes: boolean = false
+    mode: 'variant_existing' | 'variant_new_mesh' | 'material_new_mesh',
+    meshNames: string[]
   ) => {
     const trimmed = name.trim();
     if (!trimmed || !referenceGltf) return;
+    const exists = referenceGltf.materials.some((m) => m.name.toLowerCase() === trimmed.toLowerCase());
+    if (exists) {
+      addToast(`Material "${trimmed}" already exists`, 'error');
+      return;
+    }
     const newMaterial: Material = {
       name: trimmed,
       baseColor: [0.8, 0.8, 0.8, 1.0],
@@ -1228,30 +1261,40 @@ export default function MaterialEditorPage() {
       normalScale: 1.0,
       occlusionStrength: 1.0,
     };
-    // If meshes were chosen, annotate with variantMeshes only if assignAsVariant is true
-    const meshList: string[] | undefined = Array.isArray(assignMeshNames)
-      ? assignMeshNames.filter(Boolean)
-      : (typeof assignMeshNames === 'string' && assignMeshNames ? [assignMeshNames] : undefined);
+    const meshList = Array.from(new Set(meshNames.map((m) => (typeof m === 'string' ? m.trim() : '')).filter(Boolean)));
+    if (meshList.length === 0) {
+      addToast('Select or enter at least one mesh name', 'error');
+      return;
+    }
 
-    // Only add variantMeshes if assignAsVariant is true
     const annotated: any = { ...newMaterial };
-    if (meshList && meshList.length > 0) {
-      if (assignAsVariant) {
-        annotated.variantMeshes = meshList;
-      }
-      if (createMeshes) {
-        (annotated as any).pendingMeshes = meshList;
-      }
+    if (mode === 'variant_existing') {
+      annotated.assignmentMode = 'variant';
+      annotated.variantMeshes = meshList;
+    } else if (mode === 'variant_new_mesh') {
+      annotated.assignmentMode = 'variant';
+      annotated.variantMeshes = meshList;
+      annotated.defaultMeshes = meshList;
+      annotated.pendingMeshes = meshList;
+    } else {
+      annotated.assignmentMode = 'default';
+      annotated.defaultMeshes = meshList;
+      annotated.pendingMeshes = meshList;
     }
 
     setReferenceGltf(prev => prev ? { ...prev, materials: [...prev.materials, annotated] } : prev);
     setIsAddingMaterial(false);
     handleMaterialSelect(annotated);
 
-    // Stage the material for save (always needed to create the mesh object)
-    if (meshList && meshList.length > 0) {
-      setStagedMaterials(prev => ({ ...prev, [annotated.name]: annotated } as any));
-    }
+    // Always stage new materials so save is deterministic.
+    setStagedMaterials(prev => ({ ...prev, [annotated.name]: annotated } as any));
+    const message =
+      mode === 'variant_existing'
+        ? `Added material variant "${annotated.name}" to existing mesh "${meshList[0]}"`
+        : mode === 'variant_new_mesh'
+          ? `Created mesh "${meshList[0]}" and added variant "${annotated.name}" as default + variant`
+          : `Created mesh "${meshList[0]}" and assigned "${annotated.name}" as default-only material`;
+    addToast(message, 'success');
   };
 
   // Lightweight local modal for adding material (isolates input re-renders)
@@ -1262,23 +1305,21 @@ export default function MaterialEditorPage() {
   }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
-    onSubmit: (name: string, meshNames?: string[] | string, assignAsVariant?: boolean, createMeshes?: boolean) => void;
+    onSubmit: (name: string, mode: 'variant_existing' | 'variant_new_mesh' | 'material_new_mesh', meshNames: string[]) => void;
   }) => {
     const [name, setName] = useState('');
-    const [selectedMeshes, setSelectedMeshes] = useState<Set<string>>(new Set());
+    const [selectedExistingMesh, setSelectedExistingMesh] = useState<string>('');
     const [filter, setFilter] = useState('');
-    const [meshInputMode, setMeshInputMode] = useState<'existing' | 'new'>('existing');
     const [newMeshName, setNewMeshName] = useState('');
-    const [assignAsVariant, setAssignAsVariant] = useState(true);
+    const [mode, setMode] = useState<'variant_existing' | 'variant_new_mesh' | 'material_new_mesh'>('variant_existing');
 
     useEffect(() => {
       if (open) {
         setName('');
-        setSelectedMeshes(new Set());
+        setSelectedExistingMesh('');
         setFilter('');
-        setMeshInputMode('existing');
         setNewMeshName('');
-        setAssignAsVariant(true);
+        setMode('variant_existing');
       }
     }, [open]);
 
@@ -1287,12 +1328,15 @@ export default function MaterialEditorPage() {
       : sceneMeshNames;
     const filteredOptions = meshOptions.filter(m => m && m.toLowerCase().includes(filter.toLowerCase()));
 
+    const meshNamesToSubmit =
+      mode === 'variant_existing'
+        ? (selectedExistingMesh ? [selectedExistingMesh] : [])
+        : (newMeshName.trim() ? [newMeshName.trim()] : []);
+    const canSubmit = !!name.trim() && meshNamesToSubmit.length > 0;
+
     const handleSubmit = () => {
-      const isNewMeshMode = meshInputMode === 'new';
-      const meshNamesToSubmit = isNewMeshMode
-        ? (newMeshName.trim() ? [newMeshName.trim()] : undefined)
-        : (selectedMeshes.size > 0 ? Array.from(selectedMeshes) : undefined);
-      onSubmit(name, meshNamesToSubmit, assignAsVariant, isNewMeshMode);
+      if (!canSubmit) return;
+      onSubmit(name, mode, meshNamesToSubmit);
     };
 
     return (
@@ -1307,7 +1351,7 @@ export default function MaterialEditorPage() {
           <DialogHeader>
             <DialogTitle>Add New Material</DialogTitle>
             <DialogDescription>
-              Create a new material. Optionally assign it as a variant for meshes.
+              Choose one of the 3 supported workflows.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -1317,34 +1361,42 @@ export default function MaterialEditorPage() {
               onChange={(e) => setName(e.target.value)}
             />
             <div className="mt-3">
-              <label className="block text-xs text-gray-600 mb-2">Assign as Variant to Meshes (optional)</label>
-
-              {/* Mode Toggle */}
+              <label className="block text-xs text-gray-600 mb-2">Workflow</label>
               <div className="flex gap-2 mb-3">
                 <button
                   type="button"
-                  onClick={() => setMeshInputMode('existing')}
-                  className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${meshInputMode === 'existing'
+                  onClick={() => setMode('variant_existing')}
+                  className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${mode === 'variant_existing'
                     ? 'bg-blue-50 border-blue-500 text-blue-900'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  Select Existing
+                  Variant to Existing Mesh
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMeshInputMode('new')}
-                  className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${meshInputMode === 'new'
+                  onClick={() => setMode('variant_new_mesh')}
+                  className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${mode === 'variant_new_mesh'
                     ? 'bg-blue-50 border-blue-500 text-blue-900'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  Create New Mesh
+                  Variant to New Mesh
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('material_new_mesh')}
+                  className={`flex-1 px-3 py-2 text-xs rounded border transition-colors ${mode === 'material_new_mesh'
+                    ? 'bg-blue-50 border-blue-500 text-blue-900'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  Material to New Mesh
                 </button>
               </div>
 
               {/* Conditional UI based on mode */}
-              {meshInputMode === 'existing' ? (
+              {mode === 'variant_existing' ? (
                 <>
                   <Input
                     placeholder="Filter meshes..."
@@ -1357,59 +1409,47 @@ export default function MaterialEditorPage() {
                       <div className="text-xs text-gray-500">No meshes</div>
                     ) : (
                       filteredOptions.map((m) => (
-                        <label key={m} className="flex items-center text-xs space-x-2 py-1">
-                          <input
-                            type="checkbox"
-                            checked={selectedMeshes.has(m)}
-                            onChange={(e) => {
-                              setSelectedMeshes((prev) => {
-                                const next = new Set(prev);
-                                if (e.target.checked) next.add(m); else next.delete(m);
-                                return next;
-                              });
-                            }}
-                          />
-                          <span className="truncate">{m}</span>
-                        </label>
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setSelectedExistingMesh(m)}
+                          className={`w-full text-left text-xs px-2 py-1 rounded border transition-colors ${selectedExistingMesh === m
+                            ? 'bg-blue-50 border-blue-400 text-blue-900'
+                            : 'bg-white border-transparent hover:bg-gray-50'
+                            }`}
+                        >
+                          <span className="truncate block">{m}</span>
+                        </button>
                       ))
                     )}
                   </div>
-                  {selectedMeshes.size > 0 && (
-                    <div className="text-[11px] text-gray-500 mt-1">{selectedMeshes.size} mesh{selectedMeshes.size !== 1 ? 'es' : ''} selected</div>
+                  {selectedExistingMesh && (
+                    <div className="text-[11px] text-gray-500 mt-1">Selected mesh: {selectedExistingMesh}</div>
                   )}
                 </>
               ) : (
                 <>
                   <Input
-                    placeholder="New mesh name (e.g., ChairArm_500mm)"
+                    placeholder={mode === 'variant_new_mesh' ? 'New variant mesh name (e.g., geo_variantLeather)' : 'New mesh name (e.g., geo_newFabric)'}
                     value={newMeshName}
                     onChange={(e) => setNewMeshName(e.target.value)}
                   />
-                  <div className="mt-3">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={assignAsVariant}
-                        onChange={(e) => setAssignAsVariant(e.target.checked)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-xs text-gray-700">Assign as material variant</span>
-                    </label>
-                    <div className="text-[11px] text-gray-500 mt-1">
-                      {assignAsVariant
-                        ? 'Material will be assigned as a variant. Uncheck to assign as the default material only.'
-                        : 'Material will be assigned as the default material without creating a variant.'}
-                    </div>
-                  </div>
                 </>
               )}
+              <div className="mt-3">
+                <div className="text-[11px] text-gray-500 mt-1">
+                  {mode === 'variant_existing' && 'Adds this material as a variant to an existing mesh. Default mesh material is not changed.'}
+                  {mode === 'variant_new_mesh' && 'Creates a new mesh (cube), assigns this material as its default material, and also adds a variant mapping.'}
+                  {mode === 'material_new_mesh' && 'Creates a new mesh (cube) and assigns this material as default-only (no variant mapping).'}
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={!name.trim()}>
+            <Button onClick={handleSubmit} disabled={!canSubmit}>
               Add Material
             </Button>
           </DialogFooter>
@@ -1449,6 +1489,16 @@ export default function MaterialEditorPage() {
   const filteredMaterials = referenceGltf?.materials.filter(m =>
     m.name.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
+  const getMaterialMeshTargets = (material: any): string[] => {
+    const variant = Array.isArray(material?.variantMeshes) ? material.variantMeshes : [];
+    const defaults = Array.isArray(material?.defaultMeshes) ? material.defaultMeshes : [];
+    const pending = Array.isArray(material?.pendingMeshes) ? material.pendingMeshes : [];
+    return Array.from(new Set([...variant, ...defaults, ...pending].filter((v) => typeof v === 'string' && v.length > 0)));
+  };
+  const groupedMaterials = {
+    variant: filteredMaterials.filter((m: any) => Array.isArray(m?.variantMeshes) && m.variantMeshes.length > 0),
+    defaultOnly: filteredMaterials.filter((m: any) => (!Array.isArray(m?.variantMeshes) || m.variantMeshes.length === 0)),
+  };
 
   // MapSlot component (simple image cell)
   const MapSlot = ({ texture, onPick, onRemove, slot, alt }: { texture?: string; onPick: () => void; onRemove: () => void; slot?: keyof Material; alt: string }) => {
@@ -1773,59 +1823,119 @@ export default function MaterialEditorPage() {
                   <p className="text-sm">No materials found</p>
                 </div>
               ) : (
-                filteredMaterials.map((material) => (
-                  <Card
-                    key={material.name}
-                    className={`group cursor-pointer transition-colors ${selectedMaterial?.name === material.name
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'hover:border-gray-300'
-                      }`}
-                    onClick={() => handleMaterialSelect(material)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm text-gray-900">{material.name}</h4>
-                          <div className="flex items-start space-x-2 mt-1">
-                            <div
-                              className="w-4 h-4 rounded border border-gray-300 mt-0.5"
-                              style={{
-                                backgroundColor: `rgb(${Math.round(material.baseColor[0] * 255)}, ${Math.round(material.baseColor[1] * 255)}, ${Math.round(material.baseColor[2] * 255)})`
-                              }}
-                            />
-                            <div className="flex flex-wrap gap-1">
-                              {Array.isArray((material as any).variantMeshes) && (material as any).variantMeshes.length > 0 ? (
-                                <>
-                                  {(material as any).variantMeshes.slice(0, 4).map((meshName: string) => (
-                                    <span key={meshName} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                      {meshName}
-                                    </span>
-                                  ))}
-                                  {(material as any).variantMeshes.length > 4 && (
-                                    <span className="text-xs text-gray-500">+{(material as any).variantMeshes.length - 4} more</span>
-                                  )}
-                                </>
-                              ) : (
-                                <span className="text-xs text-gray-500">No variants</span>
-                              )}
+                <>
+                  {groupedMaterials.variant.length > 0 && (
+                    <div className="px-1 pt-1">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Variant Materials</div>
+                    </div>
+                  )}
+                  {groupedMaterials.variant.map((material) => (
+                    <Card
+                      key={material.name}
+                      className={`group cursor-pointer transition-colors ${selectedMaterial?.name === material.name
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'hover:border-gray-300'
+                        }`}
+                      onClick={() => handleMaterialSelect(material)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-sm text-gray-900">{material.name}</h4>
+                            <div className="flex items-start space-x-2 mt-1">
+                              <div
+                                className="w-4 h-4 rounded border border-gray-300 mt-0.5"
+                                style={{
+                                  backgroundColor: `rgb(${Math.round(material.baseColor[0] * 255)}, ${Math.round(material.baseColor[1] * 255)}, ${Math.round(material.baseColor[2] * 255)})`
+                                }}
+                              />
+                              <div className="flex flex-wrap gap-1">
+                                {getMaterialMeshTargets(material).slice(0, 4).map((meshName: string) => (
+                                  <span key={meshName} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                    {meshName}
+                                  </span>
+                                ))}
+                                {getMaterialMeshTargets(material).length > 4 && (
+                                  <span className="text-xs text-gray-500">+{getMaterialMeshTargets(material).length - 4} more</span>
+                                )}
+                              </div>
                             </div>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteDialog({ open: true, name: material.name });
+                            }}
+                            className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-800"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteDialog({ open: true, name: material.name });
-                          }}
-                          className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  {groupedMaterials.defaultOnly.length > 0 && (
+                    <div className="px-1 pt-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Default-only Materials</div>
+                    </div>
+                  )}
+                  {groupedMaterials.defaultOnly.map((material) => (
+                    <Card
+                      key={material.name}
+                      className={`group cursor-pointer transition-colors ${selectedMaterial?.name === material.name
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'hover:border-gray-300'
+                        }`}
+                      onClick={() => handleMaterialSelect(material)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-sm text-gray-900">{material.name}</h4>
+                            <div className="flex items-start space-x-2 mt-1">
+                              <div
+                                className="w-4 h-4 rounded border border-gray-300 mt-0.5"
+                                style={{
+                                  backgroundColor: `rgb(${Math.round(material.baseColor[0] * 255)}, ${Math.round(material.baseColor[1] * 255)}, ${Math.round(material.baseColor[2] * 255)})`
+                                }}
+                              />
+                              <div className="flex flex-wrap gap-1">
+                                {getMaterialMeshTargets(material).length > 0 ? (
+                                  <>
+                                    {getMaterialMeshTargets(material).slice(0, 4).map((meshName: string) => (
+                                      <span key={meshName} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                        {meshName}
+                                      </span>
+                                    ))}
+                                    {getMaterialMeshTargets(material).length > 4 && (
+                                      <span className="text-xs text-gray-500">+{getMaterialMeshTargets(material).length - 4} more</span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <span className="text-xs text-gray-500">No mesh mappings</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteDialog({ open: true, name: material.name });
+                            }}
+                            className="opacity-0 group-hover:opacity-100 text-red-600 hover:text-red-800"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
               )}
             </div>
           </div>
@@ -1855,17 +1965,34 @@ export default function MaterialEditorPage() {
                   </h4>
                   <div className="text-[11px] text-gray-700">
                     <div className="font-medium mb-1">Material present on meshes</div>
-                    {Array.isArray((editedMaterial as any)?.variantMeshes) && (editedMaterial as any).variantMeshes.length > 0 ? (
-                      <div className="flex flex-wrap gap-1 max-w-[320px]">
-                        {(editedMaterial as any).variantMeshes.map((meshName: string) => (
-                          <span key={meshName} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                            {meshName}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-gray-600">No variant mappings for this material</div>
-                    )}
+                    {(() => {
+                      const activeMat: any = editedMaterial || selectedMaterial;
+                      const targets = getMaterialMeshTargets(activeMat);
+                      if (targets.length > 0) {
+                        return (
+                          <div className="flex flex-wrap gap-1 max-w-[320px]">
+                            {targets.map((meshName: string) => (
+                              <span key={meshName} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                {meshName}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      }
+                      const derived = selectedMeshNamesRef.current ? Array.from(selectedMeshNamesRef.current) : [];
+                      if (derived.length > 0) {
+                        return (
+                          <div className="flex flex-wrap gap-1 max-w-[320px]">
+                            {derived.map((meshName: string) => (
+                              <span key={meshName} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                {meshName}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return <div className="text-gray-600">No mesh mappings for this material</div>;
+                    })()}
                   </div>
                 </div>
               )}

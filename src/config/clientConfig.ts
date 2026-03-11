@@ -135,6 +135,22 @@ export const clients: Record<string, ClientConfig> = {
       publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
+  ArtwoodInternal: {
+    name: "ArtwoodInternal",
+    description: "Artwood-Internal Editor",
+    hdrPath: "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr",
+    resourcesPath: "Artwood",
+    livePassword: "artwood2024",
+    exposure: 1.5,
+    toneMapping: "aces",
+    bunnyCdn: {
+      modelPath: "Client-Editor/ArtwoodInternal",
+      imagesPath: "Client-Editor/ArtwoodInternal/images",
+      referencePath: "Client-Editor/ArtwoodInternal/reference/reference.gltf",
+      backupsPath: "Client-Editor/ArtwoodInternal/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
+    }
+  },
   Sleepo: {
     name: "Sleepo",
     description: "Sleepo Editor",

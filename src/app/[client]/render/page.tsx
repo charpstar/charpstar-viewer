@@ -187,7 +187,7 @@ export default function RenderPage() {
   const modularConfigData = {
     'mammuten': {
       src: 'MAM',
-      parts: ['MAM-1', 'MAM-15', 'MAM-C45', 'MAM-C90', 'MAM-AL', 'MAM-AR', 'MAM-CHL15', 'MAM-FOOT', 'MAM-DIV15']
+      parts: ['MAM-1', 'MAM-15', 'MAM-C45', 'MAM-C90', 'MAM-AL', 'MAM-AR', 'MAM-CHL15', 'MAM-FOOT', 'MAM-DIV15', 'MAM-ENDR', 'MAM-ENDL']
     },
     'hajen': {
       src: 'HAJ',
