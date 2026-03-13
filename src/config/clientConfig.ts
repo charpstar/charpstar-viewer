@@ -167,6 +167,22 @@ export const clients: Record<string, ClientConfig> = {
       publicBaseUrl: "https://cdn.charpstar.net"
     }
   },
+  Eurosheds: {
+    name: "Eurosheds",
+    description: "Eurosheds Editor",
+    hdrPath: "https://cdn.charpstar.net/Demos/warm.hdr",
+    resourcesPath: "Eurosheds",
+    livePassword: "Eurosheds",
+    exposure: 1.0,
+    toneMapping: "aces",
+    bunnyCdn: {
+      modelPath: "Client-Editor/Eurosheds",
+      imagesPath: "Client-Editor/Eurosheds/images",
+      referencePath: "Client-Editor/Eurosheds/reference/reference.gltf",
+      backupsPath: "Client-Editor/Eurosheds/reference/backup",
+      publicBaseUrl: "https://cdn.charpstar.net"
+    }
+  },
 };
 
 // Helper function to get client configuration
