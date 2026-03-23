@@ -203,7 +203,19 @@ export default function RenderPage() {
     },
     'bjornen': {
       src: 'BJO',
-      parts: ['BJO-MOD2', 'BJO-FOOT1', 'BJO-MOD15', 'BJO-MODDIV', 'BJO-ARM-SOFT', 'BJO-MOD3', 'BJO-ARM-COV', 'BJO-MODCHL', 'BJO-ARM-LID']
+      parts: [
+        'BJO_M-2',
+        'BJO_M-3',
+        'BJO_M-FOOT',
+        'BJO_M-15',
+        'BJO_M-DIV',
+        'BJO_M-ARM_S',
+        'BJO_M-COV',
+        'BJO_M-CHL',
+        'BJO_M-ARM_H-BLA',
+        'BJO_M-ARM_H-WAL',
+        'BJO_M-ARM_H-WOO',
+      ],
     },
     'mammuten-hfc': {
       src: 'MAM-HFC',
