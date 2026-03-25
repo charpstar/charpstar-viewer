@@ -61,6 +61,7 @@ interface ReferenceGltf {
   images: any[];
   meshes?: string[];
   lastModified: string;
+  externallyModified?: boolean;
 }
 
 // Intentionally no viewer/model logic – UI-only mode
@@ -257,7 +258,7 @@ export default function MaterialEditorPage() {
   const [overlayDismissed, setOverlayDismissed] = useState(false);
   // Backups UI state
   const [backupDialogOpen, setBackupDialogOpen] = useState(false);
-  const [backups, setBackups] = useState<Array<{ name: string; url: string; size?: number; lastModified?: string }>>([]);
+  const [backups, setBackups] = useState<Array<{ name: string; url: string; size?: number; lastModified?: string; city?: string | null; country?: string | null; changes?: Array<{ material: string; fields: string[] }> }>>([]);
   const [backupsLoading, setBackupsLoading] = useState(false);
   const [backupsError, setBackupsError] = useState<string | null>(null);
   const [reverting, setReverting] = useState(false);
@@ -430,6 +431,9 @@ export default function MaterialEditorPage() {
       if (!response.ok) throw new Error('Failed to load reference GLTF');
       const data = await response.json();
       setReferenceGltf(data);
+      if (data.externallyModified) {
+        addToast('Warning: The reference file was modified outside the editor by a direct server upload. Please review your materials carefully.', 'error');
+      }
       return data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load reference GLTF');
@@ -485,6 +489,17 @@ export default function MaterialEditorPage() {
       })
       .catch((err) => setError(err.message || 'Failed to initialize viewer'));
   }, [clientName]);
+
+  // Warn when closing/refreshing browser tab with unsaved changes
+  const hasUnsavedChanges = Object.keys(stagedMaterials).length > 0;
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasUnsavedChanges]);
 
   // Collect mesh names from the displayed model when it loads
   useEffect(() => {
@@ -590,22 +605,26 @@ export default function MaterialEditorPage() {
     if (!backupName) return;
     setReverting(true);
     try {
-      // Restore the backup to active reference.gltf
       const res = await fetch('/api/revert-reference', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client: clientName, backup: backupName })
       });
       if (!res.ok) throw new Error('Restore failed');
-      addToast('Reference restored from backup', 'success');
+      addToast('Version restored. Click "Apply to Live Models" to update all models.', 'success');
       setBackupDialogOpen(false);
-      await loadReferenceGltf();
+      // Clear stale editor state before reloading
+      setStagedMaterials({});
+      setSelectedMaterial(null);
+      setEditedMaterial(null);
+      // Force-fetch from storage origin (bypasses CDN cache)
+      await loadReferenceGltf(true);
     } catch (e) {
-      addToast('Failed to restore backup', 'error');
+      addToast('Failed to restore version', 'error');
     } finally {
       setReverting(false);
     }
-  }, [clientName]);
+  }, [clientName, loadReferenceGltf]);
 
 
   // Removed old PoC auto-apply effect
@@ -786,17 +805,26 @@ export default function MaterialEditorPage() {
           if (sheenRoughTex) (sheenRoughTex as any).flipY = false;
         } catch { }
 
-        const applyRotation = (tex: any, rot?: number) => {
-          if (!tex || rot == null) return;
+        // Convert glTF KHR_texture_transform (scale/rotation/offset around UV origin)
+        // to Three.js texture properties. glTF applies Scale→Rotate→Translate around (0,0);
+        // Three.js with center=(0,0) does the same, so we map directly.
+        const applyGltfTransform = (tex: any, scale?: [number, number], rot?: number) => {
+          if (!tex) return;
           try {
-            if (tex.center?.set) tex.center.set(0.5, 0.5);
-            tex.rotation = rot;
+            tex.wrapS = (THREE as any).RepeatWrapping;
+            tex.wrapT = (THREE as any).RepeatWrapping;
+            if (tex.center?.set) tex.center.set(0, 0);
+            if (Array.isArray(scale) && tex.repeat?.set) tex.repeat.set(scale[0] ?? 1, scale[1] ?? 1);
+            if (typeof rot === 'number') tex.rotation = rot;
+            if (tex.offset?.set) tex.offset.set(0, 0);
             tex.needsUpdate = true;
           } catch { }
         };
-        applyRotation(mapTex, (active as any).baseColorTextureRotation ?? 0);
-        applyRotation(normalTex, (active as any).normalTextureRotation ?? 0);
-        applyRotation(sheenColorTex, (active as any).sheenColorTextureRotation ?? 0);
+        applyGltfTransform(mapTex, (active as any).baseColorTextureScale, (active as any).baseColorTextureRotation);
+        applyGltfTransform(normalTex, (active as any).normalTextureScale, (active as any).normalTextureRotation);
+        applyGltfTransform(sheenColorTex, (active as any).sheenColorTextureScale, (active as any).sheenColorTextureRotation);
+        applyGltfTransform(sheenRoughTex, (active as any).sheenRoughnessTextureScale);
+        applyGltfTransform(mrTex, (active as any).metallicRoughnessTextureScale);
 
         // Ensure correct color space: base color, emissive and sheen color maps should be sRGB
         const setSRGB = (tex?: any) => {
@@ -889,33 +917,11 @@ export default function MaterialEditorPage() {
             m.aoMapIntensity = active.occlusionStrength;
           }
 
-          // Bind textures with repeats per mesh
-          if (mapTex) {
-            const s = Array.isArray((active as any).baseColorTextureScale) ? (active as any).baseColorTextureScale : [1, 1];
-            mapTex.wrapS = (THREE as any).RepeatWrapping;
-            mapTex.wrapT = (THREE as any).RepeatWrapping;
-            if (mapTex.repeat?.set) mapTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
-
-          }
+          // Bind textures (transforms already applied by applyGltfTransform above)
           if (isTarget) {
             m.map = mapTex || null;
             m.metalnessMap = mrTex || null;
             m.roughnessMap = mrTex || null;
-            if (mrTex) {
-              const sMR = Array.isArray((active as any).metallicRoughnessTextureScale)
-                ? (active as any).metallicRoughnessTextureScale
-                : [1, 1];
-              mrTex.wrapS = (THREE as any).RepeatWrapping;
-              mrTex.wrapT = (THREE as any).RepeatWrapping;
-              if (mrTex.repeat?.set) mrTex.repeat.set(sMR[0] ?? 1, sMR[1] ?? 1);
-            }
-          }
-          if (normalTex) {
-            const sN = Array.isArray((active as any).normalTextureScale) ? (active as any).normalTextureScale : [1, 1];
-            normalTex.wrapS = (THREE as any).RepeatWrapping;
-            normalTex.wrapT = (THREE as any).RepeatWrapping;
-            if (normalTex.repeat?.set) normalTex.repeat.set(sN[0] ?? 1, sN[1] ?? 1);
-
           }
           if (isTarget) {
             m.normalMap = normalTex || null;
@@ -935,16 +941,8 @@ export default function MaterialEditorPage() {
             // Assign sheen maps. Respect KHR_texture_transform tiling if present in reference data.
             if (isTarget && 'sheenColorMap' in m) {
               (m as any).sheenColorMap = sheenColorTex || null;
-              const s = Array.isArray((active as any).sheenColorTextureScale) ? (active as any).sheenColorTextureScale : undefined;
-              if (sheenColorTex && Array.isArray(s)) {
-                sheenColorTex.wrapS = (THREE as any).RepeatWrapping;
-                sheenColorTex.wrapT = (THREE as any).RepeatWrapping;
-                if (sheenColorTex.repeat?.set) sheenColorTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
-              }
-              // Apply UV channel (texCoord) if provided
               try {
                 const tc = (active as any).sheenColorTextureTexCoord;
-                // model-viewer/three use channel=1 for UV1, channel=0 for UV0; texCoord maps 0->0,1->1 etc.
                 if (typeof tc === 'number') {
                   if ((m as any).sheenColorMap) (m as any).sheenColorMap.channel = tc;
                   if (typeof (m as any).sheenColorMap?.setUvChannel === 'function') (m as any).sheenColorMap.setUvChannel(tc);
@@ -953,13 +951,6 @@ export default function MaterialEditorPage() {
             }
             if (isTarget && 'sheenRoughnessMap' in m) {
               (m as any).sheenRoughnessMap = sheenRoughTex || null;
-              const s = Array.isArray((active as any).sheenRoughnessTextureScale) ? (active as any).sheenRoughnessTextureScale : undefined;
-              if (sheenRoughTex && Array.isArray(s)) {
-                sheenRoughTex.wrapS = (THREE as any).RepeatWrapping;
-                sheenRoughTex.wrapT = (THREE as any).RepeatWrapping;
-                if (sheenRoughTex.repeat?.set) sheenRoughTex.repeat.set(s[0] ?? 1, s[1] ?? 1);
-              }
-              // Apply UV channel (texCoord) if provided
               try {
                 const tc = (active as any).sheenRoughnessTextureTexCoord;
                 if (typeof tc === 'number') {
@@ -1103,7 +1094,8 @@ export default function MaterialEditorPage() {
               }
             })();
             try {
-              if (tex.center?.set) tex.center.set(0.5, 0.5);
+              if (tex.center?.set) tex.center.set(0, 0);
+              if (tex.offset?.set) tex.offset.set(0, 0);
               tex.rotation = rot;
             } catch { }
             const baseScale = [1, 1] as [number, number];
@@ -1197,7 +1189,8 @@ export default function MaterialEditorPage() {
             : slot === 'normalTexture' ? mat?.normalMap
               : (mat as any)?.sheenColorMap;
         if (tex) {
-          if (tex.center?.set) tex.center.set(0.5, 0.5);
+          if (tex.center?.set) tex.center.set(0, 0);
+          if (tex.offset?.set) tex.offset.set(0, 0);
           tex.rotation = rad;
           tex.needsUpdate = true;
         }
@@ -1214,10 +1207,71 @@ export default function MaterialEditorPage() {
     try {
       // Merge staged edits over reference materials by name
       const outgoing = referenceGltf.materials.map((m) => stagedMaterials[m.name] ?? m);
+
+      // Compute change summary by diffing same-format DTOs (original vs outgoing)
+      const _changeSummary: Array<{ material: string; fields: string[] }> = [];
+      try {
+        // Default values the editor fills in when opening a material (see handleMaterialSelect).
+        // Both sides must be normalized to these before comparing to avoid false positives.
+        const DEFAULTS: Record<string, any> = {
+          baseColorTextureScale: [1, 1], normalTextureScale: [1, 1],
+          sheenColorTextureScale: [1, 1], sheenRoughnessTextureScale: [1, 1],
+          metallicRoughnessTextureScale: [1, 1],
+          baseColorTextureRotation: 0, normalTextureRotation: 0,
+          sheenColorTextureRotation: 0,
+        };
+        const FIELDS: Array<{ key: string; label: string; isArray?: boolean }> = [
+          { key: 'baseColor', label: 'Base Color', isArray: true },
+          { key: 'metallicFactor', label: 'Metallic' },
+          { key: 'roughnessFactor', label: 'Roughness' },
+          { key: 'emissiveFactor', label: 'Emissive', isArray: true },
+          { key: 'normalScale', label: 'Normal Scale' },
+          { key: 'baseColorTexture', label: 'Base Color Map' },
+          { key: 'normalTexture', label: 'Normal Map' },
+          { key: 'sheenColor', label: 'Sheen Color', isArray: true },
+          { key: 'sheenRoughnessFactor', label: 'Sheen Roughness' },
+          { key: 'sheenColorTexture', label: 'Sheen Color Map' },
+          { key: 'sheenRoughnessTexture', label: 'Sheen Roughness Map' },
+          { key: 'baseColorTextureScale', label: 'Base Color Tiling', isArray: true },
+          { key: 'baseColorTextureRotation', label: 'Base Color Rotation' },
+          { key: 'normalTextureScale', label: 'Normal Tiling', isArray: true },
+          { key: 'normalTextureRotation', label: 'Normal Rotation' },
+          { key: 'sheenColorTextureScale', label: 'Sheen Color Tiling', isArray: true },
+          { key: 'sheenColorTextureRotation', label: 'Sheen Color Rotation' },
+        ];
+        const round4 = (v: number) => Math.round(v * 10000) / 10000;
+        const norm = (key: string, val: any) => {
+          if (val == null && key in DEFAULTS) return DEFAULTS[key];
+          return val;
+        };
+        const origByName = new Map(referenceGltf.materials.map((m) => [m.name, m]));
+        outgoing.forEach((edited) => {
+          const orig = origByName.get(edited.name);
+          if (!orig) { _changeSummary.push({ material: edited.name, fields: ['New material'] }); return; }
+          const changed: string[] = [];
+          FIELDS.forEach(({ key, label, isArray }) => {
+            const a = norm(key, (edited as any)[key]);
+            const b = norm(key, (orig as any)[key]);
+            if (isArray) {
+              const aa = Array.isArray(a) ? a : null;
+              const bb = Array.isArray(b) ? b : null;
+              if (!aa && !bb) return;
+              if (!aa || !bb || aa.length !== bb.length) { changed.push(label); return; }
+              if (aa.some((v: number, i: number) => round4(v) !== round4(bb[i]))) changed.push(label);
+            } else {
+              const na = typeof a === 'number' ? round4(a) : (a ?? null);
+              const nb = typeof b === 'number' ? round4(b) : (b ?? null);
+              if (na !== nb) changed.push(label);
+            }
+          });
+          if (changed.length > 0) _changeSummary.push({ material: edited.name, fields: changed });
+        });
+      } catch { }
+
       const res = await fetch('/api/save-materials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client: clientName, materials: outgoing })
+        body: JSON.stringify({ client: clientName, materials: outgoing, _changeSummary })
       });
       if (!res.ok) throw new Error('Save failed');
       addToast('Materials saved', 'success');
@@ -1712,34 +1766,122 @@ export default function MaterialEditorPage() {
           }
         }}
         isApplyingToLiveModels={isApplyingLive || !!globalLock?.active}
+        hasUnsavedChanges={hasUnsavedChanges}
       />
       {/* Backups dialog */}
       <Dialog open={backupDialogOpen} onOpenChange={setBackupDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>Reference Backups</DialogTitle>
-            <DialogDescription>Restore a previous version of reference.gltf. This will overwrite the active reference.</DialogDescription>
+            <DialogTitle>Version History</DialogTitle>
+            <DialogDescription>
+              Each entry is a snapshot taken before a save. Restoring will revert the reference back to that point, undoing the listed changes.
+            </DialogDescription>
           </DialogHeader>
-          <div className="max-h-64 overflow-auto border rounded-md">
+          <div className="max-h-[28rem] overflow-auto border rounded-md">
             {backupsLoading ? (
-              <div className="p-4 text-sm text-gray-600">Loading backups…</div>
+              <div className="p-4 text-sm text-gray-600">Loading history…</div>
             ) : backupsError ? (
               <div className="p-4 text-sm text-red-600">{backupsError}</div>
             ) : backups.length === 0 ? (
-              <div className="p-4 text-sm text-gray-600">No backups found.</div>
+              <div className="p-4 text-sm text-gray-600">No history found.</div>
             ) : (
               <ul className="divide-y">
-                {backups.map((b) => (
-                  <li key={b.name} className="flex items-center justify-between px-3 py-2 text-sm">
-                    <div>
-                      <div className="font-medium text-gray-900">{b.name}</div>
-                      <div className="text-xs text-gray-500">{new Date(b.lastModified || Date.now()).toLocaleString()} • {Math.round((b.size || 0) / 1024)} KB</div>
-                    </div>
-                    <Button size="sm" variant="outline" disabled={reverting} onClick={() => handleRestoreBackup(b.name)}>
-                      {reverting ? 'Restoring…' : 'Restore'}
-                    </Button>
-                  </li>
-                ))}
+                {(() => {
+                  const parseDate = (s: string | undefined) => {
+                    if (!s) return 0;
+                    const safe = !s.endsWith('Z') && !s.includes('+') ? s + 'Z' : s;
+                    return new Date(safe).getTime() || 0;
+                  };
+                  const sorted = [...backups].sort((a, b) => parseDate(a.lastModified) - parseDate(b.lastModified));
+
+                  // Shift changes: each version displays the PREVIOUS version's changes
+                  // (those changes describe what was done to arrive at this version's state)
+                  const display = sorted.map((b, i) => {
+                    const ownChanges = Array.isArray(b.changes) ? b.changes : [];
+                    const isAutoBackup = ownChanges.length === 1 && ownChanges[0]?.material === '_system';
+                    const autoNote = isAutoBackup ? ownChanges[0].fields.join(', ') : '';
+
+                    let shiftedChanges: Array<{ material: string; fields: string[] }> = [];
+                    if (!isAutoBackup && i > 0) {
+                      const prev = sorted[i - 1];
+                      const prevChanges = Array.isArray(prev.changes) ? prev.changes : [];
+                      shiftedChanges = prevChanges.filter(c => c.material !== '_system');
+                    }
+                    const isOldest = i === 0 && !isAutoBackup;
+                    return { ...b, shiftedChanges, isAutoBackup, autoNote, isOldest };
+                  });
+
+                  // Show newest first
+                  display.reverse();
+
+                  return display.map((b) => {
+                    const raw = b.lastModified || '';
+                    const utcSafe = raw && !raw.endsWith('Z') && !raw.includes('+') ? raw + 'Z' : raw;
+                    const date = utcSafe ? new Date(utcSafe) : new Date();
+                    const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                    const timeStr = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+                    const location = (b.city || b.country)
+                      ? [b.city, b.country].filter(Boolean).join(', ')
+                      : null;
+                    const hasChanges = b.shiftedChanges.length > 0;
+                    return (
+                      <li key={b.name} className={`px-3 py-3 text-sm ${b.isAutoBackup ? 'bg-amber-50/50' : ''}`}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-gray-900">{dateStr} at {timeStr}</span>
+                              {b.isAutoBackup && (
+                                <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+                                  Auto-saved
+                                </span>
+                              )}
+                              {location && (
+                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+                                  {location}
+                                </span>
+                              )}
+                              {!location && (
+                                <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-xs text-gray-500 ring-1 ring-inset ring-gray-200">
+                                  Unknown location
+                                </span>
+                              )}
+                            </div>
+                            {b.isAutoBackup && (
+                              <div className="mt-1 text-xs text-amber-600 italic">{b.autoNote}</div>
+                            )}
+                            {!b.isAutoBackup && b.isOldest && (
+                              <div className="mt-0.5 text-xs text-gray-400">Earliest saved version</div>
+                            )}
+                            {!b.isAutoBackup && !b.isOldest && hasChanges && (
+                              <details className="mt-1.5">
+                                <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 select-none">
+                                  {b.shiftedChanges.length} material{b.shiftedChanges.length !== 1 ? 's' : ''} modified in this version
+                                </summary>
+                                <div className="mt-1 space-y-1 pl-1 border-l-2 border-gray-200 ml-0.5">
+                                  {b.shiftedChanges.map((c, i) => (
+                                    <div key={i} className="text-xs pl-2">
+                                      <span className="font-medium text-gray-800">{c.material}</span>
+                                      <span className="text-gray-400"> — </span>
+                                      <span className="text-gray-500">{c.fields.join(', ')}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </details>
+                            )}
+                            {!b.isAutoBackup && !b.isOldest && !hasChanges && (
+                              <div className="mt-0.5 text-xs text-gray-400">No change details available</div>
+                            )}
+                          </div>
+                          <div className="shrink-0 flex flex-col items-end gap-1 mt-0.5">
+                            <Button size="sm" variant="outline" disabled={reverting} onClick={() => handleRestoreBackup(b.name)}>
+                              {reverting ? 'Restoring…' : 'Restore this version'}
+                            </Button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  });
+                })()}
               </ul>
             )}
           </div>

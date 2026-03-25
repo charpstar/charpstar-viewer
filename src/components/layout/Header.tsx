@@ -2,10 +2,10 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+
 import { Button } from '@/components/ui/button';
 import { Save, Download, RefreshCw, Upload, History } from 'lucide-react';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { isValidClient } from '@/config/clientConfig';
 import ModelSelector from '@/components/ModelSelector';
 
@@ -27,6 +27,7 @@ interface HeaderProps {
   onUploadModels?: () => void; // For manage page upload dialog
   onOpenBackups?: () => void; // For materials page: open backups dialog
   onStopApply?: () => void; // Always-active local stop apply state
+  hasUnsavedChanges?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -47,9 +48,11 @@ const Header: React.FC<HeaderProps> = ({
   onUploadModels,
   onOpenBackups,
   onStopApply,
+  hasUnsavedChanges = false,
 }) => {
   const params = useParams();
   const pathname = usePathname();
+  const router = useRouter();
   const clientName = params?.client as string;
   const isClientView = isValidClient(clientName);
   const isManageView = pathname?.includes('/manage');
@@ -148,50 +151,31 @@ const Header: React.FC<HeaderProps> = ({
         {isClientView && (
           <nav className="ml-8">
             <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-              <Link href={`/${clientName}/manage`}>
+              {([
+                { page: 'manage', href: `/${clientName}/manage`, label: 'Models' },
+                { page: 'materials', href: `/${clientName}/materials`, label: 'Materials' },
+                { page: 'textures', href: `/${clientName}/textures`, label: 'Textures' },
+                { page: 'render', href: `/${clientName}/render`, label: 'Render Studio' },
+              ] as const).map(({ page, href, label }) => (
                 <button
+                  key={page}
+                  onClick={(e) => {
+                    if (currentPage === page) return;
+                    if (hasUnsavedChanges && !window.confirm('You have unsaved material changes. Leave without saving?')) {
+                      e.preventDefault();
+                      return;
+                    }
+                    router.push(href);
+                  }}
                   className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
-                    currentPage === 'manage'
+                    currentPage === page
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                   }`}
                 >
-                  Models
+                  {label}
                 </button>
-              </Link>
-              <Link href={`/${clientName}/materials`}>
-                <button
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
-                    currentPage === 'materials'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
-                  }`}
-                >
-                  Materials
-                </button>
-              </Link>
-              <Link href={`/${clientName}/textures`}>
-                <button
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
-                    currentPage === 'textures'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
-                  }`}
-                >
-                  Textures
-                </button>
-              </Link>
-              <Link href={`/${clientName}/render`}>
-                <button
-                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer hover:scale-105 ${
-                    currentPage === 'render'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
-                  }`}
-                >
-                  Render Studio
-                </button>
-              </Link>
+              ))}
             </div>
           </nav>
         )}

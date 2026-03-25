@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import https from 'https';
+import crypto from 'crypto';
 import { getClientConfig } from '@/config/clientConfig';
 import { NodeIO, Document, Material, Texture } from '@gltf-transform/core';
 import { KHRTextureTransform, KHRMaterialsSheen, KHRMaterialsTransmission, KHRMaterialsVariants } from '@gltf-transform/extensions';
@@ -9,6 +11,25 @@ const BASE_HOSTNAME = 'storage.bunnycdn.com';
 const HOSTNAME = REGION ? `${REGION}.${BASE_HOSTNAME}` : BASE_HOSTNAME;
 const STORAGE_ZONE_PATH = process.env.BUNNY_STORAGE_ZONE_NAME || '';
 const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY || '';
+
+const uploadToStorage = (filePath: string, content: string, contentType = 'text/plain'): Promise<void> => {
+  const zoneName = STORAGE_ZONE_PATH.split('/')[0];
+  const buffer = Buffer.from(content);
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      method: 'PUT',
+      host: HOSTNAME,
+      path: `/${zoneName}/${filePath}`,
+      headers: { AccessKey: ACCESS_KEY, 'Content-Type': contentType, 'Content-Length': buffer.length },
+    }, (res) => {
+      res.resume();
+      res.on('end', () => (res.statusCode === 200 || res.statusCode === 201) ? resolve() : reject(new Error(`${res.statusCode}`)));
+    });
+    req.on('error', reject);
+    req.write(buffer);
+    req.end();
+  });
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,34 +58,132 @@ export async function GET(request: NextRequest) {
       if (resp.ok) {
         try { items = await resp.json(); } catch {}
       }
-      const backups = (Array.isArray(items) ? items : [])
-        .filter((e: any) => e && e.ObjectName && !e.IsDirectory && /\.gltf$/i.test(e.ObjectName))
-        .map((e: any) => ({
-          name: e.ObjectName as string,
-          url: `https://${BUNNY_PULL_ZONE_URL}/${backupsBase}${e.ObjectName}`,
+      // Collect .gltf backups and identify available .meta.json sidecars
+      const allItems = Array.isArray(items) ? items : [];
+      const metaNames = new Set(
+        allItems
+          .filter((e: any) => e?.ObjectName && /\.meta\.json$/i.test(e.ObjectName))
+          .map((e: any) => e.ObjectName as string)
+      );
+
+      const gltfItems = allItems.filter((e: any) => e?.ObjectName && !e.IsDirectory && /\.gltf$/i.test(e.ObjectName));
+
+      // Fetch all available .meta.json sidecars in parallel (lightweight JSON files)
+      const metaFetches = new Map<string, Promise<any>>();
+      gltfItems.forEach((e: any) => {
+        const baseName = (e.ObjectName as string).replace(/\.gltf$/i, '');
+        const metaFile = `${baseName}.meta.json`;
+        if (metaNames.has(metaFile)) {
+          const metaUrl = `https://${host}/${zone}/${backupsBase}${metaFile}`;
+          metaFetches.set(
+            e.ObjectName,
+            fetch(metaUrl, { headers: { 'AccessKey': process.env.BUNNY_ACCESS_KEY || '' } })
+              .then(r => r.ok ? r.json() : null)
+              .catch(() => null)
+          );
+        }
+      });
+      const metaResults = new Map<string, any>();
+      await Promise.all(
+        Array.from(metaFetches.entries()).map(async ([key, promise]) => {
+          metaResults.set(key, await promise);
+        })
+      );
+
+      const backups = gltfItems.map((e: any) => {
+        const name = e.ObjectName as string;
+        const meta = metaResults.get(name);
+
+        // Location: prefer sidecar metadata, fall back to filename parsing
+        let city: string | null = meta?.city || null;
+        let country: string | null = meta?.country || null;
+        if (!city && !country) {
+          const locMatch = name.match(/_loc_([A-Za-z0-9 -]+)_([A-Za-z0-9 -]+)\.gltf$/i);
+          if (locMatch) {
+            city = locMatch[1].replace(/-/g, ' ');
+            country = locMatch[2].replace(/-/g, ' ');
+          }
+        }
+
+        return {
+          name,
+          url: `https://${BUNNY_PULL_ZONE_URL}/${backupsBase}${name}`,
           size: e.Length,
           lastModified: e.LastChanged,
-        }));
+          city,
+          country,
+          changes: Array.isArray(meta?.changes) ? meta.changes : [],
+        };
+      });
       return NextResponse.json({ backups });
     }
 
     // Fetch reference JSON — prefer Bunny Storage origin (authoritative) when force=1
     const forceFresh = searchParams.get('force') === '1';
     let gltfData: any;
+    let rawReferenceText = '';
     if (forceFresh && STORAGE_ZONE_PATH && ACCESS_KEY) {
       const zoneName = STORAGE_ZONE_PATH.split('/')[0];
       const storagePath = `${referencePath}`;
       const storageUrl = `https://${HOSTNAME}/${zoneName}/${storagePath}`;
       const res = await fetch(storageUrl, { headers: { AccessKey: ACCESS_KEY } });
       if (!res.ok) throw new Error(`Failed to fetch reference from storage: ${res.status}`);
-      const text = await res.text();
-      gltfData = JSON.parse(text);
+      rawReferenceText = await res.text();
+      gltfData = JSON.parse(rawReferenceText);
     } else {
       const response = await fetch(`${referenceUrl}?t=${Date.now()}`, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Failed to fetch reference GLTF: ${response.status}`);
-      const gltfText = await response.text();
-      gltfData = JSON.parse(gltfText);
+      rawReferenceText = await response.text();
+      gltfData = JSON.parse(rawReferenceText);
     }
+
+    // Detect external modifications by comparing content hash against editor checksum
+    let externallyModified = false;
+    try {
+      const currentHash = crypto.createHash('sha256').update(rawReferenceText).digest('hex');
+      const checksumPath = referencePath.replace(/\/[^/]+$/, '/_editor_checksum.json');
+      const zoneName = STORAGE_ZONE_PATH.split('/')[0];
+      const checksumUrl = `https://${HOSTNAME}/${zoneName}/${checksumPath}`;
+      const csRes = await fetch(checksumUrl, { headers: { AccessKey: ACCESS_KEY }, signal: AbortSignal.timeout(5000) });
+      if (csRes.ok) {
+        const csData = await csRes.json();
+        if (csData?.hash && csData.hash !== currentHash) {
+          externallyModified = true;
+          // Append to persistent log file
+          try {
+            const logPath = referencePath.replace(/\/[^/]+$/, '/_external_changes.json');
+            const logStorageUrl = `https://${HOSTNAME}/${zoneName}/${logPath}`;
+            let entries: any[] = [];
+            try {
+              const logRes = await fetch(logStorageUrl, { headers: { AccessKey: ACCESS_KEY }, signal: AbortSignal.timeout(3000) });
+              if (logRes.ok) {
+                const parsed = await logRes.json();
+                if (Array.isArray(parsed)) entries = parsed;
+              }
+            } catch {}
+            let city = '';
+            let country = '';
+            try {
+              const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || '';
+              const isLocal = !ip || ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.');
+              const geoUrl = isLocal ? 'http://ip-api.com/json/?fields=city,country' : `http://ip-api.com/json/${ip}?fields=city,country`;
+              const geo = await fetch(geoUrl, { signal: AbortSignal.timeout(3000) });
+              if (geo.ok) {
+                const g = await geo.json();
+                city = g.city || '';
+                country = g.country || '';
+              }
+            } catch {}
+            const location = [city, country].filter(Boolean).join(', ') || 'Unknown';
+            entries.push({
+              detectedAt: new Date().toISOString(),
+              location,
+            });
+            await uploadToStorage(logPath, JSON.stringify(entries, null, 2), 'application/json');
+          } catch {}
+        }
+      }
+    } catch {}
 
     // Prepare external buffer resources (skip images to avoid heavy downloads)
     const resources: Record<string, Uint8Array> = {};
@@ -308,6 +427,7 @@ export async function GET(request: NextRequest) {
       images,
       meshes,
       lastModified: new Date().toISOString(),
+      externallyModified,
     });
     res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     return res;

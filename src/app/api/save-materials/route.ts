@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import https from 'https';
+import crypto from 'crypto';
 import { getClientConfig } from '@/config/clientConfig';
 import { NodeIO, Document, Material as GTMaterial, Texture } from '@gltf-transform/core';
 import { KHRTextureTransform, KHRMaterialsSheen, KHRDracoMeshCompression } from '@gltf-transform/extensions';
@@ -73,7 +74,7 @@ const purgeCache = async (fileUrl: string): Promise<void> => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { client, materials } = await request.json();
+    const { client, materials, _changeSummary } = await request.json();
     if (!client || !materials || !Array.isArray(materials)) {
       return NextResponse.json({ error: 'client and materials[] are required' }, { status: 400 });
     }
@@ -88,6 +89,10 @@ export async function POST(request: NextRequest) {
     }
     const gltfText = await response.text();
     const gltfData = JSON.parse(gltfText);
+
+    // Material change summary: provided by the client which diffs same-format DTOs
+    const materialChanges: Array<{ material: string; fields: string[] }> =
+      Array.isArray(_changeSummary) ? _changeSummary : [];
 
     // Externalized arrays are no longer supported. Require embedded arrays in reference.gltf.
     if (typeof (gltfData as any).materials === 'string' ||
@@ -982,12 +987,56 @@ export async function POST(request: NextRequest) {
       console.warn('[SAVE INTEGRITY] Skipped integrity check due to error:', e);
     }
 
-    // Before we upload the updated reference.gltf, create a timestamped backup
+    // Before we upload the updated reference.gltf, create a timestamped backup with location + changelog
+    let backupCity = '';
+    let backupCountry = '';
     try {
       const backupTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupDir = clientConfig.bunnyCdn.backupsPath.replace(/\/$/, '');
-      const backupFilePath = `${backupDir}/reference-${backupTimestamp}.gltf`;
+
+      // Resolve caller location from IP for audit trail
+      let locationTag = '';
+      try {
+        const ip =
+          request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+          request.headers.get('x-real-ip') ||
+          '';
+        const isLocal = !ip || ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.');
+        // When local/missing, omit IP so ip-api returns the server's own public IP location
+        const geoUrl = isLocal
+          ? 'http://ip-api.com/json/?fields=city,country'
+          : `http://ip-api.com/json/${ip}?fields=city,country`;
+        const geo = await fetch(geoUrl, { signal: AbortSignal.timeout(3000) });
+        if (geo.ok) {
+          const data = await geo.json();
+          backupCity = (data.city || '').replace(/[^A-Za-z0-9 -]/g, '').trim();
+          backupCountry = (data.country || '').replace(/[^A-Za-z0-9 -]/g, '').trim();
+          if (backupCity || backupCountry) {
+            locationTag = `_loc_${(backupCity || 'Unknown').replace(/\s+/g, '-')}_${(backupCountry || 'Unknown').replace(/\s+/g, '-')}`;
+          }
+        }
+      } catch {
+        // Geolocation is best-effort; proceed without it
+      }
+
+      const backupBaseName = `reference-${backupTimestamp}${locationTag}`;
+      const backupFilePath = `${backupDir}/${backupBaseName}.gltf`;
       await uploadToBunny(backupFilePath, gltfText, 'model/gltf+json');
+
+      // Store a sidecar metadata file with material change details
+      try {
+        const changes = materialChanges;
+        const meta = {
+          timestamp: new Date().toISOString(),
+          city: backupCity || null,
+          country: backupCountry || null,
+          changes,
+        };
+        const metaFilePath = `${backupDir}/${backupBaseName}.meta.json`;
+        await uploadToBunny(metaFilePath, JSON.stringify(meta), 'application/json');
+      } catch {
+        // Meta is non-critical
+      }
     } catch (e) {
       console.warn('Backup of reference.gltf failed; proceeding with save', e);
     }
@@ -997,6 +1046,13 @@ export async function POST(request: NextRequest) {
     const filePath = `${clientConfig.bunnyCdn.referencePath}`;
     await uploadToBunny(filePath, updatedGltfContent, 'model/gltf+json');
     await purgeCache(`https://${BUNNY_PULL_ZONE_URL}/${filePath}`);
+
+    // Write editor checksum so we can detect external overwrites
+    try {
+      const hash = crypto.createHash('sha256').update(updatedGltfContent).digest('hex');
+      const checksumPath = filePath.replace(/\/[^/]+$/, '/_editor_checksum.json');
+      await uploadToBunny(checksumPath, JSON.stringify({ hash, timestamp: new Date().toISOString() }), 'application/json');
+    } catch {}
 
     return NextResponse.json({ success: true });
   } catch (error) {
