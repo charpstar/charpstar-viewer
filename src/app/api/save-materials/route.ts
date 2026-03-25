@@ -987,14 +987,26 @@ export async function POST(request: NextRequest) {
       console.warn('[SAVE INTEGRITY] Skipped integrity check due to error:', e);
     }
 
-    // Before we upload the updated reference.gltf, create a timestamped backup with location + changelog
-    let backupCity = '';
-    let backupCountry = '';
+    // Save the updated reference
+    const updatedGltfContent = JSON.stringify(out, null, 2);
+    const filePath = `${clientConfig.bunnyCdn.referencePath}`;
+    await uploadToBunny(filePath, updatedGltfContent, 'model/gltf+json');
+    await purgeCache(`https://${BUNNY_PULL_ZONE_URL}/${filePath}`);
+
+    // Write editor checksum so we can detect external overwrites
+    try {
+      const hash = crypto.createHash('sha256').update(updatedGltfContent).digest('hex');
+      const checksumPath = filePath.replace(/\/[^/]+$/, '/_editor_checksum.json');
+      await uploadToBunny(checksumPath, JSON.stringify({ hash, timestamp: new Date().toISOString() }), 'application/json');
+    } catch {}
+
+    // Backup the newly saved version with location + changelog
     try {
       const backupTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupDir = clientConfig.bunnyCdn.backupsPath.replace(/\/$/, '');
 
-      // Resolve caller location from IP for audit trail
+      let backupCity = '';
+      let backupCountry = '';
       let locationTag = '';
       try {
         const ip =
@@ -1002,7 +1014,6 @@ export async function POST(request: NextRequest) {
           request.headers.get('x-real-ip') ||
           '';
         const isLocal = !ip || ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.');
-        // When local/missing, omit IP so ip-api returns the server's own public IP location
         const geoUrl = isLocal
           ? 'http://ip-api.com/json/?fields=city,country'
           : `http://ip-api.com/json/${ip}?fields=city,country`;
@@ -1015,44 +1026,23 @@ export async function POST(request: NextRequest) {
             locationTag = `_loc_${(backupCity || 'Unknown').replace(/\s+/g, '-')}_${(backupCountry || 'Unknown').replace(/\s+/g, '-')}`;
           }
         }
-      } catch {
-        // Geolocation is best-effort; proceed without it
-      }
+      } catch {}
 
       const backupBaseName = `reference-${backupTimestamp}${locationTag}`;
-      const backupFilePath = `${backupDir}/${backupBaseName}.gltf`;
-      await uploadToBunny(backupFilePath, gltfText, 'model/gltf+json');
+      await uploadToBunny(`${backupDir}/${backupBaseName}.gltf`, updatedGltfContent, 'model/gltf+json');
 
-      // Store a sidecar metadata file with material change details
       try {
-        const changes = materialChanges;
         const meta = {
           timestamp: new Date().toISOString(),
           city: backupCity || null,
           country: backupCountry || null,
-          changes,
+          changes: materialChanges,
         };
-        const metaFilePath = `${backupDir}/${backupBaseName}.meta.json`;
-        await uploadToBunny(metaFilePath, JSON.stringify(meta), 'application/json');
-      } catch {
-        // Meta is non-critical
-      }
+        await uploadToBunny(`${backupDir}/${backupBaseName}.meta.json`, JSON.stringify(meta), 'application/json');
+      } catch {}
     } catch (e) {
-      console.warn('Backup of reference.gltf failed; proceeding with save', e);
+      console.warn('Backup after save failed:', e);
     }
-
-    // Final upload
-    const updatedGltfContent = JSON.stringify(out, null, 2);
-    const filePath = `${clientConfig.bunnyCdn.referencePath}`;
-    await uploadToBunny(filePath, updatedGltfContent, 'model/gltf+json');
-    await purgeCache(`https://${BUNNY_PULL_ZONE_URL}/${filePath}`);
-
-    // Write editor checksum so we can detect external overwrites
-    try {
-      const hash = crypto.createHash('sha256').update(updatedGltfContent).digest('hex');
-      const checksumPath = filePath.replace(/\/[^/]+$/, '/_editor_checksum.json');
-      await uploadToBunny(checksumPath, JSON.stringify({ hash, timestamp: new Date().toISOString() }), 'application/json');
-    } catch {}
 
     return NextResponse.json({ success: true });
   } catch (error) {

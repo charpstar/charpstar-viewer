@@ -1786,35 +1786,12 @@ export default function MaterialEditorPage() {
               <div className="p-4 text-sm text-gray-600">No history found.</div>
             ) : (
               <ul className="divide-y">
-                {(() => {
-                  const parseDate = (s: string | undefined) => {
-                    if (!s) return 0;
-                    const safe = !s.endsWith('Z') && !s.includes('+') ? s + 'Z' : s;
-                    return new Date(safe).getTime() || 0;
-                  };
-                  const sorted = [...backups].sort((a, b) => parseDate(a.lastModified) - parseDate(b.lastModified));
-
-                  // Shift changes: each version displays the PREVIOUS version's changes
-                  // (those changes describe what was done to arrive at this version's state)
-                  const display = sorted.map((b, i) => {
-                    const ownChanges = Array.isArray(b.changes) ? b.changes : [];
-                    const isAutoBackup = ownChanges.length === 1 && ownChanges[0]?.material === '_system';
-                    const autoNote = isAutoBackup ? ownChanges[0].fields.join(', ') : '';
-
-                    let shiftedChanges: Array<{ material: string; fields: string[] }> = [];
-                    if (!isAutoBackup && i > 0) {
-                      const prev = sorted[i - 1];
-                      const prevChanges = Array.isArray(prev.changes) ? prev.changes : [];
-                      shiftedChanges = prevChanges.filter(c => c.material !== '_system');
-                    }
-                    const isOldest = i === 0 && !isAutoBackup;
-                    return { ...b, shiftedChanges, isAutoBackup, autoNote, isOldest };
-                  });
-
-                  // Show newest first
-                  display.reverse();
-
-                  return display.map((b) => {
+                {[...backups]
+                  .sort((a, b) => {
+                    const parse = (s: string | undefined) => { if (!s) return 0; const safe = !s.endsWith('Z') && !s.includes('+') ? s + 'Z' : s; return new Date(safe).getTime() || 0; };
+                    return parse(b.lastModified) - parse(a.lastModified);
+                  })
+                  .map((b) => {
                     const raw = b.lastModified || '';
                     const utcSafe = raw && !raw.endsWith('Z') && !raw.includes('+') ? raw + 'Z' : raw;
                     const date = utcSafe ? new Date(utcSafe) : new Date();
@@ -1823,14 +1800,18 @@ export default function MaterialEditorPage() {
                     const location = (b.city || b.country)
                       ? [b.city, b.country].filter(Boolean).join(', ')
                       : null;
-                    const hasChanges = b.shiftedChanges.length > 0;
+                    const changes = Array.isArray(b.changes) ? b.changes : [];
+                    const isAutoBackup = changes.length === 1 && changes[0]?.material === '_system';
+                    const autoNote = isAutoBackup ? changes[0].fields.join(', ') : '';
+                    const displayChanges = changes.filter(c => c.material !== '_system');
+                    const hasChanges = displayChanges.length > 0;
                     return (
-                      <li key={b.name} className={`px-3 py-3 text-sm ${b.isAutoBackup ? 'bg-amber-50/50' : ''}`}>
+                      <li key={b.name} className={`px-3 py-3 text-sm ${isAutoBackup ? 'bg-amber-50/50' : ''}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-semibold text-gray-900">{dateStr} at {timeStr}</span>
-                              {b.isAutoBackup && (
+                              {isAutoBackup && (
                                 <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
                                   Auto-saved
                                 </span>
@@ -1846,19 +1827,16 @@ export default function MaterialEditorPage() {
                                 </span>
                               )}
                             </div>
-                            {b.isAutoBackup && (
-                              <div className="mt-1 text-xs text-amber-600 italic">{b.autoNote}</div>
+                            {isAutoBackup && (
+                              <div className="mt-1 text-xs text-amber-600 italic">{autoNote}</div>
                             )}
-                            {!b.isAutoBackup && b.isOldest && (
-                              <div className="mt-0.5 text-xs text-gray-400">Earliest saved version</div>
-                            )}
-                            {!b.isAutoBackup && !b.isOldest && hasChanges && (
+                            {!isAutoBackup && hasChanges && (
                               <details className="mt-1.5">
                                 <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 select-none">
-                                  {b.shiftedChanges.length} material{b.shiftedChanges.length !== 1 ? 's' : ''} modified in this version
+                                  {displayChanges.length} material{displayChanges.length !== 1 ? 's' : ''} modified in this version
                                 </summary>
                                 <div className="mt-1 space-y-1 pl-1 border-l-2 border-gray-200 ml-0.5">
-                                  {b.shiftedChanges.map((c, i) => (
+                                  {displayChanges.map((c, i) => (
                                     <div key={i} className="text-xs pl-2">
                                       <span className="font-medium text-gray-800">{c.material}</span>
                                       <span className="text-gray-400"> — </span>
@@ -1868,7 +1846,7 @@ export default function MaterialEditorPage() {
                                 </div>
                               </details>
                             )}
-                            {!b.isAutoBackup && !b.isOldest && !hasChanges && (
+                            {!isAutoBackup && !hasChanges && (
                               <div className="mt-0.5 text-xs text-gray-400">No change details available</div>
                             )}
                           </div>
@@ -1880,8 +1858,7 @@ export default function MaterialEditorPage() {
                         </div>
                       </li>
                     );
-                  });
-                })()}
+                  })}
               </ul>
             )}
           </div>
