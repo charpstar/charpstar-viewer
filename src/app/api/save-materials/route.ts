@@ -90,6 +90,22 @@ export async function POST(request: NextRequest) {
     const gltfText = await response.text();
     const gltfData = JSON.parse(gltfText);
 
+    // On the very first editor save, preserve the original reference as a backup
+    try {
+      const checksumPath = clientConfig.bunnyCdn.referencePath.replace(/\/[^/]+$/, '/_editor_checksum.json');
+      const { zoneName } = getStorageZoneDetails();
+      const csUrl = `https://${HOSTNAME}/${zoneName}/${checksumPath}`;
+      const csRes = await fetch(csUrl, { headers: { AccessKey: ACCESS_KEY }, signal: AbortSignal.timeout(3000) });
+      if (!csRes.ok) {
+        const backupDir = clientConfig.bunnyCdn.backupsPath.replace(/\/$/, '');
+        const ts = new Date().toISOString().replace(/[:.]/g, '-');
+        const baseName = `reference-${ts}_original`;
+        await uploadToBunny(`${backupDir}/${baseName}.gltf`, gltfText, 'model/gltf+json');
+        const meta = { timestamp: new Date().toISOString(), city: null, country: null, changes: [{ material: '_system', fields: ['Original version before first edit'] }] };
+        await uploadToBunny(`${backupDir}/${baseName}.meta.json`, JSON.stringify(meta), 'application/json');
+      }
+    } catch {}
+
     // Material change summary: provided by the client which diffs same-format DTOs
     const materialChanges: Array<{ material: string; fields: string[] }> =
       Array.isArray(_changeSummary) ? _changeSummary : [];
