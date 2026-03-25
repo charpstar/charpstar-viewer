@@ -137,8 +137,7 @@ export async function GET(request: NextRequest) {
       gltfData = JSON.parse(rawReferenceText);
     }
 
-    // Detect external modifications by comparing content hash against editor checksum
-    let externallyModified = false;
+    // Detect external modifications: log once and update checksum so it doesn't re-trigger
     try {
       const currentHash = crypto.createHash('sha256').update(rawReferenceText).digest('hex');
       const checksumPath = referencePath.replace(/\/[^/]+$/, '/_editor_checksum.json');
@@ -148,8 +147,6 @@ export async function GET(request: NextRequest) {
       if (csRes.ok) {
         const csData = await csRes.json();
         if (csData?.hash && csData.hash !== currentHash) {
-          externallyModified = true;
-          // Append to persistent log file
           try {
             const logPath = referencePath.replace(/\/[^/]+$/, '/_external_changes.json');
             const logStorageUrl = `https://${HOSTNAME}/${zoneName}/${logPath}`;
@@ -180,6 +177,8 @@ export async function GET(request: NextRequest) {
               location,
             });
             await uploadToStorage(logPath, JSON.stringify(entries, null, 2), 'application/json');
+            // Update checksum to the new hash so this only fires once
+            await uploadToStorage(checksumPath, JSON.stringify({ hash: currentHash, timestamp: new Date().toISOString() }), 'application/json');
           } catch {}
         }
       }
@@ -427,7 +426,6 @@ export async function GET(request: NextRequest) {
       images,
       meshes,
       lastModified: new Date().toISOString(),
-      externallyModified,
     });
     res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     return res;

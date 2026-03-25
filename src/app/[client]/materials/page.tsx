@@ -61,7 +61,6 @@ interface ReferenceGltf {
   images: any[];
   meshes?: string[];
   lastModified: string;
-  externallyModified?: boolean;
 }
 
 // Intentionally no viewer/model logic – UI-only mode
@@ -431,9 +430,6 @@ export default function MaterialEditorPage() {
       if (!response.ok) throw new Error('Failed to load reference GLTF');
       const data = await response.json();
       setReferenceGltf(data);
-      if (data.externallyModified) {
-        addToast('Warning: The reference file was modified outside the editor by a direct server upload. Please review your materials carefully.', 'error');
-      }
       return data;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load reference GLTF');
