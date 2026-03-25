@@ -1774,7 +1774,7 @@ export default function MaterialEditorPage() {
           <DialogHeader>
             <DialogTitle>Version History</DialogTitle>
             <DialogDescription>
-              Each entry is a snapshot taken before a save. Restoring will revert the reference back to that point, undoing the listed changes.
+              Each entry is a saved version of your materials. Restoring will replace the current reference with that version. Remember to click "Apply to Live Models" afterwards to update all models.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[28rem] overflow-auto border rounded-md">
