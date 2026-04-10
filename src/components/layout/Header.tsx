@@ -265,8 +265,8 @@ const Header: React.FC<HeaderProps> = ({
           </>
         )}
 
-        {/* Export buttons: show for non-client views or render view when handler provided */}
-        {((!isClientView) || isRenderView) && (
+        {/* Export buttons: show for non-client views, render view, or materials view when handler provided */}
+        {((!isClientView) || isRenderView || isMaterialsView) && (
           <>
             {onExportGLB && (
               <Button 

@@ -1664,6 +1664,28 @@ export default function MaterialEditorPage() {
         title={editingModelName || undefined}
         titlePrefix="Displaying"
         onOpenBackups={() => setBackupDialogOpen(true)}
+        onExportGLB={async () => {
+          const viewer: any = modelViewerRef.current;
+          if (!viewer || typeof viewer.exportScene !== 'function') {
+            addToast('Export not available: no model loaded', 'error');
+            return;
+          }
+          try {
+            const blob: Blob = await viewer.exportScene({ binary: true, onlyVisible: true, includeCustomExtensions: true });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const base = editingModelName || 'model';
+            a.href = url;
+            a.download = `${base}-export.glb`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          } catch (e) {
+            console.error('GLB export failed:', e);
+            addToast('Failed to export GLB', 'error');
+          }
+        }}
         onStopApply={() => {
           (async () => {
             try {
