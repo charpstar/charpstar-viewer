@@ -4,14 +4,22 @@
 
 import { useState, useEffect, useRef } from "react";
 
-const ModelViewer = ({ onModelLoaded }) => {
+const ModelViewer = ({ onModelLoaded, modelUrl }) => {
   const [modelSrc, setModelSrc] = useState(null);
   const [isClient, setIsClient] = useState(false);
   const fileNameRef = useRef("model");
 
   useEffect(() => {
-    setIsClient(true); // Set to true only on the client side
+    setIsClient(true);
   }, []);
+
+  // Load from external URL (for programmatic / agent use)
+  useEffect(() => {
+    if (modelUrl) {
+      fileNameRef.current = modelUrl.split("/").pop()?.replace(/\.[^/.]+$/, "") || "model";
+      setModelSrc(modelUrl);
+    }
+  }, [modelUrl]);
 
   // Effect to handle model load event
   useEffect(() => {

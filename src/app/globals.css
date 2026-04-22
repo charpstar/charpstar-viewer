@@ -172,3 +172,20 @@ body {
     text-wrap: balance;
   }
 }
+
+/* QA annotation hotspots rendered inside model-viewer */
+.qa-hotspot {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-color: #f97316;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: default;
+  padding: 0;
+}
+
+.qa-hotspot[data-severity="low"]    { background-color: #eab308; }
+.qa-hotspot[data-severity="medium"] { background-color: #f97316; }
+.qa-hotspot[data-severity="high"]   { background-color: #ef4444; }

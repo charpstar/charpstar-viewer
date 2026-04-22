@@ -19,6 +19,9 @@ import MaterialProperties from "../material/MaterialProperties";
 import MaterialVariants from "../variant/MaterialVariants";
 import ModelViewer from "../ModelViewer";
 import ViewerControls from "../ViewerControls";
+import ReferencePanel from "../qa/ReferencePanel";
+import QAAnnotationPanel from "../qa/QAAnnotationPanel";
+import type { QAAnnotation } from "../qa/types";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 
@@ -110,7 +113,15 @@ const initialJson: IJsonModel = {
                 name: "Materials",
                 component: "materials",
                 id: "materials-tab",
-                enableClose: false, // Disable close button
+                enableClose: false,
+                enablePopout: true,
+              },
+              {
+                type: "tab",
+                name: "References",
+                component: "references",
+                id: "references-tab",
+                enableClose: false,
                 enablePopout: true,
               },
             ],
@@ -125,7 +136,15 @@ const initialJson: IJsonModel = {
                 name: "Variants",
                 component: "variants",
                 id: "variants-tab",
-                enableClose: false, // Disable close button
+                enableClose: false,
+                enablePopout: true,
+              },
+              {
+                type: "tab",
+                name: "QA Report",
+                component: "qa",
+                id: "qa-tab",
+                enableClose: false,
                 enablePopout: true,
               },
             ],
@@ -148,6 +167,10 @@ interface FlexLayoutProps {
   onExposureChange: (value: number) => void;
   toneMapping: string;
   onToneMappingChange: (value: string) => void;
+  externalModelUrl?: string | null;
+  qaAnnotations: QAAnnotation[];
+  referenceImages: string[];
+  onClearAnnotations: () => void;
 }
 
 // Simple hook to replace useLayoutPersistence
@@ -193,6 +216,10 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
   onExposureChange,
   toneMapping,
   onToneMappingChange,
+  externalModelUrl,
+  qaAnnotations,
+  referenceImages,
+  onClearAnnotations,
 }) => {
   const layoutRef = useRef<Layout>(null);
   const { model, resetLayout } = useLayout(initialJson);
@@ -258,7 +285,7 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
               resizing ? "pointer-events-none" : ""
             }`}
           >
-            <ModelViewer onModelLoaded={onModelLoaded} />
+            <ModelViewer onModelLoaded={onModelLoaded} modelUrl={externalModelUrl} />
             <ModelStatisticsCard
               modelViewerRef={modelViewerRef}
               modelStructure={modelStructure}
@@ -311,6 +338,40 @@ const FlexLayout: React.FC<FlexLayoutProps> = ({
                 modelViewerRef={modelViewerRef}
                 onVariantChange={handleVariantChange} // Use local handler
                 selectedNode={selectedNode} // Pass selectedNode
+              />
+            </div>
+          </div>
+        );
+
+      case "references":
+        return (
+          <div className="h-full flex flex-col bg-[#FAFAFA]">
+            <div className="flex-shrink-0 p-4 pb-2">
+              <h3 className="text-sm font-medium">Reference Images</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pb-4">
+              <ReferencePanel images={referenceImages} />
+            </div>
+          </div>
+        );
+
+      case "qa":
+        return (
+          <div className="h-full flex flex-col bg-[#FAFAFA]">
+            <div className="flex-shrink-0 p-4 pb-2">
+              <h3 className="text-sm font-medium">
+                QA Report{" "}
+                {qaAnnotations.length > 0 && (
+                  <span className="ml-1 text-xs text-gray-500">
+                    ({qaAnnotations.length})
+                  </span>
+                )}
+              </h3>
+            </div>
+            <div className="flex-1 overflow-hidden px-4 pb-4">
+              <QAAnnotationPanel
+                annotations={qaAnnotations}
+                onClear={onClearAnnotations}
               />
             </div>
           </div>

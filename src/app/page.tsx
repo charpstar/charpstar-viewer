@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { Model } from "flexlayout-react";
 import FlexLayout from "@/components/layout/FlexLayout";
 import Header from "@/components/layout/Header";
+import type { QAAnnotation } from "@/components/qa/types";
 import "flexlayout-react/style/dark.css";
 import "@/styles/flexlayout-custom.css";
 
@@ -23,6 +24,13 @@ export default function Home() {
   const [exposure, setExposure] = useState(1.2);
   const [toneMapping, setToneMapping] = useState("aces");
   const modelViewerRef = useRef<any>(null);
+
+  // QA state
+  const [qaAnnotations, setQaAnnotations] = useState<QAAnnotation[]>([]);
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
+  const [externalModelUrl, setExternalModelUrl] = useState<string | null>(null);
+  const qaAnnotationsRef = useRef<QAAnnotation[]>([]);
+  useEffect(() => { qaAnnotationsRef.current = qaAnnotations; }, [qaAnnotations]);
 
   // Set defaults when initially loading, honoring ?mode=(v6ACES|v5|synsam)
   useEffect(() => {
@@ -437,6 +445,66 @@ export default function Home() {
     (window as any).process = { env: { NODE_ENV: "production" } };
   }
 
+  // Expose QA agent API on window (set up once on mount)
+  useEffect(() => {
+    const w = window as any;
+
+    w.qaLoadModel = (url: string) => setExternalModelUrl(url);
+
+    w.qaSetReferences = (urls: string[]) => setReferenceImages(urls);
+
+    // Returns {position, normal} or null — uses model-viewer's built-in raycaster
+    w.qaRaycast = (clientX: number, clientY: number) => {
+      const mv = document.getElementById("model-viewer") as any;
+      if (!mv || typeof mv.positionAndNormalFromPoint !== "function") return null;
+      return mv.positionAndNormalFromPoint(clientX, clientY);
+    };
+
+    w.qaAddAnnotation = (
+      position: { x: number; y: number; z: number },
+      normal: { x: number; y: number; z: number },
+      text: string,
+      severity: "low" | "medium" | "high" = "medium"
+    ) => {
+      const mv = document.getElementById("model-viewer");
+      if (!mv) return null;
+
+      const id = `qa-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+      // Inject hotspot DOM node into model-viewer
+      const btn = document.createElement("button");
+      btn.slot = `hotspot-${id}`;
+      btn.dataset.position = `${position.x} ${position.y} ${position.z}`;
+      btn.dataset.normal = `${normal.x} ${normal.y} ${normal.z}`;
+      btn.dataset.severity = severity;
+      btn.className = "qa-hotspot";
+      btn.title = text;
+      mv.appendChild(btn);
+
+      const annotation: QAAnnotation = { id, position, normal, text, severity };
+      setQaAnnotations((prev) => [...prev, annotation]);
+      return id;
+    };
+
+    w.qaGetAnnotations = () => qaAnnotationsRef.current;
+
+    w.qaClearAnnotations = () => {
+      document
+        .getElementById("model-viewer")
+        ?.querySelectorAll(".qa-hotspot")
+        .forEach((el) => el.remove());
+      setQaAnnotations([]);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleClearAnnotations = () => {
+    document
+      .getElementById("model-viewer")
+      ?.querySelectorAll(".qa-hotspot")
+      .forEach((el) => el.remove());
+    setQaAnnotations([]);
+  };
+
   return (
     <div className="layout-container">
       {/* Header - with explicit z-index to ensure it's above the layout */}
@@ -467,6 +535,10 @@ export default function Home() {
           onExposureChange={handleExposureChange}
           toneMapping={toneMapping}
           onToneMappingChange={handleToneMappingChange}
+          externalModelUrl={externalModelUrl}
+          qaAnnotations={qaAnnotations}
+          referenceImages={referenceImages}
+          onClearAnnotations={handleClearAnnotations}
         />
       </div>
     </div>
