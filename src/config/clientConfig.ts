@@ -21,6 +21,11 @@ export interface ClientConfig {
   features?: {
     modularConfigurator?: boolean; // Enable modular configurator tab
   };
+  // Mesh names matching these prefixes are hidden by default (only the exceptions are shown)
+  defaultDisabledMeshes?: {
+    pattern: string;
+    except: string[];
+  };
   
   // BunnyCDN specific paths
   bunnyCdn: {
@@ -95,6 +100,10 @@ export const clients: Record<string, ClientConfig> = {
     livePassword: "gs2024",
     exposure: 1.2,
     toneMapping: "commerce",
+    defaultDisabledMeshes: {
+      pattern: "Tapered",
+      except: ["Tapered_F_Extended_B_Extended"],
+    },
     bunnyCdn: {
       modelPath: "Client-Editor/Georgesmith",
       imagesPath: "Client-Editor/Georgesmith/images",

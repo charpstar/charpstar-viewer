@@ -517,6 +517,7 @@ export default function MaterialEditorPage() {
         setSceneMeshNames(unique);
         // Initialize or merge visibility map; default only one visible per numeric-suffix group
         setMeshVisibility(prev => {
+          const disabledCfg = clientConfig.defaultDisabledMeshes;
           const groups: Record<string, string[]> = {};
           const groupKey = (nm: string) => {
             const m = nm.match(/^(.*)_\d+(?:mm|cm|m)?$/i);
@@ -532,7 +533,12 @@ export default function MaterialEditorPage() {
             const sorted = [...group].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
             const defaultVisible = sorted[0];
             group.forEach(nm => {
-              next[nm] = prev.hasOwnProperty(nm) ? prev[nm] : nm === defaultVisible;
+              if (prev.hasOwnProperty(nm)) { next[nm] = prev[nm]; return; }
+              if (disabledCfg && nm.startsWith(disabledCfg.pattern)) {
+                next[nm] = disabledCfg.except.includes(nm);
+              } else {
+                next[nm] = nm === defaultVisible;
+              }
             });
           });
           try {
