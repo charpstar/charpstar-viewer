@@ -1017,6 +1017,14 @@ export default function MaterialEditorPage() {
         });
         mv.requestRender?.();
         forceModelViewerRender(mv);
+        // Directly update tracked mesh materials based on what we just applied
+        if (meshNameSet && meshNameSet.size > 0) {
+          setActiveMeshMaterials(prev => {
+            const next = { ...prev };
+            meshNameSet!.forEach(nm => { next[nm] = active.name; });
+            return next;
+          });
+        }
         refreshActiveMeshMaterials();
       } catch { }
     })();
@@ -2235,10 +2243,7 @@ export default function MaterialEditorPage() {
                               <button
                                 className={`truncate text-right font-medium hover:underline ${selectedMaterial?.name === matName ? 'text-blue-600' : 'text-gray-800'}`}
                                 title={`Select ${matName}`}
-                                onClick={() => {
-                                  setSelectedMaterial(mat);
-                                  setEditedMaterial({ ...mat });
-                                }}
+                                onClick={() => handleMaterialSelect(mat as Material)}
                               >
                                 {matName}
                               </button>
