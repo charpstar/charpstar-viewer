@@ -21,11 +21,13 @@ export interface ClientConfig {
   features?: {
     modularConfigurator?: boolean; // Enable modular configurator tab
   };
-  // Mesh names matching these prefixes are hidden by default (only the exceptions are shown)
+  // Mesh names matching any of these prefixes are hidden by default (only the exceptions are shown)
   defaultDisabledMeshes?: {
-    pattern: string;
+    patterns: string[];
     except: string[];
   };
+  // glTF mesh names to track in the "Active Materials" panel (shows current material per mesh)
+  trackedMeshes?: string[];
   
   // BunnyCDN specific paths
   bunnyCdn: {
@@ -101,9 +103,10 @@ export const clients: Record<string, ClientConfig> = {
     exposure: 1.2,
     toneMapping: "commerce",
     defaultDisabledMeshes: {
-      pattern: "Tapered",
+      patterns: ["Tapered", "Turned"],
       except: ["Tapered_F_Extended_B_Extended"],
     },
+    trackedMeshes: ["geo_fabric", "geo_legs_Castor", "geo_legs_Wood"],
     bunnyCdn: {
       modelPath: "Client-Editor/Georgesmith",
       imagesPath: "Client-Editor/Georgesmith/images",

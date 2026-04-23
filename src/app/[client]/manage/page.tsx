@@ -252,7 +252,7 @@ export default function ManageModelsPage() {
               const defaultVisible = sorted[0];
               group.forEach(nm => {
                 if (prev.hasOwnProperty(nm)) { next[nm] = prev[nm]; return; }
-                if (disabledCfg && nm.startsWith(disabledCfg.pattern)) {
+                if (disabledCfg && disabledCfg.patterns.some(p => nm.startsWith(p))) {
                   next[nm] = disabledCfg.except.includes(nm);
                 } else {
                   next[nm] = nm === defaultVisible;

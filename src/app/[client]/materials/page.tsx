@@ -60,6 +60,7 @@ interface ReferenceGltf {
   textures: any[];
   images: any[];
   meshes?: string[];
+  nodeToMeshDisplayName?: Record<string, string>;
   lastModified: string;
 }
 
@@ -225,6 +226,7 @@ export default function MaterialEditorPage() {
   const [editingModelName, setEditingModelName] = useState<string | null>(null);
   const [sceneMeshNames, setSceneMeshNames] = useState<string[]>([]);
   const [meshVisibility, setMeshVisibility] = useState<Record<string, boolean>>({});
+  const [activeMeshMaterials, setActiveMeshMaterials] = useState<Record<string, string>>({});
   const [isApplyingLive, setIsApplyingLive] = useState(false);
   const activeJobIdRef = useRef<string | null>(null);
   const pollTimerRef = useRef<any>(null);
@@ -305,6 +307,26 @@ export default function MaterialEditorPage() {
       forceModelViewerRender(mv);
     } catch { }
   }, [modelViewerRef]);
+
+  const refreshActiveMeshMaterials = useCallback(() => {
+    try {
+      const mv = modelViewerRef.current as any;
+      if (!mv) return;
+      attachThreeAccess(mv);
+      const root = mv.getThreeModel?.();
+      if (!root) return;
+      const updates: Record<string, string> = {};
+      root.traverse((obj: any) => {
+        if (!obj?.isMesh) return;
+        const nm = typeof obj.name === 'string' && obj.name.length > 0 ? obj.name : null;
+        const matName = typeof obj.material?.name === 'string' && obj.material.name.length > 0 ? obj.material.name : null;
+        if (nm && matName) updates[nm] = matName;
+      });
+      if (Object.keys(updates).length > 0) {
+        setActiveMeshMaterials(prev => ({ ...prev, ...updates }));
+      }
+    } catch {}
+  }, []);
 
   // Sync cross-tab lock/progress
   useEffect(() => {
@@ -534,7 +556,7 @@ export default function MaterialEditorPage() {
             const defaultVisible = sorted[0];
             group.forEach(nm => {
               if (prev.hasOwnProperty(nm)) { next[nm] = prev[nm]; return; }
-              if (disabledCfg && nm.startsWith(disabledCfg.pattern)) {
+              if (disabledCfg && disabledCfg.patterns.some(p => nm.startsWith(p))) {
                 next[nm] = disabledCfg.except.includes(nm);
               } else {
                 next[nm] = nm === defaultVisible;
@@ -557,12 +579,39 @@ export default function MaterialEditorPage() {
           } catch { }
           return next;
         });
+        refreshActiveMeshMaterials();
+        setTimeout(refreshActiveMeshMaterials, 500);
       } catch { }
     };
     mv.addEventListener?.('load', collect);
     if (mv.loaded) collect();
     return () => { mv.removeEventListener?.('load', collect); };
-  }, [editingModelUrl]);
+  }, [editingModelUrl, refreshActiveMeshMaterials]);
+
+  // Initialize active mesh materials from reference data (default materials per mesh)
+  useEffect(() => {
+    if (!referenceGltf?.materials) return;
+    const tracked = clientConfig.trackedMeshes;
+    if (!tracked || tracked.length === 0) return;
+    setActiveMeshMaterials(prev => {
+      const trackedSet = new Set(tracked);
+      const allCovered = [...trackedSet].every(t => prev[t] && prev[t] !== '—');
+      if (allCovered) return prev;
+      const next = { ...prev };
+      for (const mat of referenceGltf.materials) {
+        const meshes = [
+          ...((mat as any).defaultMeshes || []),
+          ...((mat as any).variantMeshes || []),
+        ];
+        for (const meshName of meshes) {
+          if (trackedSet.has(meshName) && !next[meshName]) {
+            next[meshName] = mat.name;
+          }
+        }
+      }
+      return next;
+    });
+  }, [referenceGltf?.materials, clientConfig.trackedMeshes]);
 
   // Load CDN images when texture picker opens
   useEffect(() => {
@@ -895,6 +944,7 @@ export default function MaterialEditorPage() {
 
           // Only apply scalar/color changes to target meshes
           const isTarget = !meshNameSet || (meshName && meshNameSet.has(meshName));
+          if (isTarget) m.name = active.name;
           if (isTarget && m.color?.setRGB) m.color.setRGB(bc[0], bc[1], bc[2]);
           if (isTarget && 'metalness' in m) m.metalness = active.metallicFactor ?? 0;
           if (isTarget && 'roughness' in m) m.roughness = active.roughnessFactor ?? 0.5;
@@ -967,9 +1017,10 @@ export default function MaterialEditorPage() {
         });
         mv.requestRender?.();
         forceModelViewerRender(mv);
+        refreshActiveMeshMaterials();
       } catch { }
     })();
-  }, [stagedMaterials]);
+  }, [stagedMaterials, refreshActiveMeshMaterials]);
 
   // Reload materials from server and reset staged edits
   const reloadMaterials = useCallback(async () => {
@@ -1551,6 +1602,13 @@ export default function MaterialEditorPage() {
     const pending = Array.isArray(material?.pendingMeshes) ? material.pendingMeshes : [];
     return Array.from(new Set([...variant, ...defaults, ...pending].filter((v) => typeof v === 'string' && v.length > 0)));
   };
+  const meshDisplayName = (nodeName: string): string => {
+    return referenceGltf?.nodeToMeshDisplayName?.[nodeName] ?? nodeName;
+  };
+  const getUniqueMeshDisplayNames = (material: any): string[] => {
+    const targets = getMaterialMeshTargets(material);
+    return Array.from(new Set(targets.map(meshDisplayName)));
+  };
   const groupedMaterials = {
     variant: filteredMaterials.filter((m: any) => Array.isArray(m?.variantMeshes) && m.variantMeshes.length > 0),
     defaultOnly: filteredMaterials.filter((m: any) => (!Array.isArray(m?.variantMeshes) || m.variantMeshes.length === 0)),
@@ -1992,16 +2050,21 @@ export default function MaterialEditorPage() {
                                   backgroundColor: `rgb(${Math.round(material.baseColor[0] * 255)}, ${Math.round(material.baseColor[1] * 255)}, ${Math.round(material.baseColor[2] * 255)})`
                                 }}
                               />
-                              <div className="flex flex-wrap gap-1">
-                                {getMaterialMeshTargets(material).slice(0, 4).map((meshName: string) => (
-                                  <span key={meshName} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                    {meshName}
-                                  </span>
-                                ))}
-                                {getMaterialMeshTargets(material).length > 4 && (
-                                  <span className="text-xs text-gray-500">+{getMaterialMeshTargets(material).length - 4} more</span>
-                                )}
-                              </div>
+                              {(() => {
+                                const names = getUniqueMeshDisplayNames(material);
+                                return (
+                                  <div className="flex flex-wrap gap-1">
+                                    {names.slice(0, 4).map((name) => (
+                                      <span key={name} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                        {name}
+                                      </span>
+                                    ))}
+                                    {names.length > 4 && (
+                                      <span className="text-xs text-gray-500">+{names.length - 4} more</span>
+                                    )}
+                                  </div>
+                                );
+                              })()}
                             </div>
                           </div>
                           <Button
@@ -2045,22 +2108,27 @@ export default function MaterialEditorPage() {
                                   backgroundColor: `rgb(${Math.round(material.baseColor[0] * 255)}, ${Math.round(material.baseColor[1] * 255)}, ${Math.round(material.baseColor[2] * 255)})`
                                 }}
                               />
-                              <div className="flex flex-wrap gap-1">
-                                {getMaterialMeshTargets(material).length > 0 ? (
-                                  <>
-                                    {getMaterialMeshTargets(material).slice(0, 4).map((meshName: string) => (
-                                      <span key={meshName} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                        {meshName}
-                                      </span>
-                                    ))}
-                                    {getMaterialMeshTargets(material).length > 4 && (
-                                      <span className="text-xs text-gray-500">+{getMaterialMeshTargets(material).length - 4} more</span>
+                              {(() => {
+                                const names = getUniqueMeshDisplayNames(material);
+                                return (
+                                  <div className="flex flex-wrap gap-1">
+                                    {names.length > 0 ? (
+                                      <>
+                                        {names.slice(0, 4).map((name) => (
+                                          <span key={name} className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                            {name}
+                                          </span>
+                                        ))}
+                                        {names.length > 4 && (
+                                          <span className="text-xs text-gray-500">+{names.length - 4} more</span>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <span className="text-xs text-gray-500">No mesh mappings</span>
                                     )}
-                                  </>
-                                ) : (
-                                  <span className="text-xs text-gray-500">No mesh mappings</span>
-                                )}
-                              </div>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           </div>
                           <Button
@@ -2112,11 +2180,12 @@ export default function MaterialEditorPage() {
                       const activeMat: any = editedMaterial || selectedMaterial;
                       const targets = getMaterialMeshTargets(activeMat);
                       if (targets.length > 0) {
+                        const uniqueNames = Array.from(new Set(targets.map(meshDisplayName)));
                         return (
                           <div className="flex flex-wrap gap-1 max-w-[320px]">
-                            {targets.map((meshName: string) => (
-                              <span key={meshName} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                {meshName}
+                            {uniqueNames.map((name: string) => (
+                              <span key={name} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                {name}
                               </span>
                             ))}
                           </div>
@@ -2124,11 +2193,12 @@ export default function MaterialEditorPage() {
                       }
                       const derived = selectedMeshNamesRef.current ? Array.from(selectedMeshNamesRef.current) : [];
                       if (derived.length > 0) {
+                        const uniqueDerived = Array.from(new Set(derived.map(meshDisplayName)));
                         return (
                           <div className="flex flex-wrap gap-1 max-w-[320px]">
-                            {derived.map((meshName: string) => (
-                              <span key={meshName} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                {meshName}
+                            {uniqueDerived.map((name: string) => (
+                              <span key={name} className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                {name}
                               </span>
                             ))}
                           </div>
@@ -2139,6 +2209,49 @@ export default function MaterialEditorPage() {
                   </div>
                 </div>
               )}
+
+              {/* Active materials per tracked mesh overlay */}
+              {(() => {
+                const tracked = clientConfig.trackedMeshes;
+                if (!tracked || tracked.length === 0) return null;
+                const entries: { meshName: string; matName: string }[] = [];
+                for (const name of tracked) {
+                  const matName = activeMeshMaterials[name];
+                  entries.push({ meshName: name, matName: matName || '—' });
+                }
+                if (entries.every(e => e.matName === '—')) return null;
+                return (
+                  <div className="absolute bottom-4 left-4 bg-white rounded-lg border border-gray-200 shadow-lg max-w-80 overflow-auto">
+                    <div className="px-3 pt-2 pb-1.5 border-b border-gray-100">
+                      <div className="text-sm font-semibold text-gray-900">Active Materials</div>
+                    </div>
+                    <div className="px-3 py-2 text-xs space-y-1.5">
+                      {entries.map(({ meshName, matName }) => {
+                        const mat = matName !== '—' ? referenceGltf?.materials?.find((m: any) => m.name === matName) : null;
+                        return (
+                          <div key={meshName} className="flex items-center justify-between gap-3">
+                            <span className="text-gray-500 shrink-0">{meshName}</span>
+                            {mat ? (
+                              <button
+                                className={`truncate text-right font-medium hover:underline ${selectedMaterial?.name === matName ? 'text-blue-600' : 'text-gray-800'}`}
+                                title={`Select ${matName}`}
+                                onClick={() => {
+                                  setSelectedMaterial(mat);
+                                  setEditedMaterial({ ...mat });
+                                }}
+                              >
+                                {matName}
+                              </button>
+                            ) : (
+                              <span className="text-gray-400 truncate text-right">{matName}</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Scene mesh visibility overlay */}
               {sceneMeshNames.length > 0 && (

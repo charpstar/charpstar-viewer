@@ -360,14 +360,49 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    // Build meshIndex → node name mapping. Three.js uses node names for obj.name on Mesh objects,
+    // which can differ from glTF mesh names. We need node names for client-side matching.
+    const meshIndexToNodeName = new Map<number, string>();
+    try {
+      const nodesJson: any[] = Array.isArray(gltfData.nodes) ? gltfData.nodes : [];
+      nodesJson.forEach((node: any) => {
+        if (typeof node?.mesh === 'number' && !meshIndexToNodeName.has(node.mesh)) {
+          const nodeName = typeof node?.name === 'string' && node.name.length > 0 ? node.name : null;
+          if (nodeName) meshIndexToNodeName.set(node.mesh, nodeName);
+        }
+      });
+    } catch {}
+
+    // Map node names → glTF mesh names for display.
+    // Skip duplicates: if the same node name appears on multiple nodes referencing
+    // different meshes, keep only the first to avoid incorrect overwrites.
+    const nodeToMeshDisplayName: Record<string, string> = {};
+    try {
+      const meshesJsonAll: any[] = Array.isArray(gltfData.meshes) ? gltfData.meshes : [];
+      const nodesAll: any[] = Array.isArray(gltfData.nodes) ? gltfData.nodes : [];
+      nodesAll.forEach((node: any) => {
+        if (typeof node?.mesh !== 'number') return;
+        const nodeName = typeof node?.name === 'string' && node.name.length > 0 ? node.name : null;
+        if (!nodeName || nodeToMeshDisplayName.hasOwnProperty(nodeName)) return;
+        const gltfMeshName = typeof meshesJsonAll[node.mesh]?.name === 'string' && meshesJsonAll[node.mesh].name.length > 0
+          ? meshesJsonAll[node.mesh].name : null;
+        if (gltfMeshName && gltfMeshName !== nodeName) {
+          nodeToMeshDisplayName[nodeName] = gltfMeshName;
+        }
+      });
+    } catch {}
+
     // Compute variant/default mesh usage per material (from raw JSON for accuracy)
     try {
       const meshesJson: any[] = Array.isArray(gltfData.meshes) ? gltfData.meshes : [];
       const materialsJsonArr: any[] = Array.isArray(gltfData.materials) ? gltfData.materials : [];
+
       const materialIndexToDefaultMeshes = new Map<number, Set<string>>();
       const materialIndexToVariantMeshes = new Map<number, Set<string>>();
       meshesJson.forEach((mesh: any, meshIndex: number) => {
-        const meshName = typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIndex}`;
+        // Prefer node name (what Three.js uses for obj.name), fall back to glTF mesh name
+        const meshName = meshIndexToNodeName.get(meshIndex)
+          || (typeof mesh?.name === 'string' && mesh.name.length > 0 ? mesh.name : `Mesh_${meshIndex}`);
         const primitives: any[] = Array.isArray(mesh?.primitives) ? mesh.primitives : [];
         primitives.forEach((prim: any) => {
           const defaultMatIndex = prim?.material;
@@ -415,9 +450,11 @@ export async function GET(request: NextRequest) {
         }))
       : [];
 
-    // Provide list of mesh names for UI (variant assignment)
+    // Provide list of mesh names for UI (variant assignment) — prefer node names for Three.js consistency
     const meshes = Array.isArray(gltfData.meshes)
-      ? gltfData.meshes.map((m: any, idx: number) => (typeof m?.name === 'string' && m.name.length > 0 ? m.name : `Mesh_${idx}`))
+      ? gltfData.meshes.map((m: any, idx: number) =>
+          meshIndexToNodeName.get(idx)
+          || (typeof m?.name === 'string' && m.name.length > 0 ? m.name : `Mesh_${idx}`))
       : [];
 
     const res = NextResponse.json({
@@ -425,6 +462,7 @@ export async function GET(request: NextRequest) {
       textures,
       images,
       meshes,
+      nodeToMeshDisplayName,
       lastModified: new Date().toISOString(),
     });
     res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
