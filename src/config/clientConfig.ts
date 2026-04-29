@@ -103,7 +103,7 @@ export const clients: Record<string, ClientConfig> = {
     exposure: 1.2,
     toneMapping: "commerce",
     defaultDisabledMeshes: {
-      patterns: ["Tapered", "Turned"],
+      patterns: ["Tapered", "Turned", "geo_stitching_cord"],
       except: ["Tapered_F_Extended_B_Extended"],
     },
     trackedMeshes: ["geo_fabric", "geo_legs_Castor", "geo_legs_Wood"],
