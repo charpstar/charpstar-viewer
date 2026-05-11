@@ -846,10 +846,11 @@ export default function MaterialEditorPage() {
           loadTex(toUrl((active as any).sheenRoughnessTexture || (active as any).sheenTexture)),
         ]);
 
-        // Keep normal map default flip; enforce flipY=false for non-normal. Also apply to sheen maps.
+        // glTF uses top-left UV origin; enforce flipY=false for all textures (matching glTF loader behavior)
         try {
           if (mapTex) mapTex.flipY = false;
           if (mrTex) mrTex.flipY = false;
+          if (normalTex) normalTex.flipY = false;
           if (aoTex) aoTex.flipY = false;
           if (emisTex) emisTex.flipY = false;
           if (sheenColorTex) (sheenColorTex as any).flipY = false;
@@ -963,7 +964,7 @@ export default function MaterialEditorPage() {
             if (m.transparent && typeof m.depthWrite === 'boolean') m.depthWrite = a >= 1;
           }
           if (isTarget && m.normalScale?.set && typeof active.normalScale === 'number') {
-            m.normalScale.set(active.normalScale, -active.normalScale);
+            m.normalScale.set(active.normalScale, active.normalScale);
           }
           if (isTarget && 'aoMapIntensity' in m && typeof active.occlusionStrength === 'number') {
             m.aoMapIntensity = active.occlusionStrength;
@@ -1129,22 +1130,9 @@ export default function MaterialEditorPage() {
               );
             });
             if (!tex) return;
-            // For dynamically added textures, enforce flipY=false for color/AO/emissive only (not sheen)
+            // glTF uses top-left UV origin; enforce flipY=false for all textures
             try {
-              switch (property) {
-                case 'baseColorTexture':
-                case 'metallicRoughnessTexture':
-                case 'occlusionTexture':
-                case 'emissiveTexture':
-                  (tex as any).flipY = false;
-                  break;
-                case 'normalTexture':
-                case 'sheenRoughnessTexture':
-                case 'sheenColorTexture':
-                default:
-                  // leave default for normal map
-                  break;
-              }
+              (tex as any).flipY = false;
             } catch { }
             const rot = (() => {
               switch (property) {
@@ -2599,7 +2587,7 @@ export default function MaterialEditorPage() {
                               }
                               const mv = modelViewerRef.current as any;
                               if (!mv) return;
-                              try { withTargetMeshes((mat) => { if (mat?.normalScale?.set) mat.normalScale.set(v, -v); }); } catch { }
+                              try { withTargetMeshes((mat) => { if (mat?.normalScale?.set) mat.normalScale.set(v, v); }); } catch { }
                             }}
                             min={0} max={2} step={0.01}
                           />
