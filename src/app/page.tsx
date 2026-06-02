@@ -153,7 +153,7 @@ export default function Home() {
       setExposure(1.3);
       setToneMapping("commerce");
     } else if (env === "v6") {
-      setExposure(1.2);
+      setExposure(1.5);
       setToneMapping("aces");
     }
 
@@ -172,7 +172,7 @@ export default function Home() {
           "environment-image",
           "https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
         );
-        modelViewer.setAttribute("exposure", "1.2");
+        modelViewer.setAttribute("exposure", "1.5");
         modelViewer.setAttribute("tone-mapping", "aces");
       }
       if (typeof (modelViewer as any).requestRender === "function") {
