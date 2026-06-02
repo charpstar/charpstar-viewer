@@ -38,7 +38,7 @@ export default function Home() {
 
     if (mode === "v6aces") {
       setActiveEnvironment("v6");
-      setExposure(1.2);
+      setExposure(1.5);
       setToneMapping("aces");
       return;
     }
