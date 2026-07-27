@@ -44,7 +44,7 @@ export default function RenderPage() {
   
   // Modular configurator state
   const [activeTab, setActiveTab] = useState<'models' | 'modular'>('models');
-  const [modularConfig, setModularConfig] = useState<'mammuten' | 'hajen' | 'kamelen' | 'dromedaren' | 'bjornen' | 'mammuten-hfc' | null>(null);
+  const [modularConfig, setModularConfig] = useState<'mammuten' | 'hajen' | 'kamelen' | 'dromedaren' | 'bjornen' | 'mammuten-hfc' | 'delfinen' | null>(null);
   const [modularViewerReady, setModularViewerReady] = useState(false);
   const modularViewerRef = useRef<any>(null);
 
@@ -220,11 +220,15 @@ export default function RenderPage() {
     'mammuten-hfc': {
       src: 'MAM-HFC',
       parts: ['MAM_HFC-15', 'MAM_HFC-1', 'MAM_HFC-C90', 'MAM-C1-HFC', 'MAM_HFC-AL', 'MAM_HFC-AR', 'MAM_HFC-CHL']
+    },
+    'delfinen': {
+      src: 'DEL',
+      parts: ['DEL-15', 'DEL-AL-15', 'DEL-15-AR', 'DEL-AL-15-AR']
     }
   };
 
   // Modular configurator handlers
-  const handleSelectModularConfig = (config: 'mammuten' | 'hajen' | 'kamelen' | 'dromedaren' | 'bjornen' | 'mammuten-hfc') => {
+  const handleSelectModularConfig = (config: 'mammuten' | 'hajen' | 'kamelen' | 'dromedaren' | 'bjornen' | 'mammuten-hfc' | 'delfinen') => {
     setModularConfig(config);
     setSelectedModel(null); // Clear regular model
     setCurrentModelUrl(null);
@@ -474,6 +478,17 @@ export default function RenderPage() {
                     }`}
                   >
                     <div className="font-medium">Mammuten HFC</div>
+                  </button>
+
+                  <button
+                    onClick={() => handleSelectModularConfig('delfinen')}
+                    className={`w-full px-4 py-3 text-left rounded-md border transition-colors ${
+                      modularConfig === 'delfinen'
+                        ? 'bg-black text-white border-black shadow-sm'
+                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium">Delfinen</div>
                   </button>
                 </div>
               </div>
