@@ -20,7 +20,7 @@ export default function Home() {
     materials: true,
     variants: true,
   });
-  const [exposure, setExposure] = useState(1.2);
+  const [exposure, setExposure] = useState(1.5);
   const [toneMapping, setToneMapping] = useState("aces");
   const modelViewerRef = useRef<any>(null);
 
@@ -52,7 +52,7 @@ export default function Home() {
 
     // Default
     setActiveEnvironment("v6");
-    setExposure(1.2);
+    setExposure(1.5);
     setToneMapping("aces");
   }, []);
 

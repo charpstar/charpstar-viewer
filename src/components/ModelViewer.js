@@ -92,7 +92,7 @@ const ModelViewer = ({ onModelLoaded }) => {
             id="model-viewer"
             shadow-intensity="0.5"
             environment-image="https://cdn.charpstar.net/Demos/HDR_Furniture.hdr"
-            exposure="1.2"
+            exposure="1.5"
             tone-mapping="aces"
             shadow-softness="1"
             min-field-of-view="5deg"
