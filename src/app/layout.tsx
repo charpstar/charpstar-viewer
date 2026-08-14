@@ -1,12 +1,16 @@
 // app/layout.tsx
 
 import "./globals.css";
-import { Jost } from "next/font/google";
+import localFont from "next/font/local";
 import { ReactNode } from "react";
 
-const jost = Jost({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+// Self-hosted so the build has no network dependency on Google Fonts.
+// Single variable file covering the 300-600 range the app uses.
+const jost = localFont({
+  src: "./fonts/Jost-latin-variable.woff2",
+  weight: "300 600",
+  style: "normal",
+  display: "swap",
   variable: "--font-jost",
 });
 
