@@ -223,7 +223,7 @@ export default function RenderPage() {
     },
     'delfinen': {
       src: 'DEL',
-      parts: ['DEL-15', 'DEL-AL-15', 'DEL-15-AR', 'DEL-AL-15-AR']
+      parts: ['DEL-15', 'DEL-AL-15', 'DEL-15-AR', 'DEL-AL-15-AR', 'DEL-C45']
     }
   };
 
