@@ -210,6 +210,7 @@ export default function RenderPage() {
         'BJO_M-15',
         'BJO_M-DIV',
         'BJO_M-ARM_S',
+        'BJO_M-ARM_N',
         'BJO_M-COV',
         'BJO_M-CHL',
         'BJO_M-ARM_H-BLA',
