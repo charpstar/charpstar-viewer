@@ -31,11 +31,20 @@ export interface ClientConfig {
   
   // BunnyCDN specific paths
   bunnyCdn: {
-    modelPath: string;         
-    imagesPath: string;        
-    referencePath: string;     
-    backupsPath: string;       
-    publicBaseUrl: string;     
+    modelPath: string;
+    imagesPath: string;
+    referencePath: string;
+    backupsPath: string;
+    publicBaseUrl: string;
+  };
+
+  // Optional: when set, a successful "Apply to Live" also mirrors the baked
+  // models + textures from bunnyCdn.modelPath into this folder, which is the
+  // folder the client's public/live site actually reads from. Lets the editor
+  // keep its own working copy (modelPath) while publishing to live automatically.
+  livePublish?: {
+    modelPath: string;   // e.g. "GeorgeSmith/Config"
+    imagesPath: string;  // e.g. "GeorgeSmith/Config/images"
   };
 }
 
@@ -113,6 +122,12 @@ export const clients: Record<string, ClientConfig> = {
       referencePath: "Client-Editor/Georgesmith/reference/reference.gltf",
       backupsPath: "Client-Editor/Georgesmith/reference/backup",
       publicBaseUrl: "https://cdn.charpstar.net"
+    },
+    // The George Smith live site reads from GeorgeSmith/Config, so mirror there
+    // automatically after each successful apply (keeps the editor copy too).
+    livePublish: {
+      modelPath: "GeorgeSmith/Config",
+      imagesPath: "GeorgeSmith/Config/images"
     }
   },
   NordicNest: {

@@ -399,6 +399,26 @@ export default function MaterialEditorPage() {
     return () => window.removeEventListener('charpstar:jobDismissed', onJobDismissed as EventListener);
   }, [clientName, postFinishReset]);
 
+  // Surface the auto-publish-to-live step (fired after a clean apply for clients
+  // whose live site reads a different folder than the editor writes to).
+  useEffect(() => {
+    const onPublish = (e: Event) => {
+      try {
+        const detail = ((e as CustomEvent)?.detail || {}) as any;
+        if (detail?.clientName && detail.clientName !== clientName) return;
+        if (detail?.status === 'publishing') {
+          addToast('Publishing to live…', 'success');
+        } else if (detail?.status === 'published') {
+          addToast('Changes are now live', 'success');
+        } else if (detail?.status === 'error') {
+          addToast('Applied, but publishing to live failed. Please retry Apply to Live.', 'error');
+        }
+      } catch { }
+    };
+    window.addEventListener('charpstar:publishToLive', onPublish as EventListener);
+    return () => window.removeEventListener('charpstar:publishToLive', onPublish as EventListener);
+  }, [clientName]);
+
   // If this tab owned an in-progress or summary lock and page was refreshed, clear it
   useEffect(() => {
     try {

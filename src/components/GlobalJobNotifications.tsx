@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useParams, usePathname } from 'next/navigation';
-import { isValidClient } from '@/config/clientConfig';
+import { isValidClient, getClientConfig } from '@/config/clientConfig';
 import ApplyJobNotification from './ApplyJobNotification';
 
 interface JobProgress {
@@ -298,6 +298,32 @@ const GlobalJobNotifications: React.FC = () => {
             failedFiles: files.filter((f: any) => f.status === 'failed').map((f: any) => f.filename),
             processedFiles: files,
           } } }));
+
+          // Auto-publish to the live folder for clients whose live site reads a
+          // different folder than the editor writes to (see clientConfig.livePublish).
+          // Only when every model baked cleanly, so we never push a partial apply live.
+          try {
+            const hasLivePublish = !!getClientConfig(client)?.livePublish;
+            if (hasLivePublish && failed === 0) {
+              window.dispatchEvent(new CustomEvent('charpstar:publishToLive', { detail: { clientName: client, status: 'publishing' } }));
+              fetch('/api/apply/promote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ client }),
+              })
+                .then(async (r) => {
+                  const j = await r.json().catch(() => ({}));
+                  window.dispatchEvent(new CustomEvent('charpstar:publishToLive', {
+                    detail: { clientName: client, status: r.ok && j?.published ? 'published' : 'error', result: j },
+                  }));
+                })
+                .catch((err) => {
+                  window.dispatchEvent(new CustomEvent('charpstar:publishToLive', {
+                    detail: { clientName: client, status: 'error', error: err instanceof Error ? err.message : String(err) },
+                  }));
+                });
+            }
+          } catch { /* auto-publish is best-effort */ }
           return;
         }
         
