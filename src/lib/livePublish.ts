@@ -49,6 +49,8 @@ export type PromoteResult = {
   from: string;
   to: string;
   copiedModels: number;
+  copiedAliases: string[];
+  failedAliases: string[];
   copiedImages: number;
   failedModels: string[];
   missingAtSource: string[];
@@ -144,6 +146,12 @@ export async function promoteToLive(client: string): Promise<PromoteResult> {
   const referenced = new Set<string>();
   let copiedModels = 0;
   const failedModels: string[] = [];
+  // Alias copies (live.aliases): the same bytes under an extra live filename,
+  // for products whose embed loads a differently named file. Same folder, so
+  // the relative images/ references keep working.
+  const aliases = live.aliases || {};
+  const copiedAliases: string[] = [];
+  const failedAliases: string[] = [];
   for (const m of models) {
     const name = m.ObjectName.split('/').pop() as string;
     const buf = await getObj(`${srcModels}/${name}`);
@@ -154,7 +162,14 @@ export async function promoteToLive(client: string): Promise<PromoteResult> {
     const ct = name.toLowerCase().endsWith('.glb') ? 'model/gltf-binary' : 'model/gltf+json';
     const st = await putObj(`${dstModels}/${name}`, buf, ct);
     if (st === 200 || st === 201) copiedModels++;
-    else failedModels.push(name);
+    else { failedModels.push(name); continue; }
+
+    const alias = aliases[name];
+    if (alias && alias !== name) {
+      const ast = await putObj(`${dstModels}/${alias}`, buf, ct);
+      if (ast === 200 || ast === 201) copiedAliases.push(alias);
+      else failedAliases.push(alias);
+    }
   }
 
   // 2) Sync referenced textures: copy any that are missing on live or whose
@@ -186,6 +201,7 @@ export async function promoteToLive(client: string): Promise<PromoteResult> {
   //    the new versions serve now. Best-effort, but every status is reported.
   const purgeTargets = [
     ...models.map((m) => `${dstModels}/${m.ObjectName.split('/').pop() as string}`),
+    ...copiedAliases.map((alias) => `${dstModels}/${alias}`),
     ...copiedImageNames.map((img) => `${dstImages}/${img}`),
   ];
   const purgeStatuses: Record<string, number> = {};
@@ -203,6 +219,8 @@ export async function promoteToLive(client: string): Promise<PromoteResult> {
     from: srcModels,
     to: dstModels,
     copiedModels,
+    copiedAliases,
+    failedAliases,
     copiedImages,
     failedModels,
     missingAtSource,

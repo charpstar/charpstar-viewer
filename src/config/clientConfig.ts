@@ -45,6 +45,10 @@ export interface ClientConfig {
   livePublish?: {
     modelPath: string;   // e.g. "GeorgeSmith/Config"
     imagesPath: string;  // e.g. "GeorgeSmith/Config/images"
+    // Optional: extra live filenames to write the same bytes to, keyed by the
+    // editor filename (with extension). For products whose live embed loads a
+    // differently named copy, e.g. { "S301M.gltf": "9_S301M.gltf" }.
+    aliases?: Record<string, string>;
   };
 }
 
@@ -127,7 +131,9 @@ export const clients: Record<string, ClientConfig> = {
     // automatically after each successful apply (keeps the editor copy too).
     livePublish: {
       modelPath: "GeorgeSmith/Config",
-      imagesPath: "GeorgeSmith/Config/images"
+      imagesPath: "GeorgeSmith/Config/images",
+      // The Signature Sofa embed loads 9_S301M.gltf, so keep that copy in sync too.
+      aliases: { "S301M.gltf": "9_S301M.gltf" }
     }
   },
   NordicNest: {
