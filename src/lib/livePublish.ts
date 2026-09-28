@@ -262,8 +262,11 @@ async function writeAutoPublishMarker(client: string, marker: AutoPublishMarker)
 const isFreshClaim = (m: AutoPublishMarker) =>
   m.state === 'started' && Date.now() - Date.parse(m.startedAt) < STALE_CLAIM_MS;
 
-// Same-instance dedupe: concurrent callers in one process share a single run.
+// Same-instance dedupe: concurrent callers in one process share a single run,
+// and jobs already seen as published skip the marker read (the header polls
+// status every 2s while a job id sits in localStorage).
 const inflight = new Map<string, Promise<EnsureResult>>();
+const knownDone = new Set<string>();
 
 // Claim the job (write a "started" marker) without running the publish. Used by
 // the status route so the claim exists before the browser even sees the job as
@@ -274,8 +277,12 @@ export async function claimAutoPublish(
   jobId: string
 ): Promise<{ state: 'published' | 'publishing' | 'claimed' | 'skipped' }> {
   if (!isLivePublishConfigured() || !getClientConfig(client).livePublish) return { state: 'skipped' };
+  if (knownDone.has(`${client}:${jobId}`)) return { state: 'published' };
   const existing = await readAutoPublishMarker(client, jobId);
-  if (existing?.state === 'done') return { state: 'published' };
+  if (existing?.state === 'done') {
+    knownDone.add(`${client}:${jobId}`);
+    return { state: 'published' };
+  }
   if (existing && isFreshClaim(existing)) return { state: 'publishing' };
   const ok = await writeAutoPublishMarker(client, {
     jobId,
@@ -300,6 +307,7 @@ export async function runClaimedPublish(client: string, jobId: string): Promise<
       result,
       ...(result.published ? {} : { error: `Failed models: ${result.failedModels.join(', ')}` }),
     });
+    if (result.published) knownDone.add(`${client}:${jobId}`);
     return result.published
       ? { state: 'published', alreadyPublished: false, result }
       : { state: 'failed', error: `Failed models: ${result.failedModels.join(', ')}`, result };
