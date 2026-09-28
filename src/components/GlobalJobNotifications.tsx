@@ -40,6 +40,39 @@ interface ActiveJob {
   summary: JobSummary | null;
 }
 
+// Publish the editor folder to the live folder for clients whose live site reads
+// a different folder than the editor writes to (see clientConfig.livePublish).
+// The server finalizes this on its own when /api/apply/status sees the job
+// complete; this call is the browser-side fallback and drives the toasts. It is
+// keyed by jobId so the server publishes exactly once no matter who asks.
+// announceStart=false is used when re-checking an already-completed job on
+// mount, where an "already published" answer should stay silent.
+const publishToLive = (client: string, jobId: string, announceStart: boolean) => {
+  try {
+    if (!getClientConfig(client)?.livePublish) return;
+    if (announceStart) {
+      window.dispatchEvent(new CustomEvent('charpstar:publishToLive', { detail: { clientName: client, status: 'publishing' } }));
+    }
+    fetch('/api/apply/promote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client, jobId }),
+    })
+      .then(async (r) => {
+        const j = await r.json().catch(() => ({}));
+        if (!announceStart && r.ok && j?.alreadyPublished) return;
+        window.dispatchEvent(new CustomEvent('charpstar:publishToLive', {
+          detail: { clientName: client, status: r.ok && j?.published ? 'published' : 'error', result: j },
+        }));
+      })
+      .catch((err) => {
+        window.dispatchEvent(new CustomEvent('charpstar:publishToLive', {
+          detail: { clientName: client, status: 'error', error: err instanceof Error ? err.message : String(err) },
+        }));
+      });
+  } catch { /* auto-publish is best-effort */ }
+};
+
 const GlobalJobNotifications: React.FC = () => {
   const params = useParams();
   const pathname = usePathname();
@@ -84,9 +117,10 @@ const GlobalJobNotifications: React.FC = () => {
           }
         }
         
-        // Check if job is still active
-        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}`, { 
-          cache: 'no-store' 
+        // Check if job is still active (client is passed so the server can
+        // auto-publish a completed job to the live folder)
+        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}&client=${encodeURIComponent(clientName)}`, {
+          cache: 'no-store'
         });
         
         if (!response.ok) {
@@ -137,6 +171,12 @@ const GlobalJobNotifications: React.FC = () => {
               }
             } as ActiveJob
           }));
+
+          // The tab was not open when the job finished: make sure the clean
+          // result still reaches the live folder (no-op if already published).
+          if ((data.failed || 0) === 0) {
+            publishToLive(clientName, jobId, false);
+          }
         }
       } catch (error) {
         console.error('Error checking existing job:', error);
@@ -195,7 +235,7 @@ const GlobalJobNotifications: React.FC = () => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
         
-        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}`, { 
+        const response = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}&client=${encodeURIComponent(client)}`, {
           cache: 'no-store',
           signal: controller.signal
         });
@@ -302,28 +342,9 @@ const GlobalJobNotifications: React.FC = () => {
           // Auto-publish to the live folder for clients whose live site reads a
           // different folder than the editor writes to (see clientConfig.livePublish).
           // Only when every model baked cleanly, so we never push a partial apply live.
-          try {
-            const hasLivePublish = !!getClientConfig(client)?.livePublish;
-            if (hasLivePublish && failed === 0) {
-              window.dispatchEvent(new CustomEvent('charpstar:publishToLive', { detail: { clientName: client, status: 'publishing' } }));
-              fetch('/api/apply/promote', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ client }),
-              })
-                .then(async (r) => {
-                  const j = await r.json().catch(() => ({}));
-                  window.dispatchEvent(new CustomEvent('charpstar:publishToLive', {
-                    detail: { clientName: client, status: r.ok && j?.published ? 'published' : 'error', result: j },
-                  }));
-                })
-                .catch((err) => {
-                  window.dispatchEvent(new CustomEvent('charpstar:publishToLive', {
-                    detail: { clientName: client, status: 'error', error: err instanceof Error ? err.message : String(err) },
-                  }));
-                });
-            }
-          } catch { /* auto-publish is best-effort */ }
+          if (failed === 0) {
+            publishToLive(client, jobId, true);
+          }
           return;
         }
         

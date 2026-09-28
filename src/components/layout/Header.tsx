@@ -97,7 +97,7 @@ const Header: React.FC<HeaderProps> = ({
         let active = false;
         const jobId = typeof window !== 'undefined' ? localStorage.getItem(jobKey) : null;
         if (jobId) {
-          const res = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}`, { cache: 'no-store' });
+          const res = await fetch(`/api/apply/status?jobId=${encodeURIComponent(jobId)}&client=${encodeURIComponent(clientName)}`, { cache: 'no-store' });
           const j = await res.json().catch(() => ({} as any));
           if (res.ok) {
             const total = typeof j?.total === 'number' ? j.total : 0;
