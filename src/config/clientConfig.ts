@@ -119,7 +119,7 @@ export const clients: Record<string, ClientConfig> = {
       patterns: ["Tapered", "Turned", "geo_stitching_cord"],
       except: ["Tapered_F_Extended_B_Extended"],
     },
-    trackedMeshes: ["geo_fabric", "geo_legs_Castor", "geo_legs_Wood"],
+    trackedMeshes: ["geo_fabric", "geo_legs_Castor", "geo_legs_Wood", "geo_nail_10mm"],
     bunnyCdn: {
       modelPath: "Client-Editor/Georgesmith",
       imagesPath: "Client-Editor/Georgesmith/images",
